@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>One Star Pawn - Playable Prototype</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="wrap">
+    <section class="game-screen" aria-label="One Star Pawn playable prototype">
+      <img class="layer bg" src="assets/shop-background.png" alt="Pawn shop background layer" draggable="false" />
+
+      <img class="sprite clerk" src="assets/sprites/clerk-idle.png?v=2" alt="Clerk sprite layer" draggable="false" />
+      <img class="layer booth" src="assets/booth-glass.png" alt="Bulletproof glass booth overlay layer" draggable="false" />
+      <img class="shop-name-sign" src="assets/broke-pawn-cash-scram-sign.png" alt="Broke Pawn Cash Scram sign" draggable="false" />
+
+      <div class="npc-stage" aria-label="Customer stage">
+        <div class="npc-sprite" id="customerSprite" aria-label="Customer sprite">
+          <img class="customer-visual" alt="" draggable="false" />
+        </div>
+      </div>
+
+      <div class="lower-ui" id="lowerUi">
+        <section class="ui dialogue-panel" aria-label="Dialogue and deal panel">
+          <div class="speaker" id="speaker">Clerk</div>
+          <div class="dialogue-copy" id="dialogue"></div>
+          <div class="dialogue-deal">
+            <div class="deal-label">Deal</div>
+            <p id="dealText">Unlocking the front door with a screwdriver and a prayer.</p>
+          </div>
+          <button type="button" class="dialogue-next" id="dialogueNext" aria-label="Advance dialogue" hidden>NEXT &gt;</button>
+        </section>
+
+        <section class="ui bottom-hud" aria-label="Shop controls and expandable inventory">
+          <section class="stats-header" aria-label="Shop stats">
+            <span>MONEY <strong id="money">$120</strong></span>
+            <span>PROFIT <strong id="profit">$0</strong></span>
+            <span>REP <strong id="reputation">5</strong> ★</span>
+            <span>INVENTORY <strong id="inventoryTotal">0</strong></span>
+          </section>
+          <div id="choices" class="choices"></div>
+          <div class="panel-toggle-row">
+            <button type="button" class="inventory-toggle inventory-open-button" id="openInventory" aria-controls="expandableInventory" aria-expanded="false">Inventory</button>
+            <button type="button" class="inventory-toggle shop-log-button" id="openShopLog" aria-controls="expandableInventory" aria-expanded="false">Shop Log</button>
+          </div>
+          <div class="inventory-log-group" id="expandableInventory" hidden>
+            <div class="inventory-panel" id="inventoryPanel">
+              <div class="panel-title">Inventory <strong id="inventoryCount">0</strong></div>
+              <div class="slot-grid" aria-label="Inventory grid" id="inventoryGrid"></div>
+            </div>
+            <div class="log-panel">
+              <div class="log-title">Negotiation Log</div>
+              <div id="log">The sign says OPEN because the C fell off.</div>
+            </div>
+            <button type="button" class="inventory-close-button" id="closeInventory" aria-controls="expandableInventory" aria-expanded="false" hidden>Close &gt;</button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <aside class="notes">
+      <h1>One Star Pawn</h1>
+      <p>Buy low, sell ugly, and try not to make the shelf labeled NOT STOLEN a legal exhibit.</p>
+      <p class="side-stat">Hidden trouble: cops, bruisers, and refunds are all counting.</p>
+      <section class="debug-history" aria-label="Debug turn history">
+        <div class="debug-history-head">
+          <h2>Turn History</h2>
+          <button type="button" id="clearHistory">Clear</button>
+        </div>
+        <div id="historyList" class="history-list" aria-live="polite"></div>
+      </section>
+    </aside>
+  </main>
+  <script src="gameData.js?v=20260710-runtime-fix"></script>
+  <script src="main.js?v=20260710-runtime-fix"></script>
+</body>
+</html>

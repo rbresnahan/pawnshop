@@ -1,0 +1,14 @@
+field,type,required,example,notes
+instanceId,string,True,inv_0007,Unique per owned inventory item. Do not store only item_id.
+itemId,string,True,hospital_vcr,References Items.item_id.
+name,string,True,Hospital VCR,Copy from item catalog for easy rendering.
+category,string,True,electronics,Copy from item catalog.
+condition,string,True,questionable,Default or condition_override.
+tags,csv string or array,True,"electronics, hot, suspicious","Used for buyer interest, scams, and risk."
+heat,number,True,1,Used for cop risk/confiscation priority.
+acquisitionCost,number,True,25,What the shop paid or trade value assigned.
+targetSellPrice,number,True,95,Used to generate sale offers.
+currentAskPrice,number,False,110,Optional current UI asking price during a deal.
+sourceCustomerId,string,False,nervous_seller,Who sold/traded it to the shop.
+turnAcquired,number,False,4,Game turn item entered inventory.
+notes,string,False,Bought via lowball.,Debug/design notes.

@@ -1,0 +1,29 @@
+{
+  "stage": {
+    "width": 941,
+    "height": 1672
+  },
+  "assets": {
+    "background": "assets/shop-background.png",
+    "booth": "assets/booth-glass.png",
+    "clerk": "assets/sprites/clerk-idle.png",
+    "customerBobSheet": "assets/sprites/customer-purple-bob-sheet.png"
+  },
+  "spriteFrames": {
+    "customerBob": {
+      "frames": 4,
+      "frameWidth": 393,
+      "frameHeight": 608
+    },
+    "clerkPoses": {
+      "frames": 4,
+      "frameWidth": 523,
+      "frameHeight": 508
+    }
+  },
+  "anchors": {
+    "clerk": "behind glass, bottom centered around counter line",
+    "customer": "front floor, bottom-center foot anchor",
+    "booth": "foreground overlay over clerk"
+  }
+}

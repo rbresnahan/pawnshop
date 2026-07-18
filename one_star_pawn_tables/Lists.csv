@@ -1,0 +1,17 @@
+Character Archetype,Trust Level,Risk Level,Condition,Item Category,Item Tag,Event Type,Sprite Type,Deal Type,Item Role,Result Type,Boolean,Facing Direction
+Desperate Regular,1 - liar,0,broken,electronics,stolen,sell_to_shop,seller,sell_to_shop,npc_offers,success,True,right
+Desperate Seller,2 - sketchy,1,poor,jewelry,fake,buy_from_shop,buyer,buy_from_shop,npc_requests,failure,False,left
+Nervous Seller,3 - mixed,2,used,watch,broken,trade,trader,trade,either,bust,,
+Collector,4 - mostly honest,3,good,tool,rare,pawn,pawn_customer,,,,,
+Mechanic,5 - reliable,4,excellent,instrument,junk,scam,thug,,,,,
+Fence,,5,questionable,collectible,cursed,dispute,cop,,,,,
+Dangerous Buyer,,,fake,weapon,collectible,consequence,collector,,,,,
+Cop Bait,,,unknown,luxury,suspicious,,regular,,,,,
+Thug,,,,appliance,luxury,,weirdo,,,,,
+Bargain Hunter,,,,game console,hot,,npc-crackhead,,,,,
+Angry Customer,,,,computer,possibly_fake,,npc-bum,,,,,
+Mystery Weirdo,,,,mystery,weapon,,npc-hitman,,,,,
+Mystery Seller,,,,,repairable,,npc-junkie,,,,,
+Prototype Placeholder,,,,,electronics,,npc-purple,,,,,
+,,,,,tool,,,,,,,
+,,,,,mystery,,,,,,,

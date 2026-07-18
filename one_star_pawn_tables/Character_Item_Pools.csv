@@ -1,0 +1,56 @@
+pool_id,character_id,item_id,deal_type,item_role,requested_item_tags,offered_item_tags,chance_weight,ask_price_multiplier,cash_adjustment_min,cash_adjustment_max,condition_override,risk_note,notes
+crackhead_fake_chain,crackhead,fake_gold_chain,sell_to_shop,npc_offers,,"fake, suspicious, jewelry",8,0.4,0,0,,Scam risk +1,Cheap fake jewelry with confidence problems.
+crackhead_locked_watch,crackhead,smart_watch_locked,sell_to_shop,npc_offers,,"electronics, suspicious",7,0.5,0,0,,Cop risk +1,Locked device. Comes with a story that loses signal.
+crackhead_mystery_trade,crackhead,sealed_mystery_box,trade,npc_offers,"electronics, junk, mystery","mystery, suspicious",6,0.75,-20,20,unknown,Random scam/cop risk,Trades a bad box for something easier to fence.
+crackhead_buys_junk,crackhead,dvd_stack,buy_from_shop,npc_requests,"junk, collectible",,4,0.8,0,0,,Low risk,Will buy junk if the price is pathetic.
+bum_microwave,bum,microwave_haunted,sell_to_shop,npc_offers,,"junk, broken, cursed",8,0.45,0,0,poor,Low scam risk,It hums because something in it gave up.
+bum_dvd_stack,bum,dvd_stack,sell_to_shop,npc_offers,,"junk, collectible",9,0.35,0,0,used,Low risk,Mostly DVDs from gas stations that went bankrupt.
+bum_buys_cursed,bum,microwave_haunted,buy_from_shop,npc_requests,"junk, cursed, appliance",,3,0.75,0,0,,Scam risk if oversold,May buy cursed junk because rent is already cursed.
+bum_junk_trade,bum,silverware_bundle,trade,npc_offers,"junk, electronics, appliance","possibly_fake, suspicious",5,0.65,-5,10,questionable,Scam risk +1,A shoelace bundle of questionable silverware for shop junk.
+hitman_buys_weapon,hitman,rusty_revolver_prop,buy_from_shop,npc_requests,"weapon, hot, suspicious",,5,1.2,0,0,,Cop/thug risk if suspicious,He does not ask whether it works. That is worse.
+hitman_buys_luxury,hitman,suspicious_gold_watch,buy_from_shop,npc_requests,"luxury, suspicious, hot",,5,1.15,0,0,,Thug risk if insulted,Buys flashy inventory without haggling like a normal human.
+hitman_knife_trade,hitman,pocket_knife,trade,npc_offers,"weapon, luxury, electronics",weapon,5,0.9,-10,35,used,Thug risk +2 if refused badly,Trade math happens quietly. Too quietly.
+hitman_prop_revolver,hitman,rusty_revolver_prop,sell_to_shop,npc_offers,,"weapon, suspicious, hot",3,0.65,0,0,questionable,Cop risk +3; thug risk +1,Probably a prop. Probably is not a business plan.
+junkie_vcr,junkie,hospital_vcr,sell_to_shop,npc_offers,,"electronics, hot, suspicious",6,0.55,0,0,questionable,Cop risk +1,Still has hospital tape. The hospital would like that back.
+junkie_mystery_box,junkie,sealed_mystery_box,sell_to_shop,npc_offers,,"mystery, suspicious",8,0.65,0,0,unknown,Random scam/cop risk,Box rattles like a lawsuit.
+junkie_tablet_buy,junkie,cracked_tablet,buy_from_shop,npc_requests,"electronics, broken",,4,0.8,0,0,,Scam risk if lied to,Will buy cracked electronics if the pitch is desperate enough.
+junkie_weird_trade,junkie,cracked_tablet,trade,npc_offers,"mystery, electronics, junk","broken, electronics",6,0.6,-15,25,poor,Scam risk +1,Trades broken electronics for anything that looks easier to carry.
+desperate_regular_microwave,desperate_regular,microwave_haunted,sell_to_shop,npc_offers,,"junk, broken, cursed",8,0.6,0,0,,Low scam risk,Cheap junk filler.
+desperate_regular_dvds,desperate_regular,dvd_stack,sell_to_shop,npc_offers,,"junk, collectible",10,0.5,0,0,,Low risk,Common bad inventory.
+desperate_regular_buys_dvds,desperate_regular,dvd_stack,buy_from_shop,npc_requests,"junk, collectible",,5,0.85,0,0,,Low risk,Will buy garbage if priced like garbage.
+desperate_regular_junk_trade,desperate_regular,fake_gold_chain,trade,npc_offers,"junk, electronics","fake, suspicious",4,0.8,-10,8,,Scam risk +1,May trade fake jewelry for shop junk.
+nervous_seller_vcr,nervous_seller,hospital_vcr,sell_to_shop,npc_offers,,"electronics, hot, suspicious",7,0.7,0,0,,Cop risk +1,Good early shady deal.
+nervous_seller_watch,nervous_seller,smart_watch_locked,sell_to_shop,npc_offers,,"electronics, suspicious",5,0.65,0,0,,Cop risk +1,Locked device problem.
+nervous_seller_tablet_trade,nervous_seller,cracked_tablet,trade,npc_offers,"electronics, junk","broken, electronics",4,0.75,-5,15,,Scam risk +1,Offers broken electronics for almost anything that looks safer.
+collector_cards_buy,collector,baseball_card_box,buy_from_shop,npc_requests,"collectible, mystery",,6,1.2,0,0,,Scam risk if lied to,Collector may buy mystery collectibles.
+collector_action_figure_buy,collector,rare_action_figure,buy_from_shop,npc_requests,"collectible, rare, broken",,4,1.1,0,0,,Reputation hit if fake pitch,Good haggling target.
+collector_figure_trade,collector,rare_action_figure,trade,npc_offers,"collectible, rare","collectible, rare, broken",3,1.0,-20,30,,Low risk,"Collector offers one collectible for another, then acts morally superior."
+mechanic_drill,mechanic,cordless_drill,sell_to_shop,npc_offers,,"tool, repairable",8,0.75,0,0,,Low risk,Useful tool offer.
+mechanic_bolt_cutters,mechanic,bolt_cutters,sell_to_shop,npc_offers,,"tool, suspicious",4,0.7,0,0,,Thug/cop flavor risk,Looks sketchy on shelf.
+mechanic_buys_tools,mechanic,cordless_drill,buy_from_shop,npc_requests,"tool, repairable",,5,1.05,0,0,,Low risk,Good buyer for tool inventory.
+mechanic_tool_trade,mechanic,bolt_cutters,trade,npc_offers,"tool, electronics","tool, suspicious",5,0.9,-10,25,,Cop risk +1 if hot,Trades tools for tools like a garage raccoon.
+street_fence_ring,street_fence,gold_ring_engravings,sell_to_shop,npc_offers,,"jewelry, luxury, suspicious",5,0.55,0,0,,Cop risk +2,"High profit, hot smell."
+street_fence_wheel,street_fence,stolen_bike_wheel,sell_to_shop,npc_offers,,"stolen, hot, suspicious",7,0.45,0,0,,Cop risk +2,Obviously hot.
+street_fence_buys_luxury,street_fence,suspicious_gold_watch,buy_from_shop,npc_requests,"luxury, suspicious, hot",,3,0.95,0,0,,Cop risk +1,Fence may buy risky luxury goods.
+street_fence_hot_trade,street_fence,luxury_handbag_fake,trade,npc_offers,"luxury, weapon, electronics","luxury, possibly_fake",5,0.75,-15,40,,Cop risk +2; scam risk +1,Bad trade offer wearing fake designer leather.
+bargain_hunter_buys_dvds,bargain_hunter,dvd_stack,buy_from_shop,npc_requests,"junk, collectible",,8,0.9,0,0,,Low risk,"Perfect sucker for low-value clutter, but not at sane prices."
+bargain_hunter_buys_tablet,bargain_hunter,cracked_tablet,buy_from_shop,npc_requests,"electronics, broken",,5,0.9,0,0,,Scam risk if lied to,Will buy busted electronics if called 'lightly loved'.
+bargain_hunter_junk_trade,bargain_hunter,dvd_stack,trade,npc_offers,"junk, collectible, electronics","junk, collectible",4,0.8,-5,12,,Low risk,Junk-for-junk trade. Everybody loses with dignity.
+tracksuit_knife,tracksuit_thug,pocket_knife,trade,npc_offers,"weapon, luxury, electronics",weapon,5,0.8,-20,25,,Thug risk +2 if refused badly,Danger customer.
+tracksuit_prop_revolver,tracksuit_thug,rusty_revolver_prop,sell_to_shop,npc_offers,,"weapon, suspicious, hot",3,0.5,0,0,,Cop risk +3; thug risk +2,"High heat, dumb money."
+tracksuit_buys_hot,tracksuit_thug,suspicious_gold_watch,buy_from_shop,npc_requests,"weapon, luxury, hot",,3,0.9,0,0,,Thug risk if insulted,Buys dangerous or flashy stuff.
+undercover_watch,undercover_cop,suspicious_gold_watch,buy_from_shop,npc_requests,"stolen, suspicious, hot, luxury",,3,1.3,0,0,,Selling hot item to cop is bad,Bait transaction.
+undercover_weapon,undercover_cop,rusty_revolver_prop,buy_from_shop,npc_requests,"weapon, hot, suspicious",,2,1.3,0,0,,Cop consequence trigger candidate,Do not be the idiot. Player will be the idiot.
+angry_returner_broken_buy,angry_returner,cracked_tablet,buy_from_shop,npc_requests,"broken, fake, electronics",,3,0.8,0,0,,Scam-risk callback,Good source for refund/dispute events.
+mystery_box,mystery_weirdo,sealed_mystery_box,sell_to_shop,npc_offers,,"mystery, suspicious",9,0.75,0,0,,Random scam/cop risk,Good weird event seed.
+mystery_weirdo_box_trade,mystery_weirdo,sealed_mystery_box,trade,npc_offers,"mystery, cursed, rare, junk","mystery, suspicious",7,0.85,-25,50,unknown,Random risk,Offers a box for something equally regrettable.
+mystery_weirdo_buys_cursed,mystery_weirdo,microwave_haunted,buy_from_shop,npc_requests,"cursed, mystery, rare",,3,1.15,0,0,,Scam risk if broken,May buy cursed trash. Do not question blessings from the dumpster.
+70s_hustler_gold_watch,70s_hustler,suspicious_gold_watch,sell_to_shop,npc_offers,,"luxury, suspicious, hot",7,0.70,0,0,used,Cop risk +1; scam risk +1,Claims it belonged to a nightclub owner. Does not clarify which owner.
+70s_hustler_cards_trade,70s_hustler,baseball_card_box,trade,npc_offers,"luxury, collectible, electronics","collectible, mystery",5,0.90,-20,35,used,Scam risk +1,Vintage cards in a box that has survived several bad decades.
+70s_hustler_buys_luxury,70s_hustler,gold_ring_engravings,buy_from_shop,npc_requests,"luxury, jewelry, collectible",,5,1.05,0,0,,Low cop risk; scam risk if misrepresented,Pays for visible status and questionable history.
+red_hustler_locked_watch,red_hustler,smart_watch_locked,sell_to_shop,npc_offers,,"electronics, suspicious",6,0.65,0,0,questionable,Cop risk +1; scam risk +1,The lock screen belongs to somebody with a different name.
+red_hustler_buys_watch,red_hustler,suspicious_gold_watch,buy_from_shop,npc_requests,"luxury, hot, suspicious",,6,1.10,0,0,,Thug risk if insulted,Likes merchandise that looks expensive from across a parking lot.
+red_hustler_figure_trade,red_hustler,rare_action_figure,trade,npc_offers,"electronics, luxury, collectible","collectible, rare, broken",4,0.85,-15,30,used,Scam risk +1; thug risk +1 on bad refusal,Calls it mint while holding it by the head.
+slot_grandma_gold_ring,slot_grandma,gold_ring_engravings,sell_to_shop,npc_offers,,"jewelry, luxury",8,0.72,0,0,used,Low risk; reputation penalty for extreme lowball,A real family ring being converted into another spin.
+slot_grandma_silverware,slot_grandma,silverware_bundle,sell_to_shop,npc_offers,,"possibly_fake, household, suspicious",6,0.55,0,0,used,Low scam risk,Wrapped carefully in a dish towel older than the shop.
+slot_grandma_cards_trade,slot_grandma,baseball_card_box,trade,npc_offers,"jewelry, collectible","collectible, mystery",3,0.90,5,20,used,Low risk,"Would rather have cash, but may trade when desperate."
