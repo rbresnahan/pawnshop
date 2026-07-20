@@ -241,6 +241,13 @@ body {
   font-size: 13px;
   font-weight: 700;
 }
+.game-version {
+  display: block;
+  margin-top: 2px;
+  color: #8f846a;
+  font-size: 10px;
+  line-height: 1.2;
+}
 .debug-history button {
   border: 1px solid #6a4a17;
   background: #0d0f13;

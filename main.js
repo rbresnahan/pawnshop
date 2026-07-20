@@ -1,3 +1,10 @@
+const GAME_VERSION = '0.1.2';
+const GAME_BUILD_LOADED_AT = new Date().toISOString();
+
+window.ONE_STAR_PAWN_VERSION = GAME_VERSION;
+window.ONE_STAR_PAWN_BUILD_LOADED_AT = GAME_BUILD_LOADED_AT;
+console.log(`One Star Pawn v${GAME_VERSION}`);
+
 const GAME_DATA = window.ONE_STAR_PAWN_DATA || {};
 const ITEMS = GAME_DATA.items || [];
 const CHARACTERS = GAME_DATA.characters || [];
@@ -9,6 +16,23 @@ const CONVERSATION_EXIT_DELAY_MS = 200;
 const AUTO_DIALOGUE_BASE_DELAY_MS = 2100;
 const AUTO_DIALOGUE_PER_CHAR_MS = 18;
 const AUTO_DIALOGUE_MAX_DELAY_MS = 3600;
+const COP_CONSEQUENCE_TYPE = 'cop_consequence';
+const COP_CONSEQUENCE_CHARACTER_ID = 'cop_consequence';
+const COP_CONSEQUENCE_EVENT_ID = 'cop_consequence_visit';
+const SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS = 6;
+const SPECIAL_ENCOUNTER_GUARANTEE_TURN = 10;
+const COP_EMERGENCY_RISK = 120;
+const COP_INVESTIGATION_MIN_FULL_TURNS = 3;
+const COP_INVESTIGATION_MAX_FULL_TURNS = 5;
+const COP_INVESTIGATION_CHECKPOINTS = [25, 45, 70, 100];
+const COP_RISK_ADJUSTMENTS = {
+  searchFoundNothing: -6,
+  voluntarySurrender: -13,
+  foundAfterDenial: -12,
+  successfulBribe: -5,
+  failedObstruction: 0
+};
+const COP_RISK_INVESTIGATION_RESIDUAL_FLOOR = 1;
 
 const NPC_TARGET_VISIBLE_HEIGHT_RATIO = 0.31;
 const NPC_MAX_STAGE_VISIBLE_HEIGHT_RATIO = 0.72;
@@ -135,6 +159,16 @@ const state = {
   copRisk: 0,
   thugRisk: 0,
   scamRisk: 0,
+  consequenceQueue: [],
+  consequenceSerial: 0,
+  copConsequenceCooldownUntil: 0,
+  normalEncountersSinceSpecial: SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS,
+  copWarnings: 0,
+  copStrikes: 0,
+  nextCopInvestigationRisk: COP_INVESTIGATION_CHECKPOINTS[0],
+  copInvestigationArmed: true,
+  copInvestigationNormalizationLog: '',
+  activeConsequence: null,
   currentCustomer: null,
   currentDeal: null,
   conversation: null,
@@ -178,6 +212,13 @@ const els = {
   historyList: document.getElementById('historyList'),
   clearHistory: document.getElementById('clearHistory')
 };
+
+const gameVersionElement = document.getElementById('game-version');
+if (gameVersionElement) {
+  gameVersionElement.textContent = `Build: v${GAME_VERSION}`;
+} else {
+  console.warn('One Star Pawn version label not found.');
+}
 
 let typingTimer;
 let typedLine = '';
@@ -284,6 +325,10 @@ function isNpcBuying(dealType) {
   return dealType === 'buy_from_shop';
 }
 
+function isConsequenceDeal(dealType) {
+  return String(dealType || '').endsWith('_consequence');
+}
+
 function hasInventoryItem(itemId) {
   return state.inventory.some(item => item.itemId === itemId);
 }
@@ -294,6 +339,10 @@ function findInventoryItem(itemId) {
 
 function findInventoryByTags(tags = [], avoidTags = []) {
   return state.inventory.find(item => tagsOverlap(item.tags, tags) && !tagsOverlap(item.tags, avoidTags));
+}
+
+function findHighestHeatInventoryItem() {
+  return [...state.inventory].sort((a, b) => (b.heat || 0) - (a.heat || 0) || (b.acquisitionCost || 0) - (a.acquisitionCost || 0))[0] || null;
 }
 
 function removeInventoryInstance(instanceId) {
@@ -406,23 +455,26 @@ function getInventoryDetail(item) {
 
 function renderInventory() {
   const selectionDeal = getInventorySelectionDeal();
+  const visibleInventory = selectionDeal
+    ? state.inventory.filter(item => canCustomerBuyItem(selectionDeal.customer, item, selectionDeal))
+    : state.inventory;
   els.inventoryGrid.innerHTML = '';
   if (els.inventoryTitle) {
-    const count = getInventoryTotal();
+    const count = selectionDeal ? visibleInventory.length : getInventoryTotal();
     els.inventoryTitle.innerHTML = selectionDeal
       ? `Select an item to offer <strong>${count}</strong>`
       : `Inventory <strong>${count}</strong>`;
   }
 
-  if (!state.inventory.length) {
+  if (!visibleInventory.length) {
     const empty = document.createElement('span');
     empty.className = 'empty';
-    empty.textContent = '-';
+    empty.textContent = selectionDeal ? 'No matching inventory available.' : '-';
     els.inventoryGrid.appendChild(empty);
     return;
   }
 
-  state.inventory.forEach(item => {
+  visibleInventory.forEach(item => {
     const slot = document.createElement('button');
     const icon = document.createElement('span');
     const name = document.createElement('span');
@@ -621,9 +673,15 @@ function validateGameData() {
       console.error(`Event references missing character_id: ${event.id} -> ${event.characterId}`);
       return;
     }
+    if (isConsequenceDeal(event.eventType)) return;
     const matchingPools = (poolsByCharacter.get(event.characterId) || []).filter(pool => pool.dealType === event.eventType);
     if (!matchingPools.length) console.warn(`Event has no compatible pool: ${event.id} (${event.characterId}, ${event.eventType})`);
   });
+  const copCharacter = getCharacter(COP_CONSEQUENCE_CHARACTER_ID);
+  const copEvent = getConsequenceEvent(COP_CONSEQUENCE_TYPE);
+  if (!copCharacter) console.error(`[consequence-validation] Missing cop character data: ${COP_CONSEQUENCE_CHARACTER_ID}`);
+  else if (!copCharacter.spritePath) console.error(`[consequence-validation] Missing cop sprite path for ${COP_CONSEQUENCE_CHARACTER_ID}`);
+  if (!copEvent) console.error(`[consequence-validation] Missing consequence event definition: ${COP_CONSEQUENCE_EVENT_ID}`);
 }
 
 function getCustomerDataRejectionReasons(character) {
@@ -902,7 +960,17 @@ function renderDialogueVisibility() {
   updateDialogueNextIndicator();
 }
 
+function buildConsequenceIntroConversation(deal) {
+  const focus = deal.targetInventoryItem ? `${deal.targetInventoryItem.name} on your shelf` : 'some unusual inventory activity';
+  return [
+    { speaker: 'customer', text: deal.blueprint?.dialogue || 'Got a couple questions about the merchandise moving through here.' },
+    { speaker: 'customer', text: `This is about ${focus}. I am giving you one chance to keep this simple.` },
+    { speaker: 'clerk', text: 'The officer is waiting. Choose carefully.' }
+  ];
+}
+
 function buildIntroConversation(deal) {
+  if (isConsequenceDeal(deal.dealType)) return buildConsequenceIntroConversation(deal);
   const itemLine = isNpcBuying(deal.dealType) && !deal.selectedInventoryInstanceId ? customerBuyRequestLine(deal) : deal.blueprint?.dialogue || customerDialogue('item', deal);
   return [
     { speaker: 'customer', text: customerDialogue('intro', deal) },
@@ -978,7 +1046,10 @@ function renderDeal() {
 
   const item = deal.item;
   const itemLabel = dealItemLabel(item);
-  if (isShopBuying(deal.dealType)) {
+  if (isConsequenceDeal(deal.dealType)) {
+    const target = deal.targetInventoryItem ? `${deal.targetInventoryItem.name} [${deal.targetInventoryItem.instanceId}]` : 'suspicious inventory';
+    els.dealText.textContent = `Consequence: ${deal.consequence.reason}. Focus: ${target}. Bribe ${moneyText(deal.bribeAmount)}.`;
+  } else if (isShopBuying(deal.dealType)) {
     const ask = deal.askingPrice ?? deal.askPrice;
     const offerNote = deal.availableCash <= 0
       ? ' No cash to offer.'
@@ -1037,8 +1108,14 @@ function cancelInventorySelection() {
 function selectInventoryItemForDeal(deal, instanceId) {
   const selectionDeal = getInventorySelectionDeal();
   if (!selectionDeal || selectionDeal !== deal || selectionDeal.encounterId !== state.inventorySelection.encounterId) return;
-  const inventoryItem = state.inventory.find(item => item.instanceId === instanceId);
-  if (!inventoryItem || !canCustomerBuyItem(deal.customer, inventoryItem, deal)) return;
+  const validation = validateSaleSelection(deal, instanceId);
+  if (!validation.valid) {
+    appendSaleHistory(deal, `Sale selection rejected: requested ${getCustomerBuyRequestPhrase(deal)}; instance [${instanceId || 'missing'}]; matched request: no; reason: ${validation.reason}.`);
+    renderLog('That item does not match this customer request.');
+    return;
+  }
+  const inventoryItem = validation.inventoryItem;
+  appendSaleHistory(deal, `Sale selection: requested ${getCustomerBuyRequestPhrase(deal)}; selected ${inventoryItem.name} [${inventoryItem.instanceId}]; matched request: yes.`);
   applySelectedInventoryItemToDeal(deal, inventoryItem);
   clearInventorySelection();
   setInventoryOpen(false);
@@ -1064,7 +1141,13 @@ function renderChoices() {
   if (!showChoices) return;
 
   let choices;
-  if (isShopBuying(deal.dealType)) {
+  if (isConsequenceDeal(deal.dealType)) {
+    choices = [
+      { label: 'Cooperate', action: 'copCooperate' },
+      { label: 'Deny everything', action: 'copDeny' },
+      { label: `Offer ${moneyText(deal.bribeAmount)} bribe`, action: 'copBribe', disabled: deal.bribeAmount > state.money }
+    ];
+  } else if (isShopBuying(deal.dealType)) {
     const canBuyFullPrice = deal.availableCash >= deal.defaultOffer;
     const canMakeLowball = deal.lowballPrice > 0;
     choices = [
@@ -1143,6 +1226,169 @@ function clearDealTransaction(deal) {
   if (deal) deal.transaction = null;
 }
 
+function getConsequenceEvent(type) {
+  return EVENT_BLUEPRINTS.find(event => event.eventType === type || event.id === COP_CONSEQUENCE_EVENT_ID);
+}
+
+function validateQueuedConsequence(consequence) {
+  const errors = [];
+  if (!consequence || typeof consequence !== 'object') return ['consequence is not an object'];
+  if (!consequence.id) errors.push('missing consequence id');
+  if (!consequence.type) errors.push('missing consequence type');
+  if (!Number.isFinite(Number(consequence.sourceTurn))) errors.push('missing source turn');
+  if (!Number.isFinite(Number(consequence.earliestTurn))) errors.push('missing earliest eligible turn');
+  if (consequence.resolved === true) errors.push('already resolved');
+  if (consequence.type === COP_CONSEQUENCE_TYPE && !getConsequenceEvent(COP_CONSEQUENCE_TYPE)) errors.push(`missing consequence event definition ${COP_CONSEQUENCE_EVENT_ID}`);
+  return errors;
+}
+
+function getConsequenceQueue() {
+  if (!Array.isArray(state.consequenceQueue)) {
+    state.consequenceQueue = [];
+  }
+  return state.consequenceQueue;
+}
+
+function deriveCopInvestigationCheckpoint(currentCopRisk) {
+  const normalizedRisk = Math.max(0, Number(currentCopRisk) || 0);
+  const nextDefined = COP_INVESTIGATION_CHECKPOINTS.find(checkpoint => checkpoint > normalizedRisk);
+  if (nextDefined) return nextDefined;
+  return COP_INVESTIGATION_CHECKPOINTS.at(-1) +
+    (Math.floor((normalizedRisk - COP_INVESTIGATION_CHECKPOINTS.at(-1)) / 35) + 1) * 35;
+}
+
+function getNextCopInvestigationCheckpoint(checkpoint) {
+  const index = COP_INVESTIGATION_CHECKPOINTS.indexOf(checkpoint);
+  return index >= 0 && index < COP_INVESTIGATION_CHECKPOINTS.length - 1
+    ? COP_INVESTIGATION_CHECKPOINTS[index + 1]
+    : checkpoint + 35;
+}
+
+function normalizeConsequenceState() {
+  const queue = getConsequenceQueue();
+  if (!Number.isFinite(Number(state.consequenceSerial))) state.consequenceSerial = 0;
+  if (!Number.isFinite(Number(state.copConsequenceCooldownUntil))) state.copConsequenceCooldownUntil = 0;
+  if (!Object.prototype.hasOwnProperty.call(state, 'activeConsequence')) state.activeConsequence = null;
+
+  const checkpoint = Number(state.nextCopInvestigationRisk);
+  if (!Number.isFinite(checkpoint) || !Number.isInteger(checkpoint) || checkpoint < COP_INVESTIGATION_CHECKPOINTS[0]) {
+    const normalizedCheckpoint = deriveCopInvestigationCheckpoint(state.copRisk);
+    state.nextCopInvestigationRisk = normalizedCheckpoint;
+    state.copInvestigationNormalizationLog =
+      `Cop investigation checkpoint normalized from legacy state: risk ${state.copRisk}, next checkpoint ${normalizedCheckpoint}.`;
+    console.info(`[consequence] ${state.copInvestigationNormalizationLog}`);
+  }
+
+  if (typeof state.copInvestigationArmed !== 'boolean') {
+    const unresolvedRealInvestigation = queue.some(consequence =>
+      consequence?.type === COP_CONSEQUENCE_TYPE &&
+      consequence.resolved !== true &&
+      !consequence.metadata?.debug
+    ) || (
+      state.activeConsequence?.type === COP_CONSEQUENCE_TYPE &&
+      !state.activeConsequence.metadata?.debug
+    );
+    state.copInvestigationArmed = !unresolvedRealInvestigation;
+  }
+  if (typeof state.copInvestigationNormalizationLog !== 'string') {
+    state.copInvestigationNormalizationLog = '';
+  }
+  if (!Number.isFinite(Number(state.normalEncountersSinceSpecial))) state.normalEncountersSinceSpecial = SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS;
+  if (!Number.isFinite(Number(state.copWarnings))) state.copWarnings = 0;
+  if (!Number.isFinite(Number(state.copStrikes))) state.copStrikes = 0;
+}
+
+function hasPendingConsequence(type) {
+  return getConsequenceQueue().some(consequence => consequence && typeof consequence === 'object' && consequence.type === type && consequence.resolved !== true && validateQueuedConsequence(consequence).length === 0);
+}
+
+function queueConsequence(details) {
+  normalizeConsequenceState();
+  const consequence = {
+    id: details.id || `consequence_${String(++state.consequenceSerial).padStart(4, '0')}`,
+    type: details.type,
+    sourceTurn: Number(details.sourceTurn ?? state.turn),
+    triggeringCharacterId: details.triggeringCharacterId || null,
+    triggeringDealId: details.triggeringDealId || null,
+    triggeringItemId: details.triggeringItemId || null,
+    triggeringInventoryInstanceId: details.triggeringInventoryInstanceId || null,
+    reason: details.reason || 'risk attracted attention',
+    earliestTurn: Number(details.earliestTurn ?? state.turn + 1),
+    resolved: false,
+    metadata: details.metadata || {}
+  };
+  const errors = validateQueuedConsequence(consequence);
+  if (errors.length) {
+    console.error(`[consequence] malformed queued consequence: ${errors.join('; ')}`);
+    return null;
+  }
+  getConsequenceQueue().push(consequence);
+  return consequence;
+}
+
+function debugQueueCopConsequence() {
+  const pending = getConsequenceQueue().find(consequence => consequence && typeof consequence === 'object' && consequence.type === COP_CONSEQUENCE_TYPE && consequence.resolved !== true && validateQueuedConsequence(consequence).length === 0);
+  if (pending) {
+    console.info(`[debug] Cop consequence already queued: ${pending.id}`);
+    return pending;
+  }
+
+  const consequence = queueConsequence({
+    type: COP_CONSEQUENCE_TYPE,
+    sourceTurn: state.turn,
+    triggeringCharacterId: state.currentCustomer?.id || null,
+    triggeringDealId: state.currentDeal?.pool?.id || state.currentDeal?.blueprint?.id || null,
+    triggeringItemId: getDealTriggerItemId(state.currentDeal),
+    triggeringInventoryInstanceId: getDealTriggerInventoryInstanceId(state.currentDeal),
+    reason: 'Development test: manually queued highway patrol visit',
+    earliestTurn: state.turn + 1,
+    metadata: { debug: true, delay: 1 }
+  });
+  if (consequence) console.info(`[debug] Queued ${consequence.id}; the cop will arrive next turn.`);
+  return consequence;
+}
+function cleanResolvedConsequences() {
+  state.consequenceQueue = getConsequenceQueue().filter(consequence => !consequence || typeof consequence !== 'object' || consequence.resolved !== true);
+}
+
+function getEligibleQueuedConsequence() {
+  const queue = getConsequenceQueue();
+  for (let index = 0; index < queue.length; index += 1) {
+    const consequence = queue[index];
+    if (consequence && typeof consequence === 'object' && consequence.resolved === true) continue;
+    const errors = validateQueuedConsequence(consequence);
+    if (errors.length) {
+      console.warn(`[consequence] Skipping malformed queue entry at index ${index}: ${errors.join('; ')}`);
+      continue;
+    }
+    if (Number(consequence.earliestTurn) > state.turn) continue;
+    const normalTurns = state.normalEncountersSinceSpecial;
+    const emergency = consequence.type === COP_CONSEQUENCE_TYPE && state.copRisk >= COP_EMERGENCY_RISK && normalTurns >= 1;
+    if (!emergency && normalTurns < SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS) continue;
+    const eligibleTurn = normalTurns + 1;
+    const selectionStep = 100 / (SPECIAL_ENCOUNTER_GUARANTEE_TURN - SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS);
+    const selectionChance = emergency ? 100 : Math.min(100, (eligibleTurn - SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS) * selectionStep);
+    consequence.metadata.eligibleSelectionChecks = (consequence.metadata.eligibleSelectionChecks || 0) + 1;
+    if (chance(selectionChance)) {
+      consequence.metadata.schedulingStatus = `selected with evidence eligible since T${consequence.earliestTurn}; shared cooldown satisfied (${normalTurns} normal encounters since previous special); selected on first eligible turn: ${consequence.metadata.eligibleSelectionChecks === 1 ? 'yes' : 'no'}; actual selection chance: ${selectionChance}%${emergency ? ' (emergency override)' : ''}`;
+      return consequence;
+    }
+  }
+  return null;
+}
+
+function markConsequenceResolved(consequence, result) {
+  getConsequenceQueue();
+  if (!consequence) return;
+  if (consequence.resolved) {
+    console.error(`[consequence] consequence resolved more than once: ${consequence.id}`);
+    return;
+  }
+  consequence.resolved = true;
+  consequence.resolvedTurn = state.turn;
+  consequence.result = result;
+}
+
 function copyInventoryDebugItem(item) {
   return {
     instanceId: item.instanceId,
@@ -1204,6 +1450,9 @@ function getInventoryDelta(before, after) {
 }
 
 function getChoiceLabel(action, deal) {
+  if (action === 'copCooperate') return 'Cooperate';
+  if (action === 'copDeny') return 'Deny everything';
+  if (action === 'copBribe') return `Offer ${moneyText(deal.bribeAmount)} bribe`;
   if (action === 'buyAsk') return getFullOfferLabel(deal);
   if (action === 'lowball') return getLowballOfferLabel(deal);
   if (action === 'sellTag') return `Sell for ${moneyText(deal.salePrice)}`;
@@ -1216,6 +1465,7 @@ function getChoiceLabel(action, deal) {
 
 function classifyChoiceOutcome(action, deal, before, after) {
   const inventoryDelta = getInventoryDelta(before, after);
+  if (isConsequenceDeal(deal.dealType)) return 'resolved';
   if (action === 'refuse') return 'rejected';
   if (isShopBuying(deal.dealType) && deal.transaction?.type === 'shop_purchase') return 'succeeded';
   if (action === 'lowball') return inventoryDelta.added.length ? 'succeeded' : 'rejected';
@@ -1257,6 +1507,13 @@ function buildHistoryLines(before, after, deal = null) {
     .filter(item => !transactionInstanceIds.has(item.instanceId))
     .forEach(item => lines.push(`Inventory: + ${formatHistoryItem(item)}`));
   inventoryDelta.removed.forEach(item => lines.push(`Inventory: - ${formatHistoryItem(item)}`));
+  (deal?.saleHistoryLines || []).forEach(line => lines.push(line));
+  (deal?.investigationHistoryLines || []).forEach(line => lines.push(line));
+  if (deal?.consequenceResult) lines.push(`Result: ${deal.consequenceResult}`);
+  if (deal?.copRiskResolution) {
+    const risk = deal.copRiskResolution;
+    lines.push(`Cop Risk Resolution: ${risk.before} -> ${risk.after} (${signedNumber(risk.delta)}); ${risk.reason}`);
+  }
   return lines.length ? lines : ['No state changes'];
 }
 
@@ -1295,17 +1552,27 @@ function renderHistory() {
   });
 }
 
+function getConsequenceSourceLabel(consequence) {
+  if (!consequence) return 'unknown';
+  const item = consequence.triggeringItemId || consequence.triggeringInventoryInstanceId || 'risk';
+  return `T${consequence.sourceTurn} ${item}`;
+}
+
 function recordTurnHistory(action, deal, before, after) {
   const customer = deal.customer?.displayName || deal.customer?.id || state.currentCustomer?.displayName || state.currentCustomer?.id || 'Unknown';
-  const eventLabel = deal.blueprint?.id ? `${deal.dealType}/${deal.blueprint.id}` : deal.dealType;
+  const eventLabel = isConsequenceDeal(deal.dealType)
+    ? `Consequence: ${deal.dealType} | Source: ${getConsequenceSourceLabel(deal.consequence)}`
+    : deal.blueprint?.id ? `${deal.dealType}/${deal.blueprint.id}` : deal.dealType;
+  const historyLines = buildHistoryLines(before, after, deal);
   turnHistory.unshift({
     turn: state.turn,
     customer,
     dealType: eventLabel,
     choice: getChoiceLabel(action, deal),
     outcome: classifyChoiceOutcome(action, deal, before, after),
-    lines: buildHistoryLines(before, after, deal)
+    lines: historyLines
   });
+  deal.saleHistoryLines = [];
   turnHistory = turnHistory.slice(0, TURN_HISTORY_LIMIT);
   renderHistory();
 }
@@ -1369,15 +1636,23 @@ function getCustomerBuyRequestPhrase(deal) {
     ? `some ${request}`
     : `${/^[aeiou]/i.test(request) ? 'an' : 'a'} ${request}`;
 }
-function canCustomerBuyItem(customer, inventoryItem, encounter) {
-  if (!customer || !inventoryItem || !encounter || inventoryItem.instanceId === encounter.selectedInventoryInstanceId) return Boolean(inventoryItem);
+
+function getCustomerBuyAcceptedTags(encounter) {
   const requiredTags = encounter.requiredTags || getCustomerBuyRequestTags(encounter.pool);
+  const requestTypeTags = new Set(Object.keys(CUSTOMER_BUY_REQUEST_LABELS));
+  const acceptedTypeTags = requiredTags.filter(tag => requestTypeTags.has(tag));
+  return acceptedTypeTags.length ? acceptedTypeTags : requiredTags;
+}
+
+function canCustomerBuyItem(customer, inventoryItem, encounter) {
+  if (!customer || !inventoryItem || !encounter) return false;
+  const acceptedTags = getCustomerBuyAcceptedTags(encounter);
   const excludedTags = encounter.excludedTags || [];
   const itemTags = [inventoryItem.category, ...(inventoryItem.tags || [])].filter(Boolean);
   if (excludedTags.length && tagsOverlap(itemTags, excludedTags)) return false;
   if (encounter.requestedItemId && inventoryItem.itemId === encounter.requestedItemId) return true;
-  if (!requiredTags.length) return true;
-  return tagsOverlap(itemTags, requiredTags);
+  if (!acceptedTags.length) return false;
+  return tagsOverlap(itemTags, acceptedTags);
 }
 
 function getEligibleInventoryItemsForPool(pool, customer = getCharacter(pool.characterId)) {
@@ -1394,7 +1669,32 @@ function getEligibleInventoryItemsForPool(pool, customer = getCharacter(pool.cha
 
 function getSelectedInventoryItem(deal) {
   if (!deal?.selectedInventoryInstanceId) return null;
-  return state.inventory.find(item => item.instanceId === deal.selectedInventoryInstanceId) || deal.inventoryItem || null;
+  return state.inventory.find(item => item.instanceId === deal.selectedInventoryInstanceId) || null;
+}
+
+function appendSaleHistory(deal, line) {
+  if (!Array.isArray(deal.saleHistoryLines)) deal.saleHistoryLines = [];
+  deal.saleHistoryLines.push(line);
+}
+
+function validateSaleSelection(deal, instanceId = deal?.selectedInventoryInstanceId) {
+  if (!deal || !isNpcBuying(deal.dealType)) return { valid: false, inventoryItem: null, reason: 'active deal is not a customer purchase request' };
+  if (!instanceId) return { valid: false, inventoryItem: null, reason: 'no inventory instance was selected' };
+  const inventoryItem = state.inventory.find(item => item.instanceId === instanceId) || null;
+  if (!inventoryItem) return { valid: false, inventoryItem: null, reason: 'selected inventory instance is missing or stale' };
+  if (!canCustomerBuyItem(deal.customer, inventoryItem, deal)) {
+    return { valid: false, inventoryItem, reason: `${inventoryItem.name} does not satisfy accepted request tags [${getCustomerBuyAcceptedTags(deal).join(', ') || 'none'}]` };
+  }
+  return { valid: true, inventoryItem, reason: 'matched current request' };
+}
+
+function resetInvalidSaleSelection(deal) {
+  deal.selectedInventoryInstanceId = null;
+  deal.inventoryItem = null;
+  deal.item = getItem(deal.requestedItemId) || deal.item;
+  const eligibleItems = getEligibleInventoryItemsForPool(deal.pool, deal.customer);
+  deal.eligibleInventoryInstanceIds = eligibleItems.map(item => item.instanceId);
+  deal.requestSatisfiable = eligibleItems.length > 0;
 }
 
 function applySelectedInventoryItemToDeal(deal, inventoryItem) {
@@ -1573,6 +1873,75 @@ function characterHasCompatiblePool(character) {
   });
 }
 
+function buildCopConsequenceDeal(consequence, customer) {
+  const targetInventoryItem = consequence.triggeringInventoryInstanceId
+    ? state.inventory.find(item => item.instanceId === consequence.triggeringInventoryInstanceId) || null
+    : null;
+  const triggerItem = consequence.triggeringItemId ? getItem(consequence.triggeringItemId) : null;
+  const item = targetInventoryItem || triggerItem || { id: 'suspicious_inventory', name: 'Suspicious Inventory', condition: 'questionable', tags: ['suspicious'], heat: 0 };
+  const bribeAmount = Math.max(10, Math.min(state.money, Math.round(25 + state.copRisk * 5)));
+  return {
+    encounterId: `encounter-${++encounterSerial}`,
+    consequence,
+    pool: { id: consequence.id, notes: consequence.reason, riskNote: '', conditionOverride: '' },
+    traits: {},
+    customer,
+    item,
+    dealType: consequence.type,
+    targetInventoryItem,
+    bribeAmount,
+    resolvedAction: null,
+    transaction: null,
+    consequenceResult: '',
+    blueprint: getConsequenceEvent(consequence.type)
+  };
+}
+
+async function startConsequenceTurn(consequence) {
+  const errors = validateQueuedConsequence(consequence);
+  if (errors.length) {
+    console.error(`[consequence] cannot start malformed consequence ${consequence?.id || '(missing id)'}: ${errors.join('; ')}`);
+    markConsequenceResolved(consequence, 'Skipped malformed consequence.');
+    return false;
+  }
+
+  const character = getCharacter(COP_CONSEQUENCE_CHARACTER_ID);
+  if (!character || !character.spritePath) {
+    console.error(`[consequence] Missing cop character data or sprite path: ${COP_CONSEQUENCE_CHARACTER_ID}`);
+    consequence.earliestTurn = state.turn + 1;
+    return false;
+  }
+
+  let bounds = null;
+  try {
+    bounds = await getNpcVisibleBounds(character.spritePath);
+  } catch (error) {
+    if (!consequence.metadata.spriteLoadErrorLogged) {
+      console.error(`[consequence] Cop sprite failed to load at ${character.spritePath}. Normal customers will continue.`, error);
+      consequence.metadata.spriteLoadErrorLogged = true;
+    }
+    consequence.earliestTurn = state.turn + 1;
+    return false;
+  }
+
+  state.activeConsequence = consequence;
+  state.normalEncountersSinceSpecial = 0;
+  state.currentCustomer = {
+    ...character,
+    baseSpriteKey: getBaseSpriteKey(character.spritePath),
+    stageSide: getNpcSide(character.facing),
+    spriteBounds: bounds
+  };
+  state.currentDeal = buildCopConsequenceDeal(consequence, state.currentCustomer);
+  renderAll();
+  setDealButtonsDisabled(true);
+  typeLine('');
+  await enterCurrentCustomer();
+  if (state.isGameOver) return true;
+  state.isResolving = false;
+  startDealConversation();
+  return true;
+}
 function chooseNextCustomer() {
   const compatible = activeCustomers.filter(character => characterHasCompatiblePool(character));
   const eligibleSellIds = new Set(getEligibleSellPools().map(pool => pool.characterId));
@@ -1609,6 +1978,8 @@ function generateDeal(customer) {
 }
 async function startNextCustomer() {
   resetAutoProgress();
+  normalizeConsequenceState();
+  cleanResolvedConsequences();
   state.conversation = null;
   clearInventorySelection();
   if (shouldCheckBankruptcy()) {
@@ -1617,6 +1988,10 @@ async function startNextCustomer() {
   }
   state.turn += 1;
   state.isResolving = true;
+  const consequence = getEligibleQueuedConsequence();
+  if (consequence && await startConsequenceTurn(consequence)) return;
+  state.activeConsequence = null;
+  state.normalEncountersSinceSpecial += 1;
   state.currentCustomer = chooseNextCustomer();
   if (!state.currentCustomer) {
     state.currentDeal = null;
@@ -1662,17 +2037,61 @@ function introduceDeal() {
   renderLog(deal.blueprint ? `${deal.pool.notes} ${deal.blueprint.resultNotes}` : deal.pool.notes);
 }
 
-function addHeat(item, multiplier = 1) {
-  const tagHeat = item.tags.some(tag => ['stolen', 'suspicious', 'weapon', 'hot'].includes(tag)) ? 2 : 0;
-  state.copRisk += Math.ceil((item.heat + tagHeat) * multiplier / 3);
+function isExplicitlyIllegalItem(item) {
+  const tags = (item?.tags || []).map(tag => String(tag).toLowerCase());
+  return tags.some(tag => ['hot', 'stolen', 'illegal', 'contraband', 'suspicious', 'locked', 'firearm', 'weapon', 'serial_removed', 'removed_serial'].includes(tag));
 }
 
-function applyRiskNote(pool) {
-  const note = pool.riskNote.toLowerCase();
-  const copMatch = note.match(/cop risk \+(\d+)/);
+function calculateCopRisk(item, context = {}) {
+  const heat = Math.max(0, Number(item?.heat) || 0);
+  const tags = (item?.tags || []).map(tag => String(tag).toLowerCase());
+  const quantity = Math.max(1, Number(item?.quantity ?? item?.count ?? 1) || 1);
+  const baseRisk = heat <= 0 ? 0 : heat === 1 ? 0 : heat === 2 ? 2 : heat === 3 ? 2 : heat === 4 ? 4 : 5;
+  const suspiciousTags = ['hot', 'stolen', 'illegal', 'contraband', 'suspicious', 'locked', 'firearm', 'weapon', 'serial_removed', 'removed_serial'];
+  const tagRisk = tags.some(tag => suspiciousTags.includes(tag)) ? 2 :
+    (tags.includes('jewelry') || String(item?.category || '').toLowerCase() === 'jewelry' ? 1 : 0);
+  const scaleRisk = quantity >= 10 ? 2 : quantity >= 4 ? 1 : 0;
+  const priceRisk = Number(context.price) >= 500 ? 1 : 0;
+  const riskNoteMatch = String(context.riskNote || '').toLowerCase().match(/cop risk \+(\d+)/);
+  const notedRisk = riskNoteMatch ? Number(riskNoteMatch[1]) : 0;
+  const dataRisk = Math.min(2, notedRisk);
+  const multiplier = Number(context.multiplier) || 1;
+  const rawRisk = baseRisk + tagRisk + scaleRisk + priceRisk + notedRisk;
+  const noteCapAdjustment = dataRisk - notedRisk;
+  const cappedNoteRisk = rawRisk + noteCapAdjustment;
+  const genericHeatTwoCap = heat === 2 && !tagRisk && !scaleRisk && !priceRisk ? 3 : Number.POSITIVE_INFINITY;
+  const transactionCapAdjustment = Math.min(cappedNoteRisk, genericHeatTwoCap) - cappedNoteRisk;
+  const normalizedRisk = cappedNoteRisk + transactionCapAdjustment;
+  const roundedRisk = Math.max(0, Math.round(normalizedRisk * multiplier));
+  const minimumRisk = heat === 2 && !tagRisk && !scaleRisk && !priceRisk ? 2 : 0;
+  const addedRisk = Math.max(minimumRisk, roundedRisk);
+  const multiplierAdjustment = roundedRisk - normalizedRisk;
+  const minimumAdjustment = addedRisk - roundedRisk;
+  const reasons = [`heat ${heat}: +${baseRisk}`];
+  if (tagRisk) reasons.push(`suspicious category/tags: +${tagRisk}`);
+  if (scaleRisk) reasons.push(`quantity ${quantity}: +${scaleRisk}`);
+  if (priceRisk) reasons.push('large transaction: +1');
+  if (notedRisk) reasons.push(`deal risk note: +${notedRisk}`);
+  if (noteCapAdjustment) reasons.push(`risk-note cap adjustment: ${signedNumber(noteCapAdjustment)}`);
+  if (transactionCapAdjustment) reasons.push(`generic heat-2 transaction cap adjustment: ${signedNumber(transactionCapAdjustment)}`);
+  if (multiplierAdjustment) reasons.push(`transaction multiplier/rounding adjustment (${multiplier}x): ${signedNumber(multiplierAdjustment)}`);
+  if (minimumAdjustment) reasons.push(`generic heat-2 minimum adjustment: ${signedNumber(minimumAdjustment)}`);
+  reasons.push(`applied cop risk: +${addedRisk}`);
+  return { addedRisk, rawRisk, reason: reasons.join(', ') };
+}
+
+function addHeat(item, context = {}) {
+  const risk = calculateCopRisk(item, context);
+  const addedRisk = risk.addedRisk;
+  state.copRisk += addedRisk;
+  return risk;
+}
+
+function applyRiskNote(pool, includeCopRisk = false) {
+  const note = String(pool?.riskNote || '').toLowerCase();
   const thugMatch = note.match(/thug risk \+(\d+)/);
   const scamMatch = note.match(/scam risk \+(\d+)/);
-  if (copMatch) state.copRisk += Number(copMatch[1]);
+  // Cop risk notes are folded into calculateCopRisk so they are not counted twice.
   if (thugMatch) state.thugRisk += Number(thugMatch[1]);
   if (scamMatch) state.scamRisk += Number(scamMatch[1]);
 }
@@ -1715,8 +2134,11 @@ function commitShopPurchase(deal, price, notes, heatMultiplier) {
     inventoryInstanceId: inventoryItem.instanceId,
     inventoryItem: copyInventoryDebugItem(inventoryItem)
   };
-  addHeat(deal.item, heatMultiplier);
-  applyRiskNote(deal.pool);
+  const copRiskBefore = state.copRisk;
+  const isIllegalPurchase = isExplicitlyIllegalItem(deal.item);
+  const risk = addHeat(deal.item, { multiplier: heatMultiplier, price: resolvedPrice, riskNote: deal.pool.riskNote });
+  applyRiskNote(deal.pool, isIllegalPurchase);
+  maybeQueueCopConsequence(deal, `Purchase of ${inventoryItem.name}: ${risk.reason}`, copRiskBefore, state.copRisk);
   return true;
 }
 
@@ -1736,7 +2158,9 @@ function resolveChoice(action) {
   const beforeState = snapshotState();
   let result;
 
-  if (isShopBuying(deal.dealType)) {
+  if (isConsequenceDeal(deal.dealType)) {
+    result = resolveConsequenceChoice(action, deal);
+  } else if (isShopBuying(deal.dealType)) {
     result = resolveBuy(action, deal);
   } else if (isNpcBuying(deal.dealType)) {
     result = resolveSell(action, deal);
@@ -1777,9 +2201,9 @@ function resolveChoice(action) {
   state.conversation = {
     phase: 'resolved',
     lines: [
-      { speaker: 'customer', text: customerDialogue(getCustomerReactionKind(action, outcomeClass, deal), deal) },
+      { speaker: 'customer', text: isConsequenceDeal(deal.dealType) ? 'That is all for now.' : customerDialogue(getCustomerReactionKind(action, outcomeClass, deal), deal) },
       { speaker: 'clerk', text: outcome },
-      { speaker: 'customer', text: customerDialogue('exit', deal) }
+      { speaker: 'customer', text: isConsequenceDeal(deal.dealType) ? 'Keep the counter clean.' : customerDialogue('exit', deal) }
     ],
     index: 0,
     selectedAction: action,
@@ -1792,6 +2216,141 @@ function resolveChoice(action) {
   }
 }
 
+function confiscateInventoryInstance(instanceId) {
+  if (!instanceId) return null;
+  const item = state.inventory.find(entry => entry.instanceId === instanceId);
+  if (!item) {
+    console.error(`[consequence] confiscation target missing inventory instance: ${instanceId}`);
+    return null;
+  }
+  return removeInventoryInstance(instanceId);
+}
+
+function resolveCopConsequence(action, deal) {
+  const consequence = deal.consequence;
+  if (!['copCooperate', 'copDeny', 'copBribe'].includes(action)) {
+    return choiceResult('The officer waits. That was not an answer.', { runRiskCheck: false, keepEncounterOpen: true });
+  }
+  if (consequence.resolved) {
+    console.error(`[consequence] consequence resolving more than once: ${consequence.id}`);
+    return choiceResult('This consequence was already resolved.', { runRiskCheck: false });
+  }
+  if (!beginDealResolution(deal, action)) return choiceResult('The encounter was already resolved.', { runRiskCheck: false });
+
+  let result = '';
+  let riskDelta = COP_RISK_ADJUSTMENTS.failedObstruction;
+  let riskReason = 'Failed obstruction did not relieve police attention.';
+  const trackedInstanceId = consequence.triggeringInventoryInstanceId;
+  const target = trackedInstanceId
+    ? state.inventory.find(item => item.instanceId === trackedInstanceId) || null
+    : null;
+  const trackedItemName = consequence.metadata?.triggeringItemName || deal.item?.name || 'tracked evidence';
+  const evidenceMissing = Boolean(trackedInstanceId) && !target;
+  const warningsBefore = state.copWarnings;
+  const strikesBefore = state.copStrikes;
+  const reputationBefore = state.reputation;
+  const moneyBefore = state.money;
+  const inventoryCountBefore = state.inventory.length;
+
+  if (action === 'copCooperate') {
+    if (target) {
+      const removed = confiscateInventoryInstance(target.instanceId);
+      result = removed
+        ? `Officer confiscated ${removed.name} [${removed.instanceId}] and issued a warning.`
+        : 'The officer tried to tag evidence, but the item was already gone.';
+      riskDelta = COP_RISK_ADJUSTMENTS.voluntarySurrender;
+      riskReason = `Voluntary surrender of tracked evidence ${trackedItemName}.`;
+      state.copWarnings += 1;
+    } else {
+      result = `The cops search the shop but find nothing tied to the ${trackedItemName} deal. The tracked evidence item was no longer present.`;
+      riskDelta = COP_RISK_ADJUSTMENTS.searchFoundNothing;
+      riskReason = `Search found nothing because tracked evidence ${trackedItemName} was no longer present.`;
+    }
+    state.reputation = Math.max(0, state.reputation - 1);
+  } else if (action === 'copDeny') {
+    if (evidenceMissing) {
+      result = state.copWarnings > 0
+        ? 'The cop checks the shelves and finds nothing tied to the deal. He leaves irritated, but your name stays in the notebook.'
+        : `The cop searches twice and finds air where the ${trackedItemName} used to be. Disposal beats paperwork today.`;
+      riskDelta = COP_RISK_ADJUSTMENTS.searchFoundNothing;
+      riskReason = `Unsuccessful search: tracked evidence ${trackedItemName} was disposed of before the visit.`;
+    } else if (target) {
+      const removed = confiscateInventoryInstance(target.instanceId);
+      result = removed
+        ? `The denial falls apart. Officer confiscated ${removed.name} [${removed.instanceId}].`
+        : 'The denial falls apart, but the suspected item is already gone.';
+      riskDelta = COP_RISK_ADJUSTMENTS.foundAfterDenial;
+      riskReason = `Denial failed and police found and confiscated tracked evidence ${trackedItemName}.`;
+      state.reputation = Math.max(0, state.reputation - 2);
+      state.copWarnings += 1;
+      state.copStrikes += 1;
+    }
+  } else if (action === 'copBribe') {
+    const bribe = deal.bribeAmount;
+    if (!Number.isFinite(bribe) || bribe <= 0 || bribe > state.money) {
+      console.error(`[consequence] invalid bribe amount: ${bribe}`);
+      deal.resolvedAction = null;
+      return choiceResult('You cannot make that bribe with the cash in the drawer.', { runRiskCheck: false, keepEncounterOpen: true });
+    }
+    state.money -= bribe;
+    const successChance = Math.max(20, Math.min(75, 58 + state.reputation * 2 - state.copRisk * 3));
+    if (chance(successChance)) {
+      result = `The bribe lands. You pay ${moneyText(bribe)} and the officer forgets the shelf for now.`;
+      riskDelta = COP_RISK_ADJUSTMENTS.successfulBribe;
+      riskReason = 'Successful bribe reduced immediate pressure moderately.';
+    } else {
+      state.reputation = Math.max(0, state.reputation - 2);
+      state.copWarnings += 1;
+      state.copStrikes += 1;
+      result = `The bribe fails. You still lose ${moneyText(bribe)}, and the officer looks more interested than before.`;
+      riskReason = 'Failed deceptive response did not relieve police attention.';
+    }
+  }
+
+  const riskBefore = state.copRisk;
+  const residualFloor = evidenceMissing && riskDelta === COP_RISK_ADJUSTMENTS.searchFoundNothing && !consequence.metadata?.debug
+    ? COP_RISK_INVESTIGATION_RESIDUAL_FLOOR
+    : 0;
+  state.copRisk = Math.max(residualFloor, riskBefore + riskDelta, 0);
+  const appliedRiskDelta = state.copRisk - riskBefore;
+  const riskFloorAdjustment = appliedRiskDelta - riskDelta;
+  deal.copRiskResolution = {
+    before: riskBefore,
+    after: state.copRisk,
+    delta: state.copRisk - riskBefore,
+    reason: riskReason
+  };
+  appendInvestigationHistory(deal, `Investigation source: T${consequence.sourceTurn}; tracked ${trackedItemName} [${trackedInstanceId || 'no inventory instance'}]; earliest T${consequence.earliestTurn}; ${consequence.metadata?.schedulingStatus || 'selected/active'}.`);
+  appendInvestigationHistory(deal, `Resolution evidence: ${target ? `present as ${trackedItemName} [${trackedInstanceId}]` : `missing (${trackedItemName} [${trackedInstanceId || 'untracked'}])`}.`);
+  const penalties = [];
+  if (state.inventory.length !== inventoryCountBefore) penalties.push(`tracked evidence confiscated: ${trackedItemName} [${trackedInstanceId}]`);
+  if (state.money !== moneyBefore) penalties.push(`money ${moneyText(moneyBefore)} -> ${moneyText(state.money)}`);
+  if (state.reputation !== reputationBefore) penalties.push(`reputation ${reputationBefore} -> ${state.reputation}`);
+  if (state.copWarnings !== warningsBefore) penalties.push(`warnings ${warningsBefore} -> ${state.copWarnings}`);
+  if (state.copStrikes !== strikesBefore) penalties.push(`strikes ${strikesBefore} -> ${state.copStrikes}`);
+  appendInvestigationHistory(deal, `Penalties: ${penalties.length ? penalties.join('; ') : 'none'}.`);
+  const unchanged = [];
+  if (state.inventory.length === inventoryCountBefore) unchanged.push('inventory');
+  if (state.money === moneyBefore) unchanged.push('money');
+  if (state.reputation === reputationBefore) unchanged.push('reputation');
+  if (state.copWarnings === warningsBefore) unchanged.push('warnings');
+  if (state.copStrikes === strikesBefore) unchanged.push('strikes');
+  if (unchanged.length) appendInvestigationHistory(deal, `Unchanged: ${unchanged.join(', ')}.`);
+  appendInvestigationHistory(deal, `Cop risk: requested adjustment ${signedNumber(riskDelta)}${riskFloorAdjustment ? `; floor/minimum adjustment ${signedNumber(riskFloorAdjustment)}` : ''}; applied reduction ${signedNumber(appliedRiskDelta)} (${riskBefore} -> ${state.copRisk}). Next checkpoint: ${state.nextCopInvestigationRisk}.`);
+
+  deal.consequenceResult = result;
+  markConsequenceResolved(consequence, result);
+  state.copConsequenceCooldownUntil = state.turn + SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS;
+  if (!consequence.metadata?.debug) state.copInvestigationArmed = true;
+  state.activeConsequence = null;
+  return choiceResult(result, { runRiskCheck: false });
+}
+
+function resolveConsequenceChoice(action, deal) {
+  if (deal.dealType === COP_CONSEQUENCE_TYPE) return resolveCopConsequence(action, deal);
+  console.error(`[consequence] missing resolver for consequence type: ${deal.dealType}`);
+  return choiceResult('This consequence has no resolver. Check the console.', { runRiskCheck: false, keepEncounterOpen: true });
+}
 function resolveBuy(action, deal) {
   const { item, customer, traits } = deal;
   if (!['refuse', 'buyAsk', 'lowball'].includes(action)) {
@@ -1849,21 +2408,28 @@ function resolveBuy(action, deal) {
 }
 
 function resolveSell(action, deal) {
-  const inventoryItem = getSelectedInventoryItem(deal);
-  const item = inventoryItem || deal.item;
   const { customer, traits } = deal;
   if (!['refuse', 'sellTag', 'markup'].includes(action)) return choiceResult('No deal. The counter stays exactly as dirty as it was.', { runRiskCheck: false });
   if (action === 'markup' && deal.markupRejected) {
     return choiceResult('The marked-up price already died in the room.', { runRiskCheck: false, keepEncounterOpen: true });
   }
-  if (!inventoryItem && action !== 'refuse') return choiceResult('No shelf item is selected. The sale cannot happen yet.', { runRiskCheck: false, keepEncounterOpen: true });
-
   if (action === 'refuse') {
     if (!beginDealResolution(deal, action)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
     return deal.requestSatisfiable
       ? choiceResult('You keep the shelf stocked. The customer leaves empty-handed and unimpressed.', { runRiskCheck: false })
       : choiceResult(`Missed sale. They wanted ${getCustomerBuyRequestPhrase(deal)}, and the shelf had nothing close.`, { runRiskCheck: false });
   }
+
+  const validation = validateSaleSelection(deal);
+  if (!validation.valid) {
+    const selectedName = validation.inventoryItem?.name || deal.inventoryItem?.name || 'missing item';
+    appendSaleHistory(deal, `Sale validation rejected: requested ${getCustomerBuyRequestPhrase(deal)}; selected ${selectedName} [${deal.selectedInventoryInstanceId || 'missing'}]; matched request: no; reason: ${validation.reason}.`);
+    resetInvalidSaleSelection(deal);
+    return choiceResult('That shelf item is missing or does not match the request. Select another item or refuse the sale.', { runRiskCheck: false, keepEncounterOpen: true });
+  }
+  const inventoryItem = validation.inventoryItem;
+  const item = inventoryItem;
+  appendSaleHistory(deal, `Sale validation: requested ${getCustomerBuyRequestPhrase(deal)}; selected ${inventoryItem.name} [${inventoryItem.instanceId}]; matched request: yes.`);
 
   const price = action === 'markup' ? deal.markupPrice : deal.salePrice;
   const markupRatio = price / Math.max(1, inventoryItem.targetSellPrice);
@@ -1883,7 +2449,12 @@ function resolveSell(action, deal) {
   state.money += price;
   state.profit += price - inventoryItem.acquisitionCost;
   state.scamRisk += inventoryItem.tags.some(tag => ['locked', 'cursed', 'suspicious', 'fake', 'possibly_fake'].includes(tag)) ? 2 : 0;
-  state.copRisk += inventoryItem.heat >= 3 || customer.id === 'undercover_cop' ? 2 + customer.copRiskBias : 0;
+  const copRiskBefore = state.copRisk;
+  const saleRisk = calculateCopRisk(inventoryItem, { price, multiplier: 0.65 });
+  const customerExposure = isExplicitlyIllegalItem(inventoryItem) ? customer.copRiskBias : 0;
+  const addedSaleRisk = Math.max(0, saleRisk.addedRisk + customerExposure);
+  state.copRisk += addedSaleRisk;
+  maybeQueueCopConsequence(deal, `Sale of ${inventoryItem.name}: ${saleRisk.reason}${customerExposure ? `, customer exposure: +${customerExposure}` : ''}`, copRiskBefore, state.copRisk);
   return action === 'markup'
     ? `They pay the markup for ${dealItemLabel(inventoryItem)}. Somewhere, a consumer protection office feels cold.`
     : `Sold ${dealItemLabel(inventoryItem)}. The register opens like it is ashamed of the noise.`;
@@ -1926,35 +2497,117 @@ function resolveTrade(action, deal) {
   }
 
   state.inventory.push(createInventoryItem(item, acquisitionCost, customer.id, deal.pool.conditionOverride, 'Acquired via trade.'));
-  addHeat(item, 1.15);
-  applyRiskNote(deal.pool);
+  const copRiskBefore = state.copRisk;
+  const isIllegalTrade = isExplicitlyIllegalItem(item);
+  const risk = addHeat(item, { multiplier: 1.15, price: deal.askPrice, riskNote: deal.pool.riskNote });
+  applyRiskNote(deal.pool, isIllegalTrade);
+  maybeQueueCopConsequence(deal, `Trade for ${item.name}: ${risk.reason}`, copRiskBefore, state.copRisk);
   state.scamRisk += item.tags.includes('mystery') || item.tags.includes('possibly_fake') ? 2 : 0;
   return requestedInventoryItem
     ? `Trade accepted. You swap ${requestedInventoryItem.name} for ${item.name}. Everybody pretends this is commerce.`
     : 'Trade accepted. You gained merchandise and lost the moral high ground you were not using.';
 }
 
+function getDealTriggerItemId(deal) {
+  return deal?.transaction?.itemId || deal?.item?.itemId || deal?.item?.id || deal?.pool?.itemId || null;
+}
+
+function getDealTriggerInventoryInstanceId(deal) {
+  return deal?.transaction?.inventoryInstanceId || deal?.selectedInventoryInstanceId || deal?.requestedInventoryItem?.instanceId || null;
+}
+
+function appendInvestigationHistory(deal, line) {
+  if (!deal) return;
+  if (!Array.isArray(deal.investigationHistoryLines)) deal.investigationHistoryLines = [];
+  deal.investigationHistoryLines.push(line);
+}
+
+function maybeQueueCopConsequence(deal, reason = 'cop risk increased', riskBefore = state.copRisk, riskAfter = state.copRisk) {
+  const item = deal?.transaction?.inventoryItem || deal?.item;
+  if (riskAfter <= riskBefore) return null;
+
+  normalizeConsequenceState();
+  if (state.copInvestigationNormalizationLog) {
+    appendInvestigationHistory(deal, state.copInvestigationNormalizationLog);
+    state.copInvestigationNormalizationLog = '';
+  }
+
+  const checkpoint = state.nextCopInvestigationRisk;
+  const checkpointReached = riskAfter >= checkpoint;
+  appendInvestigationHistory(
+    deal,
+    `Cop Risk: +${riskAfter - riskBefore} (${riskBefore} -> ${riskAfter}); reason: ${reason}; next investigation checkpoint: ${checkpoint}; ${checkpointReached ? 'checkpoint reached' : 'investigation not queued'}.`
+  );
+
+  const pending = hasPendingConsequence(COP_CONSEQUENCE_TYPE) || state.activeConsequence?.type === COP_CONSEQUENCE_TYPE;
+  if (pending) {
+    appendInvestigationHistory(deal, 'Investigation: not queued because a real cop investigation is already pending or active; original evidence remains tracked.');
+    return null;
+  }
+  if (!state.copInvestigationArmed) {
+    appendInvestigationHistory(deal, 'Investigation: not queued because the system is waiting to re-arm after resolution.');
+    return null;
+  }
+  if (!checkpointReached) return null;
+
+  const fullTurns = randomInt(COP_INVESTIGATION_MIN_FULL_TURNS, COP_INVESTIGATION_MAX_FULL_TURNS);
+  const earliestTurn = state.turn + fullTurns + 1;
+  const triggeringItemName = deal?.transaction?.itemName || item?.name || null;
+  const consequence = queueConsequence({
+    type: COP_CONSEQUENCE_TYPE,
+    sourceTurn: state.turn,
+    triggeringCharacterId: deal?.customer?.id || state.currentCustomer?.id || null,
+    triggeringDealId: deal?.pool?.id || deal?.blueprint?.id || null,
+    triggeringItemId: getDealTriggerItemId(deal),
+    triggeringInventoryInstanceId: getDealTriggerInventoryInstanceId(deal),
+    reason,
+    earliestTurn,
+    metadata: {
+      copRiskAtQueue: riskAfter,
+      riskBefore,
+      riskAfter,
+      investigationCheckpoint: checkpoint,
+      fullInterveningTurns: fullTurns,
+      delay: fullTurns + 1,
+      triggeringItemName
+    }
+  });
+  if (consequence) {
+    const nextCheckpoint = getNextCopInvestigationCheckpoint(checkpoint);
+    state.nextCopInvestigationRisk = nextCheckpoint;
+    state.copInvestigationArmed = false;
+    const normalTurnsAtQueue = state.normalEncountersSinceSpecial;
+    const cooldownSatisfiedAtQueue = normalTurnsAtQueue >= SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS;
+    consequence.metadata.normalEncountersAtQueue = normalTurnsAtQueue;
+    consequence.metadata.sharedCooldownSatisfiedAtQueue = cooldownSatisfiedAtQueue;
+    appendInvestigationHistory(
+      deal,
+      `Investigation queued: source T${state.turn}; tracked ${triggeringItemName || consequence.triggeringItemId} [${consequence.triggeringInventoryInstanceId || 'no inventory instance'}]; first evidence-eligible turn T${earliestTurn}; ${normalTurnsAtQueue} normal encounters since previous special; shared cooldown already satisfied: ${cooldownSatisfiedAtQueue ? 'yes' : 'no'}.`
+    );
+    appendInvestigationHistory(deal, cooldownSatisfiedAtQueue
+      ? 'Scheduling: evidence delay is still pending; the shared special-encounter cooldown is already satisfied, so no six-new-normal-encounter wait begins here. Once evidence-eligible, selection rises 25% per eligible turn through a guarantee on the tenth normal encounter since the previous special.'
+      : `Scheduling: evidence delay and shared cooldown are separate; the shared cooldown needs ${SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS - normalTurnsAtQueue} more complete normal encounter(s). Once both are satisfied, selection rises 25% per eligible turn through a guarantee on the tenth normal encounter since the previous special.`);
+    appendInvestigationHistory(deal, `Next investigation checkpoint advanced: ${checkpoint} -> ${nextCheckpoint}.`);
+  }
+  return consequence;
+}
 function runRiskCheck() {
   const copChance = Math.min(45, state.copRisk * 4);
   const thugChance = Math.min(40, state.thugRisk * 5);
   const scamChance = Math.min(38, state.scamRisk * 5);
 
-  if (state.copRisk > 0 && chance(copChance)) return copBust();
+  if (state.copRisk > 0 && chance(copChance)) {
+    maybeQueueCopConsequence(state.currentDeal, 'A patrol noticed suspicious activity');
+    return 'A marked cruiser rolls past the window. This is not over.';
+  }
   if (state.thugRisk > 0 && chance(thugChance)) return thugBust();
   if (state.scamRisk > 0 && chance(scamChance)) return angryCustomer();
   return '';
 }
 
 function copBust() {
-  const hottest = [...state.inventory].sort((a, b) => b.heat - a.heat)[0];
-  if (hottest) removeInventoryInstance(hottest.instanceId);
-  const fine = randomInt(12, 34);
-  state.money = Math.max(0, state.money - fine);
-  state.reputation = Math.max(0, state.reputation - 1);
-  state.copRisk = Math.max(0, Math.floor(state.copRisk * 0.35));
-  return hottest
-    ? `Two cops notice the shelf labeled NOT STOLEN. Bold branding choice. They take ${hottest.name} and ${moneyText(fine)}.`
-    : `Two cops notice the shelf labeled NOT STOLEN. No evidence, just vibes and a ${moneyText(fine)} fine.`;
+  maybeQueueCopConsequence(state.currentDeal, 'Cop risk reached the front window');
+  return 'A marked cruiser slows outside. Any real trouble will happen face to face.';
 }
 
 function thugBust() {
@@ -2090,5 +2743,6 @@ setInventoryOpen(false);
 renderStats();
 renderInventory();
 renderHistory();
+window.debugQueueCopConsequence = debugQueueCopConsequence;
 window.requestAnimationFrame(() => els.game?.classList.add('ui-ready'));
 initializeNpcRotation().then(startNextCustomer);
