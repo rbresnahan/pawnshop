@@ -5,6 +5,7 @@ window.ONE_STAR_PAWN_DATA = {
       "displayName": "Crackhead",
       "archetype": "Desperate Seller",
       "spriteType": "seller",
+      "factionId": "street_desperate",
       "spritePath": "assets/sprites/crackhead-idle_l.png",
       "facing": "left",
       "spriteClass": "npc-crackhead",
@@ -30,6 +31,7 @@ window.ONE_STAR_PAWN_DATA = {
       "displayName": "Bum",
       "archetype": "Desperate Regular",
       "spriteType": "regular",
+      "factionId": "street_desperate",
       "spritePath": "assets/sprites/bum-idle_l.png",
       "facing": "left",
       "spriteClass": "npc-bum",
@@ -54,6 +56,7 @@ window.ONE_STAR_PAWN_DATA = {
       "displayName": "Hitman",
       "archetype": "Dangerous Buyer",
       "spriteType": "thug",
+      "factionId": "professional_independent",
       "spritePath": "assets/sprites/hitman-idle_l.png",
       "facing": "left",
       "spriteClass": "npc-hitman",
@@ -79,6 +82,7 @@ window.ONE_STAR_PAWN_DATA = {
       "displayName": "Junkie",
       "archetype": "Mystery Seller",
       "spriteType": "weirdo",
+      "factionId": "street_desperate",
       "spritePath": "assets/sprites/junkie-idle_r.png",
       "facing": "right",
       "spriteClass": "npc-junkie",
@@ -104,6 +108,7 @@ window.ONE_STAR_PAWN_DATA = {
       "displayName": "Desperate Regular",
       "archetype": "Desperate Regular",
       "spriteType": "regular",
+      "factionId": "street_desperate",
       "spritePath": "",
       "facing": "",
       "spriteClass": "",
@@ -127,6 +132,7 @@ window.ONE_STAR_PAWN_DATA = {
       "displayName": "Nervous Seller",
       "archetype": "Nervous Seller",
       "spriteType": "seller",
+      "factionId": "independent",
       "spritePath": "",
       "facing": "",
       "spriteClass": "",
@@ -150,6 +156,7 @@ window.ONE_STAR_PAWN_DATA = {
       "displayName": "Collector",
       "archetype": "Collector",
       "spriteType": "collector",
+      "factionId": "independent",
       "spritePath": "",
       "facing": "",
       "spriteClass": "",
@@ -172,6 +179,7 @@ window.ONE_STAR_PAWN_DATA = {
       "displayName": "Mechanic",
       "archetype": "Mechanic",
       "spriteType": "seller",
+      "factionId": "independent",
       "spritePath": "",
       "facing": "",
       "spriteClass": "",
@@ -195,6 +203,7 @@ window.ONE_STAR_PAWN_DATA = {
       "displayName": "Street Fence",
       "archetype": "Fence",
       "spriteType": "seller",
+      "factionId": "independent",
       "spritePath": "",
       "facing": "",
       "spriteClass": "",
@@ -218,6 +227,7 @@ window.ONE_STAR_PAWN_DATA = {
       "displayName": "Bargain Hunter",
       "archetype": "Bargain Hunter",
       "spriteType": "buyer",
+      "factionId": "independent",
       "spritePath": "",
       "facing": "",
       "spriteClass": "",
@@ -241,9 +251,10 @@ window.ONE_STAR_PAWN_DATA = {
       "displayName": "Tracksuit Guy",
       "archetype": "Thug",
       "spriteType": "thug",
-      "spritePath": "",
-      "facing": "",
-      "spriteClass": "",
+      "factionId": "tracksuit_crew",
+      "spritePath": "assets/sprites/tracksuit-thug-idle_l.png",
+      "facing": "left",
+      "spriteClass": "npc-tracksuit-thug",
       "activeInRotation": false,
       "cashMin": 20.0,
       "cashMax": 250.0,
@@ -264,6 +275,7 @@ window.ONE_STAR_PAWN_DATA = {
       "displayName": "Suspiciously Normal Guy",
       "archetype": "Cop Bait",
       "spriteType": "cop",
+      "factionId": "law_enforcement",
       "spritePath": "",
       "facing": "",
       "spriteClass": "",
@@ -287,6 +299,7 @@ window.ONE_STAR_PAWN_DATA = {
       "displayName": "Angry Returner",
       "archetype": "Angry Customer",
       "spriteType": "regular",
+      "factionId": "independent",
       "spritePath": "",
       "facing": "",
       "spriteClass": "",
@@ -309,6 +322,7 @@ window.ONE_STAR_PAWN_DATA = {
       "displayName": "Mystery Weirdo",
       "archetype": "Mystery Weirdo",
       "spriteType": "weirdo",
+      "factionId": "independent",
       "spritePath": "",
       "facing": "",
       "spriteClass": "",
@@ -332,6 +346,7 @@ window.ONE_STAR_PAWN_DATA = {
       "displayName": "Purple Customer",
       "archetype": "Prototype Placeholder",
       "spriteType": "regular",
+      "factionId": "independent",
       "spritePath": "assets/sprites/customer-purple-idle.png",
       "facing": "",
       "spriteClass": "npc-purple",
@@ -353,6 +368,7 @@ window.ONE_STAR_PAWN_DATA = {
       "displayName": "70s Hustler",
       "archetype": "Vintage Street Hustler",
       "spriteType": "fence",
+      "factionId": "tracksuit_crew",
       "spritePath": "assets/sprites/70s-hustler-idle_r.png",
       "facing": "right",
       "spriteClass": "npc-70s-hustler",
@@ -378,6 +394,7 @@ window.ONE_STAR_PAWN_DATA = {
       "displayName": "Red Hustler",
       "archetype": "Flashy Deal Chaser",
       "spriteType": "buyer",
+      "factionId": "tracksuit_crew",
       "spritePath": "assets/sprites/red-hustler-idle_l.png",
       "facing": "left",
       "spriteClass": "npc-red-hustler",
@@ -403,6 +420,7 @@ window.ONE_STAR_PAWN_DATA = {
       "displayName": "Slot Grandma",
       "archetype": "Compulsive Gambler",
       "spriteType": "seller",
+      "factionId": "casino_regular",
       "spritePath": "assets/sprites/slot-grandma-idle_r.png",
       "facing": "right",
       "spriteClass": "npc-slot-grandma",
@@ -427,6 +445,7 @@ window.ONE_STAR_PAWN_DATA = {
       "displayName": "Cop",
       "archetype": "Consequence Officer",
       "spriteType": "cop",
+      "factionId": "law_enforcement",
       "spritePath": "assets/sprites/cop-highway-patrol_r.png",
       "facing": "right",
       "spriteClass": "npc-cop-consequence",
@@ -2360,7 +2379,9 @@ window.ONE_STAR_PAWN_DATA = {
         "luxury",
         "electronics"
       ],
-      "offeredItemTags": "weapon",
+      "offeredItemTags": [
+        "weapon"
+      ],
       "chanceWeight": 5.0,
       "askPriceMultiplier": 0.9,
       "cashAdjustmentMin": -10.0,
@@ -2907,7 +2928,9 @@ window.ONE_STAR_PAWN_DATA = {
         "luxury",
         "electronics"
       ],
-      "offeredItemTags": "weapon",
+      "offeredItemTags": [
+        "weapon"
+      ],
       "chanceWeight": 5.0,
       "askPriceMultiplier": 0.8,
       "cashAdjustmentMin": -20.0,
@@ -3273,6 +3296,7 @@ window.ONE_STAR_PAWN_DATA = {
       "id": "crackhead_locked_watch_offer",
       "characterId": "crackhead",
       "eventType": "sell_to_shop",
+      "pressureFactionId": "",
       "dialogue": "Got a smart watch. Locked for privacy. My privacy, your problem.",
       "resultNotes": "Use crackhead_locked_watch pool for item/price."
     },
@@ -3280,6 +3304,7 @@ window.ONE_STAR_PAWN_DATA = {
       "id": "bum_microwave_offer",
       "characterId": "bum",
       "eventType": "sell_to_shop",
+      "pressureFactionId": "",
       "dialogue": "Microwave works. Sometimes it starts before you touch it. Saves time.",
       "resultNotes": "Low-risk junk filler."
     },
@@ -3287,6 +3312,7 @@ window.ONE_STAR_PAWN_DATA = {
       "id": "hitman_luxury_buy",
       "characterId": "hitman",
       "eventType": "buy_from_shop",
+      "pressureFactionId": "",
       "dialogue": "I need something classy. Not traceable-classy. Just classy.",
       "resultNotes": "Requires luxury/weapon/hot inventory."
     },
@@ -3294,6 +3320,7 @@ window.ONE_STAR_PAWN_DATA = {
       "id": "hitman_knife_trade",
       "characterId": "hitman",
       "eventType": "trade",
+      "pressureFactionId": "",
       "dialogue": "I have a knife and a calm attitude. One is for trade.",
       "resultNotes": "Dangerous trade test."
     },
@@ -3301,6 +3328,7 @@ window.ONE_STAR_PAWN_DATA = {
       "id": "junkie_mystery_box_trade",
       "characterId": "junkie",
       "eventType": "trade",
+      "pressureFactionId": "",
       "dialogue": "This box has value. Emotional, legal, maybe electrical.",
       "resultNotes": "Good weird-risk event."
     },
@@ -3308,6 +3336,7 @@ window.ONE_STAR_PAWN_DATA = {
       "id": "nervous_vcr_offer",
       "characterId": "nervous_seller",
       "eventType": "sell_to_shop",
+      "pressureFactionId": "",
       "dialogue": "Got a vintage VCR. Works great. Don’t ask why there’s hospital tape on it.",
       "resultNotes": "Use Character_Item_Pools for exact item/price."
     },
@@ -3315,6 +3344,7 @@ window.ONE_STAR_PAWN_DATA = {
       "id": "collector_cards_buy",
       "characterId": "collector",
       "eventType": "buy_from_shop",
+      "pressureFactionId": "",
       "dialogue": "I heard you have baseball cards. I collect terrible financial decisions.",
       "resultNotes": "Requires matching collectible inventory."
     },
@@ -3322,6 +3352,7 @@ window.ONE_STAR_PAWN_DATA = {
       "id": "tracksuit_bad_trade",
       "characterId": "tracksuit_thug",
       "eventType": "trade",
+      "pressureFactionId": "",
       "dialogue": "Nice shop. Be a shame if someone paid retail.",
       "resultNotes": "Potential thug consequence."
     },
@@ -3329,6 +3360,7 @@ window.ONE_STAR_PAWN_DATA = {
       "id": "mechanic_tool_sale",
       "characterId": "mechanic",
       "eventType": "buy_from_shop",
+      "pressureFactionId": "",
       "dialogue": "You got tools back there, or just decorative tetanus?",
       "resultNotes": "Good clean selling event."
     },
@@ -3336,6 +3368,7 @@ window.ONE_STAR_PAWN_DATA = {
       "id": "street_fence_hot_offer",
       "characterId": "street_fence",
       "eventType": "sell_to_shop",
+      "pressureFactionId": "",
       "dialogue": "It’s not stolen. It’s aggressively pre-owned.",
       "resultNotes": "High-risk high-profit source."
     },
@@ -3343,6 +3376,7 @@ window.ONE_STAR_PAWN_DATA = {
       "id": "undercover_bait_buy",
       "characterId": "undercover_cop",
       "eventType": "buy_from_shop",
+      "pressureFactionId": "",
       "dialogue": "This serial number being scratched off, is that normal pawn shop stuff?",
       "resultNotes": "Bait event for hot inventory."
     },
@@ -3350,6 +3384,7 @@ window.ONE_STAR_PAWN_DATA = {
       "id": "mystery_weirdo_trade",
       "characterId": "mystery_weirdo",
       "eventType": "trade",
+      "pressureFactionId": "",
       "dialogue": "I brought a box. It brought itself, spiritually and maybe legally.",
       "resultNotes": "Weird trade event; keep effects simple."
     },
@@ -3357,6 +3392,7 @@ window.ONE_STAR_PAWN_DATA = {
       "id": "70s_hustler_watch_offer",
       "characterId": "70s_hustler",
       "eventType": "sell_to_shop",
+      "pressureFactionId": "",
       "dialogue": "Vintage gold. Vintage means the questions expired.",
       "resultNotes": "Use 70s_hustler_gold_watch pool."
     },
@@ -3364,6 +3400,7 @@ window.ONE_STAR_PAWN_DATA = {
       "id": "red_hustler_luxury_buy",
       "characterId": "red_hustler",
       "eventType": "buy_from_shop",
+      "pressureFactionId": "",
       "dialogue": "Show me something expensive enough to make strangers lie about knowing me.",
       "resultNotes": "Use red_hustler_buys_watch or matching luxury inventory."
     },
@@ -3371,6 +3408,7 @@ window.ONE_STAR_PAWN_DATA = {
       "id": "slot_grandma_ring_offer",
       "characterId": "slot_grandma",
       "eventType": "sell_to_shop",
+      "pressureFactionId": "",
       "dialogue": "It was my anniversary ring. The machine is due, sweetheart.",
       "resultNotes": "Use slot_grandma_gold_ring pool. Keep tone darkly funny, not cruel."
     },
@@ -3378,8 +3416,17 @@ window.ONE_STAR_PAWN_DATA = {
       "id": "cop_consequence_visit",
       "characterId": "cop_consequence",
       "eventType": "cop_consequence",
+      "pressureFactionId": "",
       "dialogue": "Got a couple questions about the merchandise moving through here.",
       "resultNotes": "Visible cop consequence encounter."
+    },
+    {
+      "id": "tracksuit_thug_robbery",
+      "characterId": "tracksuit_thug",
+      "eventType": "thug_robbery_consequence",
+      "pressureFactionId": "tracksuit_crew",
+      "dialogue": "Nice shop. Shame the register has to learn fear today.",
+      "resultNotes": "Visible tracksuit-thug robbery consequence."
     }
   ]
 };

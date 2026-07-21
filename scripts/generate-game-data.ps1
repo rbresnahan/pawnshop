@@ -46,6 +46,7 @@ $Characters = Import-Csv (Join-Path $TablesDir 'Characters.csv') | ForEach-Objec
     displayName = $_.display_name
     archetype = $_.archetype
     spriteType = $_.sprite_type
+    factionId = $_.faction_id
     spritePath = $_.sprite_path
     facing = $_.facing
     spriteClass = $_.sprite_class
@@ -163,14 +164,40 @@ if ($MissingPoolItemRefs.Count) {
   throw "Character_Item_Pools.csv references missing item_id values:`n- $($MissingPoolItemRefs -join "`n- ")"
 }
 
+$CharacterIds = [System.Collections.Generic.HashSet[string]]::new()
+$FactionIds = [System.Collections.Generic.HashSet[string]]::new()
+$FactionErrors = [System.Collections.Generic.List[string]]::new()
+$Characters | ForEach-Object {
+  [void]$CharacterIds.Add($_.id)
+  if ([string]::IsNullOrWhiteSpace([string]$_.factionId)) {
+    $FactionErrors.Add("Characters.csv: $($_.id) missing faction_id")
+  } else {
+    [void]$FactionIds.Add($_.factionId)
+  }
+}
+
 $EventBlueprints = Import-Csv (Join-Path $TablesDir 'Event_Blueprint.csv') | ForEach-Object {
   [ordered]@{
     id = $_.event_id
     characterId = $_.character_id
     eventType = $_.event_type
+    pressureFactionId = $_.pressure_faction_id
     dialogue = $_.dialogue
     resultNotes = $_.result_notes
   }
+}
+
+$EventBlueprints | ForEach-Object {
+  if (![string]::IsNullOrWhiteSpace([string]$_.characterId) -and !$CharacterIds.Contains($_.characterId)) {
+    $FactionErrors.Add("Event_Blueprint.csv: $($_.id) references missing character_id `"$($_.characterId)`"")
+  }
+  if (![string]::IsNullOrWhiteSpace([string]$_.pressureFactionId) -and !$FactionIds.Contains($_.pressureFactionId)) {
+    $FactionErrors.Add("Event_Blueprint.csv: $($_.id) references unknown pressure_faction_id `"$($_.pressureFactionId)`"")
+  }
+}
+
+if ($FactionErrors.Count) {
+  throw "Malformed faction references:`n- $($FactionErrors -join "`n- ")"
 }
 
 $Data = [ordered]@{

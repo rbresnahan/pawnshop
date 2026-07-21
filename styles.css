@@ -103,7 +103,8 @@ body {
 .npc-junkie,
 .npc-70s-hustler,
 .npc-red-hustler,
-.npc-slot-grandma { filter: saturate(.98) contrast(1.04); }
+.npc-slot-grandma,
+.npc-tracksuit-thug { filter: saturate(.98) contrast(1.04); }
 .ui {
   position: absolute;
   z-index: 20;

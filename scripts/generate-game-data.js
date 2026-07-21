@@ -52,6 +52,7 @@ function parseCsv(text) {
 function readTable(fileName) {
   const text = fs.readFileSync(path.join(tablesDir, fileName), 'utf8');
   const [headers, ...rows] = parseCsv(text);
+  if (headers.length) headers[0] = headers[0].replace(/^\uFEFF/, '');
   return rows.map(values => Object.fromEntries(headers.map((header, index) => [header, values[index] ?? ''])));
 }
 
@@ -96,6 +97,7 @@ const characters = readTable('Characters.csv').map(row => ({
   displayName: row.display_name,
   archetype: row.archetype,
   spriteType: row.sprite_type,
+  factionId: row.faction_id,
   spritePath: row.sprite_path,
   facing: row.facing,
   spriteClass: row.sprite_class,
@@ -214,13 +216,34 @@ if (missingPoolItemRefs.length) {
   throw new Error(`Character_Item_Pools.csv references missing item_id values:\n- ${missingPoolItemRefs.join('\n- ')}`);
 }
 
+const characterIds = new Set(characters.map(character => character.id));
+const factionIds = new Set(characters.map(character => character.factionId).filter(Boolean));
+const factionErrors = [];
+characters.forEach(character => {
+  if (!character.factionId) factionErrors.push(`Characters.csv: ${character.id || '(missing character_id)'} missing faction_id`);
+});
+
 const eventBlueprints = readTable('Event_Blueprint.csv').map(row => ({
   id: row.event_id,
   characterId: row.character_id,
   eventType: row.event_type,
+  pressureFactionId: row.pressure_faction_id,
   dialogue: row.dialogue,
   resultNotes: row.result_notes
 }));
+
+eventBlueprints.forEach(event => {
+  if (event.characterId && !characterIds.has(event.characterId)) {
+    factionErrors.push(`Event_Blueprint.csv: ${event.id} references missing character_id "${event.characterId}"`);
+  }
+  if (event.pressureFactionId && !factionIds.has(event.pressureFactionId)) {
+    factionErrors.push(`Event_Blueprint.csv: ${event.id} references unknown pressure_faction_id "${event.pressureFactionId}"`);
+  }
+});
+
+if (factionErrors.length) {
+  throw new Error(`Malformed faction references:\n- ${factionErrors.join('\n- ')}`);
+}
 
 const data = {
   characters,
@@ -230,8 +253,46 @@ const data = {
   eventBlueprints
 };
 
-const output = `window.ONE_STAR_PAWN_DATA = ${JSON.stringify(data, null, 2)};\n`;
-fs.writeFileSync(path.join(root, 'gameData.js'), output);
+const decimalNumberKeys = new Set([
+  'cashMin',
+  'cashMax',
+  'copRiskBias',
+  'thugRiskBias',
+  'scamRiskBias',
+  'sellsToShopWeight',
+  'buysFromShopWeight',
+  'tradesWeight',
+  'maxMarkupTolerance',
+  'lowballTolerance',
+  'haggleAggression',
+  'tradeFairness',
+  'riskTolerance',
+  'base_value',
+  'baseValue',
+  'shop_buy_min',
+  'shopBuyMin',
+  'shop_buy_max',
+  'shopBuyMax',
+  'target_sell_price',
+  'targetSellPrice',
+  'heat',
+  'chanceWeight',
+  'askPriceMultiplier',
+  'cashAdjustmentMin',
+  'cashAdjustmentMax'
+]);
+
+function preserveDecimalNumberStyle(json) {
+  return json.replace(/^(\s+"([^"]+)": )(-?\d+)([,])$/gm, (line, prefix, key, value, suffix) => (
+    decimalNumberKeys.has(key) ? `${prefix}${value}.0${suffix}` : line
+  ));
+}
+
+const outputPath = path.join(root, 'gameData.js');
+const existingOutput = fs.existsSync(outputPath) ? fs.readFileSync(outputPath, 'utf8') : '';
+const lineEnding = existingOutput.includes('\r\n') ? '\r\n' : '\n';
+const output = `window.ONE_STAR_PAWN_DATA = ${preserveDecimalNumberStyle(JSON.stringify(data, null, 2))};\n`.replace(/\n/g, lineEnding);
+fs.writeFileSync(outputPath, output);
 
 const activeCharacters = characters.filter(character => character.activeInRotation);
 console.log(`Generated ${characters.length} characters (${activeCharacters.length} active).`);
