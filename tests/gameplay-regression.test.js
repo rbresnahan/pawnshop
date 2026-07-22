@@ -118,6 +118,9 @@ function resetState(hooks) {
   state.normalEncountersSinceSpecial = 6;
   state.normalEncounterCount = 6;
   state.normalCustomerHistory = [];
+  state.sellMissStreak = 0;
+  state.unavailableSellRequestStreak = 0;
+  state.unavailableSellRequestCount = 0;
   state.buybackCooldownDiagnostics = [];
   state.currentDeal = null;
   state.currentCustomer = null;
@@ -404,6 +407,71 @@ test('appliance request is not satisfied by DVDs or generic junk', () => {
   assert.equal(hooks.validateSaleSelection(deal, fakeChain.instanceId).valid, false);
 });
 
+test('buy-from-shop demand applies inventory age multipliers without hard-blocking fresh stock', () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  const watch = item(hooks, 'suspicious_gold_watch', 55);
+  hooks.state.inventory.push(watch);
+  const pool = hooks.data.characterItemPools.find(entry => entry.id === 'hitman_buys_luxury');
+
+  hooks.state.normalEncounterCount = watch.normalEncounterAcquired;
+  let candidates = hooks.getEligibleDemandCandidatesForPool(pool, hooks.getCharacter('hitman'));
+  assert.equal(candidates.some(candidate => candidate.instanceId === watch.instanceId), true);
+  assert.equal(hooks.getInventoryAgeDemandMultiplier(watch), 0.1);
+
+  hooks.state.normalEncounterCount = watch.normalEncounterAcquired + 1;
+  assert.equal(hooks.getInventoryAgeDemandMultiplier(watch), 0.2);
+
+  hooks.state.normalEncounterCount = watch.normalEncounterAcquired + 4;
+  candidates = hooks.getEligibleDemandCandidatesForPool(pool, hooks.getCharacter('hitman'));
+  assert.equal(hooks.getInventoryAgeDemandMultiplier(watch), 1);
+  assert.ok(candidates[0].finalWeight > 0);
+});
+
+test('special consequence turns do not age inventory as completed normal encounters', () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  const drill = item(hooks, 'cordless_drill', 24);
+  hooks.state.inventory.push(drill);
+
+  hooks.state.turn += 3;
+
+  assert.equal(hooks.getHeldNormalEncounters(drill), 0);
+  assert.equal(hooks.getInventoryAgeDemandMultiplier(drill), 0.1);
+});
+
+test('high-liquidity inventory receives more buy demand weight than comparable low-liquidity inventory', () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  const drill = item(hooks, 'cordless_drill', 24);
+  const tablet = item(hooks, 'cracked_tablet', 18);
+  drill.normalEncounterAcquired = 2;
+  tablet.normalEncounterAcquired = 2;
+  hooks.state.normalEncounterCount = 6;
+  hooks.state.inventory.push(drill, tablet);
+
+  assert.equal(hooks.getItemDemandLevel(drill), 'high');
+  assert.equal(hooks.getItemDemandLevel(tablet), 'medium');
+  assert.ok(hooks.getItemLiquidityDemandMultiplier(drill) > hooks.getItemLiquidityDemandMultiplier(tablet));
+});
+
+test('multiple matching inventory instances are weighted instead of newest-first selected', () => {
+  const hooks = loadGame(0.99);
+  resetState(hooks);
+  const freshWatch = item(hooks, 'suspicious_gold_watch', 55);
+  const olderWatch = item(hooks, 'suspicious_gold_watch', 55);
+  freshWatch.normalEncounterAcquired = 6;
+  olderWatch.normalEncounterAcquired = 1;
+  hooks.state.normalEncounterCount = 6;
+  hooks.state.inventory.push(freshWatch, olderWatch);
+  const pool = hooks.data.characterItemPools.find(entry => entry.id === 'hitman_buys_luxury');
+
+  const deal = hooks.buildDeal(pool);
+
+  assert.deepEqual(deal.eligibleInventoryInstanceIds, [freshWatch.instanceId, olderWatch.instanceId]);
+  assert.equal(deal.weightedDemandInventoryInstanceId, olderWatch.instanceId);
+});
+
 test('Hitman cannot buy back the same weapon instance on the next normal turn', () => {
   const hooks = loadGame(0);
   resetState(hooks);
@@ -436,6 +504,40 @@ test('Hitman weapon buyback becomes eligible after cooldown', () => {
   const eligible = hooks.getEligibleInventoryItemsForPool(pool, hooks.getCharacter('hitman'));
 
   assert.equal(eligible.some(entry => entry.instanceId === weapon.instanceId), true);
+});
+
+test('intentional unavailable-demand sale refuses without transaction mutation', () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  const dvd = item(hooks, 'dvd_stack', 4);
+  hooks.state.inventory.push(dvd);
+  const pool = {
+    ...hooks.data.characterItemPools.find(entry => entry.id === 'bum_buys_cursed'),
+    intentionalUnavailableDemand: true
+  };
+  const deal = hooks.buildDeal(pool);
+  const before = hooks.snapshotState();
+
+  const result = hooks.resolveSell('refuse', deal);
+
+  assert.equal(deal.requestSatisfiable, false);
+  assert.equal(deal.intentionalUnavailableDemand, true);
+  assert.match(result.text || result, /Missed sale/);
+  assert.equal(hooks.state.money, before.money);
+  assert.equal(hooks.state.profit, before.profit);
+  assert.equal(hooks.state.inventory.length, before.inventory.length);
+  assert.equal(hooks.state.inventory[0].instanceId, dvd.instanceId);
+});
+
+test('unavailable-demand encounters are capped at two consecutive requests', () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  hooks.state.inventory.push(item(hooks, 'dvd_stack', 4));
+  hooks.state.unavailableSellRequestStreak = hooks.constants.BUY_FROM_SHOP_ECONOMY.maxConsecutiveUnavailableDemand;
+
+  const selectable = hooks.getSelectablePoolsForCharacter(hooks.getCharacter('bum'));
+
+  assert.equal(selectable.some(pool => pool.id === 'bum_buys_cursed' && pool.intentionalUnavailableDemand), false);
 });
 
 test('another customer can buy a Hitman-sold weapon during cooldown', () => {

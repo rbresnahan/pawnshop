@@ -1,4 +1,4 @@
-const GAME_VERSION = '0.1.6';
+const GAME_VERSION = '0.1.7';
 const GAME_BUILD_LOADED_AT = new Date().toISOString();
 
 window.ONE_STAR_PAWN_VERSION = GAME_VERSION;
@@ -49,6 +49,19 @@ const THUG_REFUSE_CASH_MIN = 14;
 const THUG_HANDOVER_PRESSURE_MULTIPLIER = 0.2;
 const THUG_REFUSE_PRESSURE_MULTIPLIER = 0;
 const HITMAN_WEAPON_BUYBACK_COOLDOWN_NORMAL_ENCOUNTERS = 4;
+const BUY_FROM_SHOP_ECONOMY = {
+  ageMultipliers: [0.1, 0.2, 0.45, 0.7],
+  matureAgeMultiplier: 1,
+  liquidityMultipliers: {
+    high: 1.2,
+    medium: 1,
+    low: 0.55,
+    junk: 0.3
+  },
+  unavailableDemandChance: 0.15,
+  maxConsecutiveUnavailableDemand: 2,
+  maxNormalSelectionRetries: 8
+};
 
 const NPC_TARGET_VISIBLE_HEIGHT_RATIO = 0.31;
 const NPC_MAX_STAGE_VISIBLE_HEIGHT_RATIO = 0.72;
@@ -1845,6 +1858,7 @@ function buildHistoryLines(before, after, deal = null) {
   (deal?.factionPressureHistoryLines || []).forEach(line => lines.push(line));
   (deal?.thugHistoryLines || []).forEach(line => lines.push(line));
   if (deal?.selectionDiagnostics && !isConsequenceDeal(deal.dealType)) lines.push(formatSelectionDiagnostics(deal.selectionDiagnostics));
+  if (deal?.demandDiagnostics && isNpcBuying(deal.dealType)) lines.push(formatDemandDiagnostics(deal.demandDiagnostics));
   if (deal?.consequenceResult) lines.push(`Result: ${deal.consequenceResult}`);
   if (deal?.copRiskResolution) {
     const risk = deal.copRiskResolution;
@@ -2116,6 +2130,126 @@ function getSameSellerBuybackBlock(deal, inventoryItem) {
   };
 }
 
+function getInventoryAgeDemandMultiplier(inventoryItem) {
+  const heldNormalEncounters = getHeldNormalEncounters(inventoryItem);
+  const configured = BUY_FROM_SHOP_ECONOMY.ageMultipliers[heldNormalEncounters];
+  return Number.isFinite(configured) ? configured : BUY_FROM_SHOP_ECONOMY.matureAgeMultiplier;
+}
+
+function normalizeDemandLevel(value) {
+  const normalized = String(value || '').trim().toLowerCase().replace(/[\s-]+/g, '_');
+  if (['high', 'hot', 'strong', 'fast'].includes(normalized)) return 'high';
+  if (['medium', 'normal', 'common', 'uncommon', 'average', 'standard'].includes(normalized)) return 'medium';
+  if (['low', 'slow', 'niche'].includes(normalized)) return 'low';
+  if (['junk', 'very_low', 'verylow', 'trash', 'none'].includes(normalized)) return 'junk';
+  return '';
+}
+
+function getItemDemandLevel(inventoryItem) {
+  const catalogItem = getItem(inventoryItem?.itemId);
+  return normalizeDemandLevel(
+    inventoryItem?.demand_level ??
+    inventoryItem?.demandLevel ??
+    catalogItem?.demand_level ??
+    catalogItem?.demandLevel
+  ) || normalizeDemandLevel(inventoryItem?.liquidity ?? catalogItem?.liquidity) || 'medium';
+}
+
+function getItemLiquidityDemandMultiplier(inventoryItem) {
+  const demandLevel = getItemDemandLevel(inventoryItem);
+  return BUY_FROM_SHOP_ECONOMY.liquidityMultipliers[demandLevel] ?? 1;
+}
+
+function getCustomerPreferenceMultiplier(compatibility) {
+  const score = Number(compatibility?.score);
+  if (!Number.isFinite(score)) return 1;
+  return Math.max(0.25, Math.min(2, score / 8));
+}
+
+function formatDemandWeight(value) {
+  return `${Number(value || 0).toFixed(2)}x`;
+}
+
+function buildDemandCandidate(pool, customer, inventoryItem, baseEventWeight = 1) {
+  const traits = getTraits(pool.characterId);
+  const encounter = {
+    pool,
+    customer,
+    traits,
+    dealType: pool.dealType,
+    requestedItemId: pool.itemId,
+    requiredTags: getCustomerBuyRequestTags(pool),
+    excludedTags: traits.avoidTags || []
+  };
+  const compatibility = evaluateSaleCompatibility(encounter, inventoryItem);
+  const heldNormalEncounters = getHeldNormalEncounters(inventoryItem);
+  const ageMultiplier = getInventoryAgeDemandMultiplier(inventoryItem);
+  const demandLevel = getItemDemandLevel(inventoryItem);
+  const liquidityMultiplier = getItemLiquidityDemandMultiplier(inventoryItem);
+  const preferenceMultiplier = compatibility.valid ? getCustomerPreferenceMultiplier(compatibility) : 0;
+  const finalWeight = compatibility.valid
+    ? Math.max(0, baseEventWeight * preferenceMultiplier * ageMultiplier * liquidityMultiplier)
+    : 0;
+  return {
+    inventoryItem,
+    instanceId: inventoryItem?.instanceId || null,
+    compatibility,
+    eligible: compatibility.valid,
+    acquiredTurn: inventoryItem?.turnAcquired ?? null,
+    heldNormalEncounters,
+    ageMultiplier,
+    demandLevel,
+    liquidityMultiplier,
+    preferenceMultiplier,
+    finalWeight,
+    chanceWeight: finalWeight,
+    diagnostic: compatibility.valid
+      ? `Demand candidate: ${inventoryItem.name} [${inventoryItem.instanceId}]; acquired T${inventoryItem.turnAcquired ?? '?'}; held ${heldNormalEncounters} normal encounter${heldNormalEncounters === 1 ? '' : 's'}; age ${formatDemandWeight(ageMultiplier)}; liquidity ${demandLevel} ${formatDemandWeight(liquidityMultiplier)}; customer preference ${formatDemandWeight(preferenceMultiplier)}; final ${formatDemandWeight(finalWeight)}.`
+      : `Demand candidate excluded: ${inventoryItem?.name || 'missing item'} [${inventoryItem?.instanceId || 'missing'}]; acquired T${inventoryItem?.turnAcquired ?? '?'}; held ${heldNormalEncounters} normal encounter${heldNormalEncounters === 1 ? '' : 's'}; age ${formatDemandWeight(ageMultiplier)}; liquidity ${demandLevel} ${formatDemandWeight(liquidityMultiplier)}; reason ${compatibility.reason}.`
+  };
+}
+
+function getDemandCandidatesForPool(pool, customer = getCharacter(pool.characterId), baseEventWeight = 1) {
+  if (!pool || !isNpcBuying(pool.dealType)) return [];
+  return state.inventory.map(item => buildDemandCandidate(pool, customer, item, baseEventWeight));
+}
+
+function getEligibleDemandCandidatesForPool(pool, customer = getCharacter(pool.characterId), baseEventWeight = 1) {
+  return getDemandCandidatesForPool(pool, customer, baseEventWeight).filter(candidate => candidate.eligible && candidate.finalWeight > 0);
+}
+
+function getBuyPoolDemandMultiplier(pool, customer = getCharacter(pool.characterId)) {
+  const candidates = getEligibleDemandCandidatesForPool(pool, customer, 1);
+  if (!candidates.length) return 0;
+  const total = candidates.reduce((sum, candidate) => sum + candidate.finalWeight, 0);
+  return Math.max(0.05, Math.min(3, total));
+}
+
+function getBuyFromShopBaseEventWeight(pool) {
+  const traits = getTraits(pool.characterId);
+  return (Number(pool?.baseChanceWeight ?? pool?.chanceWeight) || 1) * (traits.buysFromShopWeight ?? 1);
+}
+
+function buildDemandDiagnostics(pool, customer, candidates, selectedCandidate = null, options = {}) {
+  return {
+    poolId: pool?.id || 'buy_from_shop',
+    requestedItemId: pool?.itemId || null,
+    requestedItemType: getCustomerBuyRequestLabel(pool),
+    matchingInventoryInstanceIds: candidates.filter(candidate => candidate.eligible).map(candidate => candidate.instanceId),
+    selectedInventoryInstanceId: selectedCandidate?.instanceId || null,
+    intentionalUnavailableDemand: options.intentionalUnavailableDemand === true,
+    rerollReason: options.rerollReason || '',
+    lines: [
+      `Demand request: ${getCustomerBuyRequestLabel(pool)}${pool?.itemId ? ` (${pool.itemId})` : ''}; customer ${customer?.id || pool?.characterId || 'unknown'}; intentional unavailable: ${options.intentionalUnavailableDemand === true ? 'yes' : 'no'}.`,
+      ...candidates.map(candidate => candidate.diagnostic),
+      selectedCandidate
+        ? `Demand selected weighted instance: ${selectedCandidate.inventoryItem.name} [${selectedCandidate.instanceId}].`
+        : `Demand selected weighted instance: none${options.intentionalUnavailableDemand ? ' (intentional unavailable request)' : ''}.`,
+      options.rerollReason ? `Demand reroll reason: ${options.rerollReason}.` : ''
+    ].filter(Boolean)
+  };
+}
+
 function canCustomerBuyItem(customer, inventoryItem, encounter) {
   if (!customer || !inventoryItem || !encounter) return false;
   const dealLike = {
@@ -2131,21 +2265,14 @@ function canCustomerBuyItem(customer, inventoryItem, encounter) {
 }
 
 function getEligibleInventoryItemsForPool(pool, customer = getCharacter(pool.characterId)) {
-  const traits = getTraits(pool.characterId);
-  const encounter = {
-    pool,
-    customer,
-    traits,
-    dealType: pool.dealType,
-    requestedItemId: pool.itemId,
-    requiredTags: getCustomerBuyRequestTags(pool),
-    excludedTags: traits.avoidTags || []
-  };
-  return state.inventory.filter(item => {
-    const compatibility = evaluateSaleCompatibility(encounter, item);
-    if (!compatibility.valid && compatibility.cooldownDiagnostic) recordBuybackCooldownDiagnostic(pool, compatibility.cooldownDiagnostic);
-    return compatibility.valid;
-  });
+  return getDemandCandidatesForPool(pool, customer, 1)
+    .filter(candidate => {
+      if (!candidate.compatibility.valid && candidate.compatibility.cooldownDiagnostic) {
+        recordBuybackCooldownDiagnostic(pool, candidate.compatibility.cooldownDiagnostic);
+      }
+      return candidate.compatibility.valid;
+    })
+    .map(candidate => candidate.inventoryItem);
 }
 
 function getSelectedInventoryItem(deal) {
@@ -2214,6 +2341,7 @@ function poolWeight(pool) {
   if (isNpcBuying(pool.dealType)) {
     if (satisfiable) {
       weight *= getSellOpportunityWeightMultiplier();
+      weight *= getBuyPoolDemandMultiplier(pool);
       if (state.unavailableSellRequestStreak > 0) weight *= 8;
       if (state.money <= 25 && hasSellableInventory()) weight *= 4;
     } else {
@@ -2245,8 +2373,8 @@ function getSellOpportunityWeightMultiplier() {
 }
 
 function getUnavailableSellRequestWeightMultiplier() {
-  if (state.unavailableSellRequestStreak > 0) return 0;
-  let multiplier = 0.18;
+  if (state.unavailableSellRequestStreak >= BUY_FROM_SHOP_ECONOMY.maxConsecutiveUnavailableDemand) return 0;
+  let multiplier = BUY_FROM_SHOP_ECONOMY.unavailableDemandChance;
   if (state.unavailableSellRequestCount >= 2) multiplier *= 0.35;
   if (hasEligibleSellOpportunity()) multiplier *= 0.55;
   if (state.money <= 25 && hasSellableInventory()) multiplier *= 0.1;
@@ -2305,7 +2433,19 @@ function buildDeal(pool) {
   const customer = getCharacter(pool.characterId);
   const traits = getTraits(pool.characterId);
   const item = resolvePoolItem(pool);
-  const eligibleInventoryItems = isNpcBuying(pool.dealType) ? getEligibleInventoryItemsForPool(pool, customer) : [];
+  const demandCandidates = isNpcBuying(pool.dealType)
+    ? getDemandCandidatesForPool(pool, customer, getBuyFromShopBaseEventWeight(pool))
+    : [];
+  demandCandidates.forEach(candidate => {
+    if (!candidate.compatibility.valid && candidate.compatibility.cooldownDiagnostic) {
+      recordBuybackCooldownDiagnostic(pool, candidate.compatibility.cooldownDiagnostic);
+    }
+  });
+  const eligibleDemandCandidates = demandCandidates.filter(candidate => candidate.eligible && candidate.finalWeight > 0);
+  const selectedDemandCandidate = eligibleDemandCandidates.length ? pickWeighted(eligibleDemandCandidates) : null;
+  const eligibleInventoryItems = isNpcBuying(pool.dealType)
+    ? eligibleDemandCandidates.map(candidate => candidate.inventoryItem)
+    : [];
   const inventoryItem = null;
   const requestedInventoryItem = null;
   const jitter = randomInt(-4, 6);
@@ -2319,7 +2459,7 @@ function buildDeal(pool) {
       : availableCash
     : normalLowballPrice;
   const actualOffer = isShopBuying(pool.dealType) ? lowballPrice : 0;
-  const saleItem = eligibleInventoryItems[0] || item;
+  const saleItem = selectedDemandCandidate?.inventoryItem || eligibleInventoryItems[0] || item;
   const salePrice = isNpcBuying(pool.dealType) ? null : Math.max(2, Math.round((saleItem.targetSellPrice || saleItem.baseValue) * pool.askPriceMultiplier));
   const markupPrice = salePrice ? Math.max(salePrice + 2, Math.round(salePrice * traits.maxMarkupTolerance)) : null;
   const cashAdjustment = pool.dealType === 'trade' ? randomInt(pool.cashAdjustmentMin, pool.cashAdjustmentMax) : 0;
@@ -2336,7 +2476,27 @@ function buildDeal(pool) {
     requiredTags: isNpcBuying(pool.dealType) ? getCustomerBuyRequestTags(pool) : [],
     excludedTags: isNpcBuying(pool.dealType) ? (traits.avoidTags || []) : [],
     requestSatisfiable: !isNpcBuying(pool.dealType) || eligibleInventoryItems.length > 0,
+    intentionalUnavailableDemand: Boolean(isNpcBuying(pool.dealType) && pool.intentionalUnavailableDemand && eligibleInventoryItems.length === 0),
     eligibleInventoryInstanceIds: eligibleInventoryItems.map(item => item.instanceId),
+    demandCandidateWeights: demandCandidates.map(candidate => ({
+      instanceId: candidate.instanceId,
+      acquiredTurn: candidate.acquiredTurn,
+      heldNormalEncounters: candidate.heldNormalEncounters,
+      ageMultiplier: candidate.ageMultiplier,
+      demandLevel: candidate.demandLevel,
+      liquidityMultiplier: candidate.liquidityMultiplier,
+      customerPreferenceMultiplier: candidate.preferenceMultiplier,
+      finalWeight: candidate.finalWeight,
+      eligible: candidate.eligible,
+      reason: candidate.compatibility.reason
+    })),
+    demandDiagnostics: isNpcBuying(pool.dealType)
+      ? buildDemandDiagnostics(pool, customer, demandCandidates, selectedDemandCandidate, {
+          intentionalUnavailableDemand: Boolean(pool.intentionalUnavailableDemand && eligibleInventoryItems.length === 0),
+          rerollReason: pool.rerollReason || ''
+        })
+      : null,
+    weightedDemandInventoryInstanceId: selectedDemandCandidate?.instanceId || null,
     selectedInventoryInstanceId: null,
     askPrice: askingPrice,
     askingPrice,
@@ -2365,8 +2525,18 @@ function buildDeal(pool) {
 function getSelectablePoolsForCharacter(character) {
   const characterPools = CHARACTER_ITEM_POOLS.filter(pool => pool.characterId === character.id);
   const validPools = characterPools
-    .filter(pool => poolMatchesInventory(pool) || (isNpcBuying(pool.dealType) && hasSellableInventory() && getUnavailableSellRequestWeightMultiplier() > 0))
-    .map(pool => ({ ...pool, requestSatisfiable: poolMatchesInventory(pool), chanceWeight: poolWeight(pool) }))
+    .map(pool => {
+      const requestSatisfiable = poolMatchesInventory(pool);
+      const intentionalUnavailableDemand = Boolean(isNpcBuying(pool.dealType) && !requestSatisfiable && hasSellableInventory() && getUnavailableSellRequestWeightMultiplier() > 0);
+      return {
+        ...pool,
+        baseChanceWeight: pool.chanceWeight,
+        requestSatisfiable,
+        intentionalUnavailableDemand,
+        chanceWeight: poolWeight(pool)
+      };
+    })
+    .filter(pool => pool.requestSatisfiable || pool.intentionalUnavailableDemand)
     .filter(pool => pool.chanceWeight > 0);
   if (validPools.length) return validPools;
   return characterPools
@@ -2537,6 +2707,11 @@ function formatSelectionDiagnostics(diagnostics) {
   return `Normal selection: eligible [${eligible}]; selected ${diagnostics.selectedCustomerId || 'none'}; repeat penalties [${penalties}]; consecutive-repeat blocks [${blocked}].`;
 }
 
+function formatDemandDiagnostics(diagnostics) {
+  if (!diagnostics) return '';
+  return (diagnostics.lines || []).join(' ');
+}
+
 function chooseNextCustomerWithPools() {
   const candidates = activeCustomers
     .map(character => ({ character, eligiblePools: getSelectablePoolsForCharacter(character) }))
@@ -2606,6 +2781,41 @@ function generateDeal(customer, eligiblePools = getSelectablePoolsForCharacter(c
   return pool ? buildDeal(pool) : null;
 }
 
+function getNormalDealRerollReason(deal) {
+  if (!deal) return 'no deal generated';
+  if (isNpcBuying(deal.dealType) && !deal.requestSatisfiable && !deal.intentionalUnavailableDemand) {
+    return 'buy-from-shop request had no eligible inventory outside the intentional unavailable-demand path';
+  }
+  return '';
+}
+
+function chooseNextNormalDeal() {
+  const rerollReasons = [];
+  for (let attempt = 1; attempt <= BUY_FROM_SHOP_ECONOMY.maxNormalSelectionRetries; attempt += 1) {
+    const normalSelection = chooseNextCustomerWithPools();
+    if (!normalSelection?.customer) return { normalSelection, deal: null, rerollReasons };
+    const deal = generateDeal(normalSelection.customer, normalSelection.eligiblePools);
+    const rerollReason = getNormalDealRerollReason(deal);
+    if (!rerollReason) {
+      if (deal?.demandDiagnostics && rerollReasons.length) {
+        deal.demandDiagnostics.rerollReason = rerollReasons.join(' | ');
+        deal.demandDiagnostics.lines.push(`Demand reroll reason: ${deal.demandDiagnostics.rerollReason}.`);
+      }
+      return { normalSelection, deal, rerollReasons };
+    }
+    rerollReasons.push(`attempt ${attempt}: ${normalSelection.customer.id}; ${rerollReason}`);
+  }
+
+  const fallbackSelection = chooseNextCustomerWithPools();
+  const fallbackPools = (fallbackSelection?.eligiblePools || []).filter(pool => !isNpcBuying(pool.dealType) || pool.requestSatisfiable || pool.intentionalUnavailableDemand);
+  const deal = fallbackSelection?.customer ? generateDeal(fallbackSelection.customer, fallbackPools) : null;
+  if (deal?.demandDiagnostics) {
+    deal.demandDiagnostics.rerollReason = rerollReasons.join(' | ') || 'bounded retry fallback used';
+    deal.demandDiagnostics.lines.push(`Demand reroll reason: ${deal.demandDiagnostics.rerollReason}.`);
+  }
+  return { normalSelection: fallbackSelection, deal, rerollReasons };
+}
+
 function rememberNormalCustomer(characterId) {
   if (!characterId) return;
   if (!Array.isArray(state.normalCustomerHistory)) state.normalCustomerHistory = [];
@@ -2630,7 +2840,7 @@ async function startNextCustomer() {
   state.normalEncountersSinceSpecial += 1;
   state.normalEncounterCount += 1;
   state.buybackCooldownDiagnostics = [];
-  const normalSelection = chooseNextCustomerWithPools();
+  const { normalSelection, deal: selectedNormalDeal } = chooseNextNormalDeal();
   state.currentCustomer = normalSelection?.customer || null;
   if (!state.currentCustomer) {
     state.currentDeal = null;
@@ -2639,7 +2849,7 @@ async function startNextCustomer() {
     typeLine('No valid customers are available. Check the data tables and sprite assets.');
     return;
   }
-  state.currentDeal = generateDeal(state.currentCustomer, normalSelection.eligiblePools);
+  state.currentDeal = selectedNormalDeal;
   if (state.currentDeal) {
     state.currentDeal.selectionDiagnostics = normalSelection.diagnostics;
     rememberNormalCustomer(state.currentCustomer.id);
@@ -2660,6 +2870,13 @@ async function startNextCustomer() {
   startDealConversation();
 }
 
+function getDealDiagnosticLogText(deal) {
+  const base = `${deal.blueprint ? `${deal.pool.notes} ${deal.blueprint.resultNotes}` : deal.pool.notes}`;
+  const cooldownDiagnostics = (deal.buybackCooldownHistoryLines || []).join(' ');
+  const demandDiagnostics = isNpcBuying(deal.dealType) ? formatDemandDiagnostics(deal.demandDiagnostics) : '';
+  return [base, cooldownDiagnostics, demandDiagnostics].filter(Boolean).join(' ');
+}
+
 function introduceDeal() {
   const deal = state.currentDeal;
   const item = deal.item;
@@ -2676,8 +2893,7 @@ function introduceDeal() {
   }
 
   typeLine(line);
-  const cooldownDiagnostics = (deal.buybackCooldownHistoryLines || []).join(' ');
-  renderLog(`${deal.blueprint ? `${deal.pool.notes} ${deal.blueprint.resultNotes}` : deal.pool.notes}${cooldownDiagnostics ? ` ${cooldownDiagnostics}` : ''}`);
+  renderLog(getDealDiagnosticLogText(deal));
 }
 
 function isExplicitlyIllegalItem(item) {
@@ -3827,6 +4043,14 @@ window.ONE_STAR_PAWN_TEST_HOOKS = {
   getTraits,
   createInventoryItem,
   removeInventoryInstance,
+  getHeldNormalEncounters,
+  getInventoryAgeDemandMultiplier,
+  getItemDemandLevel,
+  getItemLiquidityDemandMultiplier,
+  getDemandCandidatesForPool,
+  getEligibleDemandCandidatesForPool,
+  getBuyPoolDemandMultiplier,
+  getSelectablePoolsForCharacter,
   buildDeal,
   applySelectedInventoryItemToDeal,
   validateSaleSelection,
@@ -3846,7 +4070,8 @@ window.ONE_STAR_PAWN_TEST_HOOKS = {
   formatSelectionDiagnostics,
   constants: {
     NORMAL_CUSTOMER_MAX_CONSECUTIVE,
-    NORMAL_CUSTOMER_HISTORY_LIMIT
+    NORMAL_CUSTOMER_HISTORY_LIMIT,
+    BUY_FROM_SHOP_ECONOMY
   }
 };
 if (!window.ONE_STAR_PAWN_TEST_MODE) {
