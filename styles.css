@@ -1091,6 +1091,10 @@ body {
   border-color: #d9992a;
   box-shadow: inset 0 0 8px #000, 0 0 0 1px rgba(217, 153, 42, .35);
 }
+.inventory-tile.is-selected {
+  border-color: #7fd08a;
+  box-shadow: inset 0 0 8px #000, 0 0 0 2px rgba(127, 208, 138, .55);
+}
 .inventory-tile.is-ineligible {
   opacity: .38;
   filter: grayscale(.75);

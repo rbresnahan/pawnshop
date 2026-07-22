@@ -137,6 +137,7 @@ const itemRows = readTable('Items.csv');
 const itemErrors = [];
 const seenItemIds = new Set();
 const duplicateItemIds = new Set();
+const allowedLiquidityValues = new Set(['high', 'medium', 'low']);
 
 itemRows.forEach((row, index) => {
   const rowLabel = `Items.csv row ${index + 2}${row.item_id ? ` (${row.item_id})` : ''}`;
@@ -147,9 +148,13 @@ itemRows.forEach((row, index) => {
     'default_condition',
     'availability_tier',
     'demand_level',
+    'liquidity',
     'price_variance',
     'description'
   ].forEach(field => required(row, field, rowLabel, itemErrors));
+  if (row.liquidity && !allowedLiquidityValues.has(String(row.liquidity).trim())) {
+    itemErrors.push(`${rowLabel}: liquidity must be one of high, medium, low; got "${row.liquidity}"`);
+  }
   ['base_value', 'shop_buy_min', 'shop_buy_max', 'target_sell_price', 'heat'].forEach(field => {
     requiredNumber(row, field, rowLabel, itemErrors);
   });
@@ -185,6 +190,7 @@ const items = itemRows.map(row => ({
   availabilityTier: row.availability_tier,
   demand_level: row.demand_level,
   demandLevel: row.demand_level,
+  liquidity: row.liquidity,
   price_variance: row.price_variance,
   priceVariance: row.price_variance,
   tags: list(row.tags),

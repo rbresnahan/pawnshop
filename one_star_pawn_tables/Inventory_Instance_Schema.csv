@@ -11,4 +11,5 @@ targetSellPrice,number,True,95,Used to generate sale offers.
 currentAskPrice,number,False,110,Optional current UI asking price during a deal.
 sourceCustomerId,string,False,nervous_seller,Who sold/traded it to the shop.
 turnAcquired,number,False,4,Game turn item entered inventory.
+normalEncounterAcquired,number,False,4,Normal encounter count when item entered inventory; used for same-seller buyback cooldowns.
 notes,string,False,Bought via lowball.,Debug/design notes.

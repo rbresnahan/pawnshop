@@ -1082,6 +1082,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "common",
       "demand_level": "low",
       "demandLevel": "low",
+      "liquidity": "low",
       "price_variance": "low",
       "priceVariance": "low",
       "tags": [
@@ -1111,6 +1112,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "common",
       "demand_level": "normal",
       "demandLevel": "normal",
+      "liquidity": "low",
       "price_variance": "medium",
       "priceVariance": "medium",
       "tags": [
@@ -1139,6 +1141,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "uncommon",
       "demand_level": "normal",
       "demandLevel": "normal",
+      "liquidity": "low",
       "price_variance": "high",
       "priceVariance": "high",
       "tags": [
@@ -1168,6 +1171,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "uncommon",
       "demand_level": "high",
       "demandLevel": "high",
+      "liquidity": "medium",
       "price_variance": "medium",
       "priceVariance": "medium",
       "tags": [
@@ -1196,6 +1200,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "uncommon",
       "demand_level": "low",
       "demandLevel": "low",
+      "liquidity": "low",
       "price_variance": "medium",
       "priceVariance": "medium",
       "tags": [
@@ -1224,6 +1229,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "common",
       "demand_level": "normal",
       "demandLevel": "normal",
+      "liquidity": "low",
       "price_variance": "medium",
       "priceVariance": "medium",
       "tags": [
@@ -1251,6 +1257,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "common",
       "demand_level": "high",
       "demandLevel": "high",
+      "liquidity": "high",
       "price_variance": "low",
       "priceVariance": "low",
       "tags": [
@@ -1278,6 +1285,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "common",
       "demand_level": "normal",
       "demandLevel": "normal",
+      "liquidity": "high",
       "price_variance": "low",
       "priceVariance": "low",
       "tags": [
@@ -1305,6 +1313,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "common",
       "demand_level": "normal",
       "demandLevel": "normal",
+      "liquidity": "medium",
       "price_variance": "medium",
       "priceVariance": "medium",
       "tags": [
@@ -1332,6 +1341,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "uncommon",
       "demand_level": "high",
       "demandLevel": "high",
+      "liquidity": "high",
       "price_variance": "medium",
       "priceVariance": "medium",
       "tags": [
@@ -1360,6 +1370,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "common",
       "demand_level": "normal",
       "demandLevel": "normal",
+      "liquidity": "low",
       "price_variance": "high",
       "priceVariance": "high",
       "tags": [
@@ -1387,6 +1398,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "uncommon",
       "demand_level": "low",
       "demandLevel": "low",
+      "liquidity": "low",
       "price_variance": "high",
       "priceVariance": "high",
       "tags": [
@@ -1415,6 +1427,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "common",
       "demand_level": "normal",
       "demandLevel": "normal",
+      "liquidity": "medium",
       "price_variance": "low",
       "priceVariance": "low",
       "tags": [],
@@ -1440,6 +1453,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "rare",
       "demand_level": "low",
       "demandLevel": "low",
+      "liquidity": "low",
       "price_variance": "high",
       "priceVariance": "high",
       "tags": [
@@ -1468,6 +1482,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "uncommon",
       "demand_level": "normal",
       "demandLevel": "normal",
+      "liquidity": "low",
       "price_variance": "high",
       "priceVariance": "high",
       "tags": [
@@ -1495,6 +1510,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "uncommon",
       "demand_level": "normal",
       "demandLevel": "normal",
+      "liquidity": "low",
       "price_variance": "high",
       "priceVariance": "high",
       "tags": [
@@ -1522,6 +1538,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "uncommon",
       "demand_level": "normal",
       "demandLevel": "normal",
+      "liquidity": "low",
       "price_variance": "medium",
       "priceVariance": "medium",
       "tags": [
@@ -1551,6 +1568,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "common",
       "demand_level": "low",
       "demandLevel": "low",
+      "liquidity": "low",
       "price_variance": "low",
       "priceVariance": "low",
       "tags": [
@@ -1578,6 +1596,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "common",
       "demand_level": "normal",
       "demandLevel": "normal",
+      "liquidity": "low",
       "price_variance": "medium",
       "priceVariance": "medium",
       "tags": [
@@ -1606,6 +1625,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "common",
       "demand_level": "normal",
       "demandLevel": "normal",
+      "liquidity": "medium",
       "price_variance": "high",
       "priceVariance": "high",
       "tags": [
@@ -1634,6 +1654,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "common",
       "demand_level": "normal",
       "demandLevel": "normal",
+      "liquidity": "medium",
       "price_variance": "low",
       "priceVariance": "low",
       "tags": [
@@ -1661,6 +1682,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "common",
       "demand_level": "high",
       "demandLevel": "high",
+      "liquidity": "medium",
       "price_variance": "low",
       "priceVariance": "low",
       "tags": [
@@ -1688,6 +1710,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "common",
       "demand_level": "normal",
       "demandLevel": "normal",
+      "liquidity": "medium",
       "price_variance": "low",
       "priceVariance": "low",
       "tags": [
@@ -1716,6 +1739,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "common",
       "demand_level": "high",
       "demandLevel": "high",
+      "liquidity": "high",
       "price_variance": "low",
       "priceVariance": "low",
       "tags": [
@@ -1743,6 +1767,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "common",
       "demand_level": "high",
       "demandLevel": "high",
+      "liquidity": "high",
       "price_variance": "low",
       "priceVariance": "low",
       "tags": [
@@ -1770,6 +1795,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "uncommon",
       "demand_level": "high",
       "demandLevel": "high",
+      "liquidity": "medium",
       "price_variance": "low",
       "priceVariance": "low",
       "tags": [
@@ -1798,6 +1824,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "uncommon",
       "demand_level": "high",
       "demandLevel": "high",
+      "liquidity": "medium",
       "price_variance": "medium",
       "priceVariance": "medium",
       "tags": [
@@ -1827,6 +1854,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "uncommon",
       "demand_level": "high",
       "demandLevel": "high",
+      "liquidity": "high",
       "price_variance": "medium",
       "priceVariance": "medium",
       "tags": [
@@ -1854,6 +1882,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "common",
       "demand_level": "high",
       "demandLevel": "high",
+      "liquidity": "high",
       "price_variance": "medium",
       "priceVariance": "medium",
       "tags": [
@@ -1882,6 +1911,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "rare",
       "demand_level": "normal",
       "demandLevel": "normal",
+      "liquidity": "medium",
       "price_variance": "medium",
       "priceVariance": "medium",
       "tags": [
@@ -1909,6 +1939,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "common",
       "demand_level": "high",
       "demandLevel": "high",
+      "liquidity": "high",
       "price_variance": "low",
       "priceVariance": "low",
       "tags": [
@@ -1937,6 +1968,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "common",
       "demand_level": "high",
       "demandLevel": "high",
+      "liquidity": "high",
       "price_variance": "low",
       "priceVariance": "low",
       "tags": [
@@ -1964,6 +1996,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "uncommon",
       "demand_level": "normal",
       "demandLevel": "normal",
+      "liquidity": "medium",
       "price_variance": "medium",
       "priceVariance": "medium",
       "tags": [
@@ -1992,6 +2025,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "uncommon",
       "demand_level": "normal",
       "demandLevel": "normal",
+      "liquidity": "medium",
       "price_variance": "medium",
       "priceVariance": "medium",
       "tags": [
@@ -2019,6 +2053,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "uncommon",
       "demand_level": "low",
       "demandLevel": "low",
+      "liquidity": "medium",
       "price_variance": "medium",
       "priceVariance": "medium",
       "tags": [
@@ -2047,6 +2082,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "uncommon",
       "demand_level": "normal",
       "demandLevel": "normal",
+      "liquidity": "medium",
       "price_variance": "medium",
       "priceVariance": "medium",
       "tags": [
@@ -2074,6 +2110,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "rare",
       "demand_level": "high",
       "demandLevel": "high",
+      "liquidity": "high",
       "price_variance": "medium",
       "priceVariance": "medium",
       "tags": [
@@ -2101,6 +2138,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "rare",
       "demand_level": "high",
       "demandLevel": "high",
+      "liquidity": "high",
       "price_variance": "medium",
       "priceVariance": "medium",
       "tags": [
@@ -2128,6 +2166,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "uncommon",
       "demand_level": "normal",
       "demandLevel": "normal",
+      "liquidity": "medium",
       "price_variance": "medium",
       "priceVariance": "medium",
       "tags": [
@@ -2155,6 +2194,7 @@ window.ONE_STAR_PAWN_DATA = {
       "availabilityTier": "rare",
       "demand_level": "normal",
       "demandLevel": "normal",
+      "liquidity": "medium",
       "price_variance": "high",
       "priceVariance": "high",
       "tags": [
