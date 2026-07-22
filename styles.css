@@ -82,6 +82,9 @@ body {
   image-rendering: crisp-edges;
   will-change: opacity, transform;
 }
+.game-screen.fast-test-mode .npc-sprite {
+  transition-duration: 1ms, 1ms, 1ms;
+}
 .customer-visual {
   position: absolute;
   display: block;
@@ -248,6 +251,12 @@ body {
   color: #8f846a;
   font-size: 10px;
   line-height: 1.2;
+}
+.debug-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
 }
 .debug-history button {
   border: 1px solid #6a4a17;

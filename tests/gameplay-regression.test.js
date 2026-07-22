@@ -7,6 +7,7 @@ const vm = require('node:vm');
 const ROOT = path.resolve(__dirname, '..');
 
 function makeElement() {
+  const classes = new Set();
   const element = {
     children: [],
     hidden: false,
@@ -14,14 +15,32 @@ function makeElement() {
     textContent: '',
     innerHTML: '',
     className: '',
-    style: {},
+    clientWidth: 500,
+    clientHeight: 500,
+    style: {
+      setProperty(name, value) {
+        this[name] = value;
+      }
+    },
     dataset: {},
     classList: {
-      add() {},
-      remove() {},
-      toggle() {},
-      contains() {
-        return false;
+      add(...names) {
+        names.forEach(name => classes.add(name));
+        element.className = [...classes].join(' ');
+      },
+      remove(...names) {
+        names.forEach(name => classes.delete(name));
+        element.className = [...classes].join(' ');
+      },
+      toggle(name, force) {
+        const shouldAdd = force === undefined ? !classes.has(name) : Boolean(force);
+        if (shouldAdd) classes.add(name);
+        else classes.delete(name);
+        element.className = [...classes].join(' ');
+        return shouldAdd;
+      },
+      contains(name) {
+        return classes.has(name);
       }
     },
     append(...children) {
@@ -32,8 +51,18 @@ function makeElement() {
       return child;
     },
     addEventListener() {},
+    removeEventListener() {},
+    getBoundingClientRect() {
+      return { width: this.clientWidth, height: this.clientHeight, left: 0, top: 0 };
+    },
     setAttribute(name, value) {
       this[name] = value;
+    },
+    getAttribute(name) {
+      return this[name];
+    },
+    removeAttribute(name) {
+      delete this[name];
     },
     querySelector() {
       return makeElement();
@@ -124,6 +153,7 @@ function resetState(hooks) {
   state.buybackCooldownDiagnostics = [];
   state.currentDeal = null;
   state.currentCustomer = null;
+  state.fastTestMode = false;
 }
 
 function item(hooks, id, cost = 20) {
@@ -146,6 +176,57 @@ function prepareSaleDeal(hooks, poolId = 'bargain_hunter_buys_dvds', itemId = 'd
   return { deal, shelfItem };
 }
 
+function primeChoiceSmoke(hooks, deal) {
+  hooks.state.currentDeal = deal;
+  hooks.state.currentCustomer = deal.customer;
+  hooks.state.conversation = { phase: 'choices', lines: [], index: 0, selectedAction: null, outcome: null };
+  hooks.state.isResolving = false;
+  hooks.state.isTransitioningCustomer = false;
+  hooks.state.isGameOver = false;
+}
+
+function activeTestCustomer(hooks, id) {
+  const character = hooks.getCharacter(id);
+  return {
+    ...character,
+    baseSpriteKey: id,
+    stageSide: character.facing === 'right' ? 'left' : 'right',
+    spriteBounds: {
+      sourceWidth: 100,
+      sourceHeight: 200,
+      minX: 0,
+      minY: 0,
+      maxX: 99,
+      maxY: 199,
+      visibleWidth: 100,
+      visibleHeight: 200
+    }
+  };
+}
+
+function prepareFastNextSmoke(hooks, deal, nextCustomerId = 'slot_grandma') {
+  hooks.setFastTestMode(true);
+  hooks.setActiveCustomers([
+    activeTestCustomer(hooks, deal.customer.id),
+    activeTestCustomer(hooks, nextCustomerId)
+  ]);
+  hooks.state.normalCustomerHistory = [deal.customer.id, deal.customer.id];
+  primeChoiceSmoke(hooks, deal);
+}
+
+async function pressNextAndWaitForNewNpc(hooks, previousCustomerId, previousTurn) {
+  assert.equal(hooks.canAdvanceConversationManually(), true);
+  hooks.advanceConversation();
+  hooks.advanceConversation();
+  await new Promise(resolve => setTimeout(resolve, 360));
+  assert.notEqual(hooks.state.currentCustomer?.id, previousCustomerId);
+  assert.ok(hooks.state.currentDeal);
+  assert.ok(hooks.state.turn > previousTurn);
+  assert.equal(hooks.state.isTransitioningCustomer, false);
+  assert.equal(hooks.state.isResolving, false);
+  assert.equal(hooks.state.conversation?.phase, 'intro');
+}
+
 function makeCopDeal(hooks, inventoryItem = null) {
   if (inventoryItem) hooks.state.inventory.push(inventoryItem);
   const consequence = hooks.queueConsequence({
@@ -163,6 +244,127 @@ function makeCopDeal(hooks, inventoryItem = null) {
   deal.bribeAmount = 37;
   return { consequence, deal };
 }
+
+test('fast test mode is runtime-only and only changes presentation timing', () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+
+  const normalTiming = hooks.getActivePresentationTimingSnapshot();
+  const normalDelay = hooks.getAutoDialogueDelay('long enough to show normal pacing');
+  hooks.typeLine('Slow receipt.');
+  assert.notEqual(hooks.getDialogueText(), 'Slow receipt.');
+  assert.equal(hooks.finishTypingLine(), true);
+
+  hooks.setFastTestMode(true);
+  const fastTiming = hooks.getActivePresentationTimingSnapshot();
+  assert.equal(hooks.isFastTestModeEnabled(), true);
+  assert.equal(hooks.isFastTestCssActive(), true);
+  assert.ok(hooks.getAutoDialogueDelay('long enough to show normal pacing') < normalDelay);
+  assert.ok(fastTiming.dialogueTypewriterMs < normalTiming.dialogueTypewriterMs);
+  assert.ok(fastTiming.entranceMs < normalTiming.entranceMs);
+  assert.ok(fastTiming.reactionMs < normalTiming.reactionMs);
+  assert.ok(fastTiming.exitMs < normalTiming.exitMs);
+  assert.ok(fastTiming.nextEncounterDelayMs < normalTiming.nextEncounterDelayMs);
+  assert.ok(fastTiming.npcTransitionSettleMs < normalTiming.npcTransitionSettleMs);
+  hooks.typeLine('Instant receipt.');
+  assert.equal(hooks.getDialogueText(), 'Instant receipt.');
+  assert.equal(hooks.state.fastTestMode, true);
+
+  hooks.setFastTestMode(false);
+  const restoredTiming = hooks.getActivePresentationTimingSnapshot();
+  assert.equal(hooks.isFastTestModeEnabled(), false);
+  assert.equal(hooks.isFastTestCssActive(), false);
+  assert.deepEqual(restoredTiming, normalTiming);
+
+  const reloadedHooks = loadGame(0);
+  assert.equal(reloadedHooks.isFastTestModeEnabled(), false);
+});
+
+test('normal mode smoke: standard purchase uses resolveChoice and records full turn history', () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'bum_microwave'));
+  primeChoiceSmoke(hooks, deal);
+
+  hooks.resolveChoice('buyAsk');
+
+  assert.equal(hooks.isFastTestModeEnabled(), false);
+  assert.equal(hooks.state.conversation.phase, 'resolved');
+  assert.equal(hooks.state.money, 120 - deal.defaultOffer);
+  assert.equal(hooks.state.inventory.length, 1);
+  assert.equal(hooks.state.inventory[0].itemId, deal.item.id);
+  assert.equal(hooks.getTurnHistory().length, 1);
+  assert.match(hooks.getTurnHistory()[0].lines.join('\n'), /Inventory: \+/);
+  assert.match(hooks.getVisibleDealPanelText(), /item is now yours|problem/i);
+  assert.equal(hooks.finishTypingLine(), true);
+  hooks.resetAutoProgress();
+});
+
+test('fast mode smoke: standard purchase resumes to a new NPC after Next', async () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'bum_microwave'));
+  prepareFastNextSmoke(hooks, deal);
+  const previousTurn = hooks.state.turn;
+
+  hooks.resolveChoice('buyAsk');
+
+  assert.equal(hooks.state.conversation.phase, 'resolved');
+  assert.equal(hooks.state.money, 120 - deal.defaultOffer);
+  assert.equal(hooks.state.inventory.length, 1);
+  assert.equal(hooks.getTurnHistory().length, 1);
+  assert.match(hooks.getVisibleDealPanelText(), /item is now yours|problem/i);
+  await new Promise(resolve => setTimeout(resolve, 160));
+  assert.equal(hooks.state.conversation.phase, 'resolved');
+  assert.equal(hooks.state.conversation.index, 1);
+
+  await pressNextAndWaitForNewNpc(hooks, deal.customer.id, previousTurn);
+});
+
+test('fast mode smoke: inventory-selected sale pauses on the resolved result and resumes to a new NPC', async () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  const { deal, shelfItem } = prepareSaleDeal(hooks);
+  prepareFastNextSmoke(hooks, deal);
+  const previousTurn = hooks.state.turn;
+
+  hooks.resolveChoice('sellTag');
+
+  assert.equal(hooks.isFastTestModeEnabled(), true);
+  assert.equal(hooks.state.conversation.phase, 'resolved');
+  assert.equal(hooks.state.money, 120 + deal.salePrice);
+  assert.equal(hooks.state.inventory.some(item => item.instanceId === shelfItem.instanceId), false);
+  assert.equal(hooks.getTurnHistory().length, 1);
+  assert.match(hooks.getTurnHistory()[0].lines.join('\n'), /Sale:|Inventory: -/);
+  assert.match(hooks.getVisibleDealPanelText(), /Sold|register/i);
+  await new Promise(resolve => setTimeout(resolve, 160));
+  assert.equal(hooks.state.conversation.phase, 'resolved');
+  assert.equal(hooks.state.conversation.index, 1);
+  assert.match(hooks.getDialogueText(), /deal is closed|Sold|register/i);
+  assert.match(hooks.getVisibleDealPanelText(), /deal is closed|Sold|register/i);
+
+  await pressNextAndWaitForNewNpc(hooks, deal.customer.id, previousTurn);
+});
+
+test('fast mode smoke: refusal resumes to a new NPC after Next without transaction mutation', async () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'bum_microwave'));
+  prepareFastNextSmoke(hooks, deal);
+  const previousTurn = hooks.state.turn;
+
+  hooks.resolveChoice('refuse');
+
+  assert.equal(hooks.state.conversation.phase, 'resolved');
+  assert.equal(hooks.state.money, 120);
+  assert.equal(hooks.state.inventory.length, 0);
+  assert.equal(hooks.getTurnHistory().length, 1);
+  await new Promise(resolve => setTimeout(resolve, 160));
+  assert.equal(hooks.state.conversation.phase, 'resolved');
+  assert.equal(hooks.state.conversation.index, 1);
+
+  await pressNextAndWaitForNewNpc(hooks, deal.customer.id, previousTurn);
+});
 
 test('successful demand-cash trade receives Collectible Action Figure with instance history', () => {
   const hooks = loadGame(0);

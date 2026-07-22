@@ -69,13 +69,16 @@
             <h2>Turn History</h2>
             <span id="game-version" class="game-version"></span>
           </div>
-          <button type="button" id="clearHistory">Clear</button>
+          <div class="debug-controls">
+            <button type="button" id="fastTestToggle" aria-pressed="false">FAST TEST: OFF</button>
+            <button type="button" id="clearHistory">Clear</button>
+          </div>
         </div>
         <div id="historyList" class="history-list" aria-live="polite"></div>
       </section>
     </aside>
   </main>
-  <script src="gameData.js?v=0.1.9"></script>
-  <script src="main.js?v=0.1.9"></script>
+  <script src="gameData.js?v=0.1.12"></script>
+  <script src="main.js?v=0.1.12"></script>
 </body>
 </html>

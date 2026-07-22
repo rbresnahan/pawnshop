@@ -1,4 +1,4 @@
-const GAME_VERSION = '0.1.9';
+const GAME_VERSION = '0.1.12';
 const GAME_BUILD_LOADED_AT = new Date().toISOString();
 
 window.ONE_STAR_PAWN_VERSION = GAME_VERSION;
@@ -18,6 +18,18 @@ const CONVERSATION_EXIT_DELAY_MS = 200;
 const AUTO_DIALOGUE_BASE_DELAY_MS = 2100;
 const AUTO_DIALOGUE_PER_CHAR_MS = 18;
 const AUTO_DIALOGUE_MAX_DELAY_MS = 3600;
+// TEMP DEV ONLY: Fast Test Mode shortens presentation timing without changing game logic.
+const FAST_TEST_MODE_TIMING = {
+  typewriterIntervalMs: 0,
+  npcEntryMs: 1,
+  npcExitMs: 1,
+  npcTransitionSettleMs: 1,
+  conversationExitDelayMs: 20,
+  autoDialogueBaseDelayMs: 90,
+  autoDialoguePerCharMs: 0,
+  autoDialogueMaxDelayMs: 120,
+  missingDealRetryDelayMs: 30
+};
 const COP_CONSEQUENCE_TYPE = 'cop_consequence';
 const COP_CONSEQUENCE_CHARACTER_ID = 'cop_consequence';
 const COP_CONSEQUENCE_EVENT_ID = 'cop_consequence_visit';
@@ -321,6 +333,7 @@ const state = {
   sellMissStreak: 0,
   unavailableSellRequestStreak: 0,
   unavailableSellRequestCount: 0,
+  fastTestMode: false,
   buybackCooldownDiagnostics: [],
   inventorySelection: {
     active: false,
@@ -356,6 +369,7 @@ const els = {
   bottomHud: document.querySelector('.bottom-hud'),
   log: document.getElementById('log'),
   historyList: document.getElementById('historyList'),
+  fastTestToggle: document.getElementById('fastTestToggle'),
   clearHistory: document.getElementById('clearHistory')
 };
 
@@ -838,6 +852,28 @@ function removeInventoryInstance(instanceId) {
   return null;
 }
 
+function isFastTestModeEnabled() {
+  return state.fastTestMode === true;
+}
+
+function getPresentationTiming(name, normalValue) {
+  if (!isFastTestModeEnabled()) return normalValue;
+  return FAST_TEST_MODE_TIMING[name] ?? normalValue;
+}
+
+function getActivePresentationTimingSnapshot() {
+  return {
+    dialogueTypewriterMs: getPresentationTiming('typewriterIntervalMs', 14),
+    entranceMs: getPresentationTiming('npcEntryMs', NPC_ENTRY_MS),
+    reactionMs: getAutoDialogueDelay('Fast test reaction timing sample.'),
+    resolvedResultPause: isFastTestModeEnabled() ? 'manual NEXT' : `auto ${getAutoDialogueDelay('Fast test result timing sample.')}ms`,
+    exitMs: getPresentationTiming('npcExitMs', NPC_EXIT_MS),
+    nextEncounterDelayMs: getPresentationTiming('conversationExitDelayMs', CONVERSATION_EXIT_DELAY_MS),
+    npcTransitionSettleMs: getPresentationTiming('npcTransitionSettleMs', 80),
+    missingDealRetryMs: getPresentationTiming('missingDealRetryDelayMs', 800)
+  };
+}
+
 function typeLine(text) {
   clearInterval(typingTimer);
   clearAutoProgressTimer();
@@ -846,6 +882,10 @@ function typeLine(text) {
   els.dialogue.textContent = '';
   updateDealTextVisibility();
   updateDialogueNextIndicator();
+  if (isFastTestModeEnabled()) {
+    finishTypingLine();
+    return;
+  }
   let i = 0;
   typingTimer = setInterval(() => {
     els.dialogue.textContent += typedLine[i] || '';
@@ -856,7 +896,7 @@ function typeLine(text) {
       updateDealTextVisibility();
       handleDialogueLineComplete();
     }
-  }, 14);
+  }, getPresentationTiming('typewriterIntervalMs', 14));
 }
 
 function finishTypingLine() {
@@ -880,9 +920,19 @@ function resetAutoProgress() {
   autoProgressToken += 1;
 }
 
-function canAdvanceConversationManually() {
+function isFastResolvedResultPaused(convo = state.conversation) {
   return Boolean(
-    state.conversation?.phase === 'intro' &&
+    isFastTestModeEnabled() &&
+    convo?.phase === 'resolved' &&
+    convo.index >= 1 &&
+    state.currentDeal?.resolvedAction
+  );
+}
+
+function canAdvanceConversationManually() {
+  const canAdvanceIntro = state.conversation?.phase === 'intro';
+  return Boolean(
+    (canAdvanceIntro || isFastResolvedResultPaused()) &&
     !isTypingLine &&
     !state.isResolving &&
     !state.isTransitioningCustomer &&
@@ -896,12 +946,21 @@ function updateDialogueNextIndicator() {
 }
 
 function getAutoDialogueDelay(text) {
-  return Math.min(AUTO_DIALOGUE_MAX_DELAY_MS, AUTO_DIALOGUE_BASE_DELAY_MS + String(text || '').length * AUTO_DIALOGUE_PER_CHAR_MS);
+  const maxDelay = getPresentationTiming('autoDialogueMaxDelayMs', AUTO_DIALOGUE_MAX_DELAY_MS);
+  const baseDelay = getPresentationTiming('autoDialogueBaseDelayMs', AUTO_DIALOGUE_BASE_DELAY_MS);
+  const perCharDelay = getPresentationTiming('autoDialoguePerCharMs', AUTO_DIALOGUE_PER_CHAR_MS);
+  return Math.min(maxDelay, baseDelay + String(text || '').length * perCharDelay);
 }
 
 function scheduleResolvedAutoProgress() {
   const convo = state.conversation;
   if (!convo || convo.phase !== 'resolved' || isTypingLine || state.isGameOver || state.isTransitioningCustomer) return;
+  if (isFastResolvedResultPaused(convo)) {
+    state.isResolving = false;
+    renderChoices();
+    updateDialogueNextIndicator();
+    return;
+  }
   clearAutoProgressTimer();
   const token = autoProgressToken;
   const currentLine = convo.lines[convo.index];
@@ -929,6 +988,28 @@ function renderStats() {
   els.inventoryCount.textContent = String(inventoryTotal);
   if (els.inventoryTotal) els.inventoryTotal.textContent = String(inventoryTotal);
   if (els.stockCount) els.stockCount.textContent = String(inventoryTotal);
+}
+
+function renderFastTestToggle() {
+  if (!els.fastTestToggle) return;
+  const enabled = isFastTestModeEnabled();
+  els.fastTestToggle.textContent = `FAST TEST: ${enabled ? 'ON' : 'OFF'}`;
+  els.fastTestToggle.setAttribute('aria-pressed', String(enabled));
+  els.game?.classList.toggle('fast-test-mode', enabled);
+}
+
+function setFastTestMode(enabled) {
+  state.fastTestMode = enabled === true;
+  renderFastTestToggle();
+  // TEMP DEV ONLY: confirms the active presentation timings used by Fast Test Mode.
+  console.info(`[fast-test-mode] ${isFastTestModeEnabled() ? 'enabled' : 'disabled'}`, getActivePresentationTimingSnapshot());
+  if (isFastTestModeEnabled() && isTypingLine) finishTypingLine();
+  if (isFastResolvedResultPaused()) {
+    state.isResolving = false;
+    renderChoices();
+    clearAutoProgressTimer();
+    updateDialogueNextIndicator();
+  }
 }
 
 function getInventorySelectionDeal() {
@@ -1366,7 +1447,7 @@ function waitForNpcTransition(duration) {
       if (event.target === els.customer && event.propertyName === 'transform') finish();
     };
     els.customer.addEventListener('transitionend', onTransitionEnd);
-    window.setTimeout(finish, duration + 80);
+    window.setTimeout(finish, duration + getPresentationTiming('npcTransitionSettleMs', 80));
   });
 }
 
@@ -1378,7 +1459,7 @@ async function enterCurrentCustomer() {
   renderCustomer('offstage');
   await nextAnimationFrame();
   renderCustomer('entering');
-  await waitForNpcTransition(NPC_ENTRY_MS);
+  await waitForNpcTransition(getPresentationTiming('npcEntryMs', NPC_ENTRY_MS));
   renderCustomer('idle');
   state.isTransitioningCustomer = false;
 }
@@ -1387,7 +1468,7 @@ async function exitCurrentCustomer() {
   if (!state.currentCustomer || state.isTransitioningCustomer) return;
   state.isTransitioningCustomer = true;
   renderCustomer('exiting');
-  await waitForNpcTransition(NPC_EXIT_MS);
+  await waitForNpcTransition(getPresentationTiming('npcExitMs', NPC_EXIT_MS));
   state.currentCustomer = null;
   renderCustomer();
   state.isTransitioningCustomer = false;
@@ -1605,22 +1686,31 @@ function advanceConversation(isAutomatic = false) {
   }
 
   if (convo.phase === 'resolved') {
-    if (!isAutomatic || isTypingLine) return;
+    if (isTypingLine || (!isAutomatic && !isFastTestModeEnabled())) return;
+    if (!isAutomatic && isFastResolvedResultPaused(convo)) {
+      scheduleResolvedCustomerExit(convo);
+      return;
+    }
     if (convo.index < convo.lines.length - 1) {
       convo.index += 1;
       showConversationLine(convo.lines[convo.index]);
       return;
     }
-    convo.phase = 'exiting';
-    updateDialogueNextIndicator();
-    clearAutoProgressTimer();
-    const token = autoProgressToken;
-    autoProgressTimer = window.setTimeout(() => {
-      autoProgressTimer = 0;
-      if (token !== autoProgressToken || state.conversation !== convo) return;
-      exitCustomer();
-    }, CONVERSATION_EXIT_DELAY_MS);
+    scheduleResolvedCustomerExit(convo);
   }
+}
+
+function scheduleResolvedCustomerExit(convo) {
+  if (!convo || convo.phase === 'exiting' || state.isResolving || state.isTransitioningCustomer) return;
+  convo.phase = 'exiting';
+  updateDialogueNextIndicator();
+  clearAutoProgressTimer();
+  const token = autoProgressToken;
+  autoProgressTimer = window.setTimeout(() => {
+    autoProgressTimer = 0;
+    if (token !== autoProgressToken || state.conversation !== convo) return;
+    exitCustomer();
+  }, getPresentationTiming('conversationExitDelayMs', CONVERSATION_EXIT_DELAY_MS));
 }
 function dealItemLabel(item) {
   const quantity = item.quantity || item.count || 1;
@@ -3774,7 +3864,7 @@ async function startNextCustomer() {
     renderLog('');
     renderAll();
     typeLine(`${state.currentCustomer.displayName} has no compatible deal data.`);
-    window.setTimeout(startNextCustomer, 800);
+    window.setTimeout(startNextCustomer, getPresentationTiming('missingDealRetryDelayMs', 800));
     return;
   }
   renderLog(getDealDiagnosticLogText(state.currentDeal));
@@ -5189,6 +5279,12 @@ if (els.dialogueNext) {
   });
 }
 
+if (els.fastTestToggle) {
+  els.fastTestToggle.addEventListener('click', () => {
+    setFastTestMode(!isFastTestModeEnabled());
+  });
+}
+
 if (els.clearHistory) {
   els.clearHistory.addEventListener('click', () => {
     turnHistory = [];
@@ -5198,6 +5294,7 @@ if (els.clearHistory) {
 
 setInventoryOpen(false);
 renderStats();
+renderFastTestToggle();
 renderInventory();
 renderHistory();
 window.debugQueueCopConsequence = debugQueueCopConsequence;
@@ -5254,12 +5351,28 @@ window.ONE_STAR_PAWN_TEST_HOOKS = {
   getConsecutiveNormalCustomerCount,
   snapshotState,
   buildHistoryLines,
+  isFastTestModeEnabled,
+  setFastTestMode,
+  getAutoDialogueDelay,
+  getPresentationTiming,
+  getActivePresentationTimingSnapshot,
+  isFastTestCssActive() {
+    return Boolean(els.game?.classList.contains('fast-test-mode'));
+  },
+  canAdvanceConversationManually,
+  advanceConversation,
+  typeLine,
+  finishTypingLine,
+  resetAutoProgress,
   getTurnHistory() {
     return turnHistory;
   },
   getDealText() {
     renderDeal();
     return els.log.textContent;
+  },
+  getDialogueText() {
+    return els.dialogue.textContent;
   },
   renderDealPanelText(text) {
     renderLog(text);
