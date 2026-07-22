@@ -27,7 +27,7 @@
           <div class="dialogue-copy" id="dialogue"></div>
           <div class="dialogue-deal">
             <div class="deal-label">Deal</div>
-            <p id="dealText">Unlocking the front door with a screwdriver and a prayer.</p>
+            <p id="dealText">The sign says OPEN because the C fell off.</p>
           </div>
           <button type="button" class="dialogue-next" id="dialogueNext" aria-label="Advance dialogue" hidden>NEXT &gt;</button>
         </section>
@@ -42,7 +42,7 @@
           <div id="choices" class="choices"></div>
           <div class="panel-toggle-row">
             <button type="button" class="inventory-toggle inventory-open-button" id="openInventory" aria-controls="expandableInventory" aria-expanded="false">Inventory</button>
-            <button type="button" class="inventory-toggle shop-log-button" id="openShopLog" aria-controls="expandableInventory" aria-expanded="false">Shop Log</button>
+            <button type="button" class="inventory-toggle shop-log-button" id="openShopLog" aria-controls="expandableInventory" aria-expanded="false">Transaction</button>
           </div>
           <div class="inventory-log-group" id="expandableInventory" hidden>
             <div class="inventory-panel" id="inventoryPanel">
@@ -50,8 +50,8 @@
               <div class="slot-grid" aria-label="Inventory grid" id="inventoryGrid"></div>
             </div>
             <div class="log-panel">
-              <div class="log-title">Negotiation Log</div>
-              <div id="log">The sign says OPEN because the C fell off.</div>
+              <div class="log-title">Transaction</div>
+              <div id="log">Unlocking the front door with a screwdriver and a prayer.</div>
             </div>
             <button type="button" class="inventory-close-button" id="closeInventory" aria-controls="expandableInventory" aria-expanded="false" hidden>Close &gt;</button>
           </div>
@@ -75,7 +75,7 @@
       </section>
     </aside>
   </main>
-  <script src="gameData.js?v=0.1.7"></script>
-  <script src="main.js?v=0.1.7"></script>
+  <script src="gameData.js?v=0.1.9"></script>
+  <script src="main.js?v=0.1.9"></script>
 </body>
 </html>

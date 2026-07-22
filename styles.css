@@ -659,7 +659,7 @@ body {
 }
 .dialogue-deal p {
   margin: 0;
-  white-space: normal;
+  white-space: pre-line;
   overflow-wrap: anywhere;
 }
 .lower-ui .bottom-hud {
@@ -729,7 +729,7 @@ body {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  white-space: normal;
+  white-space: pre-line;
   overflow-wrap: anywhere;
 }
 .lower-ui .inventory-log-group .slot-grid {

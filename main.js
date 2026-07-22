@@ -1,4 +1,4 @@
-const GAME_VERSION = '0.1.7';
+const GAME_VERSION = '0.1.9';
 const GAME_BUILD_LOADED_AT = new Date().toISOString();
 
 window.ONE_STAR_PAWN_VERSION = GAME_VERSION;
@@ -62,6 +62,113 @@ const BUY_FROM_SHOP_ECONOMY = {
   maxConsecutiveUnavailableDemand: 2,
   maxNormalSelectionRetries: 8
 };
+const ECONOMY_BALANCE = {
+  // Profit is realized net economic performance: completed sale margins minus
+  // realized consequence losses such as bribes, refunds, theft, and confiscation.
+  conditionValueMultipliers: {
+    mint: 1.18,
+    excellent: 1.12,
+    good: 1.04,
+    used: 0.94,
+    fair: 0.82,
+    poor: 0.66,
+    questionable: 0.58,
+    unknown: 0.72,
+    broken: 0.42,
+    fake: 0.36
+  },
+  liquiditySaleMultipliers: {
+    high: 1.04,
+    medium: 0.96,
+    low: 0.82,
+    junk: 0.62
+  },
+  tagValueMultipliers: {
+    broken: 0.55,
+    fake: 0.42,
+    possibly_fake: 0.72,
+    suspicious: 0.9,
+    hot: 0.86,
+    stolen: 0.78,
+    cursed: 0.72,
+    locked: 0.68,
+    junk: 0.78
+  },
+  customerPreference: {
+    exactItemBonus: 1.08,
+    categoryMatchBonus: 1.02,
+    requiredTagBonus: 0.025,
+    traitTagBonus: 0.02,
+    maxBonus: 1.18
+  },
+  riskPricing: {
+    ordinaryToleranceMax: 2,
+    highToleranceMin: 4,
+    ordinaryHeatPenaltyPerPoint: 0.035,
+    tolerantHeatPremiumPerPoint: 0.035,
+    alignedRiskTagPremium: 0.1,
+    maxTolerantPremium: 1.28
+  },
+  marginCeilings: {
+    ordinary: 1.65,
+    damagedOrLowLiquidity: 1.85,
+    suspiciousOrHot: 2.15,
+    rareCollector: 3.25,
+    junk: 1.45
+  },
+  tradeFallbackBasisRate: 0.25
+};
+const NEGOTIATION_OUTCOMES = {
+  attemptLimits: {
+    lowball: 1,
+    markup: 1,
+    trade: 3
+  },
+  severity: {
+    lowball: { mildMinRatio: 0.75, moderateMinRatio: 0.5 },
+    markup: { mildMaxRatio: 1.15, moderateMaxRatio: 1.35 },
+    trade: { mildMinRatio: 0.8, moderateMinRatio: 0.55 }
+  },
+  lowballWeights: {
+    accepted: 20,
+    rejectedOriginal: 25,
+    priceWorsened: 20,
+    customerWalks: 20,
+    consequence: 10,
+    acceptedHiddenProblem: 5
+  },
+  markupWeights: {
+    accepted: 20,
+    rejectedOriginal: 25,
+    counteroffer: 20,
+    customerWalks: 20,
+    consequence: 10,
+    acceptedFutureDispute: 5
+  },
+  tradeWeights: {
+    rejectedRetry: 65,
+    rejectedEnds: 25,
+    factionPressure: 10
+  },
+  priceIncrease: { mild: [1.05, 1.12], moderate: [1.12, 1.22], severe: [1.2, 1.35] },
+  counteroffer: { mild: [0.92, 1.04], moderate: [0.78, 0.95], severe: [0.6, 0.82] },
+  hiddenProblem: {
+    heatIncrease: 1,
+    valueMultiplier: 0.86,
+    fallbackTags: ['suspicious', 'broken', 'fake', 'hot']
+  },
+  lowballFloors: {
+    accepted: 0.25,
+    acceptedHiddenProblem: 0.15,
+    desperateOverrideFlag: 'ignoreLowballAcceptanceFloor'
+  },
+  modifierCaps: {
+    trait: 18,
+    reputation: 12,
+    severity: 20
+  }
+};
+const THUG_CONSEQUENCE_MAX_ELIGIBLE_CHECKS = 4;
 
 const NPC_TARGET_VISIBLE_HEIGHT_RATIO = 0.31;
 const NPC_MAX_STAGE_VISIBLE_HEIGHT_RATIO = 0.72;
@@ -268,6 +375,7 @@ let activeLowerPanel = 'closed';
 let inventorySerial = 0;
 let encounterSerial = 0;
 let turnHistory = [];
+let pendingDealPanelText = '';
 
 const CUSTOMER_BUY_REQUEST_LABELS = {
   jewelry: 'jewelry',
@@ -332,8 +440,10 @@ function pickWeighted(list) {
   if (total <= 0) return list[0];
   let roll = Math.random() * total;
   for (const entry of list) {
-    roll -= Math.max(0, entry.chanceWeight || 0);
-    if (roll <= 0) return entry;
+    const weight = Math.max(0, entry.chanceWeight || 0);
+    if (weight <= 0) continue;
+    roll -= weight;
+    if (roll < 0) return entry;
   }
   return list[list.length - 1];
 }
@@ -446,8 +556,252 @@ function addDealFactionPressure(deal, amount, reason, options = {}) {
     if (!Array.isArray(deal.factionPressureHistoryLines)) deal.factionPressureHistoryLines = [];
     const label = factionId === TRACKSUIT_CREW_FACTION_ID ? 'Tracksuit Crew Pressure Source' : `Faction Pressure Source (${factionId})`;
     deal.factionPressureHistoryLines.push(`${label}: ${reason}; faction: ${factionId}.`);
+    if (factionId === TRACKSUIT_CREW_FACTION_ID) {
+      maybeQueueThugConsequence(deal, `Tracksuit crew pressure reached ${getFactionPressure(TRACKSUIT_CREW_FACTION_ID)} after ${reason}`);
+    }
   }
   return result;
+}
+
+function getReputationModifier() {
+  const neutral = 5;
+  const raw = (Number(state.reputation) || 0) - neutral;
+  return Math.max(-NEGOTIATION_OUTCOMES.modifierCaps.reputation, Math.min(NEGOTIATION_OUTCOMES.modifierCaps.reputation, raw * 3));
+}
+
+function getItemTags(item = {}) {
+  return [item.category, ...(Array.isArray(item.tags) ? item.tags : [])].filter(Boolean);
+}
+
+function clampWeight(value) {
+  return Math.max(0, Math.round(Number(value) || 0));
+}
+
+function cloneWeights(weights) {
+  return Object.entries(weights).map(([outcome, chanceWeight]) => ({ outcome, chanceWeight }));
+}
+
+function getLowballSeverity(offerRatio) {
+  const thresholds = NEGOTIATION_OUTCOMES.severity.lowball;
+  if (offerRatio >= thresholds.mildMinRatio) return 'mild';
+  if (offerRatio >= thresholds.moderateMinRatio) return 'moderate';
+  return 'severe';
+}
+
+function getMarkupSeverity(markupRatio) {
+  const thresholds = NEGOTIATION_OUTCOMES.severity.markup;
+  if (markupRatio <= thresholds.mildMaxRatio) return 'mild';
+  if (markupRatio <= thresholds.moderateMaxRatio) return 'moderate';
+  return 'severe';
+}
+
+function getTradeSeverity(ratio) {
+  const thresholds = NEGOTIATION_OUTCOMES.severity.trade;
+  if (ratio >= thresholds.mildMinRatio) return 'mild';
+  if (ratio >= thresholds.moderateMinRatio) return 'moderate';
+  return 'severe';
+}
+
+function formatWeights(weights) {
+  return weights.map(entry => `${entry.outcome}:${Math.max(0, Math.round(entry.chanceWeight))}`).join(', ');
+}
+
+function getNegotiationTraitSummary(deal) {
+  const traits = deal?.traits || {};
+  return `lowballTolerance ${traits.lowballTolerance ?? 'n/a'}, maxMarkupTolerance ${traits.maxMarkupTolerance ?? 'n/a'}, haggleAggression ${traits.haggleAggression ?? 'n/a'}, tradeFairness ${traits.tradeFairness ?? 'n/a'}, riskTolerance ${traits.riskTolerance ?? 'n/a'}`;
+}
+
+function getRelevantItemSummary(item = {}) {
+  return `condition ${item.condition || 'unknown'}, heat ${Number(item.heat) || 0}, tags ${getItemTags(item).join('/') || 'none'}`;
+}
+
+function applySeverityWeightModifiers(weights, severity, negotiationType) {
+  const severityBoost = severity === 'severe' ? 1 : severity === 'moderate' ? 0.5 : 0;
+  const severityCalm = severity === 'mild' ? 1 : severity === 'moderate' ? 0.5 : 0;
+  if (negotiationType === 'lowball') {
+    weights.accepted -= 10 * severityBoost;
+    weights.acceptedHiddenProblem += 8 * severityBoost;
+    weights.priceWorsened += 10 * severityBoost;
+    weights.customerWalks += 14 * severityBoost;
+    weights.consequence += 9 * severityBoost;
+    weights.accepted += 7 * severityCalm;
+    weights.rejectedOriginal += 6 * severityCalm;
+  } else if (negotiationType === 'markup') {
+    weights.accepted -= 12 * severityBoost;
+    weights.counteroffer += 7 * severityCalm + 6 * severityBoost;
+    weights.customerWalks += 13 * severityBoost;
+    weights.consequence += 9 * severityBoost;
+    weights.accepted += 7 * severityCalm;
+    weights.rejectedOriginal += 5 * severityCalm;
+  } else {
+    weights.rejectedRetry += 16 * severityCalm;
+    weights.rejectedEnds += 18 * severityBoost;
+    weights.factionPressure += 12 * severityBoost;
+  }
+}
+
+function applyContextWeightModifiers(weights, deal, negotiationType, item) {
+  const traits = deal?.traits || {};
+  const customer = deal?.customer || {};
+  const reputationMod = getReputationModifier();
+  const aggression = Math.max(0, Number(traits.haggleAggression) || 0);
+  const riskTolerance = Math.max(0, Number(traits.riskTolerance) || 0);
+  const lowballTolerance = Math.max(0, Number(traits.lowballTolerance) || 1);
+  const markupTolerance = Math.max(0, Number(traits.maxMarkupTolerance) || 1);
+  const itemTags = getItemTags(item);
+  const suspicious = itemTags.some(tag => ['broken', 'fake', 'possibly_fake', 'hot', 'suspicious', 'stolen', 'cursed', 'mystery'].includes(tag)) || BAD_CONDITIONS.has(item?.condition);
+  const factionConnected = Boolean(getImplementedDealPressureFactionId(deal));
+  const exactInterestMatch = tagsOverlap(itemTags, negotiationType === 'markup' ? (traits.buyInterestTags || []) : (traits.tradeInterestTags || []));
+
+  if (negotiationType === 'lowball') {
+    const desperation = Math.max(0, 0.65 - lowballTolerance) * 24 + (traits.prefersCash ? 4 : 0);
+    weights.accepted += desperation + reputationMod;
+    weights.rejectedOriginal += Math.max(0, 8 - aggression);
+    weights.customerWalks += aggression * 2 + Math.max(0, riskTolerance - 3) * 2 - reputationMod * 0.35;
+    weights.consequence += aggression + Math.max(0, Number(customer.thugRiskBias) || 0) + (factionConnected ? 8 : 0) - reputationMod * 0.25;
+    weights.acceptedHiddenProblem += suspicious ? 12 : Math.max(0, Number(item?.heat) || 0);
+  } else if (negotiationType === 'markup') {
+    weights.accepted += (markupTolerance - 1) * 28 + reputationMod + (exactInterestMatch ? 8 : 0);
+    weights.rejectedOriginal += Math.max(0, 10 - aggression);
+    weights.counteroffer += aggression + (exactInterestMatch ? 5 : 0);
+    weights.customerWalks += aggression * 2 + Math.max(0, Number(customer.trust) < 35 ? 6 : 0) - reputationMod * 0.3;
+    weights.consequence += (Number(customer.scamRiskBias) || 0) + (suspicious ? 7 : 0) - reputationMod * 0.2;
+    weights.acceptedFutureDispute += suspicious ? 12 : Math.max(0, Number(item?.heat) || 0);
+  } else {
+    weights.rejectedRetry += Math.max(0, 6 - aggression) + reputationMod * 0.3;
+    weights.rejectedEnds += aggression * 3 - reputationMod * 0.25;
+    weights.factionPressure += (factionConnected ? 12 : 0) + Math.max(0, Number(customer.thugRiskBias) || 0);
+  }
+}
+
+function dealAllowsLowballFloorOverride(deal) {
+  const flag = NEGOTIATION_OUTCOMES.lowballFloors.desperateOverrideFlag;
+  return Boolean(deal?.[flag] || deal?.pool?.[flag] || deal?.blueprint?.[flag]);
+}
+
+function applyLowballAcceptanceFloors(weightsObject, deal, ratio) {
+  if (dealAllowsLowballFloorOverride(deal)) return [];
+  const floors = NEGOTIATION_OUTCOMES.lowballFloors;
+  const removed = [];
+  const dangerousOrProud = Boolean(
+    getImplementedDealPressureFactionId(deal) ||
+    (Number(deal?.traits?.haggleAggression) || 0) >= 4 ||
+    (Number(deal?.customer?.thugRiskBias) || 0) >= 3 ||
+    tagsOverlap(getItemTags(deal?.item), ['luxury', 'weapon', 'hot', 'suspicious'])
+  );
+  const removeOutcome = outcome => {
+    const amount = Math.max(0, Number(weightsObject[outcome]) || 0);
+    if (amount <= 0) return;
+    weightsObject[outcome] = 0;
+    weightsObject.customerWalks = Math.max(0, weightsObject.customerWalks) + amount * (dangerousOrProud ? 0.35 : 0.25);
+    weightsObject.priceWorsened = Math.max(0, weightsObject.priceWorsened) + amount * 0.35;
+    weightsObject.consequence = Math.max(0, weightsObject.consequence) + amount * (dangerousOrProud ? 0.3 : 0.2);
+    if (!dangerousOrProud) weightsObject.rejectedOriginal = Math.max(0, weightsObject.rejectedOriginal) + amount * 0.2;
+    removed.push(`${outcome} below ${Math.round(floors[outcome] * 100)}% floor redistributed ${Math.round(amount)}`);
+  };
+  if (ratio < floors.accepted) removeOutcome('accepted');
+  if (ratio < floors.acceptedHiddenProblem) removeOutcome('acceptedHiddenProblem');
+  return removed;
+}
+
+function resolveNegotiationOutcome(type, deal, context = {}) {
+  const item = context.item || deal?.item || {};
+  const ratio = Number(context.ratio) || 0;
+  const severity = type === 'lowball' ? getLowballSeverity(ratio) : type === 'markup' ? getMarkupSeverity(ratio) : getTradeSeverity(ratio);
+  const baseConfig = type === 'lowball'
+    ? NEGOTIATION_OUTCOMES.lowballWeights
+    : type === 'markup' ? NEGOTIATION_OUTCOMES.markupWeights : NEGOTIATION_OUTCOMES.tradeWeights;
+  const weightsObject = { ...baseConfig };
+  applySeverityWeightModifiers(weightsObject, severity, type);
+  applyContextWeightModifiers(weightsObject, deal, type, item);
+  const floorAdjustments = type === 'lowball' ? applyLowballAcceptanceFloors(weightsObject, deal, ratio) : [];
+  const adjustedWeights = cloneWeights(weightsObject).map(entry => ({ ...entry, chanceWeight: clampWeight(entry.chanceWeight) }));
+  const selected = pickWeighted(adjustedWeights).outcome;
+  return {
+    type,
+    selected,
+    severity,
+    ratio,
+    baseWeights: cloneWeights(baseConfig),
+    adjustedWeights,
+    traitSummary: getNegotiationTraitSummary(deal),
+    reputationModifier: getReputationModifier(),
+    itemSummary: getRelevantItemSummary(item),
+    factionConnected: Boolean(getImplementedDealPressureFactionId(deal)),
+    floorAdjustments
+  };
+}
+
+function appendNegotiationDiagnostics(deal, outcome, details = {}) {
+  const originalPrice = details.originalPrice ?? details.ask ?? details.salePrice ?? 0;
+  const attemptedPrice = details.attemptedPrice ?? 0;
+  const continuation = details.dealOpen ? 'open' : 'closed';
+  const priceNote = [
+    Number.isFinite(Number(details.newAskingPrice)) ? `new ask ${moneyText(details.newAskingPrice)}` : '',
+    Number.isFinite(Number(details.counteroffer)) ? `counteroffer ${moneyText(details.counteroffer)}` : ''
+  ].filter(Boolean).join('; ') || 'no new price';
+  const changes = details.changeSummary || 'no risk/reputation/faction change';
+  appendNegotiationHistory(
+    deal,
+    `Negotiation: encounter ${deal.encounterId}; customer ${deal.customer?.id || 'unknown'}; deal ${deal.dealType}; type ${outcome.type}; original ${moneyText(originalPrice)}; attempted ${moneyText(attemptedPrice)}; ratio ${outcome.ratio.toFixed(2)}; severity ${outcome.severity}; traits ${outcome.traitSummary}; reputation modifier ${signedNumber(outcome.reputationModifier)}; item ${outcome.itemSummary}; base weights ${formatWeights(outcome.baseWeights)}; adjusted weights ${formatWeights(outcome.adjustedWeights)}; ${outcome.floorAdjustments?.length ? `floor adjustments ${outcome.floorAdjustments.join(', ')}; ` : ''}selected ${outcome.selected}; deal ${continuation}; ${priceNote}; ${changes}.`
+  );
+}
+
+function applyNegotiationPenalty(deal, outcome, amount = 1) {
+  const beforeRep = state.reputation;
+  const beforeScam = state.scamRisk;
+  const beforePressure = getFactionPressure(getImplementedDealPressureFactionId(deal));
+  let factionResult = null;
+  if (outcome.factionConnected) {
+    factionResult = addDealFactionPressure(deal, amount + (outcome.severity === 'severe' ? 1 : 0), `${outcome.severity} ${outcome.type} insult from ${deal.customer?.displayName || 'customer'}`);
+  } else {
+    state.reputation = Math.max(0, state.reputation - amount);
+  }
+  if (outcome.type === 'markup') state.scamRisk += amount + (outcome.severity === 'severe' ? 2 : 1);
+  const afterPressure = getFactionPressure(getImplementedDealPressureFactionId(deal));
+  return [
+    beforeRep !== state.reputation ? `reputation ${beforeRep} -> ${state.reputation}` : '',
+    beforeScam !== state.scamRisk ? `scam risk ${beforeScam} -> ${state.scamRisk}` : '',
+    factionResult?.delta || beforePressure !== afterPressure ? `faction pressure ${beforePressure} -> ${afterPressure}` : ''
+  ].filter(Boolean).join('; ') || 'penalty had no visible state change';
+}
+
+function randomRange([min, max]) {
+  return min + Math.random() * (max - min);
+}
+
+function worsenInventoryInstanceForHiddenProblem(inventoryItem, deal, outcome) {
+  if (!inventoryItem) return '';
+  const before = copyInventoryDebugItem(inventoryItem);
+  const conditionOrder = ['mint', 'excellent', 'good', 'used', 'fair', 'poor', 'questionable', 'broken'];
+  const currentIndex = conditionOrder.indexOf(String(inventoryItem.condition || '').toLowerCase());
+  if (currentIndex >= 0 && currentIndex < conditionOrder.length - 1) {
+    inventoryItem.condition = conditionOrder[currentIndex + 1];
+  } else if (!String(inventoryItem.condition || '').trim()) {
+    inventoryItem.condition = 'questionable';
+  }
+  const tags = new Set(Array.isArray(inventoryItem.tags) ? inventoryItem.tags : []);
+  const candidateTag = NEGOTIATION_OUTCOMES.hiddenProblem.fallbackTags.find(tag => !tags.has(tag)) || 'suspicious';
+  tags.add(candidateTag);
+  inventoryItem.tags = [...tags];
+  inventoryItem.heat = Math.min(10, Math.max(0, Math.round((Number(inventoryItem.heat) || 0) + NEGOTIATION_OUTCOMES.hiddenProblem.heatIncrease)));
+  inventoryItem.targetSellPrice = Math.max(1, Math.round((Number(inventoryItem.targetSellPrice) || Number(inventoryItem.baseValue) || 1) * NEGOTIATION_OUTCOMES.hiddenProblem.valueMultiplier));
+  inventoryItem.resaleModifier = Math.max(0.25, Number(inventoryItem.resaleModifier || 1) * NEGOTIATION_OUTCOMES.hiddenProblem.valueMultiplier);
+  inventoryItem.notes = `${inventoryItem.notes || ''} Hidden negotiation problem from ${outcome.severity} lowball.`.trim();
+  inventoryItem.hiddenProblem = {
+    source: 'lowball',
+    encounterId: deal.encounterId,
+    severity: outcome.severity,
+    createdTurn: state.turn,
+    visibleHint: 'The cheap buy came with a catch.'
+  };
+  deal.hiddenProblemMutation = {
+    instanceId: inventoryItem.instanceId,
+    before,
+    after: copyInventoryDebugItem(inventoryItem),
+    tagAdded: candidateTag
+  };
+  return `hidden problem on ${inventoryItem.instanceId}: condition ${before.condition} -> ${inventoryItem.condition}, heat ${before.heat} -> ${inventoryItem.heat}, tag +${candidateTag}, resale ${moneyText(before.targetSellPrice)} -> ${moneyText(inventoryItem.targetSellPrice)}, modifier ${Number(before.resaleModifier || 1).toFixed(2)}x -> ${Number(inventoryItem.resaleModifier || 1).toFixed(2)}x`;
 }
 
 function isShopBuying(dealType) {
@@ -487,9 +841,10 @@ function removeInventoryInstance(instanceId) {
 function typeLine(text) {
   clearInterval(typingTimer);
   clearAutoProgressTimer();
-  typedLine = text || '';
+  typedLine = sanitizePlayerDialogueText(text || '');
   isTypingLine = true;
   els.dialogue.textContent = '';
+  updateDealTextVisibility();
   updateDialogueNextIndicator();
   let i = 0;
   typingTimer = setInterval(() => {
@@ -498,6 +853,7 @@ function typeLine(text) {
     if (i > typedLine.length) {
       clearInterval(typingTimer);
       isTypingLine = false;
+      updateDealTextVisibility();
       handleDialogueLineComplete();
     }
   }, 14);
@@ -508,6 +864,7 @@ function finishTypingLine() {
   clearInterval(typingTimer);
   els.dialogue.textContent = typedLine;
   isTypingLine = false;
+  updateDealTextVisibility();
   handleDialogueLineComplete();
   return true;
 }
@@ -1095,26 +1452,78 @@ function customerBuyRequestLine(deal) {
   return `I am looking for ${getCustomerBuyRequestPhrase(deal)}.`;
 }
 
+function sanitizePlayerDialogueText(text) {
+  return String(text || '')
+    .replace(/\s*\[inv_\d+\]/g, '')
+    .replace(/\bUse\s+[^.]*\bpool\b\.?/gi, '')
+    .replace(/\bUse\s+[a-z0-9_,-]+(?:\s+or\s+[^.]+)?\./gi, '')
+    .replace(/\b(?:event blueprint|sprite|pool|source data|diagnostic)[^.]*(?:\.|$)/gi, '')
+    .replace(/\b[a-z]+(?:_[a-z0-9]+)+\b/g, '')
+    .replace(/\b(?:Cop|Scam|Thug) risk\s*\+\d+\b/gi, '')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/\s+\./g, '.')
+    .trim();
+}
+
+function getNaturalRiskHintFromTags(item = {}) {
+  const tags = getItemTags(item).map(tag => String(tag).toLowerCase());
+  const condition = String(item.condition || '').toLowerCase();
+  if (tags.includes('hot') || tags.includes('stolen')) return 'Someone may already be looking for it.';
+  if (tags.includes('fake') || tags.includes('possibly_fake')) return 'There is a good chance it is not real.';
+  if (tags.includes('suspicious') || tags.includes('mystery') || tags.includes('cursed')) return 'The story around it does not quite hold together.';
+  if (tags.includes('broken') || condition === 'broken') return 'It looks unreliable even before money gets involved.';
+  if (tags.includes('locked')) return 'The lock screen is saying more than the seller is.';
+  return '';
+}
+
+function getNaturalRiskHintFromNote(note = '', item = {}) {
+  const normalized = String(note || '').toLowerCase();
+  if (/cop|police|hot item/.test(normalized) && /scam|fake/.test(normalized)) {
+    return 'The details could attract police attention, and there is a real chance this is fake.';
+  }
+  if (/cop|police|hot item/.test(normalized)) return 'This could attract police attention.';
+  if (/scam|fake/.test(normalized)) return 'There is a real chance this comes back as a fake.';
+  if (/thug|faction|insult/.test(normalized)) return 'Insulting this customer may bring company later.';
+  return getNaturalRiskHintFromTags(item);
+}
+
+function getPoolStoryText(deal) {
+  return sanitizePlayerDialogueText(deal?.pool?.notes || '');
+}
+
+function getClerkItemObservation(item = {}, deal = state.currentDeal) {
+  const story = getPoolStoryText(deal);
+  const description = sanitizePlayerDialogueText(item.description || '');
+  const risk = getNaturalRiskHintFromNote(deal?.pool?.riskNote, item);
+  if (story && risk) return `${story} ${risk}`;
+  if (story && description && story !== description) return `${story} ${description}`;
+  if (story) return story;
+  if (description && risk) return `${description} ${risk}`;
+  if (description) return description;
+  return risk || getEncounterFlavorText(deal);
+}
+
 function clerkAssessment(deal) {
   const item = deal.item;
   if (isNpcBuying(deal.dealType) && !deal.selectedInventoryInstanceId) {
-    const request = deal.requestedItemType || 'item';
-    if (!deal.requestSatisfiable) return `Customer wants to buy ${getCustomerBuyRequestPhrase(deal)}. You do not have any ${request} in inventory.`;
-    return `Customer wants to buy ${getCustomerBuyRequestPhrase(deal)}. ${deal.eligibleInventoryInstanceIds.length} shelf item${deal.eligibleInventoryInstanceIds.length === 1 ? '' : 's'} could work.`;
+    if (!deal.requestSatisfiable) return `${deal.customer.displayName} is asking for ${getCustomerBuyRequestPhrase(deal)}, but the shelves are not helping.`;
+    return `${deal.customer.displayName} is asking for ${getCustomerBuyRequestPhrase(deal)}. A few things in the case might pass at a glance.`;
   }
 
-  const tags = (item.tags || []).length ? item.tags.join(', ') : 'none';
-  const risk = deal.pool.riskNote ? ` Risk: ${deal.pool.riskNote}.` : '';
-  const resale = moneyText(item.targetSellPrice || item.baseValue || deal.salePrice || deal.askPrice || 0);
   if (isShopBuying(deal.dealType)) {
-    return `Assessment: ${dealItemLabel(item)} is ${deal.pool.conditionOverride || item.condition}, resale around ${resale}, heat ${item.heat}/10, tags: ${tags}.${risk}`;
+    return getClerkItemObservation(item, deal);
   }
   if (isNpcBuying(deal.dealType)) {
-    const cost = deal.inventoryItem ? moneyText(deal.inventoryItem.acquisitionCost) : 'unknown';
-    return `Assessment: shelf item is ${deal.pool.conditionOverride || item.condition}, cost ${cost}, target resale ${resale}, heat ${item.heat}/10, tags: ${tags}.${risk}`;
+    const selected = deal.inventoryItem || item;
+    const risk = getNaturalRiskHintFromTags(selected);
+    return risk
+      ? `${deal.customer.displayName} studies ${dealItemLabel(selected).toLowerCase()} a little too carefully. ${risk}`
+      : `${deal.customer.displayName} studies ${dealItemLabel(selected).toLowerCase()} and tries not to look impressed.`;
   }
-  const request = deal.requestedInventoryItem ? ` Wants your ${dealItemLabel(deal.requestedInventoryItem)}.` : ' No matching shelf item required.';
-  return `Assessment: offered item is ${deal.pool.conditionOverride || item.condition}, resale around ${resale}, heat ${item.heat}/10, tags: ${tags}.${request}${risk}`;
+  const tradeHint = deal.pool?.requestedItemTags?.length
+    ? `They seem to care more about ${getTradePreferenceHint(deal).replace(/[_-]+/g, ' ')} than fair math.`
+    : 'They want a swap, not a clean sale.';
+  return `${getClerkItemObservation(item, deal)} ${tradeHint}`;
 }
 function setDialogueSpeaker(speaker) {
   els.speaker.textContent = speaker === 'clerk' ? 'Clerk' : (state.currentCustomer?.displayName || 'Customer');
@@ -1131,9 +1540,7 @@ function shouldShowDealInfo() {
 }
 
 function renderDialogueVisibility() {
-  const showDeal = shouldShowDealInfo();
-  const dealBox = els.dealText?.closest('.dialogue-deal');
-  if (dealBox) dealBox.hidden = !showDeal;
+  updateDealTextVisibility();
   updateDialogueNextIndicator();
 }
 
@@ -1221,10 +1628,77 @@ function dealItemLabel(item) {
   return quantity > 1 ? `${quantity} ${name}` : name;
 }
 
+function titleCaseText(value) {
+  return String(value || '')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\b\w/g, character => character.toUpperCase());
+}
+
+function getPlayerLiquidityLabel(item = {}) {
+  const liquidity = normalizeDemandLevel(item.liquidity || item.demand_level || item.demandLevel);
+  if (liquidity === 'high') return 'Moves fast';
+  if (liquidity === 'low') return 'Hard to sell';
+  if (liquidity === 'junk') return 'Very hard to move';
+  return '';
+}
+
+function getVisibleItemWarnings(item = {}) {
+  const tags = getItemTags(item).map(tag => String(tag).toLowerCase());
+  const warnings = [];
+  if (['broken', 'fake', 'questionable'].includes(String(item.condition || '').toLowerCase())) warnings.push(titleCaseText(item.condition));
+  if (tags.includes('broken')) warnings.push('Broken');
+  if (tags.includes('fake') || tags.includes('possibly_fake')) warnings.push('Fake');
+  if (tags.includes('suspicious') || tags.includes('mystery') || tags.includes('cursed')) warnings.push('Suspicious');
+  if (tags.includes('hot') || tags.includes('stolen') || Number(item.heat) >= 4) warnings.push('High police risk');
+  return [...new Set(warnings)].slice(0, 2);
+}
+
+function getSaleMatchLabel(deal, inventoryItem) {
+  if (!inventoryItem) return '';
+  const compatibility = evaluateSaleCompatibility(deal, inventoryItem);
+  if (!compatibility.valid) return 'Customer refuses this item';
+  const context = getSaleCompatibilityContext(deal);
+  const itemTags = getItemTagsForEconomy(inventoryItem);
+  if (context.requestedItem?.id && inventoryItem.itemId === context.requestedItem.id) return 'Exact match';
+  if (context.requestedCategory && inventoryItem.category === context.requestedCategory) return 'Category match';
+  if (context.requiredTags.some(tag => itemTags.includes(String(tag).toLowerCase()))) return 'Preference match';
+  return 'Acceptable match';
+}
+
+function getTradeValueComparison(deal) {
+  const selectedValue = getTradePlayerOfferValue(deal);
+  if (!selectedValue) return 'Select items to compare';
+  const requestedValue = getTradeRequestedValue(deal);
+  const cashDelta = getTradeCashDelta(deal);
+  const adjustedCustomerValue = requestedValue + Math.max(0, -cashDelta) - Math.max(0, cashDelta);
+  const ratio = selectedValue / Math.max(1, adjustedCustomerValue);
+  if (ratio >= 1.15) return 'Offer looks favorable';
+  if (ratio >= 0.9) return 'Offer looks fair';
+  if (ratio >= 0.65) return 'Offer looks light';
+  return 'Offer looks too low';
+}
+
+function formatDealLines(lines) {
+  return lines.filter(Boolean).join('\n');
+}
+
+function getCurrentResultSummary(text) {
+  return String(text || '')
+    .replace(/\s*\[inv_\d+\]/g, '')
+    .replace(/Check the console\./gi, 'Something in this deal data is off.')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function renderDeal() {
   const deal = state.currentDeal;
   if (!deal) {
-    els.dealText.textContent = 'The counter is quiet. That usually means trouble is parking.';
+    els.log.textContent = 'The counter is quiet. That usually means trouble is parking.';
+    return;
+  }
+
+  if (deal.currentResultSummary) {
+    els.log.textContent = deal.currentResultSummary;
     return;
   }
 
@@ -1232,36 +1706,88 @@ function renderDeal() {
   const itemLabel = dealItemLabel(item);
   if (isConsequenceDeal(deal.dealType)) {
     if (deal.dealType === THUG_CONSEQUENCE_TYPE) {
-      const itemText = deal.stolenItemCandidate ? `${deal.stolenItemCandidate.name} [${deal.stolenItemCandidate.instanceId}]` : 'no valid shelf item';
-      els.dealText.textContent = `Robbery consequence: tracksuit crew pressure came due. Cash payoff ${moneyText(getThugCashLossAmount(THUG_CASH_HANDOVER_RATE, THUG_CASH_HANDOVER_MIN))}. Item option: ${itemText}.`;
+      const itemText = deal.stolenItemCandidate ? dealItemLabel(deal.stolenItemCandidate) : 'No valid shelf item';
+      els.log.textContent = formatDealLines([
+        `${deal.customer.displayName}: Robbery`,
+        `Cash payoff: ${moneyText(getThugCashLossAmount(THUG_CASH_HANDOVER_RATE, THUG_CASH_HANDOVER_MIN))}`,
+        `Item option: ${itemText}`,
+        'Deal open'
+      ]);
       return;
     }
-    const target = deal.targetInventoryItem ? `${deal.targetInventoryItem.name} [${deal.targetInventoryItem.instanceId}]` : 'suspicious inventory';
-    els.dealText.textContent = `Consequence: ${deal.consequence.reason}. Focus: ${target}. Bribe ${moneyText(deal.bribeAmount)}.`;
+    const target = deal.targetInventoryItem ? dealItemLabel(deal.targetInventoryItem) : 'Suspicious inventory';
+    els.log.textContent = formatDealLines([
+      `${deal.customer.displayName}: Police visit`,
+      `Focus: ${target}`,
+      `Bribe: ${moneyText(deal.bribeAmount)}`,
+      deal.targetInventoryItem ? 'Police recognize this item' : ''
+    ]);
   } else if (isShopBuying(deal.dealType)) {
     const ask = deal.askingPrice ?? deal.askPrice;
-    const offerNote = deal.availableCash <= 0
-      ? ' No cash to offer.'
-      : deal.defaultOffer > deal.availableCash
-        ? ` Max offer ${moneyText(deal.actualOffer)}.`
-        : '';
-    els.dealText.textContent = `${itemLabel}: asks ${moneyText(ask)}.${offerNote} ${item.condition}. Heat ${item.heat}/10.`;
+    const warnings = getVisibleItemWarnings(item);
+    els.log.textContent = formatDealLines([
+      `${deal.customer.displayName}: Selling to shop`,
+      itemLabel,
+      `Asking: ${moneyText(ask)}`,
+      deal.lowballRejected ? `Current offer: ${moneyText(deal.defaultOffer)}` : `Your offer: ${moneyText(deal.actualOffer)}`,
+      deal.priceWorsenedNotice ? `PRICE RAISED: ${moneyText(deal.priceWorsenedNotice.oldAsk)} -> ${moneyText(deal.priceWorsenedNotice.newAsk)}` : '',
+      `Condition: ${titleCaseText(item.condition)}`,
+      getPlayerLiquidityLabel(item),
+      warnings.length ? `Warning: ${warnings.join(', ')}` : '',
+      deal.availableCash <= 0 ? 'No cash to offer' : deal.defaultOffer > deal.availableCash ? `Cash available: ${moneyText(deal.availableCash)}` : ''
+    ]);
   } else if (isNpcBuying(deal.dealType)) {
     if (!deal.requestSatisfiable) {
-      els.dealText.textContent = `Customer wants to buy ${getCustomerBuyRequestPhrase(deal)}. You do not have any ${deal.requestedItemType} in inventory.`;
+      els.log.textContent = formatDealLines([
+        `${deal.customer.displayName}: Buying from shop`,
+        `Wants: ${titleCaseText(deal.requestedItemType || getCustomerBuyRequestPhrase(deal))}`,
+        `Selected: None`,
+        'No matching shelf item'
+      ]);
     } else if (!deal.selectedInventoryInstanceId) {
-      els.dealText.textContent = `Customer wants to buy ${getCustomerBuyRequestPhrase(deal)}. Select an item before pricing the sale.`;
+      els.log.textContent = formatDealLines([
+        `${deal.customer.displayName}: Buying from shop`,
+        `Wants: ${titleCaseText(deal.requestedItemType || getCustomerBuyRequestPhrase(deal))}`,
+        'Selected: None',
+        `${deal.eligibleInventoryInstanceIds.length} shelf option${deal.eligibleInventoryInstanceIds.length === 1 ? '' : 's'}`
+      ]);
+    } else if (deal.counterofferOpen) {
+      els.log.textContent = formatDealLines([
+        `${deal.customer.displayName}: Buying from shop`,
+        `Wants: ${titleCaseText(deal.requestedItemType || getCustomerBuyRequestPhrase(deal))}`,
+        `Selected: ${itemLabel}`,
+        `Counteroffer: ${moneyText(deal.counterofferPrice)}`,
+        getSaleMatchLabel(deal, deal.inventoryItem),
+        getVisibleItemWarnings(deal.inventoryItem).length ? `Warning: ${getVisibleItemWarnings(deal.inventoryItem).join(', ')}` : ''
+      ]);
     } else {
-      els.dealText.textContent = `${itemLabel}: tag ${moneyText(deal.salePrice)}. Acquired for ${moneyText(deal.inventoryItem.acquisitionCost)}.`;
+      els.log.textContent = formatDealLines([
+        `${deal.customer.displayName}: Buying from shop`,
+        `Wants: ${titleCaseText(deal.requestedItemType || getCustomerBuyRequestPhrase(deal))}`,
+        `Selected: ${itemLabel}`,
+        `Offer: ${moneyText(deal.salePrice)}`,
+        `Markup: ${moneyText(deal.markupPrice)}`,
+        getSaleMatchLabel(deal, deal.inventoryItem),
+        getVisibleItemWarnings(deal.inventoryItem).length ? `Warning: ${getVisibleItemWarnings(deal.inventoryItem).join(', ')}` : ''
+      ]);
     }
   } else {
-    const selectedTradeItems = getSelectedTradeInventoryItems(deal);
-    const request = selectedTradeItems.length
-      ? ` for ${selectedTradeItems.map(item => `${dealItemLabel(item)} [${item.instanceId}]`).join(', ')}`
-      : deal.pool?.requestedItemTags?.length ? ` for your ${deal.pool.requestedItemTags.join('/')} inventory` : '';
-    const cash = deal.cashAdjustment === 0 ? '' : ` Cash adjustment ${moneyText(Math.abs(deal.cashAdjustment))} ${deal.cashAdjustment > 0 ? 'from you' : 'to you'}.`;
-    const offer = selectedTradeItems.length ? ` Your offer value about ${moneyText(getTradePlayerOfferValue(deal))}.` : '';
-    els.dealText.textContent = `${itemLabel}${request}: customer-side value around ${moneyText(getTradeRequestedValue(deal))}.${cash}${offer} ${deal.pool.riskNote}.`;
+    const selectedItems = getSelectedTradeInventoryItems(deal);
+    const cashDelta = getTradeCashDelta(deal);
+    const selectedText = selectedItems.length
+      ? selectedItems.map(item => dealItemLabel(item)).join(', ')
+      : 'None';
+    const remainingAttempts = Math.max(0, NEGOTIATION_OUTCOMES.attemptLimits.trade - (Number(deal.tradeSubmissions) || 0));
+    els.log.textContent = formatDealLines([
+      `${deal.customer.displayName}: Trade`,
+      `Customer offers: ${getTradeReceivedItems(deal).map(item => dealItemLabel(item)).join(', ') || itemLabel}`,
+      deal.pool?.requestedItemTags?.length ? `Wants: ${titleCaseText(getTradePreferenceHint(deal))}` : '',
+      `You selected: ${selectedText}`,
+      selectedItems.length ? `Selected value: about ${moneyText(getTradePlayerOfferValue(deal))}` : '',
+      cashDelta > 0 ? `Cash received: ${moneyText(cashDelta)}` : cashDelta < 0 ? `Cash required: ${moneyText(Math.abs(cashDelta))}` : 'Cash: None',
+      getTradeValueComparison(deal),
+      `Attempts left: ${remainingAttempts}`
+    ]);
   }
 }
 
@@ -1278,6 +1804,7 @@ function getLowballOfferLabel(deal) {
 function openInventorySelection() {
   const deal = state.currentDeal;
   if (!deal || !isNpcBuying(deal.dealType) || deal.resolvedAction || !deal.requestSatisfiable || deal.selectedInventoryInstanceId) return;
+  deal.currentResultSummary = '';
   state.inventorySelection.active = true;
   state.inventorySelection.encounterId = deal.encounterId;
   state.inventorySelection.mode = 'sale';
@@ -1304,6 +1831,7 @@ function cancelInventorySelection() {
     deal.requestedInventoryItems = [];
     deal.requestedInventoryItem = null;
   }
+  if (deal) deal.currentResultSummary = '';
   clearInventorySelection();
   if (wasActive) renderLog('Selection canceled. Nothing changes hands.');
   setInventoryOpen(false);
@@ -1313,6 +1841,12 @@ function cancelInventorySelection() {
 function openTradeSelection() {
   const deal = state.currentDeal;
   if (!deal || deal.dealType !== 'trade' || deal.resolvedAction) return;
+  if (isTradeSubmissionLimitReached(deal)) {
+    renderLog(`The customer is done negotiating after ${NEGOTIATION_OUTCOMES.attemptLimits.trade} submissions. No deal is still available.`);
+    renderAll();
+    return;
+  }
+  deal.currentResultSummary = '';
   state.inventorySelection.active = true;
   state.inventorySelection.encounterId = deal.encounterId;
   state.inventorySelection.mode = 'trade';
@@ -1340,6 +1874,7 @@ function toggleTradeInventorySelection(deal, instanceId) {
   deal.selectedTradeInventoryInstanceIds = [...selected];
   deal.requestedInventoryItems = getSelectedTradeInventoryItems(deal);
   deal.requestedInventoryItem = deal.requestedInventoryItems[0] || null;
+  deal.currentResultSummary = '';
   renderLog(getTradeSelectionSummary(deal));
   renderAll();
 }
@@ -1360,6 +1895,7 @@ function selectInventoryItemForDeal(deal, instanceId) {
   const inventoryItem = validation.inventoryItem;
   appendSaleHistory(deal, `Sale selection: requested ${getCustomerBuyRequestPhrase(deal)}; selected ${inventoryItem.itemId} [${inventoryItem.instanceId}]; matched request: yes; ${validation.reason}.`);
   applySelectedInventoryItemToDeal(deal, inventoryItem);
+  deal.currentResultSummary = '';
   clearInventorySelection();
   setInventoryOpen(false);
   setDialogueSpeaker('customer');
@@ -1422,24 +1958,31 @@ function renderChoices() {
             { label: 'Refuse the sale', action: 'refuse' }
           ];
     } else {
-      choices = [
-        { label: `Sell for ${moneyText(deal.salePrice)}`, action: 'sellTag' },
-        { label: `Mark up to ${moneyText(deal.markupPrice)}`, action: 'markup', disabled: deal.markupRejected },
-        { label: 'Refuse the sale', action: 'refuse' }
-      ];
+      choices = deal.counterofferOpen
+        ? [
+            { label: `Accept ${moneyText(deal.counterofferPrice)}`, action: 'acceptCounteroffer' },
+            { label: 'Refuse counteroffer', action: 'refuseCounteroffer' }
+          ]
+        : [
+            { label: `Sell for ${moneyText(deal.salePrice)}`, action: 'sellTag' },
+            { label: `Mark up to ${moneyText(deal.markupPrice)}`, action: 'markup', disabled: deal.markupRejected },
+            { label: 'Refuse the sale', action: 'refuse' }
+          ];
     }
   } else {
     if (state.inventorySelection.active && state.inventorySelection.encounterId === deal.encounterId && state.inventorySelection.mode === 'trade') {
-      const evaluation = evaluateTradeOffer(deal);
+      const submission = canSubmitTradeAction(deal);
       choices = [
-        { label: 'Submit trade offer', action: 'submitTradeOffer', disabled: !evaluation.canSubmit },
+        { label: isTradeSubmissionLimitReached(deal) ? 'No more submissions' : 'Submit trade offer', action: 'submitTradeOffer', disabled: !submission.canSubmit },
         { label: 'Cancel selection', action: 'cancelSelection' },
         { label: 'No deal', action: 'refuse' }
       ];
     } else {
+      const submission = canSubmitTradeAction(deal);
+      const exhausted = isTradeSubmissionLimitReached(deal);
       choices = [
-        { label: 'Select trade items', action: 'selectTradeItems' },
-        { label: `Demand ${moneyText(deal.cashInstead)}`, action: 'tradeCash' },
+        { label: exhausted ? 'Customer done negotiating' : 'Select trade items', action: 'selectTradeItems', disabled: exhausted },
+        { label: `Demand ${moneyText(deal.cashInstead)}`, action: 'tradeCash', disabled: !submission.canSubmit },
         { label: 'No deal', action: 'refuse' }
       ];
     }
@@ -1463,8 +2006,194 @@ function renderChoices() {
     els.choices.appendChild(button);
   });
 }
+
+function stripDeveloperReferences(text) {
+  return String(text || '')
+    .replace(/\s*\[inv_\d+\]/g, '')
+    .replace(/\bUse\s+[a-z0-9_,-]+(?:\s+or\s+[^.]+)?\./gi, '')
+    .replace(/\b(?:encounter|source)\s+[a-z0-9_-]+\b/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function hasDealPanelDiagnostics(text) {
+  return /\b(?:Acquired T|Held \d|normal encounters|Liquidity \w+|Cost \$|Heat \d|Tags:|Demand candidate|Demand request|weighted instance|reroll reason|Normal selection|base weights|adjusted weights|chanceWeight|instance|multiplier|diagnostic)\b/i.test(text);
+}
+
+function findInventoryItemFromDetailText(text) {
+  const name = String(text || '').split(':')[0]?.trim();
+  if (!name) return null;
+  return state.inventory.find(item => item.name === name) || null;
+}
+
+function getNaturalTagPhrase(item = {}) {
+  const tags = getItemTags(item).map(tag => String(tag).toLowerCase());
+  if (tags.includes('hot') || tags.includes('stolen')) return 'Selling it may attract the wrong kind of attention.';
+  if (tags.includes('fake') || tags.includes('possibly_fake')) return 'Something about it looks counterfeit.';
+  if (tags.includes('broken')) return 'It looks visibly damaged.';
+  if (tags.includes('suspicious') || tags.includes('mystery') || tags.includes('cursed')) return 'Something about it does not add up.';
+  if (tags.includes('luxury')) return 'It looks expensive from across the counter.';
+  if (tags.includes('rare') || tags.includes('collectible')) return 'It has the odd pull of something collectible.';
+  if (tags.includes('junk')) return 'It looks like low-value clutter with a story attached.';
+  return '';
+}
+
+function getItemFlavorText(item = {}, deal = state.currentDeal) {
+  const description = stripDeveloperReferences(item.description || '');
+  const warning = getNaturalTagPhrase(item);
+  if (description && warning) return `${description} ${warning}`;
+  if (description) return description;
+
+  const condition = titleCaseText(item.condition || 'worn').toLowerCase();
+  const label = dealItemLabel(item).toLowerCase();
+  const customerHint = deal?.customer?.displayName
+    ? `${deal.customer.displayName} keeps watching your reaction.`
+    : 'The customer keeps watching your reaction.';
+  return `${/^[aeiou]/i.test(condition) ? 'An' : 'A'} ${condition} ${label}. ${warning || customerHint}`;
+}
+
+function getConsequenceFlavorText(deal) {
+  if (deal?.consequenceResult) return getCurrentResultSummary(deal.consequenceResult);
+  if (deal?.dealType === THUG_CONSEQUENCE_TYPE) {
+    const item = deal.stolenItemCandidate ? ` ${deal.stolenItemCandidate.name} is within reach.` : '';
+    return `The Tracksuit Crew has decided the debt is due.${item}`;
+  }
+  if (deal?.dealType === COP_CONSEQUENCE_TYPE) {
+    const item = deal.targetInventoryItem || deal.item;
+    return item
+      ? `The officer recognizes ${dealItemLabel(item).toLowerCase()} immediately. Denying it now is going to be difficult.`
+      : 'The officer is here about merchandise that passed through your counter.';
+  }
+  return '';
+}
+
+function getEncounterFlavorText(deal = state.currentDeal) {
+  if (!deal) return 'The counter is quiet. That usually means trouble is parking.';
+  if (isConsequenceDeal(deal.dealType)) return getConsequenceFlavorText(deal);
+  if (isNpcBuying(deal.dealType) && deal.inventoryItem) {
+    return `${deal.customer.displayName} turns ${dealItemLabel(deal.inventoryItem).toLowerCase()} under the light and tries not to look too interested.`;
+  }
+  if (isNpcBuying(deal.dealType)) {
+    return `${deal.customer.displayName} is hunting for ${getCustomerBuyRequestPhrase(deal)} and watching the shelf like it owes them money.`;
+  }
+  if (deal.dealType === 'trade') {
+    const preference = getTradePreferenceHint(deal);
+    return deal.pool?.requestedItemTags?.length
+      ? `${deal.customer.displayName} wants something ${preference.replace(/[_-]+/g, ' ')}, not necessarily something fair.`
+      : `${deal.customer.displayName} wants a swap more than a clean cash deal.`;
+  }
+  return getItemFlavorText(deal.item, deal);
+}
+
+function getPlayerRejectionText(text) {
+  if (/wrong item type/i.test(text)) return 'That is not what the customer came in looking for.';
+  if (/buyer avoids|hot|suspicious|stolen|fake/i.test(text)) return 'The customer refuses merchandise that looks like trouble.';
+  if (/condition/i.test(text)) return 'The customer takes one look at the condition and passes.';
+  if (/low-demand|niche|liquidity/i.test(text)) return 'The customer wants something that will move faster than this.';
+  if (/missing preferred tag/i.test(text)) return 'Close enough to look at, not close enough to buy.';
+  return stripDeveloperReferences(text);
+}
+
+function getPlayerDealPanelText(text, deal = state.currentDeal) {
+  const raw = String(text || '').trim();
+  const cleaned = stripDeveloperReferences(raw);
+  if (!raw) return '';
+  if (deal?.currentResultSummary && cleaned) return getCurrentResultSummary(cleaned);
+  if (/^Rejected:/i.test(cleaned)) return getPlayerRejectionText(cleaned);
+  if (/^(?:Select|Selection canceled|That item is not eligible|The customer is done|No matching inventory)/i.test(cleaned)) return cleaned;
+
+  const itemFromDetail = findInventoryItemFromDetailText(raw);
+  if (itemFromDetail && hasDealPanelDiagnostics(raw)) return getItemFlavorText(itemFromDetail, deal);
+  if (hasDealPanelDiagnostics(raw)) return getEncounterFlavorText(deal);
+
+  if ((cleaned && cleaned !== raw) || /\bUse\s+[a-z0-9_,-]+/i.test(raw)) {
+    return cleaned || getEncounterFlavorText(deal);
+  }
+  return cleaned || getEncounterFlavorText(deal);
+}
+
+function normalizeDealComparisonText(text) {
+  return String(text || '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/[.!?]+$/g, '')
+    .toLowerCase();
+}
+
+function getDialogueComparisonText() {
+  return isTypingLine && typedLine ? typedLine : els.dialogue?.textContent || '';
+}
+
+function isDuplicateVisibleText(first, second) {
+  const left = normalizeDealComparisonText(first);
+  const right = normalizeDealComparisonText(second);
+  return Boolean(left && right && left === right);
+}
+
+function getConciseTransactionFallback(deal) {
+  if (!deal?.transaction) return '';
+  const transaction = deal.transaction;
+  if (transaction.type === 'shop_purchase') {
+    return `Paid ${moneyText(transaction.price)}. Added ${transaction.itemName} to inventory.`;
+  }
+  if (transaction.type === 'sale') {
+    const itemName = transaction.removedItem?.name || deal.inventoryItem?.name || 'the item';
+    return `Sold ${itemName} for ${moneyText(transaction.price)}.`;
+  }
+  if (transaction.type === 'trade') {
+    const cash = transaction.cashDelta > 0
+      ? ` You received ${moneyText(transaction.cashDelta)}.`
+      : transaction.cashDelta < 0 ? ` You paid ${moneyText(Math.abs(transaction.cashDelta))}.` : '';
+    return `Trade completed.${cash}`;
+  }
+  return '';
+}
+
+function getDealOpenClosedFallback(deal) {
+  if (!deal) return '';
+  if (deal.resolvedAction || state.conversation?.phase === 'resolved' || state.conversation?.phase === 'exiting') return 'The deal is closed.';
+  if (state.conversation?.phase === 'choices' && (deal.currentResultSummary || deal.lowballRejected || deal.markupRejected || Number(deal.tradeSubmissions) > 0)) {
+    return 'The deal is still open.';
+  }
+  return '';
+}
+
+function getDistinctDealFallback(primaryText) {
+  const deal = state.currentDeal;
+  if (!deal) return '';
+  const item = deal.inventoryItem || deal.item;
+  const candidates = [
+    deal.priceWorsenedNotice ? `The asking price increased from ${moneyText(deal.priceWorsenedNotice.oldAsk)} to ${moneyText(deal.priceWorsenedNotice.newAsk)}.` : '',
+    deal.counterofferOpen && Number.isFinite(Number(deal.counterofferPrice)) ? `Counteroffer: ${moneyText(deal.counterofferPrice)}.` : '',
+    getDealOpenClosedFallback(deal),
+    getConciseTransactionFallback(deal),
+    getNaturalTagPhrase(item),
+    getEncounterFlavorText(deal)
+  ].filter(Boolean);
+  const dialogueText = getDialogueComparisonText();
+  return candidates.find(candidate =>
+    !isDuplicateVisibleText(candidate, primaryText) &&
+    !isDuplicateVisibleText(candidate, dialogueText)
+  ) || '';
+}
+
+function updateDealTextVisibility() {
+  if (!els.dealText) return;
+  const dealBox = els.dealText.closest('.dialogue-deal');
+  const baseText = getPlayerDealPanelText(pendingDealPanelText);
+  const dialogueText = getDialogueComparisonText();
+  const visibleText = isDuplicateVisibleText(baseText, dialogueText)
+    ? getDistinctDealFallback(baseText)
+    : baseText;
+  els.dealText.textContent = visibleText;
+  const hidden = !shouldShowDealInfo() || !normalizeDealComparisonText(visibleText);
+  els.dealText._dealBoxHidden = hidden;
+  if (dealBox) dealBox.hidden = hidden;
+}
+
 function renderLog(text) {
-  els.log.textContent = text;
+  pendingDealPanelText = text || '';
+  updateDealTextVisibility();
 }
 
 function renderAll() {
@@ -1479,7 +2208,9 @@ function choiceResult(text, options = {}) {
   return {
     text,
     runRiskCheck: options.runRiskCheck !== false,
-    keepEncounterOpen: options.keepEncounterOpen === true
+    keepEncounterOpen: options.keepEncounterOpen === true,
+    skipHistory: options.skipHistory === true,
+    blockedAction: options.blockedAction === true
   };
 }
 
@@ -1670,12 +2401,20 @@ function getEligibleQueuedConsequence() {
     if (!emergency && normalTurns < SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS) continue;
     const eligibleTurn = normalTurns + 1;
     const selectionStep = 100 / (SPECIAL_ENCOUNTER_GUARANTEE_TURN - SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS);
-    const selectionChance = emergency ? 100 : Math.min(100, (eligibleTurn - SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS) * selectionStep);
+    const previousChecks = Number(consequence.metadata.eligibleSelectionChecks) || 0;
+    const isThug = consequence.type === THUG_CONSEQUENCE_TYPE;
+    const guaranteeReached = isThug
+      ? previousChecks + 1 >= THUG_CONSEQUENCE_MAX_ELIGIBLE_CHECKS
+      : eligibleTurn >= SPECIAL_ENCOUNTER_GUARANTEE_TURN;
+    const selectionChance = emergency || guaranteeReached
+      ? 100
+      : Math.min(100, (eligibleTurn - SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS) * selectionStep);
     consequence.metadata.eligibleSelectionChecks = (consequence.metadata.eligibleSelectionChecks || 0) + 1;
     if (chance(selectionChance)) {
-      consequence.metadata.schedulingStatus = `selected with evidence eligible since T${consequence.earliestTurn}; shared cooldown satisfied (${normalTurns} normal encounters since previous special); selected on first eligible turn: ${consequence.metadata.eligibleSelectionChecks === 1 ? 'yes' : 'no'}; actual selection chance: ${selectionChance}%${emergency ? ' (emergency override)' : ''}`;
+      consequence.metadata.schedulingStatus = `selected with evidence eligible since T${consequence.earliestTurn}; shared cooldown satisfied (${normalTurns} normal encounters since previous special); selected on first eligible turn: ${consequence.metadata.eligibleSelectionChecks === 1 ? 'yes' : 'no'}; eligible checks waited: ${consequence.metadata.eligibleSelectionChecks}; actual selection chance: ${selectionChance}%${emergency ? ' (emergency override)' : ''}${guaranteeReached ? ' (guarantee reached)' : ''}`;
       return consequence;
     }
+    consequence.metadata.schedulingStatus = `not selected on eligible check ${consequence.metadata.eligibleSelectionChecks}; faction ${consequence.factionId || consequence.metadata?.factionId || 'n/a'}; pressure when queued ${consequence.metadata?.factionPressureAtQueue ?? 'n/a'}; first eligible T${consequence.earliestTurn}; shared cooldown satisfied (${normalTurns} normal encounters since previous special); selection chance ${selectionChance}%; guarantee reached: ${guaranteeReached ? 'yes' : 'no'}.`;
   }
   return null;
 }
@@ -1709,9 +2448,12 @@ function copyInventoryDebugItem(item) {
     liquidity: item.liquidity,
     price_variance: item.price_variance,
     heat: item.heat,
+    costBasis: item.costBasis,
     sourceCustomerId: item.sourceCustomerId,
     turnAcquired: item.turnAcquired,
     normalEncounterAcquired: item.normalEncounterAcquired,
+    resaleModifier: item.resaleModifier,
+    heldNormalEncounters: getHeldNormalEncounters(item),
     notes: item.notes
   };
 }
@@ -1788,6 +2530,8 @@ function getChoiceLabel(action, deal) {
   if (action === 'lowball') return getLowballOfferLabel(deal);
   if (action === 'sellTag') return `Sell for ${moneyText(deal.salePrice)}`;
   if (action === 'markup') return `Mark up to ${moneyText(deal.markupPrice)}`;
+  if (action === 'acceptCounteroffer') return `Accept ${moneyText(deal.counterofferPrice)}`;
+  if (action === 'refuseCounteroffer') return 'Refuse counteroffer';
   if (action === 'tradeAccept') return 'Accept trade';
   if (action === 'submitTradeOffer') return 'Submit trade offer';
   if (action === 'tradeCash') return `Demand ${moneyText(deal.cashInstead)}`;
@@ -1800,11 +2544,12 @@ function classifyChoiceOutcome(action, deal, before, after) {
   if (isConsequenceDeal(deal.dealType)) return 'resolved';
   if (action === 'refuse') return 'rejected';
   if (isShopBuying(deal.dealType) && deal.transaction?.type === 'shop_purchase') return 'succeeded';
-  if (action === 'lowball' && deal.lowballOutcome === 'insulted') return 'failed';
+  if (action === 'lowball' && (deal.lowballOutcome === 'insulted' || deal.lowballOutcome === 'customerWalks')) return 'failed';
   if (action === 'lowball') return inventoryDelta.added.length ? 'succeeded' : 'rejected';
   if (action === 'buyAsk' || action === 'tradeAccept') return 'succeeded';
   if (action === 'submitTradeOffer') return inventoryDelta.added.length || inventoryDelta.removed.length ? 'succeeded' : deal.tradeOfferEndedEncounter ? 'failed' : 'rejected';
-  if (action === 'sellTag' || action === 'markup') return inventoryDelta.removed.length ? 'succeeded' : 'failed';
+  if (action === 'sellTag' || action === 'markup' || action === 'acceptCounteroffer') return inventoryDelta.removed.length ? 'succeeded' : 'failed';
+  if (action === 'refuseCounteroffer') return 'rejected';
   if (action === 'tradeCash') return after.money > before.money ? 'succeeded' : 'failed';
   return 'resolved';
 }
@@ -1851,6 +2596,7 @@ function buildHistoryLines(before, after, deal = null) {
     .filter(item => !transactionInstanceIds.has(item.instanceId))
     .forEach(item => lines.push(`Inventory: - ${formatHistoryItem(item)}`));
   (deal?.saleHistoryLines || []).forEach(line => lines.push(line));
+  (deal?.economicHistoryLines || []).forEach(line => lines.push(line));
   (deal?.negotiationHistoryLines || []).forEach(line => lines.push(line));
   (deal?.tradeHistoryLines || []).forEach(line => lines.push(line));
   (deal?.buybackCooldownHistoryLines || []).forEach(line => lines.push(line));
@@ -1927,6 +2673,9 @@ function recordTurnHistory(action, deal, before, after) {
     lines: historyLines
   });
   deal.saleHistoryLines = [];
+  deal.economicHistoryLines = [];
+  deal.negotiationHistoryLines = [];
+  deal.tradeHistoryLines = [];
   turnHistory = turnHistory.slice(0, TURN_HISTORY_LIMIT);
   renderHistory();
 }
@@ -1942,7 +2691,9 @@ function createInventoryItem(item, acquisitionCost, sourceCustomerId, conditionO
     tags: [...item.tags],
     heat: item.heat,
     acquisitionCost,
+    costBasis: Math.max(0, Math.round(Number(acquisitionCost) || 0)),
     targetSellPrice: item.targetSellPrice,
+    resaleModifier: Number.isFinite(Number(item.resaleModifier)) ? Number(item.resaleModifier) : 1,
     currentAskPrice: null,
     sourceCustomerId,
     turnAcquired: state.turn,
@@ -2005,6 +2756,157 @@ function getCustomerBuyAcceptedTags(encounter) {
 
 function normalizeTags(tags = []) {
   return [...new Set(tags.filter(Boolean).map(tag => String(tag).trim()).filter(Boolean))];
+}
+
+function getInventoryCostBasis(item) {
+  const explicitBasis = Number(item?.costBasis);
+  if (Number.isFinite(explicitBasis)) return Math.max(0, Math.round(explicitBasis));
+  const acquisitionCost = Number(item?.acquisitionCost);
+  if (Number.isFinite(acquisitionCost)) return Math.max(0, Math.round(acquisitionCost));
+  return 0;
+}
+
+function getItemTagsForEconomy(item) {
+  return normalizeTags([item?.category, ...(Array.isArray(item?.tags) ? item.tags : [])]).map(tag => tag.toLowerCase());
+}
+
+function getConditionValueMultiplier(item) {
+  const condition = String(item?.condition || item?.default_condition || '').toLowerCase();
+  return ECONOMY_BALANCE.conditionValueMultipliers[condition] ?? 0.9;
+}
+
+function getLiquiditySaleMultiplier(item) {
+  const liquidity = String(item?.liquidity || getItem(item?.itemId || item?.id)?.liquidity || 'medium').toLowerCase();
+  return ECONOMY_BALANCE.liquiditySaleMultipliers[liquidity] ?? ECONOMY_BALANCE.liquiditySaleMultipliers.medium;
+}
+
+function getTagValueMultiplier(item) {
+  return getItemTagsForEconomy(item).reduce((multiplier, tag) => {
+    const configured = ECONOMY_BALANCE.tagValueMultipliers[tag];
+    return configured ? multiplier * configured : multiplier;
+  }, 1);
+}
+
+function getInstanceBaseTargetValue(item) {
+  const catalogItem = getItem(item?.itemId || item?.id);
+  return Math.max(1, Math.round(Number(
+    item?.targetSellPrice ??
+    item?.target_sell_price ??
+    catalogItem?.targetSellPrice ??
+    catalogItem?.target_sell_price ??
+    item?.baseValue ??
+    catalogItem?.baseValue ??
+    item?.acquisitionCost ??
+    1
+  ) || 1));
+}
+
+function getEconomyCompatibility(deal, inventoryItem) {
+  const compatibility = evaluateSaleCompatibility(deal, inventoryItem);
+  const context = getSaleCompatibilityContext(deal);
+  const itemTags = getItemTagsForEconomy(inventoryItem);
+  const matchingRequiredTags = context.requiredTags.filter(tag => itemTags.includes(String(tag).toLowerCase()));
+  const matchingTraitTags = context.traitInterestTags.filter(tag => itemTags.includes(String(tag).toLowerCase()));
+  const exactItem = Boolean(context.requestedItem?.id && inventoryItem?.itemId === context.requestedItem.id);
+  const categoryMatch = Boolean(context.requestedCategory && inventoryItem?.category === context.requestedCategory);
+  return { compatibility, context, itemTags, matchingRequiredTags, matchingTraitTags, exactItem, categoryMatch };
+}
+
+function getCustomerPreferencePriceMultiplier(economyContext) {
+  const preference = ECONOMY_BALANCE.customerPreference;
+  let multiplier = 1;
+  if (economyContext.exactItem) multiplier *= preference.exactItemBonus;
+  else if (economyContext.categoryMatch) multiplier *= preference.categoryMatchBonus;
+  multiplier += Math.min(
+    preference.maxBonus - 1,
+    economyContext.matchingRequiredTags.length * preference.requiredTagBonus +
+      economyContext.matchingTraitTags.length * preference.traitTagBonus
+  );
+  return Math.max(0.75, Math.min(preference.maxBonus, multiplier));
+}
+
+function getRiskPriceMultiplier(deal, inventoryItem, economyContext) {
+  const risk = ECONOMY_BALANCE.riskPricing;
+  const heat = Math.max(0, Number(inventoryItem?.heat) || 0);
+  if (!heat) return 1;
+  const riskTolerance = Number(deal?.traits?.riskTolerance) || 0;
+  const requestedRiskTags = ['hot', 'stolen', 'suspicious', 'weapon', 'illegal', 'contraband'];
+  const alignedRiskInterest = requestedRiskTags.some(tag =>
+    economyContext.itemTags.includes(tag) &&
+    (economyContext.context.requiredTags.includes(tag) || economyContext.context.traitInterestTags.includes(tag))
+  );
+  if (riskTolerance <= risk.ordinaryToleranceMax && !alignedRiskInterest) {
+    return Math.max(0.62, 1 - heat * risk.ordinaryHeatPenaltyPerPoint);
+  }
+  if (riskTolerance >= risk.highToleranceMin && alignedRiskInterest) {
+    return Math.min(risk.maxTolerantPremium, 1 + heat * risk.tolerantHeatPremiumPerPoint + risk.alignedRiskTagPremium);
+  }
+  return Math.max(0.8, 1 - heat * 0.012);
+}
+
+function getMarginClass(item, economyContext = null) {
+  const tags = getItemTagsForEconomy(item);
+  const liquidity = String(item?.liquidity || getItem(item?.itemId || item?.id)?.liquidity || 'medium').toLowerCase();
+  const condition = String(item?.condition || '').toLowerCase();
+  if (tags.includes('junk')) return 'junk';
+  if ((tags.includes('rare') || tags.includes('collectible')) && economyContext?.exactItem) return 'rareCollector';
+  if (tags.some(tag => ['hot', 'stolen', 'suspicious', 'illegal', 'contraband', 'weapon'].includes(tag)) || Number(item?.heat) >= 3) return 'suspiciousOrHot';
+  if (['poor', 'questionable', 'unknown', 'broken', 'fake'].includes(condition) || liquidity === 'low') return 'damagedOrLowLiquidity';
+  return 'ordinary';
+}
+
+function calculateCustomerOfferForInventoryItem(deal, inventoryItem) {
+  const economyContext = getEconomyCompatibility(deal, inventoryItem);
+  const basis = getInventoryCostBasis(inventoryItem);
+  const baseTargetValue = getInstanceBaseTargetValue(inventoryItem);
+  const conditionMultiplier = getConditionValueMultiplier(inventoryItem);
+  const liquidityMultiplier = getLiquiditySaleMultiplier(inventoryItem);
+  const tagMultiplier = getTagValueMultiplier(inventoryItem);
+  const instanceResaleModifier = Number.isFinite(Number(inventoryItem?.resaleModifier)) ? Number(inventoryItem.resaleModifier) : 1;
+  const customerAskMultiplier = Number(deal?.pool?.askPriceMultiplier) || 1;
+  const preferenceMultiplier = getCustomerPreferencePriceMultiplier(economyContext);
+  const riskMultiplier = getRiskPriceMultiplier(deal, inventoryItem, economyContext);
+  const rawOffer = baseTargetValue *
+    conditionMultiplier *
+    liquidityMultiplier *
+    tagMultiplier *
+    instanceResaleModifier *
+    customerAskMultiplier *
+    preferenceMultiplier *
+    riskMultiplier;
+  const marginClass = getMarginClass(inventoryItem, economyContext);
+  const ceiling = ECONOMY_BALANCE.marginCeilings[marginClass] || ECONOMY_BALANCE.marginCeilings.ordinary;
+  const basisCeiling = basis > 0 ? Math.max(2, Math.round(basis * ceiling)) : Number.POSITIVE_INFINITY;
+  const price = Math.max(2, Math.round(Math.min(rawOffer, basisCeiling)));
+  return {
+    price,
+    basis,
+    baseTargetValue,
+    conditionMultiplier,
+    liquidityMultiplier,
+    tagMultiplier,
+    instanceResaleModifier,
+    customerAskMultiplier,
+    preferenceMultiplier,
+    riskMultiplier,
+    marginClass,
+    marginCeiling: Number.isFinite(basisCeiling) ? basisCeiling : null,
+    compatibility: economyContext.compatibility
+  };
+}
+
+function appendEconomicDiagnostic(deal, line) {
+  if (!Array.isArray(deal.economicHistoryLines)) deal.economicHistoryLines = [];
+  deal.economicHistoryLines.push(line);
+  console.info('[economy]', line);
+}
+
+function applyRealizedConsequenceLoss(amount, deal, reason) {
+  const loss = Math.max(0, Math.round(Number(amount) || 0));
+  if (!loss) return 0;
+  state.profit -= loss;
+  appendEconomicDiagnostic(deal || state.currentDeal, `Consequence loss: ${moneyText(loss)}; ${reason}; profit records realized net economic performance.`);
+  return loss;
 }
 
 function getSaleCompatibilityContext(deal) {
@@ -2325,9 +3227,15 @@ function applySelectedInventoryItemToDeal(deal, inventoryItem) {
   deal.selectedInventoryInstanceId = inventoryItem.instanceId;
   deal.inventoryItem = inventoryItem;
   deal.item = inventoryItem;
-  deal.salePrice = Math.max(2, Math.round((inventoryItem.targetSellPrice || inventoryItem.baseValue || inventoryItem.acquisitionCost) * deal.pool.askPriceMultiplier));
+  const quote = calculateCustomerOfferForInventoryItem(deal, inventoryItem);
+  deal.salePrice = quote.price;
   deal.defaultSalePrice = deal.salePrice;
   deal.markupPrice = Math.max(deal.salePrice + 2, Math.round(deal.salePrice * deal.traits.maxMarkupTolerance));
+  deal.saleQuote = quote;
+  appendEconomicDiagnostic(
+    deal,
+    `Sale quote: ${inventoryItem.name} [${inventoryItem.instanceId}]; basis ${moneyText(quote.basis)}; base target ${moneyText(quote.baseTargetValue)}; condition ${quote.conditionMultiplier.toFixed(2)}x; liquidity ${quote.liquidityMultiplier.toFixed(2)}x; tags ${quote.tagMultiplier.toFixed(2)}x; resale modifier ${quote.instanceResaleModifier.toFixed(2)}x; customer ${quote.customerAskMultiplier.toFixed(2)}x; preference ${quote.preferenceMultiplier.toFixed(2)}x; risk ${quote.riskMultiplier.toFixed(2)}x; margin class ${quote.marginClass}${quote.marginCeiling ? ` ceiling ${moneyText(quote.marginCeiling)}` : ''}; offered ${moneyText(quote.price)}.`
+  );
 }
 
 function poolWeight(pool) {
@@ -2507,7 +3415,12 @@ function buildDeal(pool) {
     lowballPrice,
     normalLowballPrice,
     lowballRejected: false,
+    lowballAttempts: 0,
     markupRejected: false,
+    markupAttempts: 0,
+    counterofferPrice: null,
+    counterofferOpen: false,
+    tradeSubmissions: 0,
     salePrice,
     defaultSalePrice: salePrice,
     markupPrice,
@@ -2647,6 +3560,7 @@ async function startConsequenceTurn(consequence) {
     state.activeConsequence = null;
     return false;
   }
+  renderLog(getDealDiagnosticLogText(state.currentDeal));
   renderAll();
   setDealButtonsDisabled(true);
   typeLine('');
@@ -2845,6 +3759,7 @@ async function startNextCustomer() {
   if (!state.currentCustomer) {
     state.currentDeal = null;
     renderCustomer('exiting');
+    renderLog('');
     renderAll();
     typeLine('No valid customers are available. Check the data tables and sprite assets.');
     return;
@@ -2856,11 +3771,13 @@ async function startNextCustomer() {
   }
   updateSellOpportunityStreak(state.currentDeal);
   if (!state.currentDeal) {
+    renderLog('');
     renderAll();
     typeLine(`${state.currentCustomer.displayName} has no compatible deal data.`);
     window.setTimeout(startNextCustomer, 800);
     return;
   }
+  renderLog(getDealDiagnosticLogText(state.currentDeal));
   renderAll();
   setDealButtonsDisabled(true);
   typeLine('');
@@ -2995,12 +3912,16 @@ function commitShopPurchase(deal, price, notes, heatMultiplier) {
     inventoryInstanceId: inventoryItem.instanceId,
     inventoryItem: copyInventoryDebugItem(inventoryItem)
   };
+  appendEconomicDiagnostic(
+    deal,
+    `Purchase: ${inventoryItem.name} [${inventoryItem.instanceId}]; asking ${moneyText(deal.askingPrice ?? deal.askPrice)}; paid ${moneyText(resolvedPrice)}; source buy range ${moneyText(deal.item.shopBuyMin ?? deal.item.shop_buy_min ?? 0)}-${moneyText(deal.item.shopBuyMax ?? deal.item.shop_buy_max ?? 0)}; condition ${inventoryItem.condition || 'unknown'}; liquidity ${inventoryItem.liquidity || 'medium'}; acquired basis ${moneyText(getInventoryCostBasis(inventoryItem))}.`
+  );
   const copRiskBefore = state.copRisk;
   const isIllegalPurchase = isExplicitlyIllegalItem(deal.item);
   const risk = addHeat(deal.item, { multiplier: heatMultiplier, price: resolvedPrice, riskNote: deal.pool.riskNote });
   applyRiskNote(deal.pool, deal, isIllegalPurchase);
   maybeQueueCopConsequence(deal, `Purchase of ${inventoryItem.name}: ${risk.reason}`, copRiskBefore, state.copRisk);
-  return true;
+  return inventoryItem;
 }
 
 function isInventoryItemEligibleForTrade(deal, inventoryItem) {
@@ -3034,7 +3955,13 @@ function getSelectedTradeInventoryItems(deal) {
 }
 
 function getTradeItemValue(item) {
-  return Math.max(1, Math.round(Number(item?.targetSellPrice || item?.baseValue || item?.acquisitionCost || 0) || 0));
+  const baseTarget = getInstanceBaseTargetValue(item);
+  const adjusted = baseTarget *
+    getConditionValueMultiplier(item) *
+    getLiquiditySaleMultiplier(item) *
+    getTagValueMultiplier(item) *
+    (Number.isFinite(Number(item?.resaleModifier)) ? Number(item.resaleModifier) : 1);
+  return Math.max(1, Math.round(Number(adjusted || item?.baseValue || item?.acquisitionCost || 0) || 0));
 }
 
 function getTradePlayerOfferValue(deal) {
@@ -3062,6 +3989,48 @@ function getTradeSelectionSummary(deal) {
     ? `${moneyText(cashDelta)} from customer`
     : cashDelta < 0 ? `${moneyText(Math.abs(cashDelta))} from you` : 'no cash';
   return `Trade offer: you give ${selected}; customer gives ${received}; cash ${cash}; offer value ${moneyText(getTradePlayerOfferValue(deal))}; requested value ${moneyText(getTradeRequestedValue(deal))}.`;
+}
+
+function getTradePreferenceHint(deal) {
+  const tags = deal?.pool?.requestedItemTags || [];
+  return tags.length ? tags.join(', ') : 'anything eligible on your shelf';
+}
+
+function isTradeSubmissionLimitReached(deal) {
+  return (Number(deal?.tradeSubmissions) || 0) >= NEGOTIATION_OUTCOMES.attemptLimits.trade;
+}
+
+function getTradeSelectedItemsSummary(deal) {
+  const selected = getSelectedTradeInventoryItems(deal);
+  return selected.length
+    ? selected.map(item => `${dealItemLabel(item)} [${item.instanceId}]`).join(', ')
+    : 'none selected';
+}
+
+function canSubmitTradeAction(deal) {
+  if (!deal || deal.dealType !== 'trade') return { canSubmit: false, reason: 'not a trade encounter' };
+  if (isTradeSubmissionLimitReached(deal)) return { canSubmit: false, reason: `submission limit ${NEGOTIATION_OUTCOMES.attemptLimits.trade} reached` };
+  const evaluation = evaluateTradeOffer(deal);
+  return evaluation.canSubmit ? { canSubmit: true, evaluation } : { canSubmit: false, reason: evaluation.reason, evaluation };
+}
+
+function getTradeTermsText(deal) {
+  const selectedItems = getSelectedTradeInventoryItems(deal);
+  const received = getTradeReceivedItems(deal).map(item => dealItemLabel(item)).join(', ') || dealItemLabel(deal.item);
+  const requestedValue = getTradeRequestedValue(deal);
+  const selectedValue = getTradePlayerOfferValue(deal);
+  const cash = deal.cashAdjustment > 0
+    ? ` Customer wants ${moneyText(deal.cashAdjustment)} from you.`
+    : deal.cashAdjustment < 0
+      ? ` Customer adds ${moneyText(Math.abs(deal.cashAdjustment))}.`
+      : ' No cash adjustment yet.';
+  const comparison = selectedItems.length
+    ? selectedValue >= requestedValue ? 'selected offer looks competitive' : 'selected offer looks light'
+    : 'select inventory to make an offer';
+  const exhausted = isTradeSubmissionLimitReached(deal)
+    ? ` Customer is done negotiating after ${NEGOTIATION_OUTCOMES.attemptLimits.trade} submissions.`
+    : '';
+  return `Customer offers ${received} (about ${moneyText(requestedValue)}).${cash} Wants item help: ${deal.pool?.requestedItemTags?.length ? 'yes' : 'optional'}; prefers ${getTradePreferenceHint(deal)}. Selected: ${getTradeSelectedItemsSummary(deal)}; selected value about ${moneyText(selectedValue)}; ${comparison}.${exhausted} ${deal.pool.riskNote || ''}`.trim();
 }
 
 function evaluateTradeOffer(deal) {
@@ -3143,6 +4112,38 @@ function formatTradeSummary(removedItems, addedItems, cashDelta) {
   return `gave ${gave}; received ${got}${cash}`;
 }
 
+function calculateTradeBasisAllocation(deal, suppliedItems, receivedItems, cashDelta) {
+  const surrenderedBasis = suppliedItems.reduce((sum, item) => sum + getInventoryCostBasis(item), 0);
+  const fallbackBasis = suppliedItems.length ? 0 : Math.max(0, Math.round((Number(deal.askPrice) || 0) * ECONOMY_BALANCE.tradeFallbackBasisRate));
+  const explicitAdjustment = Math.round(Number(deal.explicitTradeValueAdjustment ?? deal.pool?.tradeValueAdjustment) || 0);
+  const roundedCashDelta = Math.round(Number(cashDelta) || 0);
+  const totalBasis = Math.max(0, surrenderedBasis + fallbackBasis + Math.max(0, -roundedCashDelta) - Math.max(0, roundedCashDelta) + explicitAdjustment);
+  const values = receivedItems.map(item => getTradeItemValue(item));
+  const totalValue = values.reduce((sum, value) => sum + value, 0);
+  let allocatedSoFar = 0;
+  const allocations = receivedItems.map((item, index) => {
+    const isLast = index === receivedItems.length - 1;
+    const basis = isLast
+      ? totalBasis - allocatedSoFar
+      : Math.round(totalBasis * (totalValue > 0 ? values[index] / totalValue : 1 / receivedItems.length));
+    allocatedSoFar += basis;
+    return {
+      item,
+      tradeValue: values[index],
+      basis: Math.max(0, basis)
+    };
+  });
+  return {
+    surrenderedBasis,
+    fallbackBasis,
+    cashPaid: Math.max(0, -roundedCashDelta),
+    cashReceived: Math.max(0, roundedCashDelta),
+    explicitAdjustment,
+    totalBasis,
+    allocations
+  };
+}
+
 function commitTrade(deal, cashDelta, reputationDelta, notes) {
   const validationError = validateTradeCommit(deal, cashDelta);
   if (validationError) {
@@ -3153,8 +4154,7 @@ function commitTrade(deal, cashDelta, reputationDelta, notes) {
   const suppliedItems = getTradeSuppliedItems(deal);
   const receivedItems = getTradeReceivedItems(deal);
   const removedItems = [];
-  let acquisitionCost = Math.max(1, Math.round(deal.askPrice * 0.25));
-  if (suppliedItems.length) acquisitionCost = suppliedItems.reduce((sum, item) => sum + (Number(item.acquisitionCost) || 0), 0);
+  const basisAllocation = calculateTradeBasisAllocation(deal, suppliedItems, receivedItems, cashDelta);
 
   deal.committedTransaction = true;
   for (const suppliedItem of suppliedItems) {
@@ -3170,9 +4170,9 @@ function commitTrade(deal, cashDelta, reputationDelta, notes) {
   state.money += roundedCashDelta;
   state.reputation = Math.max(0, state.reputation + Math.round(Number(reputationDelta) || 0));
 
-  const receivedAcquisitionCost = Math.max(1, acquisitionCost - Math.max(0, roundedCashDelta) + Math.max(0, -roundedCashDelta));
-  const addedItems = receivedItems.map(item => {
-    const inventoryItem = createInventoryItem(item, receivedAcquisitionCost, deal.customer.id, deal.pool.conditionOverride, notes);
+  const addedItems = basisAllocation.allocations.map(allocation => {
+    const inventoryItem = createInventoryItem(allocation.item, allocation.basis, deal.customer.id, deal.pool.conditionOverride, notes);
+    inventoryItem.costBasis = allocation.basis;
     state.inventory.push(inventoryItem);
     return copyInventoryDebugItem(inventoryItem);
   });
@@ -3183,11 +4183,16 @@ function commitTrade(deal, cashDelta, reputationDelta, notes) {
     cashDelta: roundedCashDelta,
     removedItems,
     addedItems,
+    basisAllocation,
     itemId: addedItems[0]?.itemId || null,
     itemName: addedItems[0]?.name || null,
     inventoryInstanceId: addedItems[0]?.instanceId || null
   };
   deal.transaction.summary = formatTradeSummary(removedItems, addedItems, roundedCashDelta);
+  appendEconomicDiagnostic(
+    deal,
+    `Trade basis: surrendered basis ${moneyText(basisAllocation.surrenderedBasis)}; fallback ${moneyText(basisAllocation.fallbackBasis)}; cash paid ${moneyText(basisAllocation.cashPaid)}; cash received ${moneyText(basisAllocation.cashReceived)}; adjustment ${moneyText(basisAllocation.explicitAdjustment)}; allocated ${moneyText(basisAllocation.totalBasis)} across ${addedItems.map(item => `${item.name} [${item.instanceId}] ${moneyText(getInventoryCostBasis(item))}`).join(', ') || 'no received items'}.`
+  );
   return true;
 }
 
@@ -3227,7 +4232,8 @@ function resolveChoice(action) {
   clampMoney();
   const afterState = snapshotState();
   const outcomeClass = classifyChoiceOutcome(action, deal, beforeState, afterState);
-  recordTurnHistory(action, deal, beforeState, afterState);
+  if (!resolved.skipHistory) recordTurnHistory(action, deal, beforeState, afterState);
+  deal.currentResultSummary = getCurrentResultSummary(outcome);
   renderAll();
   renderLog(outcome);
 
@@ -3285,7 +4291,7 @@ function getAvailableInventoryForThug() {
 }
 
 function getInventoryItemValue(item) {
-  return Number(item?.targetSellPrice || item?.baseValue || item?.acquisitionCost || 0) || 0;
+  return getTradeItemValue(item);
 }
 
 function getThugInventoryTarget() {
@@ -3336,7 +4342,6 @@ function resolveThugConsequence(action, deal) {
     return choiceResult('The tracksuit waits. That was not one of the bad options.', { runRiskCheck: false, keepEncounterOpen: true });
   }
   if (consequence.resolved) {
-    console.error(`[consequence] consequence resolving more than once: ${consequence.id}`);
     return choiceResult('This consequence was already resolved.', { runRiskCheck: false });
   }
   if (!beginDealResolution(deal, action)) return choiceResult('The encounter was already resolved.', { runRiskCheck: false });
@@ -3345,6 +4350,7 @@ function resolveThugConsequence(action, deal) {
     const cashBefore = Math.max(0, Math.round(Number(state.money) || 0));
     const loss = getThugCashLossAmount(THUG_CASH_HANDOVER_RATE, THUG_CASH_HANDOVER_MIN);
     state.money = Math.max(0, cashBefore - loss);
+    applyRealizedConsequenceLoss(cashBefore - state.money, deal, 'tracksuit cash handover');
     const result = loss > 0
       ? `The tracksuit thug takes ${moneyText(loss)} from the drawer and calls it a neighborhood subscription.`
       : 'The drawer is empty. The tracksuit thug finds lint, insults the lint, and lets the risk cool.';
@@ -3364,6 +4370,7 @@ function resolveThugConsequence(action, deal) {
       return choiceResult('That shelf item is already gone. Pick again.', { runRiskCheck: false, keepEncounterOpen: true });
     }
     const result = `The tracksuit thug walks out with ${removed.name} [${removed.instanceId}] and the smug posture of a man who just invented theft.`;
+    applyRealizedConsequenceLoss(getInventoryCostBasis(removed), deal, `tracksuit stole inventory ${removed.name} [${removed.instanceId}]`);
     appendThugHistory(deal, `Robbery inventory handover: stolen ${removed.name} [${removed.instanceId}], estimated value ${moneyText(getInventoryItemValue(removed))}.`);
     return finishThugConsequence(deal, result, THUG_HANDOVER_PRESSURE_MULTIPLIER);
   }
@@ -3373,6 +4380,8 @@ function resolveThugConsequence(action, deal) {
   state.money = Math.max(0, cashBefore - loss);
   const target = getThugInventoryTarget();
   const removed = target ? removeInventoryInstance(target.instanceId) : null;
+  applyRealizedConsequenceLoss(cashBefore - state.money, deal, 'tracksuit refusal cash theft');
+  if (removed) applyRealizedConsequenceLoss(getInventoryCostBasis(removed), deal, `tracksuit refusal inventory theft ${removed.name} [${removed.instanceId}]`);
   const reputationBefore = state.reputation;
   state.reputation = Math.max(0, state.reputation - 1);
   const effects = [
@@ -3391,7 +4400,6 @@ function resolveCopConsequence(action, deal) {
     return choiceResult('The officer waits. That was not an answer.', { runRiskCheck: false, keepEncounterOpen: true });
   }
   if (consequence.resolved) {
-    console.error(`[consequence] consequence resolving more than once: ${consequence.id}`);
     return choiceResult('This consequence was already resolved.', { runRiskCheck: false });
   }
   if (!beginDealResolution(deal, action)) return choiceResult('The encounter was already resolved.', { runRiskCheck: false });
@@ -3414,6 +4422,7 @@ function resolveCopConsequence(action, deal) {
   if (action === 'copCooperate') {
     if (target) {
       const removed = confiscateInventoryInstance(target.instanceId);
+      if (removed) applyRealizedConsequenceLoss(getInventoryCostBasis(removed), deal, `police confiscated ${removed.name} [${removed.instanceId}]`);
       result = removed
         ? `Officer confiscated ${removed.name} [${removed.instanceId}] and issued a warning.`
         : 'The officer tried to tag evidence, but the item was already gone.';
@@ -3435,6 +4444,7 @@ function resolveCopConsequence(action, deal) {
       riskReason = `Unsuccessful search: tracked evidence ${trackedItemName} was disposed of before the visit.`;
     } else if (target) {
       const removed = confiscateInventoryInstance(target.instanceId);
+      if (removed) applyRealizedConsequenceLoss(getInventoryCostBasis(removed), deal, `police confiscated ${removed.name} [${removed.instanceId}] after denial`);
       result = removed
         ? `The denial falls apart. Officer confiscated ${removed.name} [${removed.instanceId}].`
         : 'The denial falls apart, but the suspected item is already gone.';
@@ -3452,17 +4462,27 @@ function resolveCopConsequence(action, deal) {
       return choiceResult('You cannot make that bribe with the cash in the drawer.', { runRiskCheck: false, keepEncounterOpen: true });
     }
     state.money -= bribe;
+    applyRealizedConsequenceLoss(bribe, deal, 'bribe paid');
     const successChance = Math.max(20, Math.min(75, 58 + state.reputation * 2 - state.copRisk * 3));
     if (chance(successChance)) {
-      result = `The bribe lands. You pay ${moneyText(bribe)} and the officer forgets the shelf for now.`;
+      result = `The bribe lands. You pay ${moneyText(bribe)} and the officer ignores the evidence on the shelf for now.`;
       riskDelta = COP_RISK_ADJUSTMENTS.successfulBribe;
       riskReason = 'Successful bribe reduced immediate pressure moderately.';
     } else {
       state.reputation = Math.max(0, state.reputation - 2);
       state.copWarnings += 1;
       state.copStrikes += 1;
-      result = `The bribe fails. You still lose ${moneyText(bribe)}, and the officer looks more interested than before.`;
-      riskReason = 'Failed deceptive response did not relieve police attention.';
+      if (target) {
+        const removed = confiscateInventoryInstance(target.instanceId);
+        if (removed) applyRealizedConsequenceLoss(getInventoryCostBasis(removed), deal, `police confiscated ${removed.name} [${removed.instanceId}] after failed bribe`);
+        result = removed
+          ? `The bribe fails. The officer pockets ${moneyText(bribe)}, confiscates ${removed.name} [${removed.instanceId}], and starts writing.`
+          : `The bribe fails. The officer pockets ${moneyText(bribe)}, but the tracked evidence is already gone.`;
+        riskReason = `Failed bribe exposed tracked evidence ${trackedItemName}.`;
+      } else {
+        result = `The bribe fails. The officer keeps ${moneyText(bribe)}, but the tracked ${trackedItemName} is missing, so nothing else is confiscated.`;
+        riskReason = `Failed bribe with missing tracked evidence ${trackedItemName}.`;
+      }
     }
   }
 
@@ -3532,6 +4552,10 @@ function resolveBuy(action, deal) {
   if (action === 'lowball' && deal.lowballRejected) {
     return choiceResult('The lowball is already dead on the counter.', { runRiskCheck: false, keepEncounterOpen: true });
   }
+  if (action === 'lowball' && (Number(deal.lowballAttempts) || 0) >= NEGOTIATION_OUTCOMES.attemptLimits.lowball) {
+    deal.lowballRejected = true;
+    return choiceResult('The lowball is already dead on the counter.', { runRiskCheck: false, keepEncounterOpen: true });
+  }
   if (action === 'buyAsk' && deal.availableCash < deal.defaultOffer) {
     return choiceResult(`The register is short. The customer wants ${moneyText(deal.askingPrice)} and you cannot make the full-price buy.`, { runRiskCheck: false, keepEncounterOpen: true });
   }
@@ -3557,60 +4581,83 @@ function resolveBuy(action, deal) {
     return choiceResult('The item is now yours. So is the problem.', { runRiskCheck: false });
   }
 
+  deal.lowballAttempts = (Number(deal.lowballAttempts) || 0) + 1;
   const offer = deal.lowballPrice;
   const ask = deal.askingPrice ?? deal.askPrice;
   const offerRatio = Math.min(1, offer / Math.max(1, ask));
-  const offerPenalty = Math.round((1 - offerRatio) * 35);
-  const successChance = Math.max(12, customer.trust + state.reputation * 3 - traits.haggleAggression * 4 - customer.thugRiskBias * 4 - item.heat * 2 - offerPenalty);
-  if (chance(successChance)) {
+  const outcome = resolveNegotiationOutcome('lowball', deal, { ratio: offerRatio, item });
+  deal.lowballRejected = true;
+  deal.lowballOutcome = outcome.selected;
+
+  if (outcome.selected === 'accepted' || outcome.selected === 'acceptedHiddenProblem') {
     const validationError = validateShopPurchase(deal, offer);
     if (validationError) {
       console.error(`[transaction] ${validationError}`);
       return choiceResult('The purchase cannot complete because the offer data is invalid. Check the console.', { runRiskCheck: false, keepEncounterOpen: true });
     }
     if (!beginDealResolution(deal, action)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
-    if (!commitShopPurchase(deal, offer, `Bought via below-asking offer of ${moneyText(offer)} against ${moneyText(ask)} ask.`, 0.9)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
+    const acquired = commitShopPurchase(deal, offer, `Bought via below-asking offer of ${moneyText(offer)} against ${moneyText(ask)} ask.`, 0.9);
+    if (!acquired) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
     state.reputation += 1;
-    return choiceResult(`They take the below-asking ${moneyText(offer)} offer and leave with the confidence of a person ruining several lives.`, { runRiskCheck: false });
+    let changeSummary = `final transaction: money -${moneyText(offer)}, inventory +${acquired.instanceId}, reputation +1`;
+    let text = `They take the below-asking ${moneyText(offer)} offer and leave with the confidence of a person ruining several lives.`;
+    if (outcome.selected === 'acceptedHiddenProblem') {
+      const hiddenSummary = worsenInventoryInstanceForHiddenProblem(acquired, deal, outcome);
+      state.scamRisk += 1;
+      changeSummary += `; ${hiddenSummary}; scam risk +1`;
+      text = `They take ${moneyText(offer)}. The item is yours, though something about the deal feels cheaper than the price.`;
+    }
+    appendNegotiationDiagnostics(deal, outcome, { originalPrice: ask, attemptedPrice: offer, dealOpen: false, changeSummary });
+    return choiceResult(text, { runRiskCheck: false });
   }
 
-  state.reputation = Math.max(0, state.reputation - 1);
-  addDealFactionPressure(
-    deal,
-    Math.ceil(customer.thugRiskBias / 2) + Math.ceil(traits.haggleAggression / 3),
-    `rejected lowball against ${customer.displayName}`
-  );
-  deal.lowballRejected = true;
-  const lowballOutcome = pickRejectedLowballOutcome(deal);
-  deal.lowballOutcome = lowballOutcome;
-
-  if (lowballOutcome === 'raise') {
+  if (outcome.selected === 'priceWorsened') {
     const oldAsk = deal.askingPrice ?? deal.askPrice;
-    const raisedAsk = Math.max(oldAsk + 1, Math.round(oldAsk * (1.1 + Math.random() * 0.1)));
+    const raisedAsk = Math.max(oldAsk + 1, Math.round(oldAsk * randomRange(NEGOTIATION_OUTCOMES.priceIncrease[outcome.severity])));
     deal.askPrice = raisedAsk;
     deal.askingPrice = raisedAsk;
     deal.defaultOffer = raisedAsk;
     deal.normalAskPrice = raisedAsk;
     deal.availableCash = Math.max(0, state.money);
+    deal.priceWorsenedNotice = { oldAsk, newAsk: raisedAsk };
     appendNegotiationHistory(deal, `Lowball rejected. Asking price increased from ${moneyText(oldAsk)} to ${moneyText(raisedAsk)}.`);
-    return choiceResult(`The below-asking ${moneyText(offer)} offer lands badly. Asking price is now ${moneyText(raisedAsk)}.`, { runRiskCheck: false, keepEncounterOpen: true });
+    appendNegotiationDiagnostics(deal, outcome, { originalPrice: ask, attemptedPrice: offer, newAskingPrice: raisedAsk, dealOpen: true, changeSummary: 'asking price worsened; no transaction mutation' });
+    return choiceResult(`You annoyed them. The price just went from ${moneyText(oldAsk)} to ${moneyText(raisedAsk)}.`, { runRiskCheck: false, keepEncounterOpen: true });
   }
 
-  if (lowballOutcome === 'insulted') {
+  if (outcome.selected === 'customerWalks') {
     if (!beginDealResolution(deal, action)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
     appendNegotiationHistory(deal, 'Lowball insulted seller. Customer ended the deal.');
+    appendNegotiationDiagnostics(deal, outcome, { originalPrice: ask, attemptedPrice: offer, dealOpen: false, changeSummary: 'customer walked; no transaction mutation' });
     return choiceResult(`The below-asking ${moneyText(offer)} offer insults them clean out the door. No deal.`, { runRiskCheck: false });
   }
 
+  if (outcome.selected === 'consequence') {
+    const changeSummary = applyNegotiationPenalty(deal, outcome, 1);
+    appendNegotiationDiagnostics(deal, outcome, { originalPrice: ask, attemptedPrice: offer, dealOpen: true, changeSummary });
+    return choiceResult(`The below-asking ${moneyText(offer)} offer gets remembered. The original ${moneyText(ask)} ask remains, but the room is less friendly.`, { runRiskCheck: false, keepEncounterOpen: true });
+  }
+
   appendNegotiationHistory(deal, `Lowball rejected. Asking price remains ${moneyText(ask)}.`);
+  appendNegotiationDiagnostics(deal, outcome, { originalPrice: ask, attemptedPrice: offer, dealOpen: true, changeSummary: 'original ask remains; no transaction mutation' });
   return choiceResult(`The below-asking ${moneyText(offer)} offer lands badly. Asking price stays ${moneyText(ask)}.`, { runRiskCheck: false, keepEncounterOpen: true });
 }
 
 function resolveSell(action, deal) {
   const { customer, traits } = deal;
-  if (!['refuse', 'sellTag', 'markup'].includes(action)) return choiceResult('No deal. The counter stays exactly as dirty as it was.', { runRiskCheck: false });
+  if (!['refuse', 'sellTag', 'markup', 'acceptCounteroffer', 'refuseCounteroffer'].includes(action)) return choiceResult('No deal. The counter stays exactly as dirty as it was.', { runRiskCheck: false });
   if (action === 'markup' && deal.markupRejected) {
     return choiceResult('The marked-up price already died in the room.', { runRiskCheck: false, keepEncounterOpen: true });
+  }
+  if (action === 'markup' && (Number(deal.markupAttempts) || 0) >= NEGOTIATION_OUTCOMES.attemptLimits.markup) {
+    deal.markupRejected = true;
+    return choiceResult('The room has already heard that markup once. Push it again and the sale leaves.', { runRiskCheck: false, keepEncounterOpen: true });
+  }
+  if (action === 'refuseCounteroffer') {
+    deal.counterofferOpen = false;
+    deal.counterofferPrice = null;
+    appendNegotiationHistory(deal, 'Markup counteroffer refused: no inventory, money, profit, reputation, or risk changed.');
+    return choiceResult('You refuse the counteroffer. They keep their cash, you keep the shelf item, and nobody gets smarter.', { runRiskCheck: false, keepEncounterOpen: true });
   }
   if (action === 'refuse') {
     if (!beginDealResolution(deal, action)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
@@ -3630,33 +4677,101 @@ function resolveSell(action, deal) {
   const item = inventoryItem;
   appendSaleHistory(deal, `Sale validation: requested ${getCustomerBuyRequestPhrase(deal)}; selected ${inventoryItem.name} [${inventoryItem.instanceId}]; matched request: yes.`);
 
-  const price = action === 'markup' ? deal.markupPrice : deal.salePrice;
-  const markupRatio = price / Math.max(1, inventoryItem.targetSellPrice);
-  const markupRisk = action === 'markup' ? 18 + customer.scamRiskBias * 5 + traits.haggleAggression * 3 : 0;
-  const tolerated = markupRatio <= traits.maxMarkupTolerance || chance(45);
-  const saleWorks = action !== 'markup' || (tolerated && chance(Math.max(15, customer.trust + state.reputation * 4 - item.heat - markupRisk)));
+  const commitSale = (price, saleAction) => {
+    if (!beginDealResolution(deal, saleAction)) return false;
+    const removed = removeInventoryInstance(inventoryItem.instanceId);
+    if (!removed) {
+      deal.resolvedAction = null;
+      return false;
+    }
+    const costBasis = getInventoryCostBasis(inventoryItem);
+    state.money += price;
+    state.profit += price - costBasis;
+    state.scamRisk += inventoryItem.tags.some(tag => ['locked', 'cursed', 'suspicious', 'fake', 'possibly_fake'].includes(tag)) ? 2 : 0;
+    const copRiskBefore = state.copRisk;
+    const saleRisk = calculateCopRisk(inventoryItem, { price, multiplier: 0.65 });
+    const customerExposure = isExplicitlyIllegalItem(inventoryItem) ? customer.copRiskBias : 0;
+    const addedSaleRisk = Math.max(0, saleRisk.addedRisk + customerExposure);
+    state.copRisk += addedSaleRisk;
+    maybeQueueCopConsequence(deal, `Sale of ${inventoryItem.name}: ${saleRisk.reason}${customerExposure ? `, customer exposure: +${customerExposure}` : ''}`, copRiskBefore, state.copRisk);
+    deal.transaction = {
+      type: 'sale',
+      action: saleAction,
+      price,
+      costBasis,
+      removedItem: copyInventoryDebugItem(inventoryItem),
+      inventoryInstanceId: inventoryItem.instanceId
+    };
+    const quote = deal.saleQuote || calculateCustomerOfferForInventoryItem(deal, inventoryItem);
+    appendEconomicDiagnostic(
+      deal,
+      `Sale: ${inventoryItem.name} [${inventoryItem.instanceId}]; price ${moneyText(price)}; stored basis ${moneyText(costBasis)}; realized ${moneyText(price - costBasis)}; base target ${moneyText(quote.baseTargetValue)}; condition ${quote.conditionMultiplier.toFixed(2)}x; liquidity ${quote.liquidityMultiplier.toFixed(2)}x; tags ${quote.tagMultiplier.toFixed(2)}x; resale modifier ${quote.instanceResaleModifier.toFixed(2)}x; preference ${quote.preferenceMultiplier.toFixed(2)}x; risk ${quote.riskMultiplier.toFixed(2)}x; margin class ${quote.marginClass}.`
+    );
+    return true;
+  };
 
-  if (!saleWorks) {
-    state.reputation = Math.max(0, state.reputation - 1);
-    state.scamRisk += 3 + customer.scamRiskBias;
-    deal.markupRejected = true;
-    return choiceResult('The markup fails. They ask if the price includes the lie or if that is extra.', { runRiskCheck: false, keepEncounterOpen: true });
+  if (action === 'acceptCounteroffer') {
+    if (!deal.counterofferOpen || !Number.isFinite(Number(deal.counterofferPrice))) {
+      return choiceResult('There is no live counteroffer to accept.', { runRiskCheck: false, keepEncounterOpen: true });
+    }
+    const price = Math.round(Number(deal.counterofferPrice));
+    if (!commitSale(price, action)) return choiceResult('The sale could not complete because the selected shelf item is gone.', { runRiskCheck: false, keepEncounterOpen: true });
+    deal.counterofferOpen = false;
+    appendNegotiationHistory(deal, `Markup counteroffer accepted: sold ${inventoryItem.name} [${inventoryItem.instanceId}] for ${moneyText(price)} exactly once.`);
+    return `They pay the counteroffer of ${moneyText(price)} for ${dealItemLabel(inventoryItem)}. The register accepts the compromise.`;
   }
 
-  if (!beginDealResolution(deal, action)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
-  removeInventoryInstance(inventoryItem.instanceId);
-  state.money += price;
-  state.profit += price - inventoryItem.acquisitionCost;
-  state.scamRisk += inventoryItem.tags.some(tag => ['locked', 'cursed', 'suspicious', 'fake', 'possibly_fake'].includes(tag)) ? 2 : 0;
-  const copRiskBefore = state.copRisk;
-  const saleRisk = calculateCopRisk(inventoryItem, { price, multiplier: 0.65 });
-  const customerExposure = isExplicitlyIllegalItem(inventoryItem) ? customer.copRiskBias : 0;
-  const addedSaleRisk = Math.max(0, saleRisk.addedRisk + customerExposure);
-  state.copRisk += addedSaleRisk;
-  maybeQueueCopConsequence(deal, `Sale of ${inventoryItem.name}: ${saleRisk.reason}${customerExposure ? `, customer exposure: +${customerExposure}` : ''}`, copRiskBefore, state.copRisk);
-  return action === 'markup'
-    ? `They pay the markup for ${dealItemLabel(inventoryItem)}. Somewhere, a consumer protection office feels cold.`
-    : `Sold ${dealItemLabel(inventoryItem)}. The register opens like it is ashamed of the noise.`;
+  const price = action === 'markup' ? deal.markupPrice : deal.salePrice;
+
+  if (action === 'markup') {
+    deal.markupAttempts = (Number(deal.markupAttempts) || 0) + 1;
+    const originalPrice = deal.salePrice;
+    const markupRatio = price / Math.max(1, originalPrice);
+    const outcome = resolveNegotiationOutcome('markup', deal, { ratio: markupRatio, item: inventoryItem });
+    deal.markupRejected = true;
+    deal.markupOutcome = outcome.selected;
+
+    if (outcome.selected === 'accepted' || outcome.selected === 'acceptedFutureDispute') {
+      if (!commitSale(price, action)) return choiceResult('The sale could not complete because the selected shelf item is gone.', { runRiskCheck: false, keepEncounterOpen: true });
+      let changeSummary = `final transaction: money +${moneyText(price)}, profit +${moneyText(price - getInventoryCostBasis(inventoryItem))}, inventory -${inventoryItem.instanceId}`;
+      if (outcome.selected === 'acceptedFutureDispute') {
+        state.scamRisk += 2 + (outcome.severity === 'severe' ? 2 : 0);
+        deal.futureDisputeRisk = { source: 'markup', encounterId: deal.encounterId, inventoryInstanceId: inventoryItem.instanceId };
+        changeSummary += '; future dispute/scam risk increased';
+      }
+      appendNegotiationDiagnostics(deal, outcome, { originalPrice, attemptedPrice: price, dealOpen: false, changeSummary });
+      return outcome.selected === 'acceptedFutureDispute'
+        ? `They pay ${moneyText(price)}, but they keep staring at the item like it might come back with paperwork.`
+        : `They pay the markup for ${dealItemLabel(inventoryItem)}. Somewhere, a consumer protection office feels cold.`;
+    }
+
+    if (outcome.selected === 'counteroffer') {
+      const range = NEGOTIATION_OUTCOMES.counteroffer[outcome.severity];
+      const counter = Math.max(1, Math.round(originalPrice * randomRange(range)));
+      deal.counterofferPrice = Math.min(price - 1, Math.max(1, counter));
+      deal.counterofferOpen = true;
+      appendNegotiationDiagnostics(deal, outcome, { originalPrice, attemptedPrice: price, counteroffer: deal.counterofferPrice, dealOpen: true, changeSummary: 'counteroffer opened; no transaction mutation' });
+      return choiceResult(`They will not pay ${moneyText(price)}. Counteroffer: ${moneyText(deal.counterofferPrice)}. Take it or leave the sale on the shelf.`, { runRiskCheck: false, keepEncounterOpen: true });
+    }
+
+    if (outcome.selected === 'consequence') {
+      const changeSummary = applyNegotiationPenalty(deal, outcome, 1);
+      appendNegotiationDiagnostics(deal, outcome, { originalPrice, attemptedPrice: price, dealOpen: true, changeSummary });
+      return choiceResult(`The markup gets ugly. The original ${moneyText(originalPrice)} sale is still possible, but the customer looks like they are pricing revenge.`, { runRiskCheck: false, keepEncounterOpen: true });
+    }
+
+    if (outcome.selected === 'customerWalks') {
+      appendNegotiationDiagnostics(deal, outcome, { originalPrice, attemptedPrice: price, dealOpen: false, changeSummary: 'customer walked; no transaction mutation' });
+      if (!beginDealResolution(deal, action)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
+      return choiceResult(`The markup kills the sale. They walk, cash and all.`, { runRiskCheck: false });
+    }
+
+    appendNegotiationDiagnostics(deal, outcome, { originalPrice, attemptedPrice: price, dealOpen: true, changeSummary: 'original sale remains; no transaction mutation' });
+    return choiceResult(`They reject ${moneyText(price)}. The original ${moneyText(originalPrice)} sale is still on the counter.`, { runRiskCheck: false, keepEncounterOpen: true });
+  }
+
+  if (!commitSale(price, action)) return choiceResult('The sale could not complete because the selected shelf item is gone.', { runRiskCheck: false, keepEncounterOpen: true });
+  return `Sold ${dealItemLabel(inventoryItem)}. The register opens like it is ashamed of the noise.`;
 }
 function resolveTrade(action, deal) {
   const { item, customer, traits } = deal;
@@ -3670,23 +4785,44 @@ function resolveTrade(action, deal) {
 
   if (action === 'submitTradeOffer' || action === 'tradeAccept') {
     const evaluation = evaluateTradeOffer(deal);
+    if (!evaluation.canSubmit) {
+      return choiceResult(`Trade offer cannot be submitted: ${evaluation.reason}.`, { runRiskCheck: false, keepEncounterOpen: true, skipHistory: true, blockedAction: true });
+    }
+    if ((Number(deal.tradeSubmissions) || 0) >= NEGOTIATION_OUTCOMES.attemptLimits.trade) {
+      if (!deal.tradeLimitLogged) {
+        appendTradeHistory(deal, `Trade attempt blocked: submission limit ${NEGOTIATION_OUTCOMES.attemptLimits.trade} reached; no inventory or money changed.`);
+        deal.tradeLimitLogged = true;
+      }
+      return choiceResult('They are done reviewing trade piles. No more submissions; take the visible No deal option or finish another way.', { runRiskCheck: false, keepEncounterOpen: true, skipHistory: true, blockedAction: true });
+    }
+    deal.tradeSubmissions = (Number(deal.tradeSubmissions) || 0) + 1;
     appendTradeHistory(
       deal,
-      `Trade attempt: selected [${evaluation.selectedIds?.join(', ') || 'none'}]; player-offer value ${moneyText(evaluation.playerValue || 0)}; requested customer-side value ${moneyText(evaluation.requestedValue || getTradeRequestedValue(deal))}; cash component ${moneyText(evaluation.cashDelta || 0)}; outcome ${evaluation.accepted ? 'accepted' : evaluation.endsEncounter ? 'rejected-ended' : 'rejected'}; reason: ${evaluation.reason}.`
+      `Trade attempt ${deal.tradeSubmissions}/${NEGOTIATION_OUTCOMES.attemptLimits.trade}: selected [${evaluation.selectedIds?.join(', ') || 'none'}]; player-offer value ${moneyText(evaluation.playerValue || 0)}; requested customer-side value ${moneyText(evaluation.requestedValue || getTradeRequestedValue(deal))}; cash component ${moneyText(evaluation.cashDelta || 0)}; preliminary ${evaluation.accepted ? 'accepted' : evaluation.endsEncounter ? 'rejected-ended' : 'rejected'}; reason: ${evaluation.reason}.`
     );
-    if (!evaluation.canSubmit) {
-      return choiceResult(`Trade offer cannot be submitted: ${evaluation.reason}.`, { runRiskCheck: false, keepEncounterOpen: true });
-    }
     deal.requestedInventoryItems = evaluation.selectedItems;
     deal.requestedInventoryItem = evaluation.selectedItems[0] || null;
     deal.selectedTradeInventoryInstanceIds = evaluation.selectedIds;
 
     if (!evaluation.accepted) {
-      if (evaluation.endsEncounter) {
+      const outcome = resolveNegotiationOutcome('trade', deal, { ratio: evaluation.ratio, item });
+      const forceEnd = evaluation.endsEncounter && outcome.selected !== 'rejectedRetry';
+      deal.tradeRejectionOutcome = outcome.selected;
+      if (outcome.selected === 'factionPressure') {
+        const changeSummary = applyNegotiationPenalty(deal, outcome, 1);
+        appendNegotiationDiagnostics(deal, outcome, { originalPrice: evaluation.requestedValue, attemptedPrice: evaluation.playerValue, dealOpen: !forceEnd, changeSummary });
+      } else {
+        appendNegotiationDiagnostics(deal, outcome, {
+          originalPrice: evaluation.requestedValue,
+          attemptedPrice: evaluation.playerValue,
+          dealOpen: outcome.selected === 'rejectedRetry' && !forceEnd,
+          changeSummary: 'trade rejected; no transaction mutation'
+        });
+      }
+      if (forceEnd || outcome.selected === 'rejectedEnds' || outcome.selected === 'factionPressure' && outcome.severity === 'severe') {
         deal.tradeOfferEndedEncounter = true;
         clearInventorySelection();
         if (!beginDealResolution(deal, action)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
-        if (traits.haggleAggression >= 4) addDealFactionPressure(deal, 2, `insulting trade offer to ${customer.displayName}`);
         return choiceResult('The offer is bad enough to end the conversation. They take their merchandise and their expression elsewhere.', { runRiskCheck: false });
       }
       return choiceResult('They reject the trade offer. Change the selected items or call it off.', { runRiskCheck: false, keepEncounterOpen: true });
@@ -3716,14 +4852,21 @@ function resolveTrade(action, deal) {
   if (action === 'tradeCash') {
     const evaluation = evaluateTradeOffer(deal);
     if (!evaluation.canSubmit) {
-      appendTradeHistory(deal, `Trade cash demand rejected before mutation: selected [${evaluation.selectedIds?.join(', ') || 'none'}]; reason: ${evaluation.reason}.`);
-      return choiceResult(`Select trade items before demanding cash: ${evaluation.reason}.`, { runRiskCheck: false, keepEncounterOpen: true });
+      return choiceResult(`Select trade items before demanding cash: ${evaluation.reason}.`, { runRiskCheck: false, keepEncounterOpen: true, skipHistory: true, blockedAction: true });
+    }
+    if ((Number(deal.tradeSubmissions) || 0) >= NEGOTIATION_OUTCOMES.attemptLimits.trade) {
+      if (!deal.tradeLimitLogged) {
+        appendTradeHistory(deal, `Trade cash demand blocked: submission limit ${NEGOTIATION_OUTCOMES.attemptLimits.trade} reached; no inventory or money changed.`);
+        deal.tradeLimitLogged = true;
+      }
+      return choiceResult('They are done negotiating. No more cash demands; take No deal or let the encounter end.', { runRiskCheck: false, keepEncounterOpen: true, skipHistory: true, blockedAction: true });
     }
     deal.requestedInventoryItems = evaluation.selectedItems;
     deal.requestedInventoryItem = evaluation.selectedItems[0] || null;
     deal.selectedTradeInventoryInstanceIds = evaluation.selectedIds;
+    deal.tradeSubmissions = (Number(deal.tradeSubmissions) || 0) + 1;
     const successChance = Math.max(10, customer.trust - traits.haggleAggression * 6 - customer.thugRiskBias * 5 + state.reputation * 4);
-    appendTradeHistory(deal, `Trade cash demand: selected [${evaluation.selectedIds.join(', ')}]; player-offer value ${moneyText(evaluation.playerValue)}; requested customer-side value ${moneyText(evaluation.requestedValue)}; cash component ${moneyText(deal.cashInstead)}; outcome pending roll.`);
+    appendTradeHistory(deal, `Trade cash demand ${deal.tradeSubmissions}/${NEGOTIATION_OUTCOMES.attemptLimits.trade}: selected [${evaluation.selectedIds.join(', ')}]; player-offer value ${moneyText(evaluation.playerValue)}; requested customer-side value ${moneyText(evaluation.requestedValue)}; cash component ${moneyText(deal.cashInstead)}; outcome pending roll.`);
     if (chance(successChance)) {
       const validationError = validateTradeCommit(deal, deal.cashInstead);
       if (validationError) {
@@ -3854,16 +4997,16 @@ function canQueueThugConsequence() {
   return true;
 }
 
-function queueThugConsequence(reason = 'tracksuit crew pressure came due', metadata = {}) {
+function queueThugConsequence(reason = 'tracksuit crew pressure came due', metadata = {}, sourceDeal = state.currentDeal) {
   if (!canQueueThugConsequence() && !metadata.debug) return null;
   const tracksuitPressure = getFactionPressure(TRACKSUIT_CREW_FACTION_ID);
   return queueConsequence({
     type: THUG_CONSEQUENCE_TYPE,
     sourceTurn: state.turn,
-    triggeringCharacterId: state.currentDeal?.customer?.id || state.currentCustomer?.id || null,
-    triggeringDealId: state.currentDeal?.pool?.id || state.currentDeal?.blueprint?.id || null,
-    triggeringItemId: getDealTriggerItemId(state.currentDeal),
-    triggeringInventoryInstanceId: getDealTriggerInventoryInstanceId(state.currentDeal),
+    triggeringCharacterId: sourceDeal?.customer?.id || state.currentCustomer?.id || null,
+    triggeringDealId: sourceDeal?.pool?.id || sourceDeal?.blueprint?.id || null,
+    triggeringItemId: getDealTriggerItemId(sourceDeal),
+    triggeringInventoryInstanceId: getDealTriggerInventoryInstanceId(sourceDeal),
     factionId: TRACKSUIT_CREW_FACTION_ID,
     reason,
     earliestTurn: state.turn + THUG_CONSEQUENCE_MIN_FULL_TURNS + 1,
@@ -3874,9 +5017,37 @@ function queueThugConsequence(reason = 'tracksuit crew pressure came due', metad
       pressureSources: getFactionPressureSources(TRACKSUIT_CREW_FACTION_ID).map(source => ({ ...source })),
       pressureSourceSummary: getTracksuitPressureSourceSummary(),
       delay: THUG_CONSEQUENCE_MIN_FULL_TURNS + 1,
+      threshold: TRACKSUIT_CONSEQUENCE_MIN_PRESSURE,
+      maxEligibleChecks: THUG_CONSEQUENCE_MAX_ELIGIBLE_CHECKS,
       ...metadata
     }
   });
+}
+
+function maybeQueueThugConsequence(deal, reason = 'tracksuit crew pressure came due') {
+  const pressure = getFactionPressure(TRACKSUIT_CREW_FACTION_ID);
+  if (pressure < TRACKSUIT_CONSEQUENCE_MIN_PRESSURE) {
+    if (deal) {
+      if (!Array.isArray(deal.thugHistoryLines)) deal.thugHistoryLines = [];
+      deal.thugHistoryLines.push(`Tracksuit scheduling: pressure ${pressure}/${TRACKSUIT_CONSEQUENCE_MIN_PRESSURE}; not queued.`);
+    }
+    return null;
+  }
+  if (!canQueueThugConsequence()) {
+    if (deal) {
+      if (!Array.isArray(deal.thugHistoryLines)) deal.thugHistoryLines = [];
+      const pending = hasPendingConsequence(THUG_CONSEQUENCE_TYPE) || state.activeConsequence?.type === THUG_CONSEQUENCE_TYPE;
+      const cooldown = state.turn < state.thugConsequenceCooldownUntil ? `cooldown until T${state.thugConsequenceCooldownUntil}` : 'cooldown satisfied';
+      deal.thugHistoryLines.push(`Tracksuit scheduling: pressure ${pressure}; not queued (${pending ? 'pending/active consequence' : cooldown}).`);
+    }
+    return null;
+  }
+  const consequence = queueThugConsequence(reason, {}, deal);
+  if (deal && consequence) {
+    if (!Array.isArray(deal.thugHistoryLines)) deal.thugHistoryLines = [];
+    deal.thugHistoryLines.push(`Tracksuit scheduling queued: source T${state.turn}; faction ${TRACKSUIT_CREW_FACTION_ID}; pressure ${pressure}; first eligible T${consequence.earliestTurn}; shared cooldown ${state.normalEncountersSinceSpecial}/${SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS}; max eligible checks ${THUG_CONSEQUENCE_MAX_ELIGIBLE_CHECKS}.`);
+  }
+  return consequence;
 }
 
 function runRiskCheck() {
@@ -3908,7 +5079,9 @@ function thugBust() {
 
 function angryCustomer() {
   const refund = randomInt(6, 24);
+  const moneyBefore = state.money;
   state.money = Math.max(0, state.money - refund);
+  applyRealizedConsequenceLoss(moneyBefore - state.money, state.currentDeal, 'refund/dispute payout');
   state.reputation = Math.max(0, state.reputation - 2);
   state.scamRisk = Math.max(0, Math.floor(state.scamRisk * 0.3));
   return `The refund hurts, but the lesson is tax deductible. Probably not. Lose ${moneyText(refund)}.`;
@@ -4047,6 +5220,8 @@ window.ONE_STAR_PAWN_TEST_HOOKS = {
   getInventoryAgeDemandMultiplier,
   getItemDemandLevel,
   getItemLiquidityDemandMultiplier,
+  getInventoryCostBasis,
+  calculateCustomerOfferForInventoryItem,
   getDemandCandidatesForPool,
   getEligibleDemandCandidatesForPool,
   getBuyPoolDemandMultiplier,
@@ -4057,21 +5232,61 @@ window.ONE_STAR_PAWN_TEST_HOOKS = {
   evaluateSaleCompatibility,
   getEligibleInventoryItemsForPool,
   evaluateTradeOffer,
+  canSubmitTradeAction,
+  isTradeSubmissionLimitReached,
+  getTradeTermsText,
+  clerkAssessment,
+  sanitizePlayerDialogueText,
+  resolveNegotiationOutcome,
   resolveBuy,
   resolveSell,
   resolveTrade,
+  resolveChoice,
+  resolveConsequenceChoice,
+  queueConsequence,
+  queueThugConsequence,
+  maybeQueueThugConsequence,
+  getEligibleQueuedConsequence,
+  buildCopConsequenceDeal,
+  buildThugConsequenceDeal,
   chooseNextCustomerWithPools,
   rememberNormalCustomer,
   getConsecutiveNormalCustomerCount,
   snapshotState,
   buildHistoryLines,
+  getTurnHistory() {
+    return turnHistory;
+  },
+  getDealText() {
+    renderDeal();
+    return els.log.textContent;
+  },
+  renderDealPanelText(text) {
+    renderLog(text);
+    return els.dealText.textContent;
+  },
+  setDialogueText(text) {
+    isTypingLine = false;
+    typedLine = '';
+    els.dialogue.textContent = sanitizePlayerDialogueText(text || '');
+    updateDealTextVisibility();
+  },
+  getVisibleDealPanelText() {
+    return els.dealText.textContent;
+  },
+  isDealPanelHidden() {
+    return Boolean(els.dealText._dealBoxHidden);
+  },
   getInventoryDelta,
   copyInventoryDebugItem,
   formatSelectionDiagnostics,
   constants: {
     NORMAL_CUSTOMER_MAX_CONSECUTIVE,
     NORMAL_CUSTOMER_HISTORY_LIMIT,
-    BUY_FROM_SHOP_ECONOMY
+    BUY_FROM_SHOP_ECONOMY,
+    NEGOTIATION_OUTCOMES,
+    TRACKSUIT_CONSEQUENCE_MIN_PRESSURE,
+    THUG_CONSEQUENCE_MAX_ELIGIBLE_CHECKS
   }
 };
 if (!window.ONE_STAR_PAWN_TEST_MODE) {
