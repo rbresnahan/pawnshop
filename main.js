@@ -1,4 +1,4 @@
-const GAME_VERSION = '0.1.12';
+const GAME_VERSION = '0.1.27';
 const GAME_BUILD_LOADED_AT = new Date().toISOString();
 
 window.ONE_STAR_PAWN_VERSION = GAME_VERSION;
@@ -14,6 +14,13 @@ const EVENT_BLUEPRINTS = GAME_DATA.eventBlueprints || [];
 const TURN_HISTORY_LIMIT = 25;
 const NORMAL_CUSTOMER_HISTORY_LIMIT = 5;
 const NORMAL_CUSTOMER_MAX_CONSECUTIVE = 2;
+const LOW_TIER_CUSTOMER_GROUP = {
+  factionId: 'street_desperate',
+  recentWindow: 5,
+  threshold: 3,
+  multiplierPerExtraHit: 0.55,
+  minimumMultiplier: 0.22
+};
 const CONVERSATION_EXIT_DELAY_MS = 200;
 const AUTO_DIALOGUE_BASE_DELAY_MS = 2100;
 const AUTO_DIALOGUE_PER_CHAR_MS = 18;
@@ -38,6 +45,16 @@ const THUG_CONSEQUENCE_CHARACTER_ID = 'tracksuit_thug';
 const THUG_CONSEQUENCE_EVENT_ID = 'tracksuit_thug_robbery';
 const TRACKSUIT_CREW_FACTION_ID = 'tracksuit_crew';
 const IMPLEMENTED_PRESSURE_FACTION_IDS = new Set([TRACKSUIT_CREW_FACTION_ID]);
+const TRACKSUIT_RELATIONSHIP_CUSTOMER_IDS = new Set(['70s_hustler', 'red_hustler']);
+const TRACKSUIT_RELATIONSHIP_PRESSURE = {
+  acceptedLowball: { modest: 1, severe: 1 },
+  actionableRefusal: 1,
+  acceptedMarkup: { meaningful: 1, aggressive: 2 },
+  failedCashDemand: { ordinary: 1, extreme: 2 },
+  badMerchandise: 2,
+  severeDisputeMax: 2
+};
+const TRACKSUIT_RETALIATION_SETTLING_NORMAL_ENCOUNTERS = 6;
 const SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS = 6;
 const SPECIAL_ENCOUNTER_GUARANTEE_TURN = 10;
 const COP_EMERGENCY_RISK = 120;
@@ -52,7 +69,8 @@ const COP_RISK_ADJUSTMENTS = {
   failedObstruction: 0
 };
 const COP_RISK_INVESTIGATION_RESIDUAL_FLOOR = 1;
-const TRACKSUIT_CONSEQUENCE_MIN_PRESSURE = 3;
+const TRACKSUIT_CONSEQUENCE_MIN_PRESSURE = 4;
+const TRACKSUIT_ROBBERY_MIN_TURN = 10;
 const THUG_CONSEQUENCE_MIN_FULL_TURNS = 1;
 const THUG_CASH_HANDOVER_RATE = 0.28;
 const THUG_CASH_HANDOVER_MIN = 8;
@@ -73,6 +91,42 @@ const BUY_FROM_SHOP_ECONOMY = {
   unavailableDemandChance: 0.15,
   maxConsecutiveUnavailableDemand: 2,
   maxNormalSelectionRetries: 8
+};
+const NORMAL_ENCOUNTER_MIX = {
+  emptyInventory: {
+    seller: 75,
+    buyer: 0,
+    trade: 15,
+    other: 10
+  },
+  stockedInventory: {
+    seller: 40,
+    buyer: 40,
+    trade: 15,
+    other: 5
+  },
+  lowCashStocked: {
+    seller: 25,
+    buyer: 55,
+    trade: 15,
+    other: 5
+  },
+  maxSellerOnlyWithInventory: 3
+};
+const LOW_CASH_RECOVERY = {
+  criticalCash: 0,
+  lowCash: 32,
+  npcBuyerCharacterMultiplier: 3.5,
+  npcBuyerPoolMultiplier: 4,
+  tradeCashToPlayerCharacterMultiplier: 2.2,
+  tradeCashToPlayerPoolMultiplier: 2.6,
+  unavailableDemandMultiplier: 0.04,
+  broadBuyerMultiplier: 1.35,
+  guaranteeDryStreak: 3,
+  fallbackPoolWeight: 14,
+  fallbackMinAskMultiplier: 0.55,
+  fallbackMaxAskMultiplier: 0.8,
+  opportunisticBuyerIds: ['bum', 'crackhead', 'junkie', 'desperate_regular', 'bargain_hunter', 'red_hustler']
 };
 const ECONOMY_BALANCE = {
   // Profit is realized net economic performance: completed sale margins minus
@@ -128,6 +182,32 @@ const ECONOMY_BALANCE = {
     rareCollector: 3.25,
     junk: 1.45
   },
+  negativeTagPenaltyFloors: {
+    ordinary: 0.74,
+    damagedOrLowLiquidity: 0.62,
+    suspiciousOrHot: 0.58,
+    rareCollector: 0.7,
+    junk: 0.5
+  },
+  marketPenaltyFloor: {
+    ordinary: 0.52,
+    damagedOrLowLiquidity: 0.38,
+    suspiciousOrHot: 0.32,
+    rareCollector: 0.5,
+    junk: 0.28
+  },
+  matchedBuyerOfferFloors: {
+    ordinary: 0.72,
+    damagedOrLowLiquidity: 0.58,
+    suspiciousOrHot: 0.58,
+    rareCollector: 0.76,
+    junk: 0.5,
+    exactItemBonus: 0.18,
+    categoryMatchBonus: 0.1,
+    requiredTagBonus: 0.02,
+    riskPenaltyPerHeat: 0.018,
+    minimumCustomerMultiplier: 0.86
+  },
   tradeFallbackBasisRate: 0.25
 };
 const NEGOTIATION_OUTCOMES = {
@@ -137,25 +217,40 @@ const NEGOTIATION_OUTCOMES = {
     trade: 3
   },
   severity: {
-    lowball: { mildMinRatio: 0.75, moderateMinRatio: 0.5 },
+    lowball: { mildMinRatio: 0.7, moderateMinRatio: 0.5 },
     markup: { mildMaxRatio: 1.15, moderateMaxRatio: 1.35 },
     trade: { mildMinRatio: 0.8, moderateMinRatio: 0.55 }
   },
+  markupAbsoluteBands: {
+    trivialMax: 2,
+    smallMax: 5,
+    mediumMax: 12,
+    slightToleranceOverage: 0.1,
+    materialToleranceOverage: 0.15
+  },
+  lowballPressure: {
+    moderateGapMin: 24,
+    insultingGapMin: 35,
+    insultingRatio: 0.6,
+    extremeRatio: 0.45,
+    sensitiveAggression: 4,
+    sensitiveThugBias: 3
+  },
   lowballWeights: {
-    accepted: 20,
-    rejectedOriginal: 25,
-    priceWorsened: 20,
-    customerWalks: 20,
-    consequence: 10,
-    acceptedHiddenProblem: 5
+    accepted: 34,
+    rejectedOriginal: 32,
+    priceWorsened: 16,
+    customerWalks: 12,
+    consequence: 4,
+    acceptedHiddenProblem: 2
   },
   markupWeights: {
-    accepted: 20,
-    rejectedOriginal: 25,
-    counteroffer: 20,
+    accepted: 24,
+    rejectedOriginal: 27,
+    counteroffer: 24,
     customerWalks: 20,
-    consequence: 10,
-    acceptedFutureDispute: 5
+    consequence: 5,
+    acceptedFutureDispute: 3
   },
   tradeWeights: {
     rejectedRetry: 65,
@@ -166,7 +261,7 @@ const NEGOTIATION_OUTCOMES = {
   counteroffer: { mild: [0.92, 1.04], moderate: [0.78, 0.95], severe: [0.6, 0.82] },
   hiddenProblem: {
     heatIncrease: 1,
-    valueMultiplier: 0.86,
+    valueMultiplier: 0.92,
     fallbackTags: ['suspicious', 'broken', 'fake', 'hot']
   },
   lowballFloors: {
@@ -176,7 +271,7 @@ const NEGOTIATION_OUTCOMES = {
   },
   modifierCaps: {
     trait: 18,
-    reputation: 12,
+    reputation: 3,
     severity: 20
   }
 };
@@ -315,9 +410,11 @@ const state = {
   consequenceSerial: 0,
   copConsequenceCooldownUntil: 0,
   thugConsequenceCooldownUntil: 0,
+  tracksuitRetaliationSettlingNormalEncountersRemaining: 0,
   normalEncountersSinceSpecial: SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS,
   normalEncounterCount: 0,
   normalCustomerHistory: [],
+  normalEncounterTypeHistory: [],
   copWarnings: 0,
   copStrikes: 0,
   nextCopInvestigationRisk: COP_INVESTIGATION_CHECKPOINTS[0],
@@ -333,6 +430,8 @@ const state = {
   sellMissStreak: 0,
   unavailableSellRequestStreak: 0,
   unavailableSellRequestCount: 0,
+  lowCashRecoveryDryStreak: 0,
+  lowCashRecoveryLastDiagnostics: null,
   fastTestMode: false,
   buybackCooldownDiagnostics: [],
   inventorySelection: {
@@ -370,6 +469,7 @@ const els = {
   log: document.getElementById('log'),
   historyList: document.getElementById('historyList'),
   fastTestToggle: document.getElementById('fastTestToggle'),
+  copyHistory: document.getElementById('copyHistory'),
   clearHistory: document.getElementById('clearHistory')
 };
 
@@ -564,7 +664,13 @@ function addDealFactionPressure(deal, amount, reason, options = {}) {
     if (options.warnWhenMissing) console.warn(`[faction-pressure] ${reason} has no faction target; no pressure added.`);
     return null;
   }
-  if (!isImplementedPressureFaction(factionId)) return null;
+  if (!isImplementedPressureFaction(factionId)) {
+    if (deal) {
+      if (!Array.isArray(deal.factionPressureHistoryLines)) deal.factionPressureHistoryLines = [];
+      deal.factionPressureHistoryLines.push(`Non-implemented faction pressure ignored: ${reason}; faction: ${factionId}; no Tracksuit pressure changed.`);
+    }
+    return null;
+  }
   const result = addFactionPressure(factionId, amount, deal, reason);
   if (result?.delta > 0 && deal) {
     if (!Array.isArray(deal.factionPressureHistoryLines)) deal.factionPressureHistoryLines = [];
@@ -577,10 +683,108 @@ function addDealFactionPressure(deal, amount, reason, options = {}) {
   return result;
 }
 
+function appendFactionPressureHistory(deal, line) {
+  if (!deal) return;
+  if (!Array.isArray(deal.factionPressureHistoryLines)) deal.factionPressureHistoryLines = [];
+  deal.factionPressureHistoryLines.push(line);
+}
+
+function isTracksuitConnectedDeal(deal) {
+  return getImplementedDealPressureFactionId(deal) === TRACKSUIT_CREW_FACTION_ID;
+}
+
+function isTracksuitRelationshipDeal(deal) {
+  return isTracksuitConnectedDeal(deal) && TRACKSUIT_RELATIONSHIP_CUSTOMER_IDS.has(deal?.customer?.id);
+}
+
+function getTracksuitPressureDedupSet(deal) {
+  if (!deal) return null;
+  if (!deal.tracksuitRelationshipPressureKeys) deal.tracksuitRelationshipPressureKeys = [];
+  return new Set(deal.tracksuitRelationshipPressureKeys);
+}
+
+function rememberTracksuitPressureKey(deal, sourceKey) {
+  if (!deal || !sourceKey) return;
+  if (!Array.isArray(deal.tracksuitRelationshipPressureKeys)) deal.tracksuitRelationshipPressureKeys = [];
+  if (!deal.tracksuitRelationshipPressureKeys.includes(sourceKey)) deal.tracksuitRelationshipPressureKeys.push(sourceKey);
+}
+
+function addTracksuitRelationshipPressure(deal, amount, sourceKey, reason, options = {}) {
+  if (!isTracksuitRelationshipDeal(deal)) return null;
+  const key = `tracksuit-relationship:${sourceKey}`;
+  const existing = getTracksuitPressureDedupSet(deal);
+  if (existing?.has(key)) {
+    appendFactionPressureHistory(deal, `No Tracksuit pressure: duplicate relationship source suppressed for ${deal.customer?.displayName || 'customer'} (${reason}).`);
+    return null;
+  }
+  if (options.skipIfAnyPressureThisAction && (deal.factionPressureHistoryLines || []).some(line => /Tracksuit Crew Pressure Source/i.test(line))) {
+    rememberTracksuitPressureKey(deal, key);
+    appendFactionPressureHistory(deal, `No Tracksuit pressure: existing explicit Tracksuit pressure already handled this encounter; relationship source did not stack (${reason}).`);
+    return null;
+  }
+  const boundedAmount = Math.max(1, Math.min(TRACKSUIT_RELATIONSHIP_PRESSURE.severeDisputeMax, Math.round(Number(amount) || 0)));
+  const before = getFactionPressure(TRACKSUIT_CREW_FACTION_ID);
+  const result = addDealFactionPressure(deal, boundedAmount, reason);
+  const after = getFactionPressure(TRACKSUIT_CREW_FACTION_ID);
+  rememberTracksuitPressureKey(deal, key);
+  appendFactionPressureHistory(deal, `Tracksuit Crew Pressure: ${before} -> ${after} (+${Math.max(0, after - before)}).`);
+  appendFactionPressureHistory(deal, `Pressure source: ${reason}; customer ${deal.customer?.displayName || 'customer'}; faction ${TRACKSUIT_CREW_FACTION_ID}; transaction completed ${options.transactionCompleted ? 'yes' : 'no'}.`);
+  if (!result?.delta && before === after) appendFactionPressureHistory(deal, 'Pressure source noted, but no visible pressure changed.');
+  return result;
+}
+
+function noteNoTracksuitRelationshipPressure(deal, reason) {
+  if (!isTracksuitRelationshipDeal(deal)) return;
+  appendFactionPressureHistory(deal, `No Tracksuit pressure: ${reason}.`);
+}
+
+function getTracksuitBadMerchandiseIncidentKey(deal) {
+  return `bad-merchandise:${deal?.transaction?.inventoryInstanceId || deal?.futureDisputeRisk?.inventoryInstanceId || deal?.encounterId || deal?.pool?.id || state.turn}`;
+}
+
+function recordPendingTracksuitBadMerchandiseIncident(deal, reason) {
+  if (!isTracksuitRelationshipDeal(deal)) return;
+  const key = getTracksuitBadMerchandiseIncidentKey(deal);
+  deal.tracksuitBadMerchandiseIncident = {
+    key,
+    status: 'pending',
+    reason,
+    recordedTurn: state.turn
+  };
+  rememberTracksuitPressureKey(deal, `tracksuit-relationship:${key}:pending`);
+  appendFactionPressureHistory(deal, `Tracksuit bad merchandise incident recorded as pending: ${reason}; final pressure waits for refund/dispute resolution.`);
+}
+
+function resolvePendingTracksuitBadMerchandiseIncident(deal, reason) {
+  if (!isTracksuitRelationshipDeal(deal)) return null;
+  const incident = deal.tracksuitBadMerchandiseIncident;
+  const key = incident?.key || getTracksuitBadMerchandiseIncidentKey(deal);
+  const consumedKey = `${key}:resolved`;
+  const existing = getTracksuitPressureDedupSet(deal);
+  if (incident?.status === 'consumed' || existing?.has(`tracksuit-relationship:${consumedKey}`)) {
+    appendFactionPressureHistory(deal, `No Tracksuit pressure: duplicate bad merchandise dispute suppressed for ${deal.customer?.displayName || 'customer'} (${reason}).`);
+    return null;
+  }
+  const result = addTracksuitRelationshipPressure(
+    deal,
+    TRACKSUIT_RELATIONSHIP_PRESSURE.badMerchandise,
+    consumedKey,
+    reason,
+    { transactionCompleted: true }
+  );
+  deal.tracksuitBadMerchandiseIncident = {
+    ...(incident || { key, recordedTurn: state.turn }),
+    status: 'consumed',
+    consumedTurn: state.turn
+  };
+  appendFactionPressureHistory(deal, `Tracksuit bad merchandise incident consumed: final dispute pressure applied once for ${deal.customer?.displayName || 'customer'}.`);
+  return result;
+}
+
 function getReputationModifier() {
   const neutral = 5;
   const raw = (Number(state.reputation) || 0) - neutral;
-  return Math.max(-NEGOTIATION_OUTCOMES.modifierCaps.reputation, Math.min(NEGOTIATION_OUTCOMES.modifierCaps.reputation, raw * 3));
+  return Math.max(-NEGOTIATION_OUTCOMES.modifierCaps.reputation, Math.min(NEGOTIATION_OUTCOMES.modifierCaps.reputation, raw * 0.75));
 }
 
 function getItemTags(item = {}) {
@@ -602,11 +806,83 @@ function getLowballSeverity(offerRatio) {
   return 'severe';
 }
 
-function getMarkupSeverity(markupRatio) {
+function getMarkupSeverity(markupRatio, absoluteIncrease = Number.POSITIVE_INFINITY) {
+  const bands = NEGOTIATION_OUTCOMES.markupAbsoluteBands;
+  if (absoluteIncrease <= bands.trivialMax) return 'mild';
+  if (absoluteIncrease <= bands.smallMax && markupRatio <= 1.5) return 'mild';
+  if (absoluteIncrease <= bands.mediumMax && markupRatio <= 1.25) return 'mild';
   const thresholds = NEGOTIATION_OUTCOMES.severity.markup;
   if (markupRatio <= thresholds.mildMaxRatio) return 'mild';
   if (markupRatio <= thresholds.moderateMaxRatio) return 'moderate';
   return 'severe';
+}
+
+function isKnownBadMarkupItem(item = {}) {
+  const tags = getItemTags(item).map(tag => String(tag).toLowerCase());
+  const condition = String(item?.condition || '').toLowerCase();
+  return tags.some(tag => ['fake', 'possibly_fake', 'broken'].includes(tag)) || condition === 'broken' || condition === 'fake';
+}
+
+function getMarkupRiskContext(deal, ratio, item, context = {}) {
+  const originalPrice = Number(context.originalPrice ?? context.salePrice ?? deal?.salePrice ?? 0) || 0;
+  const attemptedPrice = Number(context.attemptedPrice ?? context.price ?? deal?.markupPrice ?? 0) || 0;
+  const absoluteIncrease = Math.max(0, Math.round(attemptedPrice - originalPrice));
+  const tolerance = Math.max(1, Number(deal?.traits?.maxMarkupTolerance) || 1);
+  const toleranceOverage = Math.max(0, ratio - tolerance);
+  const bands = NEGOTIATION_OUTCOMES.markupAbsoluteBands;
+  const knownBadItem = isKnownBadMarkupItem(item);
+  const explicitQualityLie = Boolean(context.explicitQualityLie || deal?.explicitQualityLie || deal?.selectedQualityLie);
+  const deceptiveMarkup = knownBadItem && (explicitQualityLie || ratio > tolerance || absoluteIncrease > bands.trivialMax);
+  const withinTolerance = ratio <= tolerance;
+  const trivialIncrease = absoluteIncrease <= bands.trivialMax;
+  const smallIncrease = absoluteIncrease <= bands.smallMax;
+  const materialOverage = toleranceOverage >= bands.materialToleranceOverage || (absoluteIncrease > bands.mediumMax && ratio > tolerance + bands.slightToleranceOverage);
+  const abusiveMarkup = absoluteIncrease > bands.mediumMax && ratio > NEGOTIATION_OUTCOMES.severity.markup.moderateMaxRatio;
+  const consequencesAllowed = deceptiveMarkup || (!withinTolerance && !trivialIncrease && (materialOverage || abusiveMarkup));
+  const pressureAllowed = consequencesAllowed && (deceptiveMarkup || materialOverage || abusiveMarkup);
+  return {
+    originalPrice,
+    attemptedPrice,
+    absoluteIncrease,
+    tolerance,
+    toleranceOverage,
+    withinTolerance,
+    trivialIncrease,
+    smallIncrease,
+    knownBadItem,
+    explicitQualityLie,
+    deceptiveMarkup,
+    consequencesAllowed,
+    pressureAllowed,
+    label: withinTolerance ? 'within tolerance' : toleranceOverage <= bands.slightToleranceOverage ? 'slightly above tolerance' : materialOverage ? 'materially above tolerance' : 'above tolerance'
+  };
+}
+
+function getLowballRiskContext(deal, ratio, context = {}) {
+  const ask = Number(context.originalPrice ?? context.ask ?? deal?.askingPrice ?? deal?.askPrice ?? 0) || 0;
+  const offer = Number(context.attemptedPrice ?? context.offer ?? deal?.lowballPrice ?? 0) || 0;
+  const absoluteGap = Math.max(0, Math.round(ask - offer));
+  const traits = deal?.traits || {};
+  const customer = deal?.customer || {};
+  const tolerance = Math.max(0, Number(traits.lowballTolerance) || 1);
+  const pressure = NEGOTIATION_OUTCOMES.lowballPressure;
+  const belowTolerance = ratio < tolerance;
+  const factionSensitive = Number(traits.haggleAggression) >= pressure.sensitiveAggression || Number(customer.thugRiskBias) >= pressure.sensitiveThugBias;
+  const insultingLowball = belowTolerance && (
+    (ratio <= pressure.insultingRatio && absoluteGap >= pressure.moderateGapMin) ||
+    absoluteGap >= pressure.insultingGapMin ||
+    ratio <= pressure.extremeRatio
+  );
+  return {
+    ask,
+    offer,
+    absoluteGap,
+    tolerance,
+    belowTolerance,
+    factionSensitive,
+    pressureAllowed: Boolean(getImplementedDealPressureFactionId(deal)) && factionSensitive && insultingLowball,
+    label: belowTolerance ? 'below lowball tolerance' : 'within lowball tolerance'
+  };
 }
 
 function getTradeSeverity(ratio) {
@@ -633,20 +909,21 @@ function applySeverityWeightModifiers(weights, severity, negotiationType) {
   const severityBoost = severity === 'severe' ? 1 : severity === 'moderate' ? 0.5 : 0;
   const severityCalm = severity === 'mild' ? 1 : severity === 'moderate' ? 0.5 : 0;
   if (negotiationType === 'lowball') {
-    weights.accepted -= 10 * severityBoost;
-    weights.acceptedHiddenProblem += 8 * severityBoost;
-    weights.priceWorsened += 10 * severityBoost;
-    weights.customerWalks += 14 * severityBoost;
-    weights.consequence += 9 * severityBoost;
-    weights.accepted += 7 * severityCalm;
+    weights.accepted -= 6 * severityBoost;
+    weights.acceptedHiddenProblem += 5 * severityBoost;
+    weights.priceWorsened += 7 * severityBoost;
+    weights.customerWalks += 8 * severityBoost;
+    weights.consequence += 4 * severityBoost;
+    weights.accepted += 9 * severityCalm;
     weights.rejectedOriginal += 6 * severityCalm;
   } else if (negotiationType === 'markup') {
     weights.accepted -= 12 * severityBoost;
     weights.counteroffer += 7 * severityCalm + 6 * severityBoost;
     weights.customerWalks += 13 * severityBoost;
     weights.consequence += 9 * severityBoost;
-    weights.accepted += 7 * severityCalm;
-    weights.rejectedOriginal += 5 * severityCalm;
+    weights.accepted += 11 * severityCalm;
+    weights.rejectedOriginal += 7 * severityCalm;
+    weights.acceptedFutureDispute -= 2 * severityCalm;
   } else {
     weights.rejectedRetry += 16 * severityCalm;
     weights.rejectedEnds += 18 * severityBoost;
@@ -669,18 +946,49 @@ function applyContextWeightModifiers(weights, deal, negotiationType, item) {
 
   if (negotiationType === 'lowball') {
     const desperation = Math.max(0, 0.65 - lowballTolerance) * 24 + (traits.prefersCash ? 4 : 0);
-    weights.accepted += desperation + reputationMod;
+    const desperateSeller = lowballTolerance <= 0.5 || ['bum', 'crackhead', 'junkie', 'desperate_regular'].includes(customer.id);
+    weights.accepted += desperation + reputationMod + (desperateSeller ? 16 : 0);
     weights.rejectedOriginal += Math.max(0, 8 - aggression);
-    weights.customerWalks += aggression * 2 + Math.max(0, riskTolerance - 3) * 2 - reputationMod * 0.35;
-    weights.consequence += aggression + Math.max(0, Number(customer.thugRiskBias) || 0) + (factionConnected ? 8 : 0) - reputationMod * 0.25;
-    weights.acceptedHiddenProblem += suspicious ? 12 : Math.max(0, Number(item?.heat) || 0);
+    weights.customerWalks += Math.max(0, aggression - (desperateSeller ? 1 : 0)) * 1.5 + Math.max(0, riskTolerance - 3) * 1.5 - reputationMod * 0.35;
+    weights.consequence += Math.max(0, aggression - (desperateSeller ? 2 : 0)) + Math.max(0, Number(customer.thugRiskBias) || 0) + (factionConnected ? 7 : 0) - reputationMod * 0.25;
+    weights.acceptedHiddenProblem += suspicious ? 12 : Math.max(0, Number(item?.heat) || 0) * 0.5;
+    if (!suspicious) weights.acceptedHiddenProblem = Math.max(0, weights.acceptedHiddenProblem - 2);
+    if (desperateSeller && !factionConnected) {
+      weights.consequence = Math.max(0, weights.consequence - 6);
+      weights.customerWalks = Math.max(0, weights.customerWalks - 6);
+      weights.rejectedOriginal += 6;
+    }
   } else if (negotiationType === 'markup') {
+    const markupContext = deal?.currentMarkupRiskContext || getMarkupRiskContext(deal, Number(deal?.markupPrice || 0) / Math.max(1, Number(deal?.salePrice) || 1), item);
     weights.accepted += (markupTolerance - 1) * 28 + reputationMod + (exactInterestMatch ? 8 : 0);
     weights.rejectedOriginal += Math.max(0, 10 - aggression);
     weights.counteroffer += aggression + (exactInterestMatch ? 5 : 0);
     weights.customerWalks += aggression * 2 + Math.max(0, Number(customer.trust) < 35 ? 6 : 0) - reputationMod * 0.3;
-    weights.consequence += (Number(customer.scamRiskBias) || 0) + (suspicious ? 7 : 0) - reputationMod * 0.2;
-    weights.acceptedFutureDispute += suspicious ? 12 : Math.max(0, Number(item?.heat) || 0);
+    weights.consequence += (Number(customer.scamRiskBias) || 0) * 0.75 + (suspicious ? 6 : 0) - reputationMod * 0.2;
+    weights.acceptedFutureDispute += suspicious ? 9 : Math.max(0, Number(item?.heat) || 0) * 0.5;
+    if (markupContext.withinTolerance) {
+      weights.accepted += 14;
+      weights.rejectedOriginal += 8;
+      weights.counteroffer += 6;
+      weights.customerWalks = Math.max(0, weights.customerWalks - 12);
+      weights.consequence = 0;
+      weights.acceptedFutureDispute = markupContext.deceptiveMarkup ? weights.acceptedFutureDispute : 0;
+    } else if (!markupContext.consequencesAllowed) {
+      weights.rejectedOriginal += 8;
+      weights.counteroffer += 8;
+      weights.customerWalks = Math.max(0, weights.customerWalks - 6);
+      weights.consequence = Math.min(Math.max(0, weights.consequence), 2);
+      weights.acceptedFutureDispute = markupContext.deceptiveMarkup ? weights.acceptedFutureDispute : 0;
+    }
+    if (markupContext.trivialIncrease && !markupContext.deceptiveMarkup) {
+      weights.consequence = 0;
+      weights.customerWalks = Math.max(0, weights.customerWalks - 8);
+      weights.acceptedFutureDispute = 0;
+    }
+    if (!suspicious) {
+      weights.consequence = Math.max(0, weights.consequence - 3);
+      weights.acceptedFutureDispute = Math.max(0, weights.acceptedFutureDispute - 2);
+    }
   } else {
     weights.rejectedRetry += Math.max(0, 6 - aggression) + reputationMod * 0.3;
     weights.rejectedEnds += aggression * 3 - reputationMod * 0.25;
@@ -721,7 +1029,11 @@ function applyLowballAcceptanceFloors(weightsObject, deal, ratio) {
 function resolveNegotiationOutcome(type, deal, context = {}) {
   const item = context.item || deal?.item || {};
   const ratio = Number(context.ratio) || 0;
-  const severity = type === 'lowball' ? getLowballSeverity(ratio) : type === 'markup' ? getMarkupSeverity(ratio) : getTradeSeverity(ratio);
+  const markupContext = type === 'markup' ? getMarkupRiskContext(deal, ratio, item, context) : null;
+  const lowballContext = type === 'lowball' ? getLowballRiskContext(deal, ratio, context) : null;
+  if (markupContext) deal.currentMarkupRiskContext = markupContext;
+  if (lowballContext) deal.currentLowballRiskContext = lowballContext;
+  const severity = type === 'lowball' ? getLowballSeverity(ratio) : type === 'markup' ? getMarkupSeverity(ratio, markupContext.absoluteIncrease) : getTradeSeverity(ratio);
   const baseConfig = type === 'lowball'
     ? NEGOTIATION_OUTCOMES.lowballWeights
     : type === 'markup' ? NEGOTIATION_OUTCOMES.markupWeights : NEGOTIATION_OUTCOMES.tradeWeights;
@@ -742,7 +1054,11 @@ function resolveNegotiationOutcome(type, deal, context = {}) {
     reputationModifier: getReputationModifier(),
     itemSummary: getRelevantItemSummary(item),
     factionConnected: Boolean(getImplementedDealPressureFactionId(deal)),
-    floorAdjustments
+    floorAdjustments,
+    markupContext,
+    lowballContext,
+    consequencesAllowed: type === 'markup' ? markupContext.consequencesAllowed : type === 'lowball' ? lowballContext.pressureAllowed || severity === 'severe' : true,
+    pressureAllowed: type === 'markup' ? markupContext.pressureAllowed : type === 'lowball' ? lowballContext.pressureAllowed : true
   };
 }
 
@@ -755,9 +1071,15 @@ function appendNegotiationDiagnostics(deal, outcome, details = {}) {
     Number.isFinite(Number(details.counteroffer)) ? `counteroffer ${moneyText(details.counteroffer)}` : ''
   ].filter(Boolean).join('; ') || 'no new price';
   const changes = details.changeSummary || 'no risk/reputation/faction change';
+  const markupNote = outcome.markupContext
+    ? `; markup ${moneyText(outcome.markupContext.absoluteIncrease)} over original; tolerance ${outcome.markupContext.tolerance.toFixed(2)} (${outcome.markupContext.label}); consequences ${outcome.markupContext.consequencesAllowed ? 'allowed' : 'suppressed'}`
+    : '';
+  const lowballNote = outcome.lowballContext
+    ? `; lowball gap ${moneyText(outcome.lowballContext.absoluteGap)}; tolerance ${outcome.lowballContext.tolerance.toFixed(2)} (${outcome.lowballContext.label}); faction pressure ${outcome.lowballContext.pressureAllowed ? 'eligible' : 'not eligible'}`
+    : '';
   appendNegotiationHistory(
     deal,
-    `Negotiation: encounter ${deal.encounterId}; customer ${deal.customer?.id || 'unknown'}; deal ${deal.dealType}; type ${outcome.type}; original ${moneyText(originalPrice)}; attempted ${moneyText(attemptedPrice)}; ratio ${outcome.ratio.toFixed(2)}; severity ${outcome.severity}; traits ${outcome.traitSummary}; reputation modifier ${signedNumber(outcome.reputationModifier)}; item ${outcome.itemSummary}; base weights ${formatWeights(outcome.baseWeights)}; adjusted weights ${formatWeights(outcome.adjustedWeights)}; ${outcome.floorAdjustments?.length ? `floor adjustments ${outcome.floorAdjustments.join(', ')}; ` : ''}selected ${outcome.selected}; deal ${continuation}; ${priceNote}; ${changes}.`
+    `Negotiation: encounter ${deal.encounterId}; customer ${deal.customer?.id || 'unknown'}; deal ${deal.dealType}; type ${outcome.type}; original ${moneyText(originalPrice)}; attempted ${moneyText(attemptedPrice)}; ratio ${outcome.ratio.toFixed(2)}; severity ${outcome.severity}${markupNote}${lowballNote}; traits ${outcome.traitSummary}; mild reputation modifier applied ${signedNumber(outcome.reputationModifier)}; item ${outcome.itemSummary}; base weights ${formatWeights(outcome.baseWeights)}; adjusted weights ${formatWeights(outcome.adjustedWeights)}; ${outcome.floorAdjustments?.length ? `floor adjustments ${outcome.floorAdjustments.join(', ')}; ` : ''}selected ${outcome.selected}; deal ${continuation}; ${priceNote}; ${changes}.`
   );
 }
 
@@ -765,13 +1087,20 @@ function applyNegotiationPenalty(deal, outcome, amount = 1) {
   const beforeRep = state.reputation;
   const beforeScam = state.scamRisk;
   const beforePressure = getFactionPressure(getImplementedDealPressureFactionId(deal));
+  const pressureFactionId = getDealPressureFactionId(deal);
   let factionResult = null;
-  if (outcome.factionConnected) {
+  if (outcome.factionConnected && outcome.pressureAllowed) {
     factionResult = addDealFactionPressure(deal, amount + (outcome.severity === 'severe' ? 1 : 0), `${outcome.severity} ${outcome.type} insult from ${deal.customer?.displayName || 'customer'}`);
-  } else {
+  } else if (!outcome.factionConnected && outcome.consequencesAllowed !== false) {
     state.reputation = Math.max(0, state.reputation - amount);
+    if (deal) {
+      if (!Array.isArray(deal.factionPressureHistoryLines)) deal.factionPressureHistoryLines = [];
+      deal.factionPressureHistoryLines.push(`Hostile backlash: ${outcome.selected} against ${deal.customer?.displayName || 'customer'} is not an implemented faction pressure source${pressureFactionId ? ` (faction: ${pressureFactionId})` : ''}; resolved as reputation loss only.`);
+    }
   }
-  if (outcome.type === 'markup') state.scamRisk += amount + (outcome.severity === 'severe' ? 2 : 1);
+  if (outcome.type === 'markup' && outcome.consequencesAllowed !== false && (!outcome.factionConnected || outcome.severity === 'severe')) {
+    state.scamRisk += amount + (outcome.severity === 'severe' ? 2 : 0);
+  }
   const afterPressure = getFactionPressure(getImplementedDealPressureFactionId(deal));
   return [
     beforeRep !== state.reputation ? `reputation ${beforeRep} -> ${state.reputation}` : '',
@@ -784,23 +1113,159 @@ function randomRange([min, max]) {
   return min + Math.random() * (max - min);
 }
 
+function getAdjustedResaleEstimate(item) {
+  const marginClass = getMarginClass(item, null);
+  const tagPenalty = getDedupedTagValueMultiplier(item, marginClass);
+  const marketPenalty = applyMarketPenaltyFloor(
+    getLiquiditySaleMultiplier(item) * tagPenalty.multiplier * (Number.isFinite(Number(item?.resaleModifier)) ? Number(item.resaleModifier) : 1),
+    marginClass
+  );
+  return Math.max(1, Math.round(getInstanceBaseTargetValue(item) * getConditionValueMultiplier(item) * marketPenalty.multiplier));
+}
+
+function resolveItemForOutcomeSummary(itemRef = null, deal = state.currentDeal) {
+  if (itemRef && typeof itemRef === 'object') {
+    if (itemRef.instanceId) {
+      return state.inventory.find(item => item.instanceId === itemRef.instanceId) || itemRef;
+    }
+    const objectItemId = itemRef.itemId || itemRef.id || itemRef.item_id;
+    if (objectItemId) return state.inventory.find(item => item.itemId === objectItemId) || getItem(objectItemId) || itemRef;
+    return itemRef;
+  }
+
+  const ref = String(itemRef || '').trim();
+  if (ref) {
+    const byInstance = state.inventory.find(item => item.instanceId === ref);
+    if (byInstance) return byInstance;
+    const byItemId = state.inventory.find(item => item.itemId === ref) || getItem(ref);
+    if (byItemId) return byItemId;
+  }
+
+  if (deal?.inventoryItem) return deal.inventoryItem;
+  if (deal?.transaction?.inventoryInstanceId) {
+    const transactionItem = state.inventory.find(item => item.instanceId === deal.transaction.inventoryInstanceId);
+    if (transactionItem) return transactionItem;
+  }
+  if (deal?.transaction?.itemId) {
+    const transactionItem = state.inventory.find(item => item.itemId === deal.transaction.itemId) || getItem(deal.transaction.itemId);
+    if (transactionItem) return transactionItem;
+  }
+  if (deal?.item) return deal.item;
+  if (deal?.pool?.itemId) return getItem(deal.pool.itemId) || null;
+  return null;
+}
+
+function getPlayerFacingItemName(itemRef = null, deal = state.currentDeal) {
+  const item = resolveItemForOutcomeSummary(itemRef, deal);
+  const name = item ? dealItemLabel(item) : '';
+  if (!name || /^(?:undefined|null|inv_\d+)$/i.test(String(name).trim())) return 'the item';
+  return name;
+}
+
+function formatHiddenProblemMeaningfulChanges(mutation = {}) {
+  const before = mutation.before || {};
+  const after = mutation.after || {};
+  const changes = [];
+  if (String(before.condition || '').toLowerCase() !== String(after.condition || '').toLowerCase()) {
+    changes.push({
+      type: 'condition',
+      text: `Condition dropped from ${titleCaseText(before.condition || 'unknown').toLowerCase()} to ${titleCaseText(after.condition || 'unknown').toLowerCase()}`
+    });
+  }
+  if (Number(before.heat) !== Number(after.heat)) {
+    changes.push({ type: 'heat', text: `Heat increased from ${Number(before.heat) || 0} to ${Number(after.heat) || 0}` });
+  }
+  if (mutation.tagAdded) {
+    changes.push({ type: 'tag', text: `It picked up a ${titleCaseText(mutation.tagAdded).toLowerCase()} risk marker` });
+  }
+  if (Number(mutation.adjustedResaleBefore) !== Number(mutation.adjustedResaleAfter)) {
+    changes.push({
+      type: 'adjustedResale',
+      text: `estimated resale ${changes.length ? 'fell' : 'value dropped'} from ${moneyText(mutation.adjustedResaleBefore)} to ${moneyText(mutation.adjustedResaleAfter)}`
+    });
+  }
+  return changes;
+}
+
+function joinReadableClauses(clauses = []) {
+  if (clauses.length <= 1) return clauses[0] || '';
+  if (clauses.length === 2) return `${clauses[0]}, and ${clauses[1]}`;
+  return `${clauses.slice(0, -1).join(', ')}, and ${clauses[clauses.length - 1]}`;
+}
+
+function formatHiddenProblemDialogue(deal = state.currentDeal, itemRef = null) {
+  const mutation = deal?.hiddenProblemMutation || {};
+  const itemName = getPlayerFacingItemName(itemRef || mutation.instanceId, deal);
+  const changes = formatHiddenProblemMeaningfulChanges(mutation);
+  const hasConditionChange = changes.some(change => change.type === 'condition');
+  const hasHeatChange = changes.some(change => change.type === 'heat');
+  const subject = itemName === 'the item' ? 'The item' : itemName;
+  const opening = hasConditionChange
+    ? `${subject} is in worse shape than it looked`
+    : hasHeatChange ? `${subject} is hotter than advertised` : `${subject} has a hidden issue`;
+  const clauses = changes.map(change => change.text);
+  if (!clauses.length) return `Deal done. ${opening}.`;
+  return `Deal done. ${opening}. ${joinReadableClauses(clauses)}.`;
+}
+
+function getReadableRiskLabel(item = {}) {
+  const tags = getItemTags(item).map(tag => String(tag).toLowerCase());
+  const heat = Number(item.heat) || 0;
+  if (tags.includes('hot') || tags.includes('stolen') || heat >= 4) return 'Hot';
+  if (tags.includes('suspicious') || tags.includes('mystery') || tags.includes('fake') || tags.includes('possibly_fake') || heat >= 2) return 'Suspicious';
+  return '';
+}
+
+function formatShopPurchaseDealPanelSummary(deal = state.currentDeal) {
+  if (!deal?.transaction || deal.transaction.type !== 'shop_purchase') return '';
+  const item = resolveItemForOutcomeSummary(deal.transaction.inventoryInstanceId, deal) || deal.transaction.inventoryItem;
+  const itemName = getPlayerFacingItemName(item, deal);
+  const lines = [
+    itemName,
+    `Paid: ${moneyText(deal.transaction.price)}`,
+    item?.condition ? `Condition: ${titleCaseText(item.condition)}` : '',
+    item ? `Estimated resale: ${moneyText(getAdjustedResaleEstimate(item))}` : ''
+  ];
+  const risk = item ? getReadableRiskLabel(item) : '';
+  if (risk) lines.push(`Risk: ${risk}`);
+  if (deal.hiddenProblemMutation?.tagAdded) lines.push(`New tag: ${titleCaseText(deal.hiddenProblemMutation.tagAdded)}`);
+  return formatDealLines(lines);
+}
+
+function formatHiddenProblemHistorySummary(deal = state.currentDeal) {
+  const mutation = deal?.hiddenProblemMutation || {};
+  const before = mutation.before || {};
+  const after = mutation.after || {};
+  const itemName = getPlayerFacingItemName(mutation.instanceId, deal);
+  const instanceId = mutation.instanceId || after.instanceId || before.instanceId || 'unknown';
+  return `Hidden problem on ${itemName} [${instanceId}]: condition ${before.condition} -> ${after.condition}, heat ${before.heat} -> ${after.heat}, ${mutation.tagAdded ? `tag +${mutation.tagAdded}` : 'no new tag'}, resale ${moneyText(before.targetSellPrice)} -> ${moneyText(after.targetSellPrice)}, modifier ${Number(before.resaleModifier || 1).toFixed(2)}x -> ${Number(after.resaleModifier || 1).toFixed(2)}x, adjusted resale estimate ${moneyText(mutation.adjustedResaleBefore)} -> ${moneyText(mutation.adjustedResaleAfter)}`;
+}
+
 function worsenInventoryInstanceForHiddenProblem(inventoryItem, deal, outcome) {
   if (!inventoryItem) return '';
   const before = copyInventoryDebugItem(inventoryItem);
+  const tagsBefore = getItemTagsForEconomy(inventoryItem);
+  const severeHiddenProblem = outcome?.severity === 'severe' || tagsBefore.some(tag => ['mystery', 'hot', 'fake', 'possibly_fake'].includes(tag));
   const conditionOrder = ['mint', 'excellent', 'good', 'used', 'fair', 'poor', 'questionable', 'broken'];
   const currentIndex = conditionOrder.indexOf(String(inventoryItem.condition || '').toLowerCase());
-  if (currentIndex >= 0 && currentIndex < conditionOrder.length - 1) {
+  if (severeHiddenProblem && currentIndex >= 0 && currentIndex < conditionOrder.length - 1) {
     inventoryItem.condition = conditionOrder[currentIndex + 1];
   } else if (!String(inventoryItem.condition || '').trim()) {
     inventoryItem.condition = 'questionable';
   }
   const tags = new Set(Array.isArray(inventoryItem.tags) ? inventoryItem.tags : []);
-  const candidateTag = NEGOTIATION_OUTCOMES.hiddenProblem.fallbackTags.find(tag => !tags.has(tag)) || 'suspicious';
-  tags.add(candidateTag);
+  const candidateTag = severeHiddenProblem
+    ? NEGOTIATION_OUTCOMES.hiddenProblem.fallbackTags.find(tag => !tags.has(tag)) || 'suspicious'
+    : tagsBefore.includes('suspicious') ? '' : 'suspicious';
+  if (candidateTag) tags.add(candidateTag);
   inventoryItem.tags = [...tags];
-  inventoryItem.heat = Math.min(10, Math.max(0, Math.round((Number(inventoryItem.heat) || 0) + NEGOTIATION_OUTCOMES.hiddenProblem.heatIncrease)));
+  if (severeHiddenProblem) {
+    inventoryItem.heat = Math.min(10, Math.max(0, Math.round((Number(inventoryItem.heat) || 0) + NEGOTIATION_OUTCOMES.hiddenProblem.heatIncrease)));
+  }
   inventoryItem.targetSellPrice = Math.max(1, Math.round((Number(inventoryItem.targetSellPrice) || Number(inventoryItem.baseValue) || 1) * NEGOTIATION_OUTCOMES.hiddenProblem.valueMultiplier));
-  inventoryItem.resaleModifier = Math.max(0.25, Number(inventoryItem.resaleModifier || 1) * NEGOTIATION_OUTCOMES.hiddenProblem.valueMultiplier);
+  if (severeHiddenProblem) {
+    inventoryItem.resaleModifier = Math.max(0.35, Number(inventoryItem.resaleModifier || 1) * NEGOTIATION_OUTCOMES.hiddenProblem.valueMultiplier);
+  }
   inventoryItem.notes = `${inventoryItem.notes || ''} Hidden negotiation problem from ${outcome.severity} lowball.`.trim();
   inventoryItem.hiddenProblem = {
     source: 'lowball',
@@ -813,9 +1278,11 @@ function worsenInventoryInstanceForHiddenProblem(inventoryItem, deal, outcome) {
     instanceId: inventoryItem.instanceId,
     before,
     after: copyInventoryDebugItem(inventoryItem),
-    tagAdded: candidateTag
+    tagAdded: candidateTag,
+    adjustedResaleBefore: getAdjustedResaleEstimate(before),
+    adjustedResaleAfter: getAdjustedResaleEstimate(inventoryItem)
   };
-  return `hidden problem on ${inventoryItem.instanceId}: condition ${before.condition} -> ${inventoryItem.condition}, heat ${before.heat} -> ${inventoryItem.heat}, tag +${candidateTag}, resale ${moneyText(before.targetSellPrice)} -> ${moneyText(inventoryItem.targetSellPrice)}, modifier ${Number(before.resaleModifier || 1).toFixed(2)}x -> ${Number(inventoryItem.resaleModifier || 1).toFixed(2)}x`;
+  return formatHiddenProblemHistorySummary(deal);
 }
 
 function isShopBuying(dealType) {
@@ -1799,7 +2266,7 @@ function renderDeal() {
       const itemText = deal.stolenItemCandidate ? dealItemLabel(deal.stolenItemCandidate) : 'No valid shelf item';
       els.log.textContent = formatDealLines([
         `${deal.customer.displayName}: Robbery`,
-        `Cash payoff: ${moneyText(getThugCashLossAmount(THUG_CASH_HANDOVER_RATE, THUG_CASH_HANDOVER_MIN))}`,
+        `Payoff target: ${moneyText(getThugIntendedRobberyValue(THUG_CASH_HANDOVER_RATE, THUG_CASH_HANDOVER_MIN))}`,
         `Item option: ${itemText}`,
         'Deal open'
       ]);
@@ -1819,6 +2286,7 @@ function renderDeal() {
       `${deal.customer.displayName}: Selling to shop`,
       itemLabel,
       `Asking: ${moneyText(ask)}`,
+      deal.configuredBuyRange ? `Range: ${moneyText(deal.configuredBuyRange.min)}-${moneyText(deal.configuredBuyRange.max)}` : '',
       deal.lowballRejected ? `Current offer: ${moneyText(deal.defaultOffer)}` : `Your offer: ${moneyText(deal.actualOffer)}`,
       deal.priceWorsenedNotice ? `PRICE RAISED: ${moneyText(deal.priceWorsenedNotice.oldAsk)} -> ${moneyText(deal.priceWorsenedNotice.newAsk)}` : '',
       `Condition: ${titleCaseText(item.condition)}`,
@@ -1862,11 +2330,22 @@ function renderDeal() {
       ]);
     }
   } else {
+    if (deal.pendingTradeConfirmation) {
+      const pending = deal.pendingTradeConfirmation;
+      els.log.textContent = formatDealLines([
+        `${deal.customer.displayName}: Confirm Trade`,
+        `You give: ${pending.selectedItems.map(item => `${dealItemLabel(item)} [${item.instanceId}]`).join(', ') || 'No item'}`,
+        `You receive: ${pending.receivedItems.map(item => dealItemLabel(item)).join(', ') || 'No item'}`,
+        getTradeCashText(pending.cashDelta),
+        'Confirm or change the offer before anything changes hands'
+      ]);
+      return;
+    }
     const selectedItems = getSelectedTradeInventoryItems(deal);
     const cashDelta = getTradeCashDelta(deal);
     const selectedText = selectedItems.length
       ? selectedItems.map(item => dealItemLabel(item)).join(', ')
-      : 'None';
+      : 'None - select an item';
     const remainingAttempts = Math.max(0, NEGOTIATION_OUTCOMES.attemptLimits.trade - (Number(deal.tradeSubmissions) || 0));
     els.log.textContent = formatDealLines([
       `${deal.customer.displayName}: Trade`,
@@ -1911,6 +2390,11 @@ function clearInventorySelection() {
   state.inventorySelection.selectedInstanceIds = [];
 }
 
+function clearTemporaryEncounterUiState() {
+  clearInventorySelection();
+  setInventoryOpen(false);
+}
+
 function cancelInventorySelection() {
   const wasActive = state.inventorySelection.active;
   const deal = getInventorySelectionDeal();
@@ -1936,6 +2420,20 @@ function openTradeSelection() {
     renderAll();
     return;
   }
+  appendIdenticalTradeExclusionDiagnostics(deal);
+  const eligibleItems = getEligibleTradeInventoryItems(deal);
+  if (!eligibleItems.length) {
+    appendTradeHistory(deal, 'Trade unavailable: no eligible inventory after identical-item exclusion.');
+    deal.currentResultSummary = '';
+    deal.selectedTradeInventoryInstanceIds = [];
+    deal.requestedInventoryItems = [];
+    deal.requestedInventoryItem = null;
+    clearInventorySelection();
+    setInventoryOpen(false);
+    renderLog('No eligible inventory is available for this trade.');
+    renderAll();
+    return;
+  }
   deal.currentResultSummary = '';
   state.inventorySelection.active = true;
   state.inventorySelection.encounterId = deal.encounterId;
@@ -1943,10 +2441,18 @@ function openTradeSelection() {
   state.inventorySelection.selectedInstanceIds = Array.isArray(deal.selectedTradeInventoryInstanceIds)
     ? deal.selectedTradeInventoryInstanceIds.filter(id => state.inventory.some(item => item.instanceId === id))
     : [];
-  appendTradeHistory(deal, `Trade selection opened: eligible [${getEligibleTradeInventoryItems(deal).map(item => item.instanceId).join(', ') || 'none'}].`);
+  appendTradeHistory(deal, `Trade selection opened: eligible [${eligibleItems.map(item => item.instanceId).join(', ') || 'none'}].`);
   renderLog(getTradeSelectionSummary(deal) || 'Select trade items from eligible inventory.');
   setLowerPanel('inventory');
   renderAll();
+}
+
+function isTradeSelectionStepComplete(deal) {
+  if (!deal || deal.dealType !== 'trade') return false;
+  const selectedCount = getSelectedTradeInventoryItems(deal).length;
+  if (!selectedCount) return false;
+  if (deal.traits?.acceptsJunkBundles) return false;
+  return true;
 }
 
 function toggleTradeInventorySelection(deal, instanceId) {
@@ -1961,11 +2467,16 @@ function toggleTradeInventorySelection(deal, instanceId) {
   const index = selected.indexOf(instanceId);
   if (index >= 0) selected.splice(index, 1);
   else selected.push(instanceId);
-  deal.selectedTradeInventoryInstanceIds = [...selected];
+  state.inventorySelection.selectedInstanceIds = [...new Set(selected)];
+  deal.selectedTradeInventoryInstanceIds = [...state.inventorySelection.selectedInstanceIds];
   deal.requestedInventoryItems = getSelectedTradeInventoryItems(deal);
   deal.requestedInventoryItem = deal.requestedInventoryItems[0] || null;
   deal.currentResultSummary = '';
   renderLog(getTradeSelectionSummary(deal));
+  if (isTradeSelectionStepComplete(deal)) {
+    clearInventorySelection();
+    setInventoryOpen(false);
+  }
   renderAll();
 }
 
@@ -2012,11 +2523,7 @@ function renderChoices() {
   let choices;
   if (isConsequenceDeal(deal.dealType)) {
     if (deal.dealType === THUG_CONSEQUENCE_TYPE) {
-      choices = [
-        { label: `Hand over ${moneyText(getThugCashLossAmount(THUG_CASH_HANDOVER_RATE, THUG_CASH_HANDOVER_MIN))}`, action: 'thugCash' },
-        { label: 'Give up an item', action: 'thugItem', disabled: !getThugInventoryTarget() },
-        { label: 'Refuse', action: 'thugRefuse' }
-      ];
+      choices = getThugChoiceDescriptors(deal);
     } else {
       choices = [
         { label: 'Cooperate', action: 'copCooperate' },
@@ -2060,7 +2567,13 @@ function renderChoices() {
           ];
     }
   } else {
-    if (state.inventorySelection.active && state.inventorySelection.encounterId === deal.encounterId && state.inventorySelection.mode === 'trade') {
+    if (deal.pendingTradeConfirmation) {
+      choices = [
+        { label: 'Confirm Trade', action: 'confirmTrade' },
+        { label: 'Change Offer', action: 'changeTradeOffer' },
+        { label: 'Cancel', action: 'cancelTrade' }
+      ];
+    } else if (state.inventorySelection.active && state.inventorySelection.encounterId === deal.encounterId && state.inventorySelection.mode === 'trade') {
       const submission = canSubmitTradeAction(deal);
       choices = [
         { label: isTradeSubmissionLimitReached(deal) ? 'No more submissions' : 'Submit trade offer', action: 'submitTradeOffer', disabled: !submission.canSubmit },
@@ -2184,22 +2697,60 @@ function getPlayerRejectionText(text) {
   return stripDeveloperReferences(text);
 }
 
+function getDealPanelSubjectItem(deal = state.currentDeal) {
+  if (!deal) return null;
+  if (deal.dealType === COP_CONSEQUENCE_TYPE) return deal.targetInventoryItem || deal.item || null;
+  if (deal.dealType === THUG_CONSEQUENCE_TYPE) return deal.stolenItemCandidate || deal.item || null;
+  if (isShopBuying(deal.dealType)) return deal.item || null;
+  if (isNpcBuying(deal.dealType)) return deal.inventoryItem || getItem(deal.requestedItemId) || deal.item || null;
+  if (deal.dealType === 'trade') return getTradeReceivedItems(deal)[0] || deal.item || null;
+  return deal.inventoryItem || deal.targetInventoryItem || deal.requestedInventoryItem || deal.item || null;
+}
+
+function shouldUseStructuredTradeDealText(text, deal = state.currentDeal) {
+  if (deal?.dealType !== 'trade') return false;
+  return /^(?:Trade offer|Review trade|Customer offers|You give|You receive|Confirm Trade)/i.test(String(text || '').trim());
+}
+
+function getSafeDealPanelSubjectLabel(deal = state.currentDeal, options = {}) {
+  const item = getDealPanelSubjectItem(deal);
+  const itemName = item ? dealItemLabel(item) : '';
+  if (itemName && !/^(?:undefined|null|inv_\d+)$/i.test(String(itemName).trim())) return itemName;
+  if (isNpcBuying(deal?.dealType)) {
+    const request = deal?.requestedItemType || getCustomerBuyRequestPhrase(deal);
+    return request ? titleCaseText(request) : options.fallback ? 'The item' : '';
+  }
+  return options.fallback ? 'The item' : '';
+}
+
+function prefixDealTextWithItemName(text, deal = state.currentDeal, options = {}) {
+  const cleaned = String(text || '').trim();
+  if (!cleaned || shouldUseStructuredTradeDealText(cleaned, deal)) return cleaned;
+  const itemName = getSafeDealPanelSubjectLabel(deal, options);
+  if (!itemName) return cleaned;
+  const normalizedText = normalizeDealComparisonText(cleaned);
+  const normalizedName = normalizeDealComparisonText(itemName);
+  if (normalizedText.includes(normalizedName)) return cleaned;
+  return `${itemName}: ${cleaned}`;
+}
+
 function getPlayerDealPanelText(text, deal = state.currentDeal) {
   const raw = String(text || '').trim();
   const cleaned = stripDeveloperReferences(raw);
   if (!raw) return '';
-  if (deal?.currentResultSummary && cleaned) return getCurrentResultSummary(cleaned);
+  if (deal?.currentResultSummary && deal.hiddenProblemMutation) return formatShopPurchaseDealPanelSummary(deal) || getCurrentResultSummary(cleaned);
+  if (deal?.currentResultSummary && cleaned) return prefixDealTextWithItemName(getCurrentResultSummary(cleaned), deal, { fallback: true });
   if (/^Rejected:/i.test(cleaned)) return getPlayerRejectionText(cleaned);
   if (/^(?:Select|Selection canceled|That item is not eligible|The customer is done|No matching inventory)/i.test(cleaned)) return cleaned;
 
   const itemFromDetail = findInventoryItemFromDetailText(raw);
-  if (itemFromDetail && hasDealPanelDiagnostics(raw)) return getItemFlavorText(itemFromDetail, deal);
-  if (hasDealPanelDiagnostics(raw)) return getEncounterFlavorText(deal);
+  if (itemFromDetail && hasDealPanelDiagnostics(raw)) return prefixDealTextWithItemName(getItemFlavorText(itemFromDetail, deal), { ...deal, inventoryItem: itemFromDetail });
+  if (hasDealPanelDiagnostics(raw)) return prefixDealTextWithItemName(getEncounterFlavorText(deal), deal);
 
   if ((cleaned && cleaned !== raw) || /\bUse\s+[a-z0-9_,-]+/i.test(raw)) {
-    return cleaned || getEncounterFlavorText(deal);
+    return prefixDealTextWithItemName(cleaned || getEncounterFlavorText(deal), deal);
   }
-  return cleaned || getEncounterFlavorText(deal);
+  return prefixDealTextWithItemName(cleaned || getEncounterFlavorText(deal), deal);
 }
 
 function normalizeDealComparisonText(text) {
@@ -2269,10 +2820,13 @@ function getDistinctDealFallback(primaryText) {
 
 function updateDealTextVisibility() {
   if (!els.dealText) return;
+  const deal = state.currentDeal;
   const dealBox = els.dealText.closest('.dialogue-deal');
   const baseText = getPlayerDealPanelText(pendingDealPanelText);
   const dialogueText = getDialogueComparisonText();
-  const visibleText = isDuplicateVisibleText(baseText, dialogueText)
+  const unprefixedText = stripDeveloperReferences(pendingDealPanelText);
+  const usesStructuredResultPanel = Boolean(deal?.currentResultSummary && deal.hiddenProblemMutation);
+  const visibleText = isDuplicateVisibleText(baseText, dialogueText) || (!usesStructuredResultPanel && isDuplicateVisibleText(unprefixedText, dialogueText))
     ? getDistinctDealFallback(baseText)
     : baseText;
   els.dealText.textContent = visibleText;
@@ -2372,6 +2926,8 @@ function normalizeConsequenceState() {
   if (!Number.isFinite(Number(state.factionPressure[TRACKSUIT_CREW_FACTION_ID]))) state.factionPressure[TRACKSUIT_CREW_FACTION_ID] = 0;
   if (!state.factionPressureSources || typeof state.factionPressureSources !== 'object') state.factionPressureSources = {};
   getFactionPressureSources(TRACKSUIT_CREW_FACTION_ID);
+  if (!Number.isFinite(Number(state.tracksuitRetaliationSettlingNormalEncountersRemaining))) state.tracksuitRetaliationSettlingNormalEncountersRemaining = 0;
+  state.tracksuitRetaliationSettlingNormalEncountersRemaining = Math.max(0, Math.floor(Number(state.tracksuitRetaliationSettlingNormalEncountersRemaining) || 0));
 
   const checkpoint = Number(state.nextCopInvestigationRisk);
   if (!Number.isFinite(checkpoint) || !Number.isInteger(checkpoint) || checkpoint < COP_INVESTIGATION_CHECKPOINTS[0]) {
@@ -2397,6 +2953,7 @@ function normalizeConsequenceState() {
     state.copInvestigationNormalizationLog = '';
   }
   if (!Number.isFinite(Number(state.normalEncountersSinceSpecial))) state.normalEncountersSinceSpecial = SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS;
+  if (!Number.isFinite(Number(state.lowCashRecoveryDryStreak))) state.lowCashRecoveryDryStreak = 0;
   if (!Array.isArray(state.normalCustomerHistory)) state.normalCustomerHistory = [];
   state.normalCustomerHistory = state.normalCustomerHistory.filter(id => typeof id === 'string').slice(0, NORMAL_CUSTOMER_HISTORY_LIMIT);
   if (!Number.isFinite(Number(state.copWarnings))) state.copWarnings = 0;
@@ -2613,8 +3170,10 @@ function getChoiceLabel(action, deal) {
   if (action === 'copCooperate') return 'Cooperate';
   if (action === 'copDeny') return 'Deny everything';
   if (action === 'copBribe') return `Offer ${moneyText(deal.bribeAmount)} bribe`;
-  if (action === 'thugCash') return 'Hand over cash';
-  if (action === 'thugItem') return 'Give up an item';
+  if (action === 'thugWarning') return 'Hear warning';
+  if (action === 'thugComply') return 'Don\'t make this worse';
+  if (action === 'thugCash') return 'Try to talk him down';
+  if (String(action || '').startsWith('thugItem')) return 'Don\'t make this worse';
   if (action === 'thugRefuse') return 'Refuse';
   if (action === 'buyAsk') return getFullOfferLabel(deal);
   if (action === 'lowball') return getLowballOfferLabel(deal);
@@ -2742,6 +3301,60 @@ function renderHistory() {
   });
 }
 
+function formatTurnHistoryEntry(entry) {
+  const header = `T${entry.turn} ${entry.customer} | Deal: ${entry.dealType} | Choice: ${entry.choice} | Outcome: ${entry.outcome}`;
+  return [header, ...(entry.lines || [])].join('\n');
+}
+
+function getTurnHistoryCopyText() {
+  return turnHistory.length
+    ? turnHistory.map(formatTurnHistoryEntry).join('\n\n')
+    : 'No resolved choices yet.';
+}
+
+function fallbackCopyText(text) {
+  if (!document?.createElement || !document?.body?.appendChild) return false;
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.setAttribute('readonly', '');
+  textarea.style.position = 'fixed';
+  textarea.style.left = '-9999px';
+  document.body.appendChild(textarea);
+  if (typeof textarea.select === 'function') textarea.select();
+  let copied = false;
+  try {
+    copied = typeof document.execCommand === 'function' && document.execCommand('copy');
+  } catch (error) {
+    copied = false;
+  }
+  if (typeof textarea.remove === 'function') textarea.remove();
+  else if (textarea.parentNode?.removeChild) textarea.parentNode.removeChild(textarea);
+  return copied;
+}
+
+async function copyTextToClipboard(text) {
+  if (typeof navigator !== 'undefined' && navigator?.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return true;
+  }
+  return fallbackCopyText(text);
+}
+
+function setCopyHistoryLabel(label) {
+  if (els.copyHistory) els.copyHistory.textContent = label;
+}
+
+async function copyTurnHistory() {
+  const originalLabel = 'COPY TURN HISTORY';
+  const text = getTurnHistoryCopyText();
+  const copied = await copyTextToClipboard(text);
+  if (copied) {
+    setCopyHistoryLabel('COPIED');
+    window.setTimeout(() => setCopyHistoryLabel(originalLabel), 1200);
+  }
+  return { copied, text };
+}
+
 function getConsequenceSourceLabel(consequence) {
   if (!consequence) return 'unknown';
   const item = consequence.triggeringItemId || consequence.triggeringInventoryInstanceId || 'risk';
@@ -2753,6 +3366,7 @@ function recordTurnHistory(action, deal, before, after) {
   const eventLabel = isConsequenceDeal(deal.dealType)
     ? `Consequence: ${deal.dealType} | Source: ${getConsequenceSourceLabel(deal.consequence)}`
     : deal.blueprint?.id ? `${deal.dealType}/${deal.blueprint.id}` : deal.dealType;
+  advanceTracksuitRetaliationSettlingAfterNormal(deal);
   const historyLines = buildHistoryLines(before, after, deal);
   turnHistory.unshift({
     turn: state.turn,
@@ -2766,6 +3380,8 @@ function recordTurnHistory(action, deal, before, after) {
   deal.economicHistoryLines = [];
   deal.negotiationHistoryLines = [];
   deal.tradeHistoryLines = [];
+  deal.factionPressureHistoryLines = [];
+  deal.investigationHistoryLines = [];
   turnHistory = turnHistory.slice(0, TURN_HISTORY_LIMIT);
   renderHistory();
 }
@@ -2877,6 +3493,46 @@ function getTagValueMultiplier(item) {
   }, 1);
 }
 
+function getDedupedTagValueMultiplier(item, marginClass) {
+  const condition = String(item?.condition || '').toLowerCase();
+  const duplicateTags = new Set();
+  if (['poor', 'questionable', 'unknown', 'broken'].includes(condition)) duplicateTags.add('broken');
+  if (condition === 'fake') {
+    duplicateTags.add('fake');
+    duplicateTags.add('possibly_fake');
+  }
+  const appliedTags = [];
+  const skippedTags = [];
+  let multiplier = 1;
+  getItemTagsForEconomy(item).forEach(tag => {
+    const configured = ECONOMY_BALANCE.tagValueMultipliers[tag];
+    if (!configured) return;
+    if (duplicateTags.has(tag)) {
+      skippedTags.push(tag);
+      return;
+    }
+    appliedTags.push({ tag, multiplier: configured });
+    multiplier *= configured;
+  });
+  const floor = ECONOMY_BALANCE.negativeTagPenaltyFloors[marginClass] ?? 0.58;
+  return {
+    multiplier: Math.max(floor, multiplier),
+    rawMultiplier: multiplier,
+    floor,
+    appliedTags,
+    skippedTags
+  };
+}
+
+function applyMarketPenaltyFloor(multiplier, marginClass) {
+  const floor = ECONOMY_BALANCE.marketPenaltyFloor[marginClass] ?? 0.32;
+  return {
+    multiplier: Math.max(floor, multiplier),
+    rawMultiplier: multiplier,
+    floor
+  };
+}
+
 function getInstanceBaseTargetValue(item) {
   const catalogItem = getItem(item?.itemId || item?.id);
   return Math.max(1, Math.round(Number(
@@ -2891,6 +3547,34 @@ function getInstanceBaseTargetValue(item) {
   ) || 1));
 }
 
+function getConfiguredShopBuyRange(item) {
+  const min = Number(item?.shopBuyMin ?? item?.shop_buy_min);
+  const max = Number(item?.shopBuyMax ?? item?.shop_buy_max);
+  if (Number.isFinite(min) && Number.isFinite(max) && max >= min) {
+    return { min: Math.max(1, Math.round(min)), max: Math.max(1, Math.round(max)) };
+  }
+  const base = Math.max(1, Math.round(Number(item?.baseValue ?? item?.base_value) || 1));
+  return { min: Math.max(1, Math.round(base * 0.25)), max: Math.max(1, Math.round(base * 0.55)) };
+}
+
+function getSellerAskingPrice(item, pool, traits, customer) {
+  const range = getConfiguredShopBuyRange(item);
+  const span = Math.max(0, range.max - range.min);
+  const tags = getItemTagsForEconomy(item);
+  const lowTierSeller = Number(customer?.cashMax) <= 45 || Number(traits?.lowballTolerance) <= 0.45;
+  const aggressive = Number(traits?.haggleAggression) >= 4 || Number(customer?.thugRiskBias) >= 3;
+  const riskyOrLuxury = tags.some(tag => ['luxury', 'jewelry', 'weapon', 'hot', 'suspicious', 'stolen'].includes(tag));
+  const poolMultiplier = Number(pool?.askPriceMultiplier) || 0.5;
+  const position = lowTierSeller
+    ? Math.min(0.55, Math.max(0.15, poolMultiplier))
+    : Math.min(0.9, Math.max(0.35, poolMultiplier));
+  const jitter = randomInt(-1, 2);
+  let ask = Math.round(range.min + span * position + jitter);
+  const overAskAllowed = aggressive || riskyOrLuxury && Number(pool?.askPriceMultiplier) >= 0.85;
+  if (overAskAllowed && chance(18)) ask = Math.round(range.max * randomRange([1.05, aggressive ? 1.22 : 1.12]));
+  return Math.max(1, Math.min(overAskAllowed ? Math.round(range.max * 1.25) : range.max, Math.max(range.min, ask)));
+}
+
 function getEconomyCompatibility(deal, inventoryItem) {
   const compatibility = evaluateSaleCompatibility(deal, inventoryItem);
   const context = getSaleCompatibilityContext(deal);
@@ -2899,7 +3583,9 @@ function getEconomyCompatibility(deal, inventoryItem) {
   const matchingTraitTags = context.traitInterestTags.filter(tag => itemTags.includes(String(tag).toLowerCase()));
   const exactItem = Boolean(context.requestedItem?.id && inventoryItem?.itemId === context.requestedItem.id);
   const categoryMatch = Boolean(context.requestedCategory && inventoryItem?.category === context.requestedCategory);
-  return { compatibility, context, itemTags, matchingRequiredTags, matchingTraitTags, exactItem, categoryMatch };
+  const typeTagMatch = Boolean(context.requestedCategory && itemTags.includes(context.requestedCategory));
+  const matchLevel = exactItem ? 'exact' : categoryMatch || typeTagMatch ? 'category' : matchingRequiredTags.length || matchingTraitTags.length ? 'broad' : 'opportunistic';
+  return { compatibility, context, itemTags, matchingRequiredTags, matchingTraitTags, exactItem, categoryMatch, typeTagMatch, matchLevel };
 }
 
 function getCustomerPreferencePriceMultiplier(economyContext) {
@@ -2913,6 +3599,28 @@ function getCustomerPreferencePriceMultiplier(economyContext) {
       economyContext.matchingTraitTags.length * preference.traitTagBonus
   );
   return Math.max(0.75, Math.min(preference.maxBonus, multiplier));
+}
+
+function getMatchedBuyerFloor(deal, inventoryItem, economyContext, marketAdjustedValue, marginClass, customerAskMultiplier, riskMultiplier) {
+  if (!economyContext.compatibility?.valid) return { price: 0, rate: 0, applied: false, reason: 'not eligible' };
+  const hasMatchedDemand = economyContext.exactItem || economyContext.categoryMatch || economyContext.matchingRequiredTags.length > 0;
+  if (!hasMatchedDemand) return { price: 0, rate: 0, applied: false, reason: 'weak match' };
+  const config = ECONOMY_BALANCE.matchedBuyerOfferFloors;
+  let rate = config[marginClass] ?? 0.2;
+  if (economyContext.exactItem) rate += config.exactItemBonus;
+  else if (economyContext.categoryMatch || economyContext.typeTagMatch) rate += config.categoryMatchBonus;
+  rate += Math.min(0.045, economyContext.matchingRequiredTags.length * config.requiredTagBonus);
+  const heatPenalty = Math.max(0, Number(inventoryItem?.heat) || 0) * config.riskPenaltyPerHeat;
+  rate = Math.max(0.05, rate - heatPenalty);
+  const customerMultiplier = Math.max(config.minimumCustomerMultiplier, Number(customerAskMultiplier) || 1);
+  const riskFloorMultiplier = Math.min(1, Math.max(0.55, Number(riskMultiplier) || 1));
+  const price = Math.max(0, Math.round(marketAdjustedValue * rate * customerMultiplier * riskFloorMultiplier));
+  return {
+    price,
+    rate,
+    applied: price > 0,
+    reason: economyContext.exactItem ? 'exact item match' : economyContext.categoryMatch || economyContext.typeTagMatch ? 'category match' : 'broad match'
+  };
 }
 
 function getRiskPriceMultiplier(deal, inventoryItem, economyContext) {
@@ -2949,38 +3657,68 @@ function calculateCustomerOfferForInventoryItem(deal, inventoryItem) {
   const economyContext = getEconomyCompatibility(deal, inventoryItem);
   const basis = getInventoryCostBasis(inventoryItem);
   const baseTargetValue = getInstanceBaseTargetValue(inventoryItem);
+  const marginClass = getMarginClass(inventoryItem, economyContext);
   const conditionMultiplier = getConditionValueMultiplier(inventoryItem);
   const liquidityMultiplier = getLiquiditySaleMultiplier(inventoryItem);
-  const tagMultiplier = getTagValueMultiplier(inventoryItem);
+  const tagPenalty = getDedupedTagValueMultiplier(inventoryItem, marginClass);
+  const tagMultiplier = tagPenalty.multiplier;
   const instanceResaleModifier = Number.isFinite(Number(inventoryItem?.resaleModifier)) ? Number(inventoryItem.resaleModifier) : 1;
   const customerAskMultiplier = Number(deal?.pool?.askPriceMultiplier) || 1;
   const preferenceMultiplier = getCustomerPreferencePriceMultiplier(economyContext);
   const riskMultiplier = getRiskPriceMultiplier(deal, inventoryItem, economyContext);
-  const rawOffer = baseTargetValue *
-    conditionMultiplier *
-    liquidityMultiplier *
-    tagMultiplier *
-    instanceResaleModifier *
+  const conditionAdjustedValue = baseTargetValue * conditionMultiplier;
+  const marketPenalty = applyMarketPenaltyFloor(
+    liquidityMultiplier * tagMultiplier * instanceResaleModifier * Math.min(1, riskMultiplier),
+    marginClass
+  );
+  const marketAdjustedValue = conditionAdjustedValue * marketPenalty.multiplier;
+  const rawOffer = marketAdjustedValue *
     customerAskMultiplier *
     preferenceMultiplier *
-    riskMultiplier;
-  const marginClass = getMarginClass(inventoryItem, economyContext);
+    Math.max(1, riskMultiplier);
   const ceiling = ECONOMY_BALANCE.marginCeilings[marginClass] || ECONOMY_BALANCE.marginCeilings.ordinary;
   const basisCeiling = basis > 0 ? Math.max(2, Math.round(basis * ceiling)) : Number.POSITIVE_INFINITY;
-  const price = Math.max(2, Math.round(Math.min(rawOffer, basisCeiling)));
+  const matchedFloor = getMatchedBuyerFloor(deal, inventoryItem, economyContext, marketAdjustedValue, marginClass, customerAskMultiplier, riskMultiplier);
+  const itemTags = getItemTagsForEconomy(inventoryItem);
+  const ordinaryProfitCandidate = basis > 0 &&
+    !itemTags.some(tag => ['broken', 'fake', 'possibly_fake', 'hot', 'stolen', 'cursed'].includes(tag)) &&
+    !['broken', 'fake', 'poor', 'questionable'].includes(String(inventoryItem?.condition || '').toLowerCase()) &&
+    Number(inventoryItem?.heat) < 3;
+  const basisFloorRate = economyContext.matchLevel === 'exact'
+    ? 1.22
+    : economyContext.matchLevel === 'category' ? 1.12 : economyContext.matchLevel === 'broad' ? 1.03 : 0;
+  const basisProfitFloor = ordinaryProfitCandidate && basisFloorRate
+    ? Math.round(basis * basisFloorRate)
+    : 0;
+  const flooredOffer = Math.max(rawOffer, matchedFloor.price, basisProfitFloor);
+  const price = Math.max(2, Math.round(Math.min(flooredOffer, basisCeiling)));
   return {
     price,
     basis,
     baseTargetValue,
+    conditionAdjustedValue,
+    marketAdjustedValue,
+    rawOffer,
+    flooredOffer,
     conditionMultiplier,
     liquidityMultiplier,
     tagMultiplier,
+    tagRawMultiplier: tagPenalty.rawMultiplier,
+    tagPenaltyFloor: tagPenalty.floor,
+    appliedTagPenalties: tagPenalty.appliedTags,
+    skippedDuplicateTagPenalties: tagPenalty.skippedTags,
     instanceResaleModifier,
     customerAskMultiplier,
     preferenceMultiplier,
     riskMultiplier,
+    marketPenaltyMultiplier: marketPenalty.multiplier,
+    marketPenaltyRawMultiplier: marketPenalty.rawMultiplier,
+    marketPenaltyFloor: marketPenalty.floor,
     marginClass,
     marginCeiling: Number.isFinite(basisCeiling) ? basisCeiling : null,
+    matchedBuyerFloor: matchedFloor,
+    basisProfitFloor,
+    buyerMatchLevel: economyContext.matchLevel,
     compatibility: economyContext.compatibility
   };
 }
@@ -3056,6 +3794,7 @@ function evaluateSaleCompatibility(deal, inventoryItem) {
   const exactItem = Boolean(context.requestedItem?.id && inventoryItem.itemId === context.requestedItem.id);
   const categoryMatch = Boolean(context.requestedCategory && inventoryItem.category === context.requestedCategory);
   const typeTagMatch = Boolean(context.requestedCategory && itemTags.includes(context.requestedCategory));
+  const traitInterestMatch = matchingTraitTags.length > 0;
   const excludedMatch = context.excludedTags.find(tag => itemTags.includes(tag));
 
   if (excludedMatch) {
@@ -3086,22 +3825,23 @@ function evaluateSaleCompatibility(deal, inventoryItem) {
   if (missingImportantTags.length) score -= missingImportantTags.length * 2;
   if (itemLiquidity === 'low' && !exactItem) score -= 2;
 
-  const hasSpecificMatch = exactItem || categoryMatch || missingImportantTags.length === 0;
-  const threshold = itemLiquidity === 'high' ? 5 : itemLiquidity === 'medium' ? 6 : 8;
-  if (!hasSpecificMatch) {
+  const hasSpecificMatch = exactItem || categoryMatch || typeTagMatch || traitInterestMatch || matchingRequiredTags.length > 0;
+  const strictSpecialtyRequest = context.requiredTags.filter(tag => !BROAD_BUY_TAGS.has(tag)).length >= 3 && !categoryMatch && !typeTagMatch;
+  const threshold = itemLiquidity === 'high' ? 4 : itemLiquidity === 'medium' ? 5 : 5;
+  if (!hasSpecificMatch || strictSpecialtyRequest) {
     return { valid: false, score, reason: `missing preferred tag: ${missingImportantTags[0] || context.requiredTags[0] || 'request detail'}` };
   }
   if (score < threshold) {
-    const reason = itemLiquidity === 'low'
-      ? 'buyer does not want low-demand or niche merchandise'
-      : `missing preferred tag: ${missingImportantTags[0] || context.requiredTags.find(tag => !matchingRequiredTags.includes(tag)) || 'request detail'}`;
-    return { valid: false, score, reason };
+    if (!(exactItem || categoryMatch || typeTagMatch)) {
+      return { valid: false, score, reason: `missing preferred tag: ${missingImportantTags[0] || context.requiredTags.find(tag => !matchingRequiredTags.includes(tag)) || 'request detail'}` };
+    }
   }
 
   return {
     valid: true,
     score,
-    reason: `matched ${exactItem ? 'exact item' : categoryMatch ? 'requested type' : 'preferred tags'} with ${itemLiquidity} liquidity`
+    matchLevel: exactItem ? 'exact' : categoryMatch || typeTagMatch ? 'category' : traitInterestMatch || matchingRequiredTags.length ? 'broad' : 'opportunistic',
+    reason: `matched ${exactItem ? 'exact item' : categoryMatch || typeTagMatch ? 'requested type' : 'preferred tags'} with ${itemLiquidity} liquidity`
   };
 }
 
@@ -3324,7 +4064,7 @@ function applySelectedInventoryItemToDeal(deal, inventoryItem) {
   deal.saleQuote = quote;
   appendEconomicDiagnostic(
     deal,
-    `Sale quote: ${inventoryItem.name} [${inventoryItem.instanceId}]; basis ${moneyText(quote.basis)}; base target ${moneyText(quote.baseTargetValue)}; condition ${quote.conditionMultiplier.toFixed(2)}x; liquidity ${quote.liquidityMultiplier.toFixed(2)}x; tags ${quote.tagMultiplier.toFixed(2)}x; resale modifier ${quote.instanceResaleModifier.toFixed(2)}x; customer ${quote.customerAskMultiplier.toFixed(2)}x; preference ${quote.preferenceMultiplier.toFixed(2)}x; risk ${quote.riskMultiplier.toFixed(2)}x; margin class ${quote.marginClass}${quote.marginCeiling ? ` ceiling ${moneyText(quote.marginCeiling)}` : ''}; offered ${moneyText(quote.price)}.`
+    `Sale quote: ${inventoryItem.name} [${inventoryItem.instanceId}]; basis ${moneyText(quote.basis)}; buyer match ${quote.buyerMatchLevel}; base/ideal target ${moneyText(quote.baseTargetValue)}; condition-adjusted ${moneyText(quote.conditionAdjustedValue)} (${quote.conditionMultiplier.toFixed(2)}x); market-adjusted ${moneyText(quote.marketAdjustedValue)} (liquidity ${quote.liquidityMultiplier.toFixed(2)}x, tags ${quote.tagMultiplier.toFixed(2)}x${quote.skippedDuplicateTagPenalties.length ? `, skipped duplicate tag penalties [${quote.skippedDuplicateTagPenalties.join(', ')}]` : ''}, resale modifier ${quote.instanceResaleModifier.toFixed(2)}x, risk floor ${quote.marketPenaltyMultiplier.toFixed(2)}x); customer offer before clamps ${moneyText(quote.rawOffer)} (customer ${quote.customerAskMultiplier.toFixed(2)}x, preference ${quote.preferenceMultiplier.toFixed(2)}x, risk ${quote.riskMultiplier.toFixed(2)}x); matched-buyer floor ${quote.matchedBuyerFloor.applied ? `${moneyText(quote.matchedBuyerFloor.price)} (${Math.round(quote.matchedBuyerFloor.rate * 100)}%, ${quote.matchedBuyerFloor.reason})` : 'none'}; basis profit floor ${quote.basisProfitFloor ? moneyText(quote.basisProfitFloor) : 'none'}; margin class ${quote.marginClass}${quote.marginCeiling ? ` ceiling ${moneyText(quote.marginCeiling)}` : ''}; final customer offer ${moneyText(quote.price)}.`
   );
 }
 
@@ -3341,10 +4081,15 @@ function poolWeight(pool) {
       weight *= getSellOpportunityWeightMultiplier();
       weight *= getBuyPoolDemandMultiplier(pool);
       if (state.unavailableSellRequestStreak > 0) weight *= 8;
-      if (state.money <= 25 && hasSellableInventory()) weight *= 4;
+      if (isLowCashRecoveryActive()) {
+        weight *= LOW_CASH_RECOVERY.npcBuyerPoolMultiplier;
+        if (isBroadCategoryBuyerPool(pool)) weight *= LOW_CASH_RECOVERY.broadBuyerMultiplier;
+      } else if (state.money <= 25 && hasSellableInventory()) weight *= 4;
     } else {
       weight *= getUnavailableSellRequestWeightMultiplier();
     }
+  } else if (pool.dealType === 'trade' && isLowCashRecoveryActive() && getPoolTradeCashDelta(pool) > 0) {
+    weight *= LOW_CASH_RECOVERY.tradeCashToPlayerPoolMultiplier;
   }
   return weight;
 }
@@ -3361,6 +4106,46 @@ function hasEligibleSellOpportunity() {
   return getEligibleSellPools().length > 0;
 }
 
+function isLowCashRecoveryActive() {
+  return state.money <= LOW_CASH_RECOVERY.lowCash && hasSellableInventory();
+}
+
+function isCriticalLowCashRecoveryActive() {
+  return state.money <= LOW_CASH_RECOVERY.criticalCash && hasSellableInventory();
+}
+
+function shouldGuaranteeLowCashRecovery() {
+  return isLowCashRecoveryActive() && (Number(state.lowCashRecoveryDryStreak) || 0) >= LOW_CASH_RECOVERY.guaranteeDryStreak;
+}
+
+function isRevenueCapablePool(pool) {
+  return Boolean(
+    pool &&
+    (
+      isNpcBuying(pool.dealType) && pool.requestSatisfiable ||
+      pool.dealType === 'trade' && pool.requestSatisfiable && getPoolTradeCashDelta(pool) > 0
+    )
+  );
+}
+
+function isRevenueCapableDeal(deal) {
+  if (!deal) return false;
+  if (isNpcBuying(deal.dealType) && deal.requestSatisfiable) return true;
+  if (deal.dealType === 'trade') return getTradeCashDelta(deal) > 0 || Number(deal.cashInstead) > 0 && getEligibleTradeInventoryItems(deal).length > 0;
+  return false;
+}
+
+function isBroadCategoryBuyerPool(pool) {
+  return isNpcBuying(pool?.dealType) && !pool?.itemId && getCustomerBuyRequestTags(pool).length > 0;
+}
+
+function getPoolTradeCashDelta(pool) {
+  if (!pool || pool.dealType !== 'trade') return 0;
+  const min = Number(pool.cashAdjustmentMin) || 0;
+  const max = Number(pool.cashAdjustmentMax) || 0;
+  return -Math.round((min + max) / 2);
+}
+
 function getSellOpportunityWeightMultiplier() {
   let multiplier = 3.4;
   if (state.sellMissStreak >= 2) multiplier *= 5;
@@ -3370,12 +4155,98 @@ function getSellOpportunityWeightMultiplier() {
   return multiplier;
 }
 
+function getRecoveryItemScore(item) {
+  const tags = getItemTagsForEconomy(item);
+  const tagBonus = tags.reduce((score, tag) => score + (
+    ['luxury', 'hot', 'suspicious', 'weapon', 'watch', 'jewelry', 'electronics'].includes(tag) ? 35 :
+      ['portable', 'collectible', 'tool'].includes(tag) ? 18 :
+        ['junk', 'broken', 'cursed', 'fake', 'possibly_fake'].includes(tag) ? -8 : 0
+  ), 0);
+  const liquidityBonus = getItemDemandLevel(item) === 'high' ? 24 : getItemDemandLevel(item) === 'medium' ? 12 : getItemDemandLevel(item) === 'junk' ? -14 : 0;
+  return getInstanceBaseTargetValue(item) + getInventoryCostBasis(item) + tagBonus + liquidityBonus + (Number(item?.heat) || 0) * 4;
+}
+
+function canFallbackBuyerConsiderItem(pool, customer, item) {
+  if (!pool || !customer || !item) return false;
+  const traits = getTraits(customer.id || pool.characterId);
+  const tags = getItemTagsForEconomy(item);
+  const avoidTags = normalizeTags(traits.avoidTags || []).map(tag => tag.toLowerCase());
+  if (avoidTags.some(tag => tags.includes(tag))) return false;
+  const buybackBlock = getSameSellerBuybackBlock({ pool, customer, dealType: 'buy_from_shop' }, item);
+  if (buybackBlock.blocked) return false;
+  const risky = tags.some(tag => ['hot', 'stolen', 'suspicious', 'weapon', 'illegal', 'contraband'].includes(tag)) || Number(item.heat) >= 3;
+  const riskInterest = tagsOverlap(tags, getCustomerBuyRequestTags(pool)) || Number(traits.riskTolerance) >= 3;
+  if (risky && !riskInterest) return false;
+  const explicitTypeTags = getCustomerBuyRequestTags(pool).filter(tag => CUSTOMER_BUY_REQUEST_LABELS[tag]);
+  if (explicitTypeTags.length && !tagsOverlap(tags, explicitTypeTags) && !LOW_CASH_RECOVERY.opportunisticBuyerIds.includes(customer.id)) return false;
+  return true;
+}
+
+function getFallbackAskMultiplier(customer, item) {
+  const traits = getTraits(customer.id);
+  const tags = getItemTagsForEconomy(item);
+  const qualityPenalty = tags.some(tag => ['junk', 'broken', 'fake', 'possibly_fake', 'cursed'].includes(tag)) ? 0.08 : 0;
+  const riskPenalty = (tags.some(tag => ['hot', 'stolen', 'suspicious', 'weapon'].includes(tag)) || Number(item.heat) >= 3) ? 0.06 : 0;
+  const liquidityBonus = getItemDemandLevel(item) === 'high' ? 0.05 : getItemDemandLevel(item) === 'medium' ? 0.025 : 0;
+  const trustBonus = Math.max(-0.04, Math.min(0.05, (Number(customer.trust) - 45) / 500));
+  const aggressionPenalty = Math.max(0, Number(traits.haggleAggression) || 0) * 0.012;
+  const raw = 0.52 + liquidityBonus + trustBonus - qualityPenalty - riskPenalty - aggressionPenalty;
+  return Math.max(LOW_CASH_RECOVERY.fallbackMinAskMultiplier, Math.min(LOW_CASH_RECOVERY.fallbackMaxAskMultiplier, raw));
+}
+
+function buildBroadBuyerPool(basePool, customer, reasonPrefix = 'broad buyer') {
+  if (!basePool || !customer || !isNpcBuying(basePool.dealType)) return null;
+  const candidates = state.inventory
+    .filter(item => canFallbackBuyerConsiderItem(basePool, customer, item))
+    .sort((a, b) => getRecoveryItemScore(b) - getRecoveryItemScore(a));
+  const inventoryItem = candidates[0] || null;
+  if (!inventoryItem) return null;
+  return {
+    ...basePool,
+    id: `${reasonPrefix.replace(/\W+/g, '_')}_${basePool.id}_${inventoryItem.instanceId}`,
+    basePoolId: basePool.id,
+    itemId: inventoryItem.itemId,
+    requestedItemTags: normalizeTags([inventoryItem.category, ...(inventoryItem.tags || [])]),
+    baseChanceWeight: LOW_CASH_RECOVERY.fallbackPoolWeight,
+    chanceWeight: LOW_CASH_RECOVERY.fallbackPoolWeight,
+    askPriceMultiplier: getFallbackAskMultiplier(customer, inventoryItem),
+    requestSatisfiable: true,
+    intentionalUnavailableDemand: false,
+    recoveryFallback: reasonPrefix.includes('recovery'),
+    broadBuyerFallback: !reasonPrefix.includes('recovery'),
+    recoveryFallbackInventoryInstanceId: inventoryItem.instanceId,
+    recoveryFallbackReason: `${reasonPrefix} broadened ${customer.id} via ${basePool.id} to ${inventoryItem.name} [${inventoryItem.instanceId}]`
+  };
+}
+
+function buildLowCashFallbackPool(basePool, customer) {
+  if (!shouldGuaranteeLowCashRecovery()) return null;
+  return buildBroadBuyerPool(basePool, customer, 'recovery buyer');
+}
+
+function getLowCashFallbackPoolsForCharacter(character) {
+  if (!shouldGuaranteeLowCashRecovery()) return [];
+  return CHARACTER_ITEM_POOLS
+    .filter(pool => pool.characterId === character.id && isNpcBuying(pool.dealType))
+    .map(pool => buildLowCashFallbackPool(pool, character))
+    .filter(Boolean);
+}
+
+function getBroadBuyerPoolsForCharacter(character) {
+  if (!hasSellableInventory()) return [];
+  return CHARACTER_ITEM_POOLS
+    .filter(pool => pool.characterId === character.id && isNpcBuying(pool.dealType))
+    .map(pool => buildBroadBuyerPool(pool, character, 'normal broad buyer'))
+    .filter(Boolean);
+}
+
 function getUnavailableSellRequestWeightMultiplier() {
   if (state.unavailableSellRequestStreak >= BUY_FROM_SHOP_ECONOMY.maxConsecutiveUnavailableDemand) return 0;
   let multiplier = BUY_FROM_SHOP_ECONOMY.unavailableDemandChance;
   if (state.unavailableSellRequestCount >= 2) multiplier *= 0.35;
   if (hasEligibleSellOpportunity()) multiplier *= 0.55;
-  if (state.money <= 25 && hasSellableInventory()) multiplier *= 0.1;
+  if (isCriticalLowCashRecoveryActive()) multiplier *= LOW_CASH_RECOVERY.unavailableDemandMultiplier;
+  else if (state.money <= 25 && hasSellableInventory()) multiplier *= 0.1;
   return multiplier;
 }
 
@@ -3395,6 +4266,50 @@ function updateSellOpportunityStreak(deal) {
       state.unavailableSellRequestCount = Math.max(0, state.unavailableSellRequestCount - 1);
     }
   }
+}
+
+function updateLowCashRecoveryDryStreak(deal) {
+  if (!isLowCashRecoveryActive()) {
+    state.lowCashRecoveryDryStreak = 0;
+    return;
+  }
+  if (isRevenueCapableDeal(deal)) {
+    state.lowCashRecoveryDryStreak = 0;
+    return;
+  }
+  state.lowCashRecoveryDryStreak = (Number(state.lowCashRecoveryDryStreak) || 0) + 1;
+}
+
+function resetLowCashRecoveryDryStreak(reason = '') {
+  state.lowCashRecoveryDryStreak = 0;
+  if (reason) state.lowCashRecoveryResetReason = reason;
+}
+
+function getNormalEncounterType(deal) {
+  if (!deal) return 'none';
+  if (isShopBuying(deal.dealType)) return 'seller';
+  if (isNpcBuying(deal.dealType)) return deal.requestSatisfiable ? 'buyer' : 'buyer-unavailable';
+  if (deal.dealType === 'trade') return getTradeCashDelta(deal) > 0 || Number(deal.cashInstead) > 0 ? 'cash-positive trade' : 'trade';
+  return deal.dealType || 'unknown';
+}
+
+function rememberNormalEncounterType(deal) {
+  if (!Array.isArray(state.normalEncounterTypeHistory)) state.normalEncounterTypeHistory = [];
+  state.normalEncounterTypeHistory.unshift(getNormalEncounterType(deal));
+  state.normalEncounterTypeHistory = state.normalEncounterTypeHistory.slice(0, NORMAL_CUSTOMER_HISTORY_LIMIT);
+}
+
+function getRecentEncounterTypeMix() {
+  return Array.isArray(state.normalEncounterTypeHistory) ? [...state.normalEncounterTypeHistory] : [];
+}
+
+function getConsecutiveSellerOnlyCount() {
+  let count = 0;
+  for (const type of getRecentEncounterTypeMix()) {
+    if (type !== 'seller') break;
+    count += 1;
+  }
+  return count;
 }
 
 function shouldForceSellOpportunity() {
@@ -3446,8 +4361,10 @@ function buildDeal(pool) {
     : [];
   const inventoryItem = null;
   const requestedInventoryItem = null;
-  const jitter = randomInt(-4, 6);
-  const askingPrice = Math.max(1, Math.round(item.baseValue * pool.askPriceMultiplier + jitter));
+  const askingRange = getConfiguredShopBuyRange(item);
+  const askingPrice = isShopBuying(pool.dealType)
+    ? getSellerAskingPrice(item, pool, traits, customer)
+    : Math.max(1, Math.round(item.baseValue * pool.askPriceMultiplier + randomInt(-4, 6)));
   const availableCash = Math.max(0, state.money);
   const defaultOffer = isShopBuying(pool.dealType) ? askingPrice : 0;
   const normalLowballPrice = Math.max(1, Math.round(askingPrice * traits.lowballTolerance));
@@ -3461,8 +4378,7 @@ function buildDeal(pool) {
   const salePrice = isNpcBuying(pool.dealType) ? null : Math.max(2, Math.round((saleItem.targetSellPrice || saleItem.baseValue) * pool.askPriceMultiplier));
   const markupPrice = salePrice ? Math.max(salePrice + 2, Math.round(salePrice * traits.maxMarkupTolerance)) : null;
   const cashAdjustment = pool.dealType === 'trade' ? randomInt(pool.cashAdjustmentMin, pool.cashAdjustmentMax) : 0;
-
-  return {
+  const deal = {
     encounterId: `encounter-${++encounterSerial}`,
     pool,
     traits,
@@ -3502,6 +4418,7 @@ function buildDeal(pool) {
     actualOffer,
     availableCash,
     normalAskPrice: askingPrice,
+    configuredBuyRange: askingRange,
     lowballPrice,
     normalLowballPrice,
     lowballRejected: false,
@@ -3523,6 +4440,21 @@ function buildDeal(pool) {
     buybackCooldownHistoryLines: (state.buybackCooldownDiagnostics || []).filter(line => line.startsWith(`${pool.id}:`) || line.includes(`original seller ${pool.characterId}`)),
     blueprint: getBlueprintForPool(pool)
   };
+  if (pool.recoveryFallback) {
+    deal.recoveryFallback = true;
+    deal.recoveryFallbackReason = pool.recoveryFallbackReason || 'critical low-cash fallback';
+    if (deal.demandDiagnostics) {
+      deal.demandDiagnostics.fallbackActivated = true;
+      deal.demandDiagnostics.lines.push(`Low-cash fallback activated: ${deal.recoveryFallbackReason}; dry streak ${Number(state.lowCashRecoveryDryStreak) || 0}; unfavorable buyer multiplier ${Number(pool.askPriceMultiplier || 0).toFixed(2)}x.`);
+    }
+  } else if (pool.broadBuyerFallback) {
+    deal.broadBuyerFallback = true;
+    deal.recoveryFallbackReason = pool.recoveryFallbackReason || 'normal broad buyer';
+    if (deal.demandDiagnostics) {
+      deal.demandDiagnostics.lines.push(`Normal broad buyer activated: ${deal.recoveryFallbackReason}; buyer multiplier ${Number(pool.askPriceMultiplier || 0).toFixed(2)}x.`);
+    }
+  }
+  return deal;
 }
 
 function getSelectablePoolsForCharacter(character) {
@@ -3541,7 +4473,24 @@ function getSelectablePoolsForCharacter(character) {
     })
     .filter(pool => pool.requestSatisfiable || pool.intentionalUnavailableDemand)
     .filter(pool => pool.chanceWeight > 0);
-  if (validPools.length) return validPools;
+  const fallbackPools = getLowCashFallbackPoolsForCharacter(character);
+  const broadBuyerPools = getBroadBuyerPoolsForCharacter(character);
+  const fallbackPoolIds = new Set(fallbackPools.map(pool => pool.basePoolId));
+  const hasValidBuyerPool = validPools.some(pool => isNpcBuying(pool.dealType) && pool.requestSatisfiable);
+  const broadenedFallbackPools = fallbackPools.filter(pool =>
+    !validPools.some(valid => valid.id === pool.basePoolId && isRevenueCapablePool(valid))
+  );
+  const normalBroadBuyerPools = hasValidBuyerPool
+    ? []
+    : broadBuyerPools.filter(pool => !validPools.some(valid => valid.id === pool.basePoolId && isRevenueCapablePool(valid)));
+  const combinedPools = [
+    ...validPools.map(pool => fallbackPoolIds.has(pool.id) && shouldGuaranteeLowCashRecovery()
+      ? { ...pool, chanceWeight: Math.max(pool.chanceWeight, pool.chanceWeight * LOW_CASH_RECOVERY.broadBuyerMultiplier) }
+      : pool),
+    ...broadenedFallbackPools,
+    ...normalBroadBuyerPools
+  ];
+  if (combinedPools.length) return combinedPools;
   return characterPools
     .filter(pool => !isNpcBuying(pool.dealType) && poolMatchesInventory(pool))
     .map(pool => ({ ...pool, chanceWeight: poolWeight(pool) }))
@@ -3550,6 +4499,139 @@ function getSelectablePoolsForCharacter(character) {
 
 function characterHasCompatiblePool(character) {
   return getSelectablePoolsForCharacter(character).length > 0;
+}
+
+function getExecutableNormalPoolEntries() {
+  return activeCustomers.flatMap(character => {
+    const selectablePools = getSelectablePoolsForCharacter(character);
+    return selectablePools.map(pool => ({ character, pool }));
+  });
+}
+
+function getNormalPoolCategory(pool) {
+  if (isShopBuying(pool.dealType)) return 'seller';
+  if (isNpcBuying(pool.dealType)) return pool.requestSatisfiable ? 'buyer' : 'other';
+  if (pool.dealType === 'trade') return 'trade';
+  return 'other';
+}
+
+function getTargetEncounterMix() {
+  if (!hasSellableInventory()) return NORMAL_ENCOUNTER_MIX.emptyInventory;
+  if (isLowCashRecoveryActive()) return NORMAL_ENCOUNTER_MIX.lowCashStocked;
+  return NORMAL_ENCOUNTER_MIX.stockedInventory;
+}
+
+function buildNormalEncounterCategoryBuckets(entries) {
+  const buckets = { seller: [], buyer: [], trade: [], other: [] };
+  entries.forEach(entry => {
+    const category = getNormalPoolCategory(entry.pool);
+    if (category === 'trade' && isLowCashRecoveryActive() && getPoolTradeCashDelta(entry.pool) <= 0) {
+      buckets.other.push(entry);
+      return;
+    }
+    buckets[category].push(entry);
+  });
+  return buckets;
+}
+
+function chooseNormalEncounterCategory(buckets) {
+  const targetMix = getTargetEncounterMix();
+  const redistributionReasons = [];
+  const weights = Object.entries(targetMix).map(([category, targetWeight]) => {
+    let weight = Number(targetWeight) || 0;
+    if (shouldGuaranteeLowCashRecovery() && !['buyer', 'trade'].includes(category)) {
+      if (weight > 0) redistributionReasons.push(`${category} suppressed by recovery guarantee`);
+      weight = 0;
+    }
+    if (shouldGuaranteeLowCashRecovery() && category === 'trade') {
+      const hasCashPositiveTrade = buckets.trade.some(entry => getPoolTradeCashDelta(entry.pool) > 0);
+      if (!hasCashPositiveTrade) weight = 0;
+    }
+    if (!buckets[category]?.length) {
+      if (weight > 0) redistributionReasons.push(`${category} unavailable`);
+      weight = 0;
+    }
+    if (category === 'seller' && hasSellableInventory() && getConsecutiveSellerOnlyCount() >= NORMAL_ENCOUNTER_MIX.maxSellerOnlyWithInventory && (buckets.buyer.length || buckets.trade.length)) {
+      redistributionReasons.push(`seller suppressed after ${getConsecutiveSellerOnlyCount()} consecutive seller-only encounters`);
+      weight = 0;
+    }
+    return { category, chanceWeight: weight };
+  }).filter(entry => entry.chanceWeight > 0);
+  const fallbackWeights = Object.entries(buckets)
+    .filter(([, entries]) => entries.length)
+    .map(([category]) => ({ category, chanceWeight: 1 }));
+  const selected = pickWeighted(weights.length ? weights : fallbackWeights);
+  return {
+    selectedCategory: selected.category,
+    targetMix,
+    redistributedReasons: redistributionReasons,
+    categoryWeights: weights.length ? weights : fallbackWeights
+  };
+}
+
+function buildNormalSelectionFromPoolEntries(entries, categorySelection) {
+  const categoryEntries = entries.filter(entry => getNormalPoolCategory(entry.pool) === categorySelection.selectedCategory);
+  const fallbackEntries = categoryEntries.length ? categoryEntries : entries;
+  const blockReasons = {};
+  const blockedCustomerIds = [];
+  let eligibleEntries = fallbackEntries;
+  if (fallbackEntries.length > 1) {
+    eligibleEntries = fallbackEntries.filter(entry => {
+      const consecutiveCount = getConsecutiveNormalCustomerCount(entry.character.id);
+      const blocked = consecutiveCount >= NORMAL_CUSTOMER_MAX_CONSECUTIVE;
+      if (blocked) {
+        blockedCustomerIds.push(entry.character.id);
+        blockReasons[entry.character.id] = `${consecutiveCount} consecutive normal encounters`;
+      }
+      return !blocked;
+    });
+    if (!eligibleEntries.length) eligibleEntries = fallbackEntries;
+  }
+  const weighted = eligibleEntries.map(entry => {
+    const repeatMultiplier = getNormalCustomerRepeatMultiplier(entry.character.id);
+    const lowTierGroupMultiplier = getLowTierGroupMultiplier(entry.character, eligibleEntries);
+    const typeWeight = entry.pool.dealType === 'trade' && isLowCashRecoveryActive() && getPoolTradeCashDelta(entry.pool) > 0
+      ? LOW_CASH_RECOVERY.tradeCashToPlayerPoolMultiplier
+      : 1;
+    return {
+      ...entry,
+      chanceWeight: Math.max(0.01, (Number(entry.pool.chanceWeight) || 1) * repeatMultiplier * lowTierGroupMultiplier * typeWeight),
+      repeatMultiplier,
+      lowTierGroupMultiplier,
+      baseWeight: Number(entry.pool.chanceWeight) || 1
+    };
+  });
+  const selected = pickWeighted(weighted);
+  const allBuyerEntries = entries.filter(entry => getNormalPoolCategory(entry.pool) === 'buyer');
+  return {
+    customer: selected.character,
+    eligiblePools: [selected.pool],
+    selectedPool: selected.pool,
+    diagnostics: {
+      eligibleCustomerIds: [...new Set(entries.map(entry => entry.character.id))],
+      selectionPoolCustomerIds: [...new Set(fallbackEntries.map(entry => entry.character.id))],
+      selectedCustomerId: selected.character.id,
+      selectedPoolId: selected.pool.id,
+      selectedEncounterTypePool: categorySelection.selectedCategory,
+      executableBuyerCount: allBuyerEntries.length,
+      redistributionReasons: categorySelection.redistributedReasons,
+      categoryWeights: categorySelection.categoryWeights,
+      penalizedCustomerIds: weighted.filter(entry => entry.repeatMultiplier < 1).map(entry => entry.character.id),
+      lowTierSaturation: getLowTierSaturationDiagnostics(weighted),
+      blockedCustomerIds: [...new Set(blockedCustomerIds)],
+      blockReasons,
+      weights: weighted.map(entry => ({
+        id: entry.character.id,
+        poolId: entry.pool.id,
+        category: getNormalPoolCategory(entry.pool),
+        baseWeight: Number(entry.baseWeight.toFixed(2)),
+        repeatMultiplier: Number(entry.repeatMultiplier.toFixed(2)),
+        lowTierGroupMultiplier: Number(entry.lowTierGroupMultiplier.toFixed(2)),
+        finalWeight: Number(entry.chanceWeight.toFixed(2)),
+        eligiblePoolCount: 1
+      }))
+    }
+  };
 }
 
 function buildCopConsequenceDeal(consequence, customer) {
@@ -3601,6 +4683,24 @@ function getConsequenceCharacterId(type) {
   return '';
 }
 
+function getTracksuitWarningCustomerId(consequence) {
+  const sourceId = consequence?.triggeringCharacterId || consequence?.metadata?.triggeringCharacterId;
+  return TRACKSUIT_RELATIONSHIP_CUSTOMER_IDS.has(sourceId) ? sourceId : THUG_CONSEQUENCE_CHARACTER_ID;
+}
+
+function prepareTracksuitConsequencePresentation(consequence) {
+  if (!consequence || consequence.type !== THUG_CONSEQUENCE_TYPE) {
+    return { characterId: getConsequenceCharacterId(consequence?.type), warningOnly: false };
+  }
+  const warningOnly = Number(state.turn) < TRACKSUIT_ROBBERY_MIN_TURN;
+  consequence.metadata.warningOnly = warningOnly;
+  if (!warningOnly) return { characterId: THUG_CONSEQUENCE_CHARACTER_ID, warningOnly: false };
+  const characterId = getTracksuitWarningCustomerId(consequence);
+  consequence.metadata.warningCustomerId = characterId;
+  consequence.metadata.warningReason = `retaliation became eligible before T${TRACKSUIT_ROBBERY_MIN_TURN}`;
+  return { characterId, warningOnly: true };
+}
+
 function buildConsequenceDeal(consequence, customer) {
   if (consequence.type === COP_CONSEQUENCE_TYPE) return buildCopConsequenceDeal(consequence, customer);
   if (consequence.type === THUG_CONSEQUENCE_TYPE) return buildThugConsequenceDeal(consequence, customer);
@@ -3615,7 +4715,8 @@ async function startConsequenceTurn(consequence) {
     return false;
   }
 
-  const characterId = getConsequenceCharacterId(consequence.type);
+  const presentation = prepareTracksuitConsequencePresentation(consequence);
+  const characterId = presentation.characterId;
   const character = getCharacter(characterId);
   if (!character || !character.spritePath) {
     console.error(`[consequence] Missing character data or sprite path: ${characterId || consequence.type}`);
@@ -3636,6 +4737,7 @@ async function startConsequenceTurn(consequence) {
   }
 
   state.activeConsequence = consequence;
+  clearTemporaryEncounterUiState();
   state.normalEncountersSinceSpecial = 0;
   state.currentCustomer = {
     ...character,
@@ -3664,6 +4766,31 @@ function getRecentNormalCustomerCount(characterId) {
   return (state.normalCustomerHistory || []).filter(id => id === characterId).length;
 }
 
+function isLowTierCustomer(characterOrId) {
+  const character = typeof characterOrId === 'string' ? getCharacter(characterOrId) : characterOrId;
+  return normalizeFactionId(character?.factionId) === LOW_TIER_CUSTOMER_GROUP.factionId;
+}
+
+function getRecentLowTierCustomerCount() {
+  return (state.normalCustomerHistory || [])
+    .slice(0, LOW_TIER_CUSTOMER_GROUP.recentWindow)
+    .filter(id => isLowTierCustomer(id))
+    .length;
+}
+
+function getLowTierGroupMultiplier(character, selectionEntries) {
+  if (!isLowTierCustomer(character)) return 1;
+  const hasExecutableAlternative = selectionEntries.some(entry => !isLowTierCustomer(entry.character));
+  if (!hasExecutableAlternative) return 1;
+  const recentHits = getRecentLowTierCustomerCount();
+  const extraHits = Math.max(0, recentHits - LOW_TIER_CUSTOMER_GROUP.threshold + 1);
+  if (!extraHits) return 1;
+  return Math.max(
+    LOW_TIER_CUSTOMER_GROUP.minimumMultiplier,
+    Math.pow(LOW_TIER_CUSTOMER_GROUP.multiplierPerExtraHit, extraHits)
+  );
+}
+
 function getConsecutiveNormalCustomerCount(characterId) {
   let count = 0;
   for (const id of state.normalCustomerHistory || []) {
@@ -3684,6 +4811,18 @@ function getNormalCustomerRepeatMultiplier(characterId) {
   return multiplier;
 }
 
+function getLowTierSaturationDiagnostics(weighted) {
+  const recentCount = getRecentLowTierCustomerCount();
+  return {
+    group: LOW_TIER_CUSTOMER_GROUP.factionId,
+    recentCount,
+    window: LOW_TIER_CUSTOMER_GROUP.recentWindow,
+    threshold: LOW_TIER_CUSTOMER_GROUP.threshold,
+    penalizedCustomerIds: weighted.filter(entry => entry.lowTierGroupMultiplier < 1).map(entry => entry.character.id),
+    alternativeAvailable: weighted.some(entry => !isLowTierCustomer(entry.character))
+  };
+}
+
 function getCharacterSelectionWeight(character, eligiblePools) {
   const traits = getTraits(character.id);
   const baseWeights = eligiblePools.map(pool => {
@@ -3693,22 +4832,83 @@ function getCharacterSelectionWeight(character, eligiblePools) {
   });
   let weight = Math.max(1, ...baseWeights);
   const hasSatisfiableSell = eligiblePools.some(pool => isNpcBuying(pool.dealType) && pool.requestSatisfiable);
+  const hasCashPositiveTrade = eligiblePools.some(pool => pool.dealType === 'trade' && getPoolTradeCashDelta(pool) > 0);
   if (hasSatisfiableSell) {
     weight *= getSellOpportunityWeightMultiplier();
     if (state.unavailableSellRequestStreak > 0) weight *= 2;
-    if (state.money <= 25 && hasSellableInventory()) weight *= 2;
+    if (isLowCashRecoveryActive()) weight *= LOW_CASH_RECOVERY.npcBuyerCharacterMultiplier;
+    else if (state.money <= 25 && hasSellableInventory()) weight *= 2;
+  } else if (hasCashPositiveTrade && isLowCashRecoveryActive()) {
+    weight *= LOW_CASH_RECOVERY.tradeCashToPlayerCharacterMultiplier;
   }
   return weight;
+}
+
+function getLowCashRecoveryDiagnostics(candidates, selectionPool) {
+  if (!isLowCashRecoveryActive()) return null;
+  const sellCustomerIds = candidates
+    .filter(candidate => candidate.eligiblePools.some(pool => isNpcBuying(pool.dealType) && pool.requestSatisfiable))
+    .map(candidate => candidate.character.id);
+  const broadenedBuyerPools = candidates
+    .flatMap(candidate => candidate.eligiblePools)
+    .filter(pool => pool.recoveryFallback);
+  const broadBuyerPoolIds = candidates
+    .flatMap(candidate => candidate.eligiblePools)
+    .filter(pool => pool.requestSatisfiable && isBroadCategoryBuyerPool(pool))
+    .map(pool => pool.id);
+  const cashTradePoolIds = candidates
+    .flatMap(candidate => candidate.eligiblePools)
+    .filter(pool => pool.dealType === 'trade' && getPoolTradeCashDelta(pool) > 0)
+    .map(pool => pool.id);
+  return {
+    active: true,
+    cash: state.money,
+    operatingCashThreshold: LOW_CASH_RECOVERY.lowCash,
+    critical: isCriticalLowCashRecoveryActive(),
+    dryStreak: Number(state.lowCashRecoveryDryStreak) || 0,
+    recentEncounterTypeMix: getRecentEncounterTypeMix(),
+    favoredEncounterTypes: [
+      sellCustomerIds.length ? 'customers buying owned inventory' : '',
+      broadenedBuyerPools.length ? 'broadened fallback buyers' : '',
+      broadBuyerPoolIds.length ? 'broad-category buyers' : '',
+      cashTradePoolIds.length ? 'trades with cash paid to player' : ''
+    ].filter(Boolean),
+    favoredCustomerIds: [...new Set(sellCustomerIds)],
+    broadenedBuyerPoolIds: [...new Set(broadenedBuyerPools.map(pool => pool.id))],
+    favoredBroadBuyerPoolIds: [...new Set(broadBuyerPoolIds)],
+    favoredCashTradePoolIds: [...new Set(cashTradePoolIds)],
+    fallbackActivated: broadenedBuyerPools.length > 0,
+    guaranteed: shouldGuaranteeLowCashRecovery(),
+    forcingReason: shouldGuaranteeLowCashRecovery()
+      ? `dry streak reached ${LOW_CASH_RECOVERY.guaranteeDryStreak} at or below operating cash threshold ${moneyText(LOW_CASH_RECOVERY.lowCash)}`
+      : '',
+    noRevenueReason: sellCustomerIds.length || broadenedBuyerPools.length || cashTradePoolIds.length
+      ? ''
+      : 'no eligible normal buyers, broadened buyers, or cash-positive trades',
+    selectedFromFavoredPool: selectionPool.some(candidate =>
+      sellCustomerIds.includes(candidate.character.id) ||
+      candidate.eligiblePools.some(pool => cashTradePoolIds.includes(pool.id) || pool.recoveryFallback)
+    )
+  };
 }
 
 function formatSelectionDiagnostics(diagnostics) {
   if (!diagnostics) return '';
   const eligible = diagnostics.eligibleCustomerIds.join(', ') || 'none';
   const penalties = diagnostics.penalizedCustomerIds.length ? diagnostics.penalizedCustomerIds.join(', ') : 'none';
+  const lowTier = diagnostics.lowTierSaturation
+    ? ` low-tier group saturation ${diagnostics.lowTierSaturation.group}: recent ${diagnostics.lowTierSaturation.recentCount}/${diagnostics.lowTierSaturation.window}, threshold ${diagnostics.lowTierSaturation.threshold}, penalized [${diagnostics.lowTierSaturation.penalizedCustomerIds.length ? diagnostics.lowTierSaturation.penalizedCustomerIds.join(', ') : 'none'}], alternative available ${diagnostics.lowTierSaturation.alternativeAvailable ? 'yes' : 'no'};`
+    : '';
   const blocked = diagnostics.blockedCustomerIds.length
     ? diagnostics.blockedCustomerIds.map(id => diagnostics.blockReasons?.[id] ? `${id} (${diagnostics.blockReasons[id]})` : id).join(', ')
     : 'none';
-  return `Normal selection: eligible [${eligible}]; selected ${diagnostics.selectedCustomerId || 'none'}; repeat penalties [${penalties}]; consecutive-repeat blocks [${blocked}].`;
+  const recovery = diagnostics.lowCashRecovery?.active
+    ? ` Low-cash recovery: cash ${moneyText(diagnostics.lowCashRecovery.cash)}; operating cash threshold ${moneyText(diagnostics.lowCashRecovery.operatingCashThreshold)}${diagnostics.lowCashRecovery.critical ? '; critical' : ''}; dry streak ${diagnostics.lowCashRecovery.dryStreak}; recent encounter-type mix [${(diagnostics.lowCashRecovery.recentEncounterTypeMix || []).join(', ') || 'none'}]; favored ${diagnostics.lowCashRecovery.favoredEncounterTypes.join(', ') || 'none'}; eligible normal buyers [${diagnostics.lowCashRecovery.favoredCustomerIds.join(', ') || 'none'}]; eligible broadened buyers [${diagnostics.lowCashRecovery.broadenedBuyerPoolIds.join(', ') || 'none'}]; eligible cash-positive trades [${diagnostics.lowCashRecovery.favoredCashTradePoolIds.join(', ') || 'none'}]; buyer forcing reason ${diagnostics.lowCashRecovery.forcingReason || 'none'}; fallback activated ${diagnostics.lowCashRecovery.fallbackActivated ? 'yes' : 'no'}; guaranteed ${diagnostics.lowCashRecovery.guaranteed ? 'yes' : 'no'}${diagnostics.lowCashRecovery.noRevenueReason ? `; no revenue reason ${diagnostics.lowCashRecovery.noRevenueReason}` : ''}.`
+    : '';
+  const category = diagnostics.selectedEncounterTypePool
+    ? ` selected encounter-type pool ${diagnostics.selectedEncounterTypePool}; executable buyer count ${diagnostics.executableBuyerCount ?? 'n/a'}; redistribution ${diagnostics.redistributionReasons?.length ? diagnostics.redistributionReasons.join(', ') : 'none'};`
+    : '';
+  return `Normal selection:${category} eligible [${eligible}]; selected ${diagnostics.selectedCustomerId || 'none'}${diagnostics.selectedPoolId ? ` via ${diagnostics.selectedPoolId}` : ''}; repeat penalties [${penalties}];${lowTier} consecutive-repeat blocks [${blocked}].${recovery}`;
 }
 
 function formatDemandDiagnostics(diagnostics) {
@@ -3743,18 +4943,22 @@ function chooseNextCustomerWithPools() {
   const sellBias = state.money <= 25 ? 70 : state.money <= 60 ? 55 : state.sellMissStreak >= 2 ? 75 : 38;
   let selectionPool = eligibleCandidates;
   const sellCandidates = eligibleCandidates.filter(candidate => eligibleSellIds.has(candidate.character.id));
-  if (sellCandidates.length && (forceSell || chance(sellBias))) selectionPool = sellCandidates;
+  const revenueCandidates = eligibleCandidates.filter(candidate => candidate.eligiblePools.some(isRevenueCapablePool));
+  if (shouldGuaranteeLowCashRecovery() && revenueCandidates.length) selectionPool = revenueCandidates;
+  else if (sellCandidates.length && (forceSell || chance(sellBias))) selectionPool = sellCandidates;
 
   const weighted = selectionPool.map(candidate => {
     const baseWeight = getCharacterSelectionWeight(candidate.character, candidate.eligiblePools);
     const repeatMultiplier = getNormalCustomerRepeatMultiplier(candidate.character.id);
+    const lowTierGroupMultiplier = getLowTierGroupMultiplier(candidate.character, selectionPool);
     return {
       ...candidate,
       baseWeight,
       repeatMultiplier,
+      lowTierGroupMultiplier,
       recentCount: getRecentNormalCustomerCount(candidate.character.id),
       consecutiveCount: getConsecutiveNormalCustomerCount(candidate.character.id),
-      chanceWeight: Math.max(0.01, baseWeight * repeatMultiplier)
+      chanceWeight: Math.max(0.01, baseWeight * repeatMultiplier * lowTierGroupMultiplier)
     };
   });
   const selected = pickWeighted(weighted);
@@ -3763,16 +4967,19 @@ function chooseNextCustomerWithPools() {
     selectionPoolCustomerIds: selectionPool.map(candidate => candidate.character.id),
     selectedCustomerId: selected.character.id,
     penalizedCustomerIds: weighted.filter(candidate => candidate.repeatMultiplier < 1).map(candidate => candidate.character.id),
+    lowTierSaturation: getLowTierSaturationDiagnostics(weighted),
     blockedCustomerIds,
     blockReasons,
     weights: weighted.map(candidate => ({
       id: candidate.character.id,
       baseWeight: Number(candidate.baseWeight.toFixed(2)),
       repeatMultiplier: Number(candidate.repeatMultiplier.toFixed(2)),
+      lowTierGroupMultiplier: Number(candidate.lowTierGroupMultiplier.toFixed(2)),
       finalWeight: Number(candidate.chanceWeight.toFixed(2)),
       eligiblePoolCount: candidate.eligiblePools.length
     }))
   };
+  diagnostics.lowCashRecovery = getLowCashRecoveryDiagnostics(candidates, selectionPool);
   console.info('[normal-selection]', diagnostics);
   return { customer: selected.character, eligiblePools: selected.eligiblePools, diagnostics };
 }
@@ -3780,8 +4987,10 @@ function chooseNextCustomerWithPools() {
 function generateDeal(customer, eligiblePools = getSelectablePoolsForCharacter(customer)) {
   const validPools = eligiblePools.filter(pool => pool.chanceWeight > 0);
   const satisfiableSellPools = validPools.filter(pool => isNpcBuying(pool.dealType) && pool.requestSatisfiable);
+  const revenuePools = validPools.filter(isRevenueCapablePool);
   const forceSell = shouldForceSellOpportunity() && satisfiableSellPools.length;
-  const pool = pickWeighted(forceSell ? satisfiableSellPools : validPools);
+  const forceRecovery = shouldGuaranteeLowCashRecovery() && revenuePools.length;
+  const pool = pickWeighted(forceRecovery ? revenuePools : forceSell ? satisfiableSellPools : validPools);
   return pool ? buildDeal(pool) : null;
 }
 
@@ -3794,30 +5003,21 @@ function getNormalDealRerollReason(deal) {
 }
 
 function chooseNextNormalDeal() {
-  const rerollReasons = [];
-  for (let attempt = 1; attempt <= BUY_FROM_SHOP_ECONOMY.maxNormalSelectionRetries; attempt += 1) {
-    const normalSelection = chooseNextCustomerWithPools();
-    if (!normalSelection?.customer) return { normalSelection, deal: null, rerollReasons };
-    const deal = generateDeal(normalSelection.customer, normalSelection.eligiblePools);
-    const rerollReason = getNormalDealRerollReason(deal);
-    if (!rerollReason) {
-      if (deal?.demandDiagnostics && rerollReasons.length) {
-        deal.demandDiagnostics.rerollReason = rerollReasons.join(' | ');
-        deal.demandDiagnostics.lines.push(`Demand reroll reason: ${deal.demandDiagnostics.rerollReason}.`);
-      }
-      return { normalSelection, deal, rerollReasons };
-    }
-    rerollReasons.push(`attempt ${attempt}: ${normalSelection.customer.id}; ${rerollReason}`);
+  const entries = getExecutableNormalPoolEntries();
+  if (!entries.length) return { normalSelection: null, deal: null, rerollReasons: ['no executable normal pools'] };
+  const buckets = buildNormalEncounterCategoryBuckets(entries);
+  const categorySelection = chooseNormalEncounterCategory(buckets);
+  const normalSelection = buildNormalSelectionFromPoolEntries(entries, categorySelection);
+  normalSelection.diagnostics.lowCashRecovery = getLowCashRecoveryDiagnostics(
+    activeCustomers.map(character => ({ character, eligiblePools: getSelectablePoolsForCharacter(character) })).filter(candidate => candidate.eligiblePools.length),
+    [{ character: normalSelection.customer, eligiblePools: normalSelection.eligiblePools }]
+  );
+  const deal = normalSelection.selectedPool ? buildDeal(normalSelection.selectedPool) : generateDeal(normalSelection.customer, normalSelection.eligiblePools);
+  if (deal?.demandDiagnostics && normalSelection.diagnostics.redistributionReasons?.length) {
+    deal.demandDiagnostics.lines.push(`Encounter mix redistribution: ${normalSelection.diagnostics.redistributionReasons.join(', ')}.`);
   }
-
-  const fallbackSelection = chooseNextCustomerWithPools();
-  const fallbackPools = (fallbackSelection?.eligiblePools || []).filter(pool => !isNpcBuying(pool.dealType) || pool.requestSatisfiable || pool.intentionalUnavailableDemand);
-  const deal = fallbackSelection?.customer ? generateDeal(fallbackSelection.customer, fallbackPools) : null;
-  if (deal?.demandDiagnostics) {
-    deal.demandDiagnostics.rerollReason = rerollReasons.join(' | ') || 'bounded retry fallback used';
-    deal.demandDiagnostics.lines.push(`Demand reroll reason: ${deal.demandDiagnostics.rerollReason}.`);
-  }
-  return { normalSelection: fallbackSelection, deal, rerollReasons };
+  console.info('[normal-selection]', normalSelection.diagnostics);
+  return { normalSelection, deal, rerollReasons: normalSelection.diagnostics.redistributionReasons || [] };
 }
 
 function rememberNormalCustomer(characterId) {
@@ -3831,7 +5031,7 @@ async function startNextCustomer() {
   normalizeConsequenceState();
   cleanResolvedConsequences();
   state.conversation = null;
-  clearInventorySelection();
+  clearTemporaryEncounterUiState();
   if (shouldCheckBankruptcy()) {
     endGame();
     return;
@@ -3858,8 +5058,10 @@ async function startNextCustomer() {
   if (state.currentDeal) {
     state.currentDeal.selectionDiagnostics = normalSelection.diagnostics;
     rememberNormalCustomer(state.currentCustomer.id);
+    rememberNormalEncounterType(state.currentDeal);
   }
   updateSellOpportunityStreak(state.currentDeal);
+  updateLowCashRecoveryDryStreak(state.currentDeal);
   if (!state.currentDeal) {
     renderLog('');
     renderAll();
@@ -3881,7 +5083,10 @@ function getDealDiagnosticLogText(deal) {
   const base = `${deal.blueprint ? `${deal.pool.notes} ${deal.blueprint.resultNotes}` : deal.pool.notes}`;
   const cooldownDiagnostics = (deal.buybackCooldownHistoryLines || []).join(' ');
   const demandDiagnostics = isNpcBuying(deal.dealType) ? formatDemandDiagnostics(deal.demandDiagnostics) : '';
-  return [base, cooldownDiagnostics, demandDiagnostics].filter(Boolean).join(' ');
+  const askDiagnostics = isShopBuying(deal.dealType) && deal.configuredBuyRange
+    ? `Asking price ${moneyText(deal.askingPrice ?? deal.askPrice)} versus configured buy range ${moneyText(deal.configuredBuyRange.min)}-${moneyText(deal.configuredBuyRange.max)}.`
+    : '';
+  return [base, askDiagnostics, cooldownDiagnostics, demandDiagnostics].filter(Boolean).join(' ');
 }
 
 function introduceDeal() {
@@ -3943,7 +5148,57 @@ function calculateCopRisk(item, context = {}) {
   if (multiplierAdjustment) reasons.push(`transaction multiplier/rounding adjustment (${multiplier}x): ${signedNumber(multiplierAdjustment)}`);
   if (minimumAdjustment) reasons.push(`generic heat-2 minimum adjustment: ${signedNumber(minimumAdjustment)}`);
   reasons.push(`applied cop risk: +${addedRisk}`);
-  return { addedRisk, rawRisk, reason: reasons.join(', ') };
+  return {
+    addedRisk,
+    rawRisk,
+    reason: reasons.join(', '),
+    diagnostics: {
+      source: context.source || 'transaction',
+      heat,
+      baseRisk,
+      tagRisk,
+      scaleRisk,
+      priceRisk,
+      notedRisk,
+      dataRisk,
+      noteCapAdjustment,
+      transactionCapAdjustment,
+      multiplier,
+      multiplierAdjustment,
+      minimumRisk,
+      minimumAdjustment,
+      normalizedRisk,
+      roundedRisk,
+      addedRisk
+    }
+  };
+}
+
+function formatCopRiskDiagnostics(risk, before, after, source, extra = {}) {
+  const diagnostics = risk?.diagnostics || {};
+  const exposure = Number(extra.exposure) || 0;
+  const checkpoint = state.nextCopInvestigationRisk;
+  const pending = hasPendingConsequence(COP_CONSEQUENCE_TYPE);
+  const active = state.activeConsequence?.type === COP_CONSEQUENCE_TYPE;
+  const capParts = [
+    diagnostics.noteCapAdjustment ? `risk-note cap ${signedNumber(diagnostics.noteCapAdjustment)}` : '',
+    diagnostics.transactionCapAdjustment ? `transaction cap ${signedNumber(diagnostics.transactionCapAdjustment)}` : '',
+    diagnostics.minimumAdjustment ? `minimum ${signedNumber(diagnostics.minimumAdjustment)}` : ''
+  ].filter(Boolean);
+  return [
+    `Cop Risk Diagnostics: ${before} -> ${after} (${signedNumber(after - before)})`,
+    `source ${source || diagnostics.source || 'transaction'}`,
+    `base heat +${diagnostics.baseRisk || 0}`,
+    `suspicious tags +${diagnostics.tagRisk || 0}`,
+    `exposure +${exposure}`,
+    `quantity +${diagnostics.scaleRisk || 0}`,
+    `price +${diagnostics.priceRisk || 0}`,
+    `risk note +${diagnostics.notedRisk || 0}`,
+    `multiplier ${Number(diagnostics.multiplier || 1).toFixed(2)}x`,
+    capParts.length ? `caps/adjustments ${capParts.join(', ')}` : 'caps/adjustments none',
+    `checkpoint ${checkpoint}`,
+    `investigation ${active ? 'active' : pending ? 'pending' : 'not pending'}`
+  ].join('; ') + '.';
 }
 
 function addHeat(item, context = {}) {
@@ -4008,15 +5263,58 @@ function commitShopPurchase(deal, price, notes, heatMultiplier) {
   );
   const copRiskBefore = state.copRisk;
   const isIllegalPurchase = isExplicitlyIllegalItem(deal.item);
-  const risk = addHeat(deal.item, { multiplier: heatMultiplier, price: resolvedPrice, riskNote: deal.pool.riskNote });
+  const risk = addHeat(deal.item, { multiplier: heatMultiplier, price: resolvedPrice, riskNote: deal.pool.riskNote, source: 'purchase' });
   applyRiskNote(deal.pool, deal, isIllegalPurchase);
+  appendInvestigationHistory(deal, formatCopRiskDiagnostics(risk, copRiskBefore, state.copRisk, 'purchase', { exposure: 0 }));
   maybeQueueCopConsequence(deal, `Purchase of ${inventoryItem.name}: ${risk.reason}`, copRiskBefore, state.copRisk);
   return inventoryItem;
 }
 
-function isInventoryItemEligibleForTrade(deal, inventoryItem) {
+function getCanonicalTradeItemId(item) {
+  return item?.itemId || item?.item_id || item?.id || '';
+}
+
+function getTradeReceivedItemIds(deal) {
+  return new Set(getTradeReceivedItems(deal).map(getCanonicalTradeItemId).filter(Boolean));
+}
+
+function isSameItemTypeAsTradeOffer(deal, inventoryItem) {
+  const itemId = getCanonicalTradeItemId(inventoryItem);
+  return Boolean(itemId && getTradeReceivedItemIds(deal).has(itemId));
+}
+
+function getTradeReceivedItemNameForId(deal, itemId) {
+  const received = getTradeReceivedItems(deal).find(item => getCanonicalTradeItemId(item) === itemId);
+  return received ? dealItemLabel(received) : 'offered item';
+}
+
+function getIdenticalTradeExcludedInventoryItems(deal) {
+  return state.inventory.filter(item =>
+    isInventoryItemEligibleForTrade(deal, item, { allowSameItemType: true }) &&
+    isSameItemTypeAsTradeOffer(deal, item)
+  );
+}
+
+function appendIdenticalTradeExclusionDiagnostics(deal) {
+  const excludedItems = getIdenticalTradeExcludedInventoryItems(deal);
+  if (!excludedItems.length) return;
+  if (!Array.isArray(deal.identicalTradeExclusionLoggedInstanceIds)) {
+    deal.identicalTradeExclusionLoggedInstanceIds = [];
+  }
+  excludedItems.forEach(item => {
+    if (deal.identicalTradeExclusionLoggedInstanceIds.includes(item.instanceId)) return;
+    deal.identicalTradeExclusionLoggedInstanceIds.push(item.instanceId);
+    appendTradeHistory(
+      deal,
+      `Trade candidate excluded: ${dealItemLabel(item)} [${item.instanceId}]; same item type as offered ${getTradeReceivedItemNameForId(deal, getCanonicalTradeItemId(item))}.`
+    );
+  });
+}
+
+function isInventoryItemEligibleForTrade(deal, inventoryItem, options = {}) {
   if (!deal || deal.dealType !== 'trade' || !inventoryItem?.instanceId) return false;
   if (!state.inventory.some(item => item.instanceId === inventoryItem.instanceId)) return false;
+  if (!options.allowSameItemType && isSameItemTypeAsTradeOffer(deal, inventoryItem)) return false;
   const avoidTags = deal.traits?.avoidTags || [];
   const itemTags = [inventoryItem.category, ...(inventoryItem.tags || [])].filter(Boolean);
   if (avoidTags.length && tagsOverlap(itemTags, avoidTags)) return false;
@@ -4029,7 +5327,7 @@ function getEligibleTradeInventoryItems(deal) {
   return state.inventory.filter(item => isInventoryItemEligibleForTrade(deal, item));
 }
 
-function getSelectedTradeInventoryItems(deal) {
+function getSelectedTradeInventoryItems(deal, options = {}) {
   const selectedIds = Array.isArray(deal?.selectedTradeInventoryInstanceIds)
     ? deal.selectedTradeInventoryInstanceIds
     : Array.isArray(state.inventorySelection?.selectedInstanceIds) ? state.inventorySelection.selectedInstanceIds : [];
@@ -4041,7 +5339,7 @@ function getSelectedTradeInventoryItems(deal) {
       return true;
     })
     .map(instanceId => state.inventory.find(item => item.instanceId === instanceId) || null)
-    .filter(item => item && isInventoryItemEligibleForTrade(deal, item));
+    .filter(item => item && isInventoryItemEligibleForTrade(deal, item, options));
 }
 
 function getTradeItemValue(item) {
@@ -4079,6 +5377,90 @@ function getTradeSelectionSummary(deal) {
     ? `${moneyText(cashDelta)} from customer`
     : cashDelta < 0 ? `${moneyText(Math.abs(cashDelta))} from you` : 'no cash';
   return `Trade offer: you give ${selected}; customer gives ${received}; cash ${cash}; offer value ${moneyText(getTradePlayerOfferValue(deal))}; requested value ${moneyText(getTradeRequestedValue(deal))}.`;
+}
+
+function getTradeCashText(cashDelta) {
+  const rounded = Math.round(Number(cashDelta) || 0);
+  if (rounded > 0) return `cash paid to you ${moneyText(rounded)}`;
+  if (rounded < 0) return `cash you pay ${moneyText(Math.abs(rounded))}`;
+  return 'no cash changes hands';
+}
+
+function getTradeConfirmationSummary(deal, pending = deal?.pendingTradeConfirmation) {
+  const selectedItems = pending?.selectedItems || getSelectedTradeInventoryItems(deal);
+  const receivedItems = pending?.receivedItems || getTradeReceivedItems(deal);
+  const gives = selectedItems.length
+    ? selectedItems.map(item => `${dealItemLabel(item)} [${item.instanceId}]`).join(', ')
+    : 'no item';
+  const receives = receivedItems.length
+    ? receivedItems.map(item => dealItemLabel(item)).join(', ')
+    : 'no item';
+  const cashDelta = Math.round(Number(pending?.cashDelta ?? getTradeCashDelta(deal)) || 0);
+  return `Review trade: you give ${gives}; you receive ${receives}; ${getTradeCashText(cashDelta)}.`;
+}
+
+function setPendingTradeConfirmation(deal, action, evaluation, cashDelta, reputationDelta = 0, notes = 'Acquired via player-selected trade.') {
+  deal.pendingTradeConfirmation = {
+    action,
+    selectedIds: [...(evaluation.selectedIds || [])],
+    selectedItems: (evaluation.selectedItems || []).map(copyInventoryDebugItem),
+    receivedItems: getTradeReceivedItems(deal).map(item => ({ ...item })),
+    cashDelta: Math.round(Number(cashDelta) || 0),
+    reputationDelta,
+    notes
+  };
+  deal.requestedInventoryItems = evaluation.selectedItems;
+  deal.requestedInventoryItem = evaluation.selectedItems[0] || null;
+  deal.selectedTradeInventoryInstanceIds = evaluation.selectedIds;
+  appendTradeHistory(deal, `Trade confirmation opened: ${getTradeConfirmationSummary(deal)} No inventory, money, reputation, or risk changed.`);
+  return choiceResult(`${getTradeConfirmationSummary(deal)} Confirm Trade to complete it, or Change Offer / Cancel before anything changes hands.`, {
+    runRiskCheck: false,
+    keepEncounterOpen: true,
+    skipHistory: true
+  });
+}
+
+function clearPendingTradeConfirmation(deal) {
+  if (deal) deal.pendingTradeConfirmation = null;
+}
+
+function clearTradeSelectionState(deal) {
+  clearPendingTradeConfirmation(deal);
+  clearInventorySelection();
+  if (!deal) return;
+  deal.requestedInventoryItems = [];
+  deal.requestedInventoryItem = null;
+  deal.selectedTradeInventoryInstanceIds = [];
+}
+
+function finalizeFailedCashDemandTrade(deal, evaluation, successChance) {
+  if (!beginDealResolution(deal, 'tradeCash')) {
+    return choiceResult('The deal was already resolved.', { runRiskCheck: false });
+  }
+  const beforePressure = getFactionPressure(getImplementedDealPressureFactionId(deal));
+  const requestedPressure = 2 + Math.ceil(deal.customer.thugRiskBias / 2) + Math.ceil(deal.traits.haggleAggression / 3);
+  const cappedPressure = Math.min(
+    requestedPressure,
+    successChance <= 10
+      ? TRACKSUIT_RELATIONSHIP_PRESSURE.failedCashDemand.extreme
+      : TRACKSUIT_RELATIONSHIP_PRESSURE.failedCashDemand.ordinary
+  );
+  const pressureResult = addDealFactionPressure(
+    deal,
+    cappedPressure,
+    `failed demand-for-cash trade against ${deal.customer.displayName}`
+  );
+  const afterPressure = getFactionPressure(getImplementedDealPressureFactionId(deal));
+  appendTradeHistory(
+    deal,
+    `Trade cash demand finalized: failed terminal outcome; ordinary failed negotiation, not refund/dispute payout; success chance ${Math.round(successChance)}%; selected [${evaluation.selectedIds.join(', ')}]; no inventory, money, profit, reputation, cop risk, or scam risk changed; ordinary pressure capped ${requestedPressure} -> ${cappedPressure}; faction pressure ${beforePressure} -> ${afterPressure}${pressureResult?.delta ? '' : ' (no implemented pressure source)'}.`
+  );
+  clearTradeSelectionState(deal);
+  appendTradeHistory(
+    deal,
+    `Finalized trade state after cash-demand resolution: pending confirmation ${deal.pendingTradeConfirmation ? 'present' : 'clear'}; selected inventory [${deal.selectedTradeInventoryInstanceIds.join(', ') || 'none'}]; requested inventory ${deal.requestedInventoryItem ? deal.requestedInventoryItem.instanceId : 'none'}; deal closed ${deal.resolvedAction ? 'yes' : 'no'}.`
+  );
+  return choiceResult('Demanding cash goes poorly. The room gets smaller and the trade dies on the counter.', { runRiskCheck: false });
 }
 
 function getTradePreferenceHint(deal) {
@@ -4120,11 +5502,23 @@ function getTradeTermsText(deal) {
   const exhausted = isTradeSubmissionLimitReached(deal)
     ? ` Customer is done negotiating after ${NEGOTIATION_OUTCOMES.attemptLimits.trade} submissions.`
     : '';
-  return `Customer offers ${received} (about ${moneyText(requestedValue)}).${cash} Wants item help: ${deal.pool?.requestedItemTags?.length ? 'yes' : 'optional'}; prefers ${getTradePreferenceHint(deal)}. Selected: ${getTradeSelectedItemsSummary(deal)}; selected value about ${moneyText(selectedValue)}; ${comparison}.${exhausted} ${deal.pool.riskNote || ''}`.trim();
+  const selectionInstruction = selectedItems.length
+    ? `You give ${getTradeSelectedItemsSummary(deal)}.`
+    : `Select an inventory item to offer; customer prefers ${getTradePreferenceHint(deal)}.`;
+  return `Customer offers ${received} (about ${moneyText(requestedValue)}).${cash} ${selectionInstruction} Selected value about ${moneyText(selectedValue)}; ${comparison}.${exhausted}`.trim();
 }
 
 function evaluateTradeOffer(deal) {
   if (!deal || deal.dealType !== 'trade') return { canSubmit: false, accepted: false, reason: 'not a trade encounter' };
+  const selectedItemsBeforeIdenticalExclusion = getSelectedTradeInventoryItems(deal, { allowSameItemType: true });
+  const identicalItem = selectedItemsBeforeIdenticalExclusion.find(item => isSameItemTypeAsTradeOffer(deal, item));
+  if (identicalItem) {
+    return {
+      canSubmit: false,
+      accepted: false,
+      reason: `${dealItemLabel(identicalItem)} is the same item type as the offered ${getTradeReceivedItemNameForId(deal, getCanonicalTradeItemId(identicalItem))}`
+    };
+  }
   const selectedItems = getSelectedTradeInventoryItems(deal);
   if (!selectedItems.length) return { canSubmit: false, accepted: false, reason: 'no trade inventory selected' };
   const uniqueIds = new Set(selectedItems.map(item => item.instanceId));
@@ -4184,6 +5578,9 @@ function validateTradeCommit(deal, cashDelta) {
   if (deal.pool?.requestedItemTags?.length && !suppliedItems.length) return `successful trade requires a supplied inventory item but none was selected: ${deal.pool.id}`;
   const missingSupplied = suppliedItems.find(item => !state.inventory.some(current => current.instanceId === item.instanceId));
   if (missingSupplied) return `successful trade supplied inventory instance is missing or stale: ${missingSupplied.instanceId}`;
+  const receivedItemIds = getTradeReceivedItemIds(deal);
+  const identicalSupplied = suppliedItems.find(item => receivedItemIds.has(getCanonicalTradeItemId(item)));
+  if (identicalSupplied) return `successful trade gives and receives the same item_id: ${getCanonicalTradeItemId(identicalSupplied)}`;
   const roundedCashDelta = Math.round(Number(cashDelta) || 0);
   if (roundedCashDelta < 0 && Math.abs(roundedCashDelta) > state.money) return `successful trade cash payment exceeds available cash: ${Math.abs(roundedCashDelta)} > ${state.money}`;
   return '';
@@ -4321,6 +5718,7 @@ function resolveChoice(action) {
 
   clampMoney();
   const afterState = snapshotState();
+  if (afterState.money > beforeState.money) resetLowCashRecoveryDryStreak('cash gained');
   const outcomeClass = classifyChoiceOutcome(action, deal, beforeState, afterState);
   if (!resolved.skipHistory) recordTurnHistory(action, deal, beforeState, afterState);
   deal.currentResultSummary = getCurrentResultSummary(outcome);
@@ -4354,6 +5752,8 @@ function resolveChoice(action) {
     selectedAction: action,
     outcome
   };
+  state.isResolving = false;
+  renderChoices();
   showConversationLine(state.conversation.lines[0]);
 
   if (shouldCheckBankruptcy()) {
@@ -4384,18 +5784,118 @@ function getInventoryItemValue(item) {
   return getTradeItemValue(item);
 }
 
-function getThugInventoryTarget() {
-  return [...getAvailableInventoryForThug()].sort((a, b) =>
-    getInventoryItemValue(b) - getInventoryItemValue(a) ||
-    (b.heat || 0) - (a.heat || 0) ||
-    String(a.instanceId).localeCompare(String(b.instanceId))
-  )[0] || null;
+function getThugItemPreference(item, intendedValue = null) {
+  const estimatedValue = getInventoryItemValue(item);
+  const costBasis = getInventoryCostBasis(item);
+  const valueAnchor = Math.max(estimatedValue, Math.round(costBasis * 0.75));
+  const tags = getItemTagsForEconomy(item);
+  const condition = String(item?.condition || '').toLowerCase();
+  const preferredTags = ['luxury', 'jewelry', 'watch', 'weapon', 'rare', 'collectible', 'hot', 'suspicious'];
+  const avoidedTags = ['junk', 'broken', 'fake', 'possibly_fake'];
+  const preferredMatches = tags.filter(tag => preferredTags.includes(tag));
+  const avoidedMatches = tags.filter(tag => avoidedTags.includes(tag));
+  let relevance = tags.reduce((score, tag) => score + (
+    ['luxury', 'jewelry', 'watch', 'weapon'].includes(tag) ? 34 :
+      ['rare', 'collectible'].includes(tag) ? 26 :
+        ['hot', 'suspicious'].includes(tag) ? 18 :
+          ['electronics', 'portable', 'tool'].includes(tag) ? 8 :
+            tag === 'possibly_fake' ? -80 :
+              ['junk', 'broken', 'fake'].includes(tag) ? -55 : 0
+  ), 0);
+  if (['broken', 'fake'].includes(condition)) relevance -= 55;
+  else if (condition === 'poor') relevance -= 26;
+  if (estimatedValue < 8) relevance -= 26;
+  else if (estimatedValue < 18) relevance -= 10;
+  const reasons = [
+    preferredMatches.length ? `preferred tags ${preferredMatches.join('/')}` : '',
+    avoidedMatches.length || ['broken', 'fake', 'poor'].includes(condition) ? `avoids ${[...avoidedMatches, condition].filter(Boolean).join('/')}` : '',
+    estimatedValue >= 40 ? 'meaningful resale value' : estimatedValue < 12 ? 'very low resale value' : '',
+    costBasis > 0 ? `stored cost basis ${moneyText(costBasis)}` : ''
+  ].filter(Boolean);
+  if (Number.isFinite(Number(intendedValue)) && Number(intendedValue) > 0) {
+    const target = Math.max(1, Number(intendedValue));
+    const tolerance = target * 2.1;
+    const overage = Math.max(0, valueAnchor - target);
+    const closeness = Math.abs(valueAnchor - target);
+    const closeEnoughBonus = valueAnchor <= tolerance ? (avoidedMatches.length ? 25 : 80) : 0;
+    const excessivePenalty = valueAnchor > tolerance ? overage * 0.25 : overage * 0.1;
+    if (valueAnchor <= tolerance) reasons.push('close to intended robbery value');
+    return {
+      score: closeEnoughBonus - closeness * 0.35 - excessivePenalty + valueAnchor * 0.25 + relevance + (Number(item?.heat) || 0) * 3,
+      reason: reasons.join('; ') || 'best available shelf value'
+    };
+  }
+  return {
+    score: valueAnchor * 0.7 + relevance + (Number(item?.heat) || 0) * 4,
+    reason: reasons.join('; ') || 'best available shelf value'
+  };
+}
+
+function getThugItemCandidates(intendedValue = null) {
+  const rawCandidates = [...getAvailableInventoryForThug()]
+    .map(item => {
+      const preference = getThugItemPreference(item, intendedValue);
+      const estimatedValue = getInventoryItemValue(item);
+      const costBasis = getInventoryCostBasis(item);
+      const adjustedValue = Math.max(estimatedValue, Math.round(costBasis * 0.75));
+      return {
+      item,
+      score: preference.score,
+      chanceWeight: Math.max(1, Math.round(preference.score)),
+      estimatedValue,
+      costBasis,
+      adjustedValue,
+      reason: preference.reason
+      };
+    });
+  const bestScore = Math.max(Number.NEGATIVE_INFINITY, ...rawCandidates.map(candidate => candidate.score));
+  return rawCandidates
+    .map(candidate => ({
+      ...candidate,
+      suitable: candidate.adjustedValue >= 10 && candidate.score >= Math.max(12, bestScore * 0.22)
+    }))
+    .sort((a, b) =>
+      b.score - a.score ||
+      a.adjustedValue - b.adjustedValue ||
+      (b.item.heat || 0) - (a.item.heat || 0) ||
+      String(a.item.instanceId).localeCompare(String(b.item.instanceId))
+    );
+}
+
+function getThugInventoryTarget(intendedValue = null) {
+  const candidates = getThugItemCandidates(intendedValue).filter(candidate => candidate.suitable);
+  return (candidates.length ? pickWeighted(candidates) : getThugItemCandidates(intendedValue)[0])?.item || null;
+}
+
+function pickThugRobberyCandidate(intendedValue = null, allowWeakFallback = false) {
+  const candidates = getThugItemCandidates(intendedValue);
+  const suitable = candidates.filter(candidate => candidate.suitable);
+  const selectionPool = suitable.length ? suitable : allowWeakFallback ? candidates : [];
+  const selected = selectionPool.length ? pickWeighted(selectionPool) : null;
+  return { selected, candidates };
 }
 
 function getThugCashLossAmount(rate, minimum) {
   const availableCash = Math.max(0, Math.round(Number(state.money) || 0));
   if (availableCash <= 0) return 0;
   return Math.min(availableCash, Math.max(1, Math.round(Math.max(minimum, availableCash * rate))));
+}
+
+function getThugIntendedRobberyValue(rate, minimum) {
+  const cash = Math.max(0, Math.round(Number(state.money) || 0));
+  const cashTarget = cash > 0 ? getThugCashLossAmount(rate, minimum) : minimum;
+  return Math.max(0, Math.round(cashTarget));
+}
+
+function getThugChoiceDescriptors(deal = state.currentDeal) {
+  if (!deal || deal.dealType !== THUG_CONSEQUENCE_TYPE) return [];
+  if (deal.consequence?.metadata?.warningOnly) return [{ label: 'Hear warning', action: 'thugWarning' }];
+  const choices = [];
+  const cash = Math.max(0, Math.round(Number(state.money) || 0));
+  if (cash > 0 || getAvailableInventoryForThug().length > 0) choices.push({ label: 'Don\'t make this worse', action: 'thugComply' });
+  if (cash > 0) choices.push({ label: 'Try to talk him down', action: 'thugCash' });
+  choices.push({ label: 'Refuse', action: 'thugRefuse' });
+  return choices;
 }
 
 function reduceTracksuitPressure(multiplier) {
@@ -4406,6 +5906,19 @@ function reduceTracksuitPressure(multiplier) {
 function appendThugHistory(deal, line) {
   if (!Array.isArray(deal.thugHistoryLines)) deal.thugHistoryLines = [];
   deal.thugHistoryLines.push(line);
+}
+
+function appendThugRobberyDiagnostics(deal, details) {
+  const candidates = details.candidates || [];
+  const itemValue = Math.max(0, Number(details.itemValue) || 0);
+  const cashTaken = Math.max(0, Number(details.cashTaken) || 0);
+  const actualValueTaken = cashTaken + itemValue;
+  const overage = Math.max(0, Math.round(actualValueTaken - (Number(details.intendedValue) || 0)));
+  const remainingValue = Math.max(0, Math.round((Number(details.intendedValue) || 0) - itemValue - cashTaken));
+  appendThugHistory(
+    deal,
+    `Robbery diagnostics: intended value ${moneyText(details.intendedValue)}; actual value taken ${moneyText(actualValueTaken)}; overage ${moneyText(overage)}; cash taken ${moneyText(cashTaken)}; remaining value sought ${moneyText(remainingValue)}; item candidates [${candidates.map(candidate => `${candidate.item.name} [${candidate.item.instanceId}] score ${Math.round(candidate.score)} weight ${Math.round(candidate.chanceWeight)} value ${moneyText(candidate.estimatedValue)} adjusted ${moneyText(candidate.adjustedValue)} basis ${moneyText(candidate.costBasis)} suitable ${candidate.suitable ? 'yes' : 'no'} reason ${candidate.reason}`).join(' | ') || 'none'}]; selected ${details.removedItem ? `${details.removedItem.name} [${details.removedItem.instanceId}] value ${moneyText(itemValue)} basis ${moneyText(details.itemBasis)} reason ${details.selectionReason || 'selected by Tracksuit Guy'}` : 'none'}; final consequence loss ${moneyText(details.finalLoss)}.`
+  );
 }
 
 function finishThugConsequence(deal, result, riskMultiplier) {
@@ -4421,6 +5934,7 @@ function finishThugConsequence(deal, result, riskMultiplier) {
   appendThugHistory(deal, `Tracksuit consequence queued at pressure ${consequence.metadata?.factionPressureAtQueue ?? 'unknown'}; faction: ${consequence.factionId || consequence.metadata?.factionId || 'unknown'}; queue roll occurred on T${consequence.sourceTurn}; reason: ${consequence.reason}.`);
   deal.consequenceResult = result;
   markConsequenceResolved(consequence, result);
+  startTracksuitRetaliationSettling(deal);
   state.thugConsequenceCooldownUntil = state.turn + SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS;
   state.activeConsequence = null;
   return choiceResult(result, { runRiskCheck: false });
@@ -4428,40 +5942,84 @@ function finishThugConsequence(deal, result, riskMultiplier) {
 
 function resolveThugConsequence(action, deal) {
   const consequence = deal.consequence;
-  if (!['thugCash', 'thugItem', 'thugRefuse'].includes(action)) {
+  const parsedAction = String(action || '');
+  const actionName = parsedAction.split(':')[0];
+  if (!['thugWarning', 'thugComply', 'thugCash', 'thugItem', 'thugRefuse'].includes(actionName)) {
     return choiceResult('The tracksuit waits. That was not one of the bad options.', { runRiskCheck: false, keepEncounterOpen: true });
   }
   if (consequence.resolved) {
     return choiceResult('This consequence was already resolved.', { runRiskCheck: false });
   }
-  if (!beginDealResolution(deal, action)) return choiceResult('The encounter was already resolved.', { runRiskCheck: false });
+  if (!beginDealResolution(deal, parsedAction)) return choiceResult('The encounter was already resolved.', { runRiskCheck: false });
 
-  if (action === 'thugCash') {
+  if (consequence.metadata?.warningOnly) {
+    const warningCustomer = deal.customer?.displayName || 'Tracksuit Guy';
+    appendThugHistory(deal, `Early Tracksuit warning: retaliation became eligible before T${TRACKSUIT_ROBBERY_MIN_TURN}; ${warningCustomer} returned to deliver a warning.`);
+    appendThugHistory(deal, 'Warning resolution: no money, inventory, Profit, reputation, cop risk, or scam risk changed.');
+    const result = `${warningCustomer} leans on the counter just long enough to make the message clear: the last offense is settled for now, but the crew is watching.`;
+    return finishThugConsequence(deal, result, THUG_REFUSE_PRESSURE_MULTIPLIER);
+  }
+
+  if (actionName === 'thugCash') {
     const cashBefore = Math.max(0, Math.round(Number(state.money) || 0));
-    const loss = getThugCashLossAmount(THUG_CASH_HANDOVER_RATE, THUG_CASH_HANDOVER_MIN);
-    state.money = Math.max(0, cashBefore - loss);
-    applyRealizedConsequenceLoss(cashBefore - state.money, deal, 'tracksuit cash handover');
-    const result = loss > 0
-      ? `The tracksuit thug takes ${moneyText(loss)} from the drawer and calls it a neighborhood subscription.`
-      : 'The drawer is empty. The tracksuit thug finds lint, insults the lint, and lets the risk cool.';
-    appendThugHistory(deal, `Robbery cash handover: ${moneyText(cashBefore)} -> ${moneyText(state.money)}; stolen ${moneyText(loss)}.`);
+    const intendedValue = getThugIntendedRobberyValue(THUG_CASH_HANDOVER_RATE, THUG_CASH_HANDOVER_MIN);
+    const cashTaken = Math.min(cashBefore, intendedValue);
+    state.money = Math.max(0, cashBefore - cashTaken);
+    const remainingValue = Math.max(0, intendedValue - cashTaken);
+    const targetSelection = pickThugRobberyCandidate(Math.max(remainingValue, intendedValue), cashTaken <= 0);
+    const candidates = targetSelection.candidates;
+    const shouldTakeItem = (cashTaken <= 0 || remainingValue > 0) && Boolean(targetSelection.selected);
+    const target = shouldTakeItem ? targetSelection.selected.item : null;
+    const removed = target ? removeInventoryInstance(target.instanceId) : null;
+    const cashLoss = applyRealizedConsequenceLoss(cashTaken, deal, 'tracksuit cash handover');
+    const itemBasis = removed ? getInventoryCostBasis(removed) : 0;
+    const itemValue = removed ? getInventoryItemValue(removed) : 0;
+    const itemLoss = removed ? applyRealizedConsequenceLoss(itemBasis, deal, `tracksuit cash fallback inventory theft ${removed.name} [${removed.instanceId}]`) : 0;
+    const finalLoss = cashLoss + itemLoss;
+    const result = cashTaken || removed
+      ? `The tracksuit thug takes ${[
+          cashTaken ? moneyText(cashTaken) : '',
+          removed ? `${removed.name} [${removed.instanceId}]` : ''
+        ].filter(Boolean).join(' and ')}. The drawer being short did not make the shelf invisible.`
+      : 'The drawer is empty and the shelves are bare. The tracksuit thug leaves empty-handed only because there is nothing to steal.';
+    appendThugHistory(deal, `Robbery cash handover: cash ${moneyText(cashBefore)} -> ${moneyText(state.money)}; item ${removed ? `${removed.name} [${removed.instanceId}]` : 'none'}; intended ${moneyText(intendedValue)}.`);
+    appendThugRobberyDiagnostics(deal, { intendedValue, cashTaken, remainingValue, candidates, removedItem: removed, itemBasis, itemValue, selectionReason: targetSelection.selected?.reason || '', finalLoss });
     return finishThugConsequence(deal, result, THUG_HANDOVER_PRESSURE_MULTIPLIER);
   }
 
-  if (action === 'thugItem') {
-    const target = getThugInventoryTarget();
+  if (actionName === 'thugComply' || actionName === 'thugItem') {
+    const intendedValue = getThugIntendedRobberyValue(THUG_CASH_HANDOVER_RATE, THUG_CASH_HANDOVER_MIN);
+    const cashBefore = Math.max(0, Math.round(Number(state.money) || 0));
+    const targetSelection = pickThugRobberyCandidate(intendedValue, cashBefore <= 0);
+    const candidates = targetSelection.candidates;
+    const target = targetSelection.selected?.item || null;
     if (!target) {
-      deal.resolvedAction = null;
-      return choiceResult('There is no valid shelf item to hand over. Pick cash or refuse.', { runRiskCheck: false, keepEncounterOpen: true });
+      const cashTaken = Math.min(cashBefore, intendedValue);
+      state.money = Math.max(0, cashBefore - cashTaken);
+      const cashLoss = applyRealizedConsequenceLoss(cashTaken, deal, 'tracksuit compliance fallback cash');
+      const result = cashTaken
+        ? `He ignores the shelf junk and takes ${moneyText(cashTaken)} cash instead.`
+        : 'The drawer is empty and the shelves are bare. The tracksuit thug leaves empty-handed only because there is nothing to steal.';
+      appendThugHistory(deal, `Robbery compliance fallback: cash ${moneyText(cashBefore)} -> ${moneyText(state.money)}; no suitable item; intended ${moneyText(intendedValue)}.`);
+      appendThugRobberyDiagnostics(deal, { intendedValue, cashTaken, remainingValue: Math.max(0, intendedValue - cashTaken), candidates, removedItem: null, itemBasis: 0, itemValue: 0, finalLoss: cashLoss });
+      return finishThugConsequence(deal, result, THUG_HANDOVER_PRESSURE_MULTIPLIER);
     }
     const removed = removeInventoryInstance(target.instanceId);
     if (!removed) {
       deal.resolvedAction = null;
-      return choiceResult('That shelf item is already gone. Pick again.', { runRiskCheck: false, keepEncounterOpen: true });
+      return resolveThugConsequence('thugItem', deal);
     }
-    const result = `The tracksuit thug walks out with ${removed.name} [${removed.instanceId}] and the smug posture of a man who just invented theft.`;
-    applyRealizedConsequenceLoss(getInventoryCostBasis(removed), deal, `tracksuit stole inventory ${removed.name} [${removed.instanceId}]`);
-    appendThugHistory(deal, `Robbery inventory handover: stolen ${removed.name} [${removed.instanceId}], estimated value ${moneyText(getInventoryItemValue(removed))}.`);
+    const itemValue = getInventoryItemValue(removed);
+    const itemBasis = getInventoryCostBasis(removed);
+    const remainingValue = Math.max(0, intendedValue - itemValue);
+    const cashTaken = Math.min(cashBefore, remainingValue);
+    state.money = Math.max(0, cashBefore - cashTaken);
+    const itemLoss = applyRealizedConsequenceLoss(itemBasis, deal, `tracksuit chose inventory ${removed.name} [${removed.instanceId}]`);
+    const cashLoss = applyRealizedConsequenceLoss(cashTaken, deal, 'tracksuit compliance cash top-up');
+    const finalLoss = itemLoss + cashLoss;
+    const result = `The tracksuit thug chooses ${removed.name} [${removed.instanceId}]${cashTaken ? ` and ${moneyText(cashTaken)} cash` : ''}. He does not ask which shelf hurts least.`;
+    appendThugHistory(deal, `Robbery compliance: Tracksuit Guy selected ${removed.name} [${removed.instanceId}], estimated value ${moneyText(itemValue)}, adjusted ${moneyText(Math.max(itemValue, Math.round(itemBasis * 0.75)))}, stored cost basis ${moneyText(itemBasis)}, cash top-up ${moneyText(cashTaken)}, intended ${moneyText(intendedValue)}; reason: ${targetSelection.selected.reason}.`);
+    appendThugRobberyDiagnostics(deal, { intendedValue, cashTaken, remainingValue, candidates, removedItem: removed, itemBasis, itemValue, selectionReason: targetSelection.selected.reason, finalLoss });
     return finishThugConsequence(deal, result, THUG_HANDOVER_PRESSURE_MULTIPLIER);
   }
 
@@ -4655,7 +6213,20 @@ function resolveBuy(action, deal) {
 
   if (action === 'refuse') {
     if (!beginDealResolution(deal, action)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
-    state.reputation = Math.max(0, state.reputation - (customer.trust < 35 ? 1 : 0));
+    appendNegotiationHistory(deal, 'Neutral item refusal: no inventory, money, profit, reputation, or risk changed.');
+    if (isTracksuitRelationshipDeal(deal)) {
+      if (deal.availableCash >= deal.defaultOffer) {
+        addTracksuitRelationshipPressure(
+          deal,
+          TRACKSUIT_RELATIONSHIP_PRESSURE.actionableRefusal,
+          'actionable-seller-refusal',
+          `${customer.displayName} had an actionable offer refused while the shop could afford the original asking price`,
+          { transactionCompleted: false, skipIfAnyPressureThisAction: true }
+        );
+      } else {
+        noteNoTracksuitRelationshipPressure(deal, 'the shop could not afford the original asking price');
+      }
+    }
     return choiceResult('You pass. They pocket the item like it might testify later.', { runRiskCheck: false });
   }
 
@@ -4675,7 +6246,7 @@ function resolveBuy(action, deal) {
   const offer = deal.lowballPrice;
   const ask = deal.askingPrice ?? deal.askPrice;
   const offerRatio = Math.min(1, offer / Math.max(1, ask));
-  const outcome = resolveNegotiationOutcome('lowball', deal, { ratio: offerRatio, item });
+  const outcome = resolveNegotiationOutcome('lowball', deal, { ratio: offerRatio, item, originalPrice: ask, attemptedPrice: offer });
   deal.lowballRejected = true;
   deal.lowballOutcome = outcome.selected;
 
@@ -4690,12 +6261,25 @@ function resolveBuy(action, deal) {
     if (!acquired) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
     state.reputation += 1;
     let changeSummary = `final transaction: money -${moneyText(offer)}, inventory +${acquired.instanceId}, reputation +1`;
-    let text = `They take the below-asking ${moneyText(offer)} offer and leave with the confidence of a person ruining several lives.`;
+    let text = `They take the below-asking ${moneyText(offer)} offer. Cash now beats arguing under these lights.`;
     if (outcome.selected === 'acceptedHiddenProblem') {
       const hiddenSummary = worsenInventoryInstanceForHiddenProblem(acquired, deal, outcome);
       state.scamRisk += 1;
       changeSummary += `; ${hiddenSummary}; scam risk +1`;
-      text = `They take ${moneyText(offer)}. The item is yours, though something about the deal feels cheaper than the price.`;
+      text = formatHiddenProblemDialogue(deal, acquired);
+    }
+    if (isTracksuitRelationshipDeal(deal) && offer < ask) {
+      const pressureAmount = outcome.severity === 'severe'
+        ? TRACKSUIT_RELATIONSHIP_PRESSURE.acceptedLowball.severe
+        : TRACKSUIT_RELATIONSHIP_PRESSURE.acceptedLowball.modest;
+      addTracksuitRelationshipPressure(
+        deal,
+        pressureAmount,
+        'accepted-lowball',
+        `${customer.displayName} accepted a ${outcome.severity} below-asking fence offer and reported the short payment to the crew`,
+        { transactionCompleted: true }
+      );
+      changeSummary += `; Tracksuit pressure +${pressureAmount}`;
     }
     appendNegotiationDiagnostics(deal, outcome, { originalPrice: ask, attemptedPrice: offer, dealOpen: false, changeSummary });
     return choiceResult(text, { runRiskCheck: false });
@@ -4751,6 +6335,19 @@ function resolveSell(action, deal) {
   }
   if (action === 'refuse') {
     if (!beginDealResolution(deal, action)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
+    if (isTracksuitRelationshipDeal(deal)) {
+      if (deal.intentionalUnavailableDemand || !deal.requestSatisfiable) {
+        noteNoTracksuitRelationshipPressure(deal, 'no matching requested inventory was available');
+      } else {
+        addTracksuitRelationshipPressure(
+          deal,
+          TRACKSUIT_RELATIONSHIP_PRESSURE.actionableRefusal,
+          'actionable-buyer-refusal',
+          `${customer.displayName} had a matching requested item refused by the shop`,
+          { transactionCompleted: false, skipIfAnyPressureThisAction: true }
+        );
+      }
+    }
     return deal.requestSatisfiable
       ? choiceResult('You keep the shelf stocked. The customer leaves empty-handed and unimpressed.', { runRiskCheck: false })
       : choiceResult(`Missed sale. They wanted ${getCustomerBuyRequestPhrase(deal)}, and the shelf had nothing close.`, { runRiskCheck: false });
@@ -4777,12 +6374,14 @@ function resolveSell(action, deal) {
     const costBasis = getInventoryCostBasis(inventoryItem);
     state.money += price;
     state.profit += price - costBasis;
-    state.scamRisk += inventoryItem.tags.some(tag => ['locked', 'cursed', 'suspicious', 'fake', 'possibly_fake'].includes(tag)) ? 2 : 0;
+    state.scamRisk += inventoryItem.tags.some(tag => ['fake', 'possibly_fake'].includes(tag)) ? 2 :
+      inventoryItem.tags.some(tag => ['locked', 'cursed', 'suspicious'].includes(tag)) ? 1 : 0;
     const copRiskBefore = state.copRisk;
-    const saleRisk = calculateCopRisk(inventoryItem, { price, multiplier: 0.65 });
+    const saleRisk = calculateCopRisk(inventoryItem, { price, multiplier: 0.4, source: 'sale' });
     const customerExposure = isExplicitlyIllegalItem(inventoryItem) ? customer.copRiskBias : 0;
     const addedSaleRisk = Math.max(0, saleRisk.addedRisk + customerExposure);
     state.copRisk += addedSaleRisk;
+    appendInvestigationHistory(deal, formatCopRiskDiagnostics(saleRisk, copRiskBefore, state.copRisk, 'sale', { exposure: customerExposure }));
     maybeQueueCopConsequence(deal, `Sale of ${inventoryItem.name}: ${saleRisk.reason}${customerExposure ? `, customer exposure: +${customerExposure}` : ''}`, copRiskBefore, state.copRisk);
     deal.transaction = {
       type: 'sale',
@@ -4795,7 +6394,7 @@ function resolveSell(action, deal) {
     const quote = deal.saleQuote || calculateCustomerOfferForInventoryItem(deal, inventoryItem);
     appendEconomicDiagnostic(
       deal,
-      `Sale: ${inventoryItem.name} [${inventoryItem.instanceId}]; price ${moneyText(price)}; stored basis ${moneyText(costBasis)}; realized ${moneyText(price - costBasis)}; base target ${moneyText(quote.baseTargetValue)}; condition ${quote.conditionMultiplier.toFixed(2)}x; liquidity ${quote.liquidityMultiplier.toFixed(2)}x; tags ${quote.tagMultiplier.toFixed(2)}x; resale modifier ${quote.instanceResaleModifier.toFixed(2)}x; preference ${quote.preferenceMultiplier.toFixed(2)}x; risk ${quote.riskMultiplier.toFixed(2)}x; margin class ${quote.marginClass}.`
+      `Sale: ${inventoryItem.name} [${inventoryItem.instanceId}]; final customer offer ${moneyText(price)}; stored basis ${moneyText(costBasis)}; realized ${moneyText(price - costBasis)}; buyer match ${quote.buyerMatchLevel}; base/ideal target ${moneyText(quote.baseTargetValue)}; condition-adjusted ${moneyText(quote.conditionAdjustedValue)}; market-adjusted ${moneyText(quote.marketAdjustedValue)}; matched-buyer floor ${quote.matchedBuyerFloor.applied ? `${moneyText(quote.matchedBuyerFloor.price)} (${Math.round(quote.matchedBuyerFloor.rate * 100)}%)` : 'none'}; basis profit floor ${quote.basisProfitFloor ? moneyText(quote.basisProfitFloor) : 'none'}; margin class ${quote.marginClass}${quote.marginCeiling ? ` ceiling ${moneyText(quote.marginCeiling)}` : ''}.`
     );
     return true;
   };
@@ -4817,7 +6416,7 @@ function resolveSell(action, deal) {
     deal.markupAttempts = (Number(deal.markupAttempts) || 0) + 1;
     const originalPrice = deal.salePrice;
     const markupRatio = price / Math.max(1, originalPrice);
-    const outcome = resolveNegotiationOutcome('markup', deal, { ratio: markupRatio, item: inventoryItem });
+    const outcome = resolveNegotiationOutcome('markup', deal, { ratio: markupRatio, item: inventoryItem, originalPrice, attemptedPrice: price });
     deal.markupRejected = true;
     deal.markupOutcome = outcome.selected;
 
@@ -4825,9 +6424,32 @@ function resolveSell(action, deal) {
       if (!commitSale(price, action)) return choiceResult('The sale could not complete because the selected shelf item is gone.', { runRiskCheck: false, keepEncounterOpen: true });
       let changeSummary = `final transaction: money +${moneyText(price)}, profit +${moneyText(price - getInventoryCostBasis(inventoryItem))}, inventory -${inventoryItem.instanceId}`;
       if (outcome.selected === 'acceptedFutureDispute') {
-        state.scamRisk += 2 + (outcome.severity === 'severe' ? 2 : 0);
-        deal.futureDisputeRisk = { source: 'markup', encounterId: deal.encounterId, inventoryInstanceId: inventoryItem.instanceId };
-        changeSummary += '; future dispute/scam risk increased';
+        if (outcome.consequencesAllowed !== false) {
+          state.scamRisk += 2 + (outcome.severity === 'severe' ? 2 : 0);
+          deal.futureDisputeRisk = { source: 'markup', encounterId: deal.encounterId, inventoryInstanceId: inventoryItem.instanceId };
+          changeSummary += '; future dispute/scam risk increased';
+          if (isTracksuitRelationshipDeal(deal)) {
+            recordPendingTracksuitBadMerchandiseIncident(
+              deal,
+              `${customer.displayName} bought merchandise that may resolve into a refund/dispute`
+            );
+            changeSummary += '; Tracksuit bad merchandise incident pending';
+          }
+        } else {
+          changeSummary += '; future dispute suppressed by markup tolerance';
+        }
+      } else if (isTracksuitRelationshipDeal(deal) && price > originalPrice) {
+        const pressureAmount = outcome.severity === 'severe'
+          ? TRACKSUIT_RELATIONSHIP_PRESSURE.acceptedMarkup.aggressive
+          : TRACKSUIT_RELATIONSHIP_PRESSURE.acceptedMarkup.meaningful;
+        addTracksuitRelationshipPressure(
+          deal,
+          pressureAmount,
+          `accepted-markup:${deal.transaction?.inventoryInstanceId || deal.encounterId}`,
+          `${customer.displayName} accepted a ${outcome.severity} marked-up sale from the shop`,
+          { transactionCompleted: true, skipIfAnyPressureThisAction: true }
+        );
+        changeSummary += `; Tracksuit markup pressure +${pressureAmount}`;
       }
       appendNegotiationDiagnostics(deal, outcome, { originalPrice, attemptedPrice: price, dealOpen: false, changeSummary });
       return outcome.selected === 'acceptedFutureDispute'
@@ -4857,7 +6479,7 @@ function resolveSell(action, deal) {
     }
 
     appendNegotiationDiagnostics(deal, outcome, { originalPrice, attemptedPrice: price, dealOpen: true, changeSummary: 'original sale remains; no transaction mutation' });
-    return choiceResult(`They reject ${moneyText(price)}. The original ${moneyText(originalPrice)} sale is still on the counter.`, { runRiskCheck: false, keepEncounterOpen: true });
+      return choiceResult(`They reject the higher price. The original ${moneyText(originalPrice)} offer still stands.`, { runRiskCheck: false, keepEncounterOpen: true });
   }
 
   if (!commitSale(price, action)) return choiceResult('The sale could not complete because the selected shelf item is gone.', { runRiskCheck: false, keepEncounterOpen: true });
@@ -4865,11 +6487,78 @@ function resolveSell(action, deal) {
 }
 function resolveTrade(action, deal) {
   const { item, customer, traits } = deal;
-  if (!['refuse', 'tradeCash', 'tradeAccept', 'submitTradeOffer'].includes(action)) return choiceResult('No deal. The counter stays exactly as dirty as it was.', { runRiskCheck: false });
+  if (!['refuse', 'tradeCash', 'tradeAccept', 'submitTradeOffer', 'confirmTrade', 'changeTradeOffer', 'cancelTrade'].includes(action)) return choiceResult('No deal. The counter stays exactly as dirty as it was.', { runRiskCheck: false });
+  if (action === 'changeTradeOffer') {
+    clearPendingTradeConfirmation(deal);
+    appendTradeHistory(deal, 'Trade confirmation changed: player returned to selection; no inventory, money, reputation, or risk changed.');
+    openTradeSelection();
+    return choiceResult('Change the trade offer. Nothing has changed hands.', { runRiskCheck: false, keepEncounterOpen: true, skipHistory: true });
+  }
+  if (action === 'cancelTrade') {
+    clearPendingTradeConfirmation(deal);
+    clearInventorySelection();
+    appendTradeHistory(deal, 'Trade confirmation cancelled: no inventory, money, reputation, or risk changed.');
+    return choiceResult('Trade canceled before confirmation. Nothing changes hands.', { runRiskCheck: false, keepEncounterOpen: true, skipHistory: true });
+  }
+  if (action === 'confirmTrade') {
+    const pending = deal.pendingTradeConfirmation;
+    if (!pending) return choiceResult('There is no trade ready to confirm.', { runRiskCheck: false, keepEncounterOpen: true, skipHistory: true, blockedAction: true });
+    deal.requestedInventoryItems = pending.selectedIds
+      .map(instanceId => state.inventory.find(entry => entry.instanceId === instanceId) || null)
+      .filter(Boolean);
+    deal.requestedInventoryItem = deal.requestedInventoryItems[0] || null;
+    deal.selectedTradeInventoryInstanceIds = [...pending.selectedIds];
+    const validationError = validateTradeCommit(deal, pending.cashDelta);
+    if (validationError) {
+      console.error(`[transaction] ${validationError}`);
+      return choiceResult('The trade cannot complete because the item data is invalid. Check the console.', { runRiskCheck: false, keepEncounterOpen: true });
+    }
+    if (!beginDealResolution(deal, pending.action)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
+    if (!commitTrade(deal, pending.cashDelta, pending.reputationDelta, pending.notes)) {
+      deal.resolvedAction = null;
+      return choiceResult('The trade could not complete. Check the console.', { runRiskCheck: false, keepEncounterOpen: true });
+    }
+    clearPendingTradeConfirmation(deal);
+    clearInventorySelection();
+    const copRiskBefore = state.copRisk;
+    const isIllegalTrade = isExplicitlyIllegalItem(item);
+    const risk = addHeat(item, { multiplier: 1.15, price: deal.askPrice, riskNote: deal.pool.riskNote, source: 'trade' });
+    applyRiskNote(deal.pool, deal, isIllegalTrade);
+    appendInvestigationHistory(deal, formatCopRiskDiagnostics(risk, copRiskBefore, state.copRisk, 'trade', { exposure: 0 }));
+    maybeQueueCopConsequence(deal, `Trade for ${item.name}: ${risk.reason}`, copRiskBefore, state.copRisk);
+    state.scamRisk += item.tags.includes('mystery') || item.tags.includes('possibly_fake') ? 2 : 0;
+    return pending.action === 'tradeCash'
+      ? `They add ${moneyText(pending.cashDelta)} and the trade clears: ${deal.transaction.summary}.`
+      : `Trade accepted. ${deal.transaction.summary}. Everybody pretends this is commerce.`;
+  }
+  if (deal.pendingTradeConfirmation) {
+    return choiceResult('Review the pending trade first: Confirm Trade, Change Offer, or Cancel.', {
+      runRiskCheck: false,
+      keepEncounterOpen: true,
+      skipHistory: true,
+      blockedAction: true
+    });
+  }
   if (action === 'refuse') {
+    clearPendingTradeConfirmation(deal);
     appendTradeHistory(deal, 'Trade no-deal: cancelled/refused; no inventory or money changed.');
     if (!beginDealResolution(deal, action)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
-    if (traits.haggleAggression >= 4) addDealFactionPressure(deal, 2, `refused aggressive trade from ${customer.displayName}`);
+    const suppressCashlessPressure = isCriticalLowCashRecoveryActive() && !isRevenueCapableDeal(deal);
+    const hasEligibleTradeInventory = getEligibleTradeInventoryItems(deal).length > 0;
+    if (isTracksuitRelationshipDeal(deal)) {
+      if (!hasEligibleTradeInventory) {
+        noteNoTracksuitRelationshipPressure(deal, 'trade could not be constructed because no eligible inventory existed');
+      } else {
+        addTracksuitRelationshipPressure(
+          deal,
+          TRACKSUIT_RELATIONSHIP_PRESSURE.actionableRefusal,
+          'actionable-trade-refusal',
+          `${customer.displayName} proposed an actionable trade and the shop refused it`,
+          { transactionCompleted: false, skipIfAnyPressureThisAction: true }
+        );
+      }
+    } else if (traits.haggleAggression >= 4 && !suppressCashlessPressure) addDealFactionPressure(deal, 2, `refused aggressive trade from ${customer.displayName}`);
+    else if (suppressCashlessPressure) appendTradeHistory(deal, 'Cashless non-revenue aggressive trade refusal: no added faction pressure; recovery can interrupt the sequence.');
     return choiceResult('You refuse the trade. The bad idea leaves under its own power.', { runRiskCheck: false });
   }
 
@@ -4924,19 +6613,7 @@ function resolveTrade(action, deal) {
       console.error(`[transaction] ${validationError}`);
       return choiceResult('The trade cannot complete because the item data is invalid. Check the console.', { runRiskCheck: false, keepEncounterOpen: true });
     }
-    if (!beginDealResolution(deal, action)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
-    if (!commitTrade(deal, cashDelta, 0, 'Acquired via player-selected trade.')) {
-      deal.resolvedAction = null;
-      return choiceResult('The trade could not complete. Check the console.', { runRiskCheck: false, keepEncounterOpen: true });
-    }
-    clearInventorySelection();
-    const copRiskBefore = state.copRisk;
-    const isIllegalTrade = isExplicitlyIllegalItem(item);
-    const risk = addHeat(item, { multiplier: 1.15, price: deal.askPrice, riskNote: deal.pool.riskNote });
-    applyRiskNote(deal.pool, deal, isIllegalTrade);
-    maybeQueueCopConsequence(deal, `Trade for ${item.name}: ${risk.reason}`, copRiskBefore, state.copRisk);
-    state.scamRisk += item.tags.includes('mystery') || item.tags.includes('possibly_fake') ? 2 : 0;
-    return `Trade accepted. ${deal.transaction.summary}. Everybody pretends this is commerce.`;
+    return setPendingTradeConfirmation(deal, action, evaluation, cashDelta, 0, 'Acquired via player-selected trade.');
   }
 
   if (action === 'tradeCash') {
@@ -4963,27 +6640,9 @@ function resolveTrade(action, deal) {
         console.error(`[transaction] ${validationError}`);
         return choiceResult('The trade cannot complete because the item data is invalid. Check the console.', { runRiskCheck: false, keepEncounterOpen: true });
       }
-      if (!beginDealResolution(deal, action)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
-      if (!commitTrade(deal, deal.cashInstead, 1, `Acquired via trade with demanded ${moneyText(deal.cashInstead)} cash.`)) {
-        deal.resolvedAction = null;
-        return choiceResult('The trade could not complete. Check the console.', { runRiskCheck: false, keepEncounterOpen: true });
-      }
-      const copRiskBefore = state.copRisk;
-      const isIllegalCashTrade = isExplicitlyIllegalItem(item);
-      const cashTradeRisk = addHeat(item, { multiplier: 1.15, price: deal.askPrice, riskNote: deal.pool.riskNote });
-      applyRiskNote(deal.pool, deal, isIllegalCashTrade);
-      maybeQueueCopConsequence(deal, `Trade for ${item.name}: ${cashTradeRisk.reason}`, copRiskBefore, state.copRisk);
-      state.scamRisk += item.tags.includes('mystery') || item.tags.includes('possibly_fake') ? 2 : 0;
-      clearInventorySelection();
-      return `They add ${moneyText(deal.cashInstead)} and the trade clears: ${deal.transaction.summary}.`;
+      return setPendingTradeConfirmation(deal, action, evaluation, deal.cashInstead, 1, `Acquired via trade with demanded ${moneyText(deal.cashInstead)} cash.`);
     }
-    addDealFactionPressure(
-      deal,
-      2 + Math.ceil(customer.thugRiskBias / 2) + Math.ceil(traits.haggleAggression / 3),
-      `failed demand-for-cash trade against ${customer.displayName}`
-    );
-    state.reputation = Math.max(0, state.reputation - 1);
-    return 'Demanding cash goes poorly. The room gets smaller and the price of manners goes up.';
+    return finalizeFailedCashDemandTrade(deal, evaluation, successChance);
   }
 }
 
@@ -5079,10 +6738,48 @@ function getTracksuitPressureSourceSummary() {
     .join('; ');
 }
 
+function getTracksuitSettlingRemaining() {
+  return Math.max(0, Math.floor(Number(state.tracksuitRetaliationSettlingNormalEncountersRemaining) || 0));
+}
+
+function isTracksuitRetaliationSettling() {
+  return getTracksuitSettlingRemaining() > 0;
+}
+
+function startTracksuitRetaliationSettling(deal) {
+  state.tracksuitRetaliationSettlingNormalEncountersRemaining = TRACKSUIT_RETALIATION_SETTLING_NORMAL_ENCOUNTERS;
+  state.consequenceQueue = getConsequenceQueue().filter(consequence =>
+    !consequence ||
+    typeof consequence !== 'object' ||
+    consequence.type !== THUG_CONSEQUENCE_TYPE ||
+    consequence.resolved === true
+  );
+  state.factionPressureSources[TRACKSUIT_CREW_FACTION_ID] = [];
+  if (deal) appendThugHistory(deal, `Tracksuit retaliation settled: pressure reset and new queue arming paused for ${TRACKSUIT_RETALIATION_SETTLING_NORMAL_ENCOUNTERS} normal encounters.`);
+}
+
+function advanceTracksuitRetaliationSettlingAfterNormal(deal) {
+  const before = getTracksuitSettlingRemaining();
+  if (before <= 0 || isConsequenceDeal(deal?.dealType)) return;
+  const after = Math.max(0, before - 1);
+  state.tracksuitRetaliationSettlingNormalEncountersRemaining = after;
+  if (deal) {
+    if (after > 0) appendFactionPressureHistory(deal, `Tracksuit settling period: ${after} normal encounters remain before new thug queue arming can resume.`);
+    else appendFactionPressureHistory(deal, 'Tracksuit settling period completed; queue arming may resume.');
+  }
+  if (after === 0 && getFactionPressure(TRACKSUIT_CREW_FACTION_ID) >= TRACKSUIT_CONSEQUENCE_MIN_PRESSURE) {
+    const consequence = maybeQueueThugConsequence(deal, `Tracksuit crew pressure reached ${getFactionPressure(TRACKSUIT_CREW_FACTION_ID)} after settling period`);
+    if (deal && consequence) {
+      if (!Array.isArray(deal.thugHistoryLines)) deal.thugHistoryLines = [];
+      deal.thugHistoryLines.push(`Tracksuit scheduling queued after settling period: source T${consequence.sourceTurn}; pressure ${getFactionPressure(TRACKSUIT_CREW_FACTION_ID)}; original post-retaliation source preserved.`);
+    }
+  }
+}
+
 function canQueueThugConsequence() {
   normalizeConsequenceState();
   if (getFactionPressure(TRACKSUIT_CREW_FACTION_ID) < TRACKSUIT_CONSEQUENCE_MIN_PRESSURE) return false;
-  if (state.turn < state.thugConsequenceCooldownUntil) return false;
+  if (isTracksuitRetaliationSettling()) return false;
   if (hasPendingConsequence(THUG_CONSEQUENCE_TYPE) || state.activeConsequence?.type === THUG_CONSEQUENCE_TYPE) return false;
   return true;
 }
@@ -5123,12 +6820,16 @@ function maybeQueueThugConsequence(deal, reason = 'tracksuit crew pressure came 
     }
     return null;
   }
+  if (deal) {
+    if (!Array.isArray(deal.thugHistoryLines)) deal.thugHistoryLines = [];
+    deal.thugHistoryLines.push(`Tracksuit scheduling: pressure threshold reached ${pressure}/${TRACKSUIT_CONSEQUENCE_MIN_PRESSURE}; checking queue arm.`);
+  }
   if (!canQueueThugConsequence()) {
     if (deal) {
       if (!Array.isArray(deal.thugHistoryLines)) deal.thugHistoryLines = [];
       const pending = hasPendingConsequence(THUG_CONSEQUENCE_TYPE) || state.activeConsequence?.type === THUG_CONSEQUENCE_TYPE;
-      const cooldown = state.turn < state.thugConsequenceCooldownUntil ? `cooldown until T${state.thugConsequenceCooldownUntil}` : 'cooldown satisfied';
-      deal.thugHistoryLines.push(`Tracksuit scheduling: pressure ${pressure}; not queued (${pending ? 'pending/active consequence' : cooldown}).`);
+      const settling = getTracksuitSettlingRemaining();
+      deal.thugHistoryLines.push(`Tracksuit scheduling: pressure ${pressure}; not queued (${settling > 0 ? `${settling} normal encounters remain in the post-retaliation settling period` : pending ? 'pending/active thug consequence; original source remains tracked' : 'queue gate unavailable'}).`);
     }
     return null;
   }
@@ -5172,6 +6873,12 @@ function angryCustomer() {
   const moneyBefore = state.money;
   state.money = Math.max(0, state.money - refund);
   applyRealizedConsequenceLoss(moneyBefore - state.money, state.currentDeal, 'refund/dispute payout');
+  if (state.currentDeal?.futureDisputeRisk && isTracksuitRelationshipDeal(state.currentDeal)) {
+    resolvePendingTracksuitBadMerchandiseIncident(
+      state.currentDeal,
+      `${state.currentDeal.customer?.displayName || 'Tracksuit customer'} resolved a refund/dispute over materially disappointing merchandise`
+    );
+  }
   state.reputation = Math.max(0, state.reputation - 2);
   state.scamRisk = Math.max(0, Math.floor(state.scamRisk * 0.3));
   return `The refund hurts, but the lesson is tax deductible. Probably not. Lose ${moneyText(refund)}.`;
@@ -5285,6 +6992,12 @@ if (els.fastTestToggle) {
   });
 }
 
+if (els.copyHistory) {
+  els.copyHistory.addEventListener('click', () => {
+    copyTurnHistory().catch(error => console.error('[clipboard] Could not copy turn history.', error));
+  });
+}
+
 if (els.clearHistory) {
   els.clearHistory.addEventListener('click', () => {
     turnHistory = [];
@@ -5314,6 +7027,7 @@ window.ONE_STAR_PAWN_TEST_HOOKS = {
   createInventoryItem,
   removeInventoryInstance,
   getHeldNormalEncounters,
+  getInventoryDetail,
   getInventoryAgeDemandMultiplier,
   getItemDemandLevel,
   getItemLiquidityDemandMultiplier,
@@ -5324,30 +7038,54 @@ window.ONE_STAR_PAWN_TEST_HOOKS = {
   getBuyPoolDemandMultiplier,
   getSelectablePoolsForCharacter,
   buildDeal,
+  generateDeal,
+  chooseNextNormalDeal,
+  getExecutableNormalPoolEntries,
+  getNormalPoolCategory,
   applySelectedInventoryItemToDeal,
+  openTradeSelection,
+  toggleTradeInventorySelection,
+  openInventorySelection,
+  clearTemporaryEncounterUiState,
+  setInventoryOpen,
+  isTradeSelectionStepComplete,
   validateSaleSelection,
   evaluateSaleCompatibility,
   getEligibleInventoryItemsForPool,
+  getEligibleTradeInventoryItems,
   evaluateTradeOffer,
   canSubmitTradeAction,
   isTradeSubmissionLimitReached,
   getTradeTermsText,
   clerkAssessment,
   sanitizePlayerDialogueText,
+  getPlayerFacingItemName,
+  formatHiddenProblemDialogue,
+  formatShopPurchaseDealPanelSummary,
   resolveNegotiationOutcome,
   resolveBuy,
   resolveSell,
   resolveTrade,
   resolveChoice,
   resolveConsequenceChoice,
+  angryCustomer,
   queueConsequence,
   queueThugConsequence,
   maybeQueueThugConsequence,
+  prepareTracksuitConsequencePresentation,
+  advanceTracksuitRetaliationSettlingAfterNormal,
   getEligibleQueuedConsequence,
   buildCopConsequenceDeal,
   buildThugConsequenceDeal,
   chooseNextCustomerWithPools,
+  updateLowCashRecoveryDryStreak,
+  resetLowCashRecoveryDryStreak,
+  shouldGuaranteeLowCashRecovery,
+  isRevenueCapableDeal,
+  getThugItemCandidates,
+  getThugChoiceDescriptors,
   rememberNormalCustomer,
+  rememberNormalEncounterType,
   getConsecutiveNormalCustomerCount,
   snapshotState,
   buildHistoryLines,
@@ -5366,6 +7104,11 @@ window.ONE_STAR_PAWN_TEST_HOOKS = {
   resetAutoProgress,
   getTurnHistory() {
     return turnHistory;
+  },
+  getTurnHistoryCopyText,
+  copyTurnHistory,
+  getCopyHistoryLabel() {
+    return els.copyHistory?.textContent || '';
   },
   getDealText() {
     renderDeal();
@@ -5387,6 +7130,9 @@ window.ONE_STAR_PAWN_TEST_HOOKS = {
   getVisibleDealPanelText() {
     return els.dealText.textContent;
   },
+  isInventoryOpen() {
+    return activeLowerPanel === 'inventory';
+  },
   isDealPanelHidden() {
     return Boolean(els.dealText._dealBoxHidden);
   },
@@ -5397,8 +7143,14 @@ window.ONE_STAR_PAWN_TEST_HOOKS = {
     NORMAL_CUSTOMER_MAX_CONSECUTIVE,
     NORMAL_CUSTOMER_HISTORY_LIMIT,
     BUY_FROM_SHOP_ECONOMY,
+    NORMAL_ENCOUNTER_MIX,
+    LOW_CASH_RECOVERY,
+    ECONOMY_BALANCE,
     NEGOTIATION_OUTCOMES,
     TRACKSUIT_CONSEQUENCE_MIN_PRESSURE,
+    TRACKSUIT_ROBBERY_MIN_TURN,
+    TRACKSUIT_RELATIONSHIP_PRESSURE,
+    TRACKSUIT_RETALIATION_SETTLING_NORMAL_ENCOUNTERS,
     THUG_CONSEQUENCE_MAX_ELIGIBLE_CHECKS
   }
 };
