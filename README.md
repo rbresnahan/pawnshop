@@ -16,7 +16,7 @@ Run a local static server from this repository root and open the served URL. Do 
 - `assets/shop-background.png`
 - `assets/booth-glass.png`
 - `assets/sprites/clerk-idle.png`
-- `assets/sprites/70s-hustler-idle_r.png`, `bum-idle_l.png`, `crackhead-idle_l.png`, `hitman-idle_l.png`, `junkie-idle_r.png`, `red-hustler-idle_l.png`, and `slot-grandma-idle_r.png` active NPC sprites
+- Current active NPC sprites under `assets/sprites/`, including street, service, senior, regular, hustler, and tracksuit customers
 - `one_star_pawn_tables/*.csv`
 - `scripts/generate-game-data.ps1`
 - `gameData.js`
@@ -44,4 +44,4 @@ To add another NPC:
 
 Do not update a JavaScript customer whitelist; the runtime uses the complete validated active-customer collection. Do not create alias PNG files. Active customer sprites must use `_r.png` for artwork that faces right and `_l.png` for artwork that faces left. Right-facing sprites enter, idle, and exit from the left side; left-facing sprites enter, idle, and exit from the right side.
 
-The shared customer layout contract applies to all current and future NPC sprites: proportional width, 220px visual height, `left: -25px`, and `top: -140px` from the reusable customer element. Avoid character-specific positioning unless a concrete asset defect requires it.
+The shared customer layout contract applies to all current and future NPC sprites by default: proportional width, 220px visual height, `left: -25px`, and `top: -140px` from the reusable customer element. Use `sprite_visual_height` in `Characters.csv` only for intentional source-art scale exceptions.

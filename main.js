@@ -1,4 +1,4 @@
-const GAME_VERSION = '0.1.27';
+const GAME_VERSION = '0.1.33';
 const GAME_BUILD_LOADED_AT = new Date().toISOString();
 
 window.ONE_STAR_PAWN_VERSION = GAME_VERSION;
@@ -41,11 +41,12 @@ const COP_CONSEQUENCE_TYPE = 'cop_consequence';
 const COP_CONSEQUENCE_CHARACTER_ID = 'cop_consequence';
 const COP_CONSEQUENCE_EVENT_ID = 'cop_consequence_visit';
 const THUG_CONSEQUENCE_TYPE = 'thug_robbery_consequence';
-const THUG_CONSEQUENCE_CHARACTER_ID = 'tracksuit_thug';
+const THUG_CONSEQUENCE_CHARACTER_ID = 'tracksuit-thug';
 const THUG_CONSEQUENCE_EVENT_ID = 'tracksuit_thug_robbery';
-const TRACKSUIT_CREW_FACTION_ID = 'tracksuit_crew';
-const IMPLEMENTED_PRESSURE_FACTION_IDS = new Set([TRACKSUIT_CREW_FACTION_ID]);
-const TRACKSUIT_RELATIONSHIP_CUSTOMER_IDS = new Set(['70s_hustler', 'red_hustler']);
+const HUSTLER_FACTION_ID = 'hustlers';
+const TRACKSUIT_CREW_FACTION_ID = 'tracksuits';
+const IMPLEMENTED_PRESSURE_FACTION_IDS = new Set([HUSTLER_FACTION_ID, TRACKSUIT_CREW_FACTION_ID]);
+const TRACKSUIT_RELATIONSHIP_CUSTOMER_IDS = new Set(['tracksuit-legs', 'tracksuit-slim']);
 const TRACKSUIT_RELATIONSHIP_PRESSURE = {
   acceptedLowball: { modest: 1, severe: 1 },
   actionableRefusal: 1,
@@ -126,7 +127,7 @@ const LOW_CASH_RECOVERY = {
   fallbackPoolWeight: 14,
   fallbackMinAskMultiplier: 0.55,
   fallbackMaxAskMultiplier: 0.8,
-  opportunisticBuyerIds: ['bum', 'crackhead', 'junkie', 'desperate_regular', 'bargain_hunter', 'red_hustler']
+  opportunisticBuyerIds: ['bum', 'crackhead', 'junkie', 'desperate_regular', 'bargain_hunter', 'hustler-shorty']
 };
 const ECONOMY_BALANCE = {
   // Profit is realized net economic performance: completed sale margins minus
@@ -364,7 +365,7 @@ const NPC_DIALOGUE_PROFILES = {
     trade: ['Trade completes the triangle.', 'Yes, swap the energies.', 'Fine, the trade breathes.'],
     exit: ['Do not follow the buzzing.', 'I am leaving before it hatches.', 'Tell nobody about the triangle.']
   },
-  '70s_hustler': {
+  'regular-mr-seventies': {
     intro: ['My friend, opportunity just walked in wearing good shoes.', 'I brought flavor, value, and a flexible memory.', 'Let us make the register sing something funky.'],
     item: ['This is {quantity} {item}, {condition}. For you, {price}.', '{quantity} {item}, {condition}, with a story worth extra. I need {price}.', 'Feast your eyes: {quantity} {item}, {condition}. Price is {price}.'],
     accept: ['Smooth business. I respect it.', 'Now that is rhythm.', 'Done with style.'],
@@ -373,7 +374,7 @@ const NPC_DIALOGUE_PROFILES = {
     trade: ['A swap with swagger. I like it.', 'Trade accepted, with reservations and flair.', 'Fine, we exchange legends.'],
     exit: ['Stay shiny, cashier.', 'I leave richer in spirit at least.', 'Tell the street I was magnificent.']
   },
-  red_hustler: {
+  'hustler-shorty': {
     intro: ['I need something handled quick.', 'You look open enough for business.', 'Let us talk numbers before somebody talks too much.'],
     item: ['{quantity} {item}, {condition}. I want {price}.', 'Here: {quantity} {item}. Condition {condition}. Price {price}.', 'This {quantity} {item} is {condition}. {price}, and we stay friendly.'],
     accept: ['Good. Smart choice.', 'Done. Easy.', 'That works for both of us.'],
@@ -382,7 +383,43 @@ const NPC_DIALOGUE_PROFILES = {
     trade: ['Trade works if the math behaves.', 'Fine. Swap it.', 'I can live with that trade.'],
     exit: ['Keep looking busy.', 'I will remember the counter.', 'Later.']
   },
-  slot_grandma: {
+  'hustler-sista': {
+    intro: ['I need something handled quick.', 'You look open enough for business.', 'Let us talk numbers before somebody talks too much.'],
+    item: ['{quantity} {item}, {condition}. I want {price}.', 'Here: {quantity} {item}. Condition {condition}. Price {price}.', 'This {quantity} {item} is {condition}. {price}, and we stay friendly.'],
+    accept: ['Good. Smart choice.', 'Done. Easy.', 'That works for both of us.'],
+    reject: ['Bad read, clerk.', 'Fine, I have other doors.', 'You pass on money weirdly.'],
+    lowball: ['Do I look like a clearance rack?', 'That offer came out sideways.', 'Try not to insult me in my good jacket.'],
+    trade: ['Trade works if the math behaves.', 'Fine. Swap it.', 'I can live with that trade.'],
+    exit: ['Keep looking busy.', 'I will remember the counter.', 'Later.']
+  },
+  'hustler-kangol': {
+    intro: ['I need something handled quick.', 'You look open enough for business.', 'Let us talk numbers before somebody talks too much.'],
+    item: ['{quantity} {item}, {condition}. I want {price}.', 'Here: {quantity} {item}. Condition {condition}. Price {price}.', 'This {quantity} {item} is {condition}. {price}, and we stay friendly.'],
+    accept: ['Good. Smart choice.', 'Done. Easy.', 'That works for both of us.'],
+    reject: ['Bad read, clerk.', 'Fine, I have other doors.', 'You pass on money weirdly.'],
+    lowball: ['Do I look like a clearance rack?', 'That offer came out sideways.', 'Try not to insult me in my good jacket.'],
+    trade: ['Trade works if the math behaves.', 'Fine. Swap it.', 'I can live with that trade.'],
+    exit: ['Keep looking busy.', 'I will remember the counter.', 'Later.']
+  },
+  'tracksuit-legs': {
+    intro: ['I need something handled quick.', 'You look open enough for business.', 'Let us talk numbers before somebody talks too much.'],
+    item: ['{quantity} {item}, {condition}. I want {price}.', 'Here: {quantity} {item}. Condition {condition}. Price {price}.', 'This {quantity} {item} is {condition}. {price}, and we stay friendly.'],
+    accept: ['Good. Smart choice.', 'Done. Easy.', 'That works for both of us.'],
+    reject: ['Bad read, clerk.', 'Fine, I have other doors.', 'You pass on money weirdly.'],
+    lowball: ['Do I look like a clearance rack?', 'That offer came out sideways.', 'Try not to insult me in my good jacket.'],
+    trade: ['Trade works if the math behaves.', 'Fine. Swap it.', 'I can live with that trade.'],
+    exit: ['Keep looking busy.', 'I will remember the counter.', 'Later.']
+  },
+  'tracksuit-slim': {
+    intro: ['I need something handled quick.', 'You look open enough for business.', 'Let us talk numbers before somebody talks too much.'],
+    item: ['{quantity} {item}, {condition}. I want {price}.', 'Here: {quantity} {item}. Condition {condition}. Price {price}.', 'This {quantity} {item} is {condition}. {price}, and we stay friendly.'],
+    accept: ['Good. Smart choice.', 'Done. Easy.', 'That works for both of us.'],
+    reject: ['Bad read, clerk.', 'Fine, I have other doors.', 'You pass on money weirdly.'],
+    lowball: ['Do I look like a clearance rack?', 'That offer came out sideways.', 'Try not to insult me in my good jacket.'],
+    trade: ['Trade works if the math behaves.', 'Fine. Swap it.', 'I can live with that trade.'],
+    exit: ['Keep looking busy.', 'I will remember the counter.', 'Later.']
+  },
+  'old-grandma-slots': {
     intro: ['Hello, sweetheart. Grandma needs a little cash miracle.', 'Be a dear and look at this for me.', 'The machines are due, and I brought something nice.'],
     item: ['It is {quantity} {item}, {condition}. I am asking {price}.', 'This {quantity} {item} is {condition}. I would like {price}, honey.', '{quantity} {item}, condition {condition}. {price} would help me greatly.'],
     accept: ['Bless you. That will do.', 'Good enough, sweetheart.', 'Done. Wish me luck.'],
@@ -400,9 +437,11 @@ const state = {
   turn: 0,
   copRisk: 0,
   factionPressure: {
+    [HUSTLER_FACTION_ID]: 0,
     [TRACKSUIT_CREW_FACTION_ID]: 0
   },
   factionPressureSources: {
+    [HUSTLER_FACTION_ID]: [],
     [TRACKSUIT_CREW_FACTION_ID]: []
   },
   scamRisk: 0,
@@ -468,7 +507,9 @@ const els = {
   bottomHud: document.querySelector('.bottom-hud'),
   log: document.getElementById('log'),
   historyList: document.getElementById('historyList'),
+  consequenceMeters: document.getElementById('consequenceMeters'),
   fastTestToggle: document.getElementById('fastTestToggle'),
+  copyConsequenceMeters: document.getElementById('copyConsequenceMeters'),
   copyHistory: document.getElementById('copyHistory'),
   clearHistory: document.getElementById('clearHistory')
 };
@@ -597,6 +638,9 @@ function normalizeFactionId(factionId) {
 function getFactionPressure(factionId) {
   const normalized = normalizeFactionId(factionId);
   if (!normalized) return 0;
+  if (normalized === TRACKSUIT_CREW_FACTION_ID && Number(state.factionPressure?.tracksuit_crew || 0) > Number(state.factionPressure?.[normalized] || 0)) {
+    state.factionPressure[normalized] = Math.max(0, Math.floor(Number(state.factionPressure.tracksuit_crew) || 0));
+  }
   return Math.max(0, Number(state.factionPressure?.[normalized]) || 0);
 }
 
@@ -606,6 +650,7 @@ function setFactionPressure(factionId, amount) {
   if (!state.factionPressure || typeof state.factionPressure !== 'object') state.factionPressure = {};
   const before = getFactionPressure(normalized);
   state.factionPressure[normalized] = Math.max(0, Math.floor(Number(amount) || 0));
+  if (normalized === TRACKSUIT_CREW_FACTION_ID) state.factionPressure.tracksuit_crew = state.factionPressure[normalized];
   return { before, after: state.factionPressure[normalized], delta: state.factionPressure[normalized] - before };
 }
 
@@ -613,7 +658,11 @@ function getFactionPressureSources(factionId) {
   const normalized = normalizeFactionId(factionId);
   if (!normalized) return [];
   if (!state.factionPressureSources || typeof state.factionPressureSources !== 'object') state.factionPressureSources = {};
+  if (normalized === TRACKSUIT_CREW_FACTION_ID && Array.isArray(state.factionPressureSources.tracksuit_crew) && !Array.isArray(state.factionPressureSources[normalized])) {
+    state.factionPressureSources[normalized] = state.factionPressureSources.tracksuit_crew;
+  }
   if (!Array.isArray(state.factionPressureSources[normalized])) state.factionPressureSources[normalized] = [];
+  if (normalized === TRACKSUIT_CREW_FACTION_ID) state.factionPressureSources.tracksuit_crew = state.factionPressureSources[normalized];
   return state.factionPressureSources[normalized];
 }
 
@@ -667,17 +716,16 @@ function addDealFactionPressure(deal, amount, reason, options = {}) {
   if (!isImplementedPressureFaction(factionId)) {
     if (deal) {
       if (!Array.isArray(deal.factionPressureHistoryLines)) deal.factionPressureHistoryLines = [];
-      deal.factionPressureHistoryLines.push(`Non-implemented faction pressure ignored: ${reason}; faction: ${factionId}; no Tracksuit pressure changed.`);
+      deal.factionPressureHistoryLines.push(`Faction pressure ignored: faction ${factionId} is not implemented.`);
     }
     return null;
   }
   const result = addFactionPressure(factionId, amount, deal, reason);
   if (result?.delta > 0 && deal) {
     if (!Array.isArray(deal.factionPressureHistoryLines)) deal.factionPressureHistoryLines = [];
-    const label = factionId === TRACKSUIT_CREW_FACTION_ID ? 'Tracksuit Crew Pressure Source' : `Faction Pressure Source (${factionId})`;
-    deal.factionPressureHistoryLines.push(`${label}: ${reason}; faction: ${factionId}.`);
-    if (factionId === TRACKSUIT_CREW_FACTION_ID) {
-      maybeQueueThugConsequence(deal, `Tracksuit crew pressure reached ${getFactionPressure(TRACKSUIT_CREW_FACTION_ID)} after ${reason}`);
+    deal.factionPressureHistoryLines.push(`Faction pressure source: ${factionId}; ${reason}.`);
+    if (isImplementedPressureFaction(factionId)) {
+      maybeQueueFactionThugConsequence(factionId, deal, `${factionId} pressure reached ${getFactionPressure(factionId)} after ${reason}`);
     }
   }
   return result;
@@ -687,6 +735,275 @@ function appendFactionPressureHistory(deal, line) {
   if (!deal) return;
   if (!Array.isArray(deal.factionPressureHistoryLines)) deal.factionPressureHistoryLines = [];
   deal.factionPressureHistoryLines.push(line);
+}
+
+function getFactionPressureActionKeys(deal) {
+  if (!deal) return [];
+  if (!Array.isArray(deal.factionPressureActionKeys)) deal.factionPressureActionKeys = [];
+  return deal.factionPressureActionKeys;
+}
+
+function getFactionPressureSourceKey(deal, sourceKey) {
+  return `${deal?.encounterId || 'encounter'}:${sourceKey || 'pressure-action'}`;
+}
+
+function hasFactionPressureActionKey(deal, sourceKey) {
+  return getFactionPressureActionKeys(deal).includes(getFactionPressureSourceKey(deal, sourceKey));
+}
+
+function rememberFactionPressureActionKey(deal, sourceKey) {
+  const key = getFactionPressureSourceKey(deal, sourceKey);
+  const keys = getFactionPressureActionKeys(deal);
+  if (!keys.includes(key)) keys.push(key);
+  return key;
+}
+
+function getFactionPressureLabel(factionId) {
+  const normalized = normalizeFactionId(factionId);
+  if (normalized === HUSTLER_FACTION_ID) return 'Hustler Pressure';
+  if (normalized === TRACKSUIT_CREW_FACTION_ID) return 'Tracksuit Pressure';
+  return `Faction pressure (${normalized || 'none'})`;
+}
+
+function getFactionDisplayName(factionId) {
+  const normalized = normalizeFactionId(factionId);
+  return getFactionConfig(normalized)?.displayName ||
+    (normalized === HUSTLER_FACTION_ID ? 'Hustlers' : normalized === TRACKSUIT_CREW_FACTION_ID ? 'Tracksuits' : normalized || 'Faction');
+}
+
+function getThugDisplayNameForFaction(factionId, fallback = 'Thug') {
+  const thugId = getFactionThugCharacterId(factionId);
+  return getCharacter(thugId)?.displayName || fallback;
+}
+
+function appendFactionPressureEvaluation(deal, line) {
+  appendFactionPressureHistory(deal, `Faction pressure evaluation: ${line}`);
+}
+
+function isPressureSeverity(severity) {
+  return ['moderate', 'severe'].includes(String(severity || ''));
+}
+
+function evaluateFactionPressure({
+  factionId,
+  dealType,
+  actionType,
+  severity = 'mild',
+  outcome = '',
+  transactionCompleted = false,
+  requestMatched = false,
+  tradeState = '',
+  encounterId = ''
+} = {}) {
+  const normalizedFaction = normalizeFactionId(factionId);
+  const implemented = isImplementedPressureFaction(normalizedFaction);
+  const duplicateKey = [
+    actionType || dealType || 'action',
+    outcome || (transactionCompleted ? 'completed' : 'open'),
+    tradeState || '',
+    encounterId || ''
+  ].filter(Boolean).join(':');
+  const base = {
+    eligible: false,
+    amount: 0,
+    sourceType: actionType || dealType || 'faction-pressure',
+    reason: 'no pressure rule matched',
+    rule: 'none',
+    duplicateKey,
+    factionId: normalizedFaction,
+    implemented
+  };
+
+  if (!normalizedFaction) return { ...base, reason: 'customer has no implemented faction' };
+  if (!implemented) return { ...base, reason: `faction ${normalizedFaction} is not implemented` };
+
+  if (dealType === 'sell_to_shop' && actionType === 'refuseItem') {
+    return outcome === 'refused' && transactionCompleted === false
+      ? { ...base, eligible: true, amount: 1, rule: 'executable merchandise refusal', reason: 'executable faction merchandise offer refused' }
+      : { ...base, rule: 'invalid merchandise refusal', reason: 'offer was invalid or not executable' };
+  }
+
+  if (dealType === 'sell_to_shop' && actionType === 'lowball') {
+    if (['accepted', 'acceptedHiddenProblem'].includes(outcome)) {
+      return isPressureSeverity(severity)
+        ? { ...base, eligible: true, amount: 1, rule: 'accepted seller lowball', reason: `accepted ${severity} lowball` }
+        : { ...base, rule: 'mild accepted seller lowball', reason: 'accepted mild lowball' };
+    }
+    if (outcome === 'consequence') {
+      return { ...base, eligible: true, amount: 1, rule: 'hostile seller lowball', reason: `hostile ${severity} lowball` };
+    }
+    if (outcome === 'customerWalks' && isPressureSeverity(severity)) {
+      return { ...base, eligible: true, amount: 1, rule: 'seller lowball customer walk', reason: `${severity} lowball caused customer walk` };
+    }
+    return { ...base, rule: 'neutral seller lowball result', reason: `${outcome || 'ordinary rejection'} is neutral` };
+  }
+
+  if (dealType === 'buy_from_shop' && actionType === 'markup') {
+    if ((['accepted', 'acceptedFutureDispute', 'counterofferAccepted'].includes(outcome) && transactionCompleted) || outcome === 'customerWalks' || outcome === 'consequence') {
+      return isPressureSeverity(severity)
+        ? { ...base, eligible: true, amount: 1, rule: outcome === 'customerWalks' ? 'buyer markup customer walk' : outcome === 'consequence' ? 'hostile buyer markup' : 'completed aggressive markup', reason: outcome === 'customerWalks' ? `${severity} markup caused customer walk` : outcome === 'consequence' ? `hostile ${severity} markup` : `completed ${severity} markup` }
+        : { ...base, rule: 'mild markup result', reason: 'mild markup is neutral' };
+    }
+    return { ...base, rule: 'neutral buyer markup result', reason: `${outcome || 'ordinary rejection'} is neutral` };
+  }
+
+  if (dealType === 'buy_from_shop' && actionType === 'refuseSale') {
+    return requestMatched
+      ? { ...base, eligible: true, amount: 1, rule: 'matched sale refusal', reason: 'matching sale refusal' }
+      : { ...base, rule: 'unmatched sale refusal', reason: 'requested item unavailable or unmatched' };
+  }
+
+  if (dealType === 'trade') {
+    if (actionType === 'refuseTrade') {
+      return tradeState === 'actionable'
+        ? { ...base, eligible: true, amount: 2, rule: 'actionable trade refusal', reason: 'actionable faction trade refused' }
+        : { ...base, rule: 'non-actionable trade refusal', reason: 'cancelled before a valid trade offer was formed' };
+    }
+    if (actionType === 'cashDemand' && outcome === 'failed') {
+      return { ...base, eligible: true, amount: 1, rule: 'failed cash-demand trade', reason: 'failed cash-demand trade' };
+    }
+    if (actionType === 'tradeOffer' && outcome === 'factionPressure') {
+      return { ...base, eligible: true, amount: 1, rule: 'hostile trade consequence', reason: 'hostile trade consequence' };
+    }
+    return { ...base, rule: 'neutral trade result', reason: 'completed fair trade or cancelled trade is neutral' };
+  }
+
+  return base;
+}
+
+function applyEvaluatedFactionPressure(deal, evaluation, options = {}) {
+  const sourceKey = options.sourceKey || evaluation?.duplicateKey || 'faction-pressure';
+  const encounterSource = getFactionPressureSourceKey(deal, sourceKey);
+  if (!evaluation?.implemented) {
+    appendFactionPressureEvaluation(
+      deal,
+      `${evaluation?.reason || 'customer has no implemented faction'}; faction ${evaluation?.factionId || 'none'}; pressure +0; encounter source ${encounterSource}; ${evaluation?.factionId ? `faction ${evaluation.factionId} is not implemented` : 'customer has no implemented faction'}.`
+    );
+    return { applied: false, duplicate: false, result: null, factionId: evaluation?.factionId || '', reason: evaluation?.reason || 'no implemented faction' };
+  }
+  if (hasFactionPressureActionKey(deal, sourceKey)) {
+    appendFactionPressureEvaluation(
+      deal,
+      `${evaluation.reason}; faction ${evaluation.factionId}; rule ${evaluation.rule}; pressure +0; encounter source ${encounterSource}; duplicate guard blocked.`
+    );
+    return { applied: false, duplicate: true, result: null, factionId: evaluation.factionId, reason: 'duplicate guard blocked' };
+  }
+  if (!evaluation.eligible || evaluation.amount <= 0) {
+    appendFactionPressureEvaluation(
+      deal,
+      `${evaluation.reason}; faction ${evaluation.factionId}; rule ${evaluation.rule}; pressure +0; encounter source ${encounterSource}; below pressure rule.`
+    );
+    return { applied: false, duplicate: false, result: null, factionId: evaluation.factionId, reason: evaluation.reason };
+  }
+  const before = getFactionPressure(evaluation.factionId);
+  const result = addDealFactionPressure(deal, evaluation.amount, options.reason || evaluation.reason);
+  rememberFactionPressureActionKey(deal, sourceKey);
+  const after = getFactionPressure(evaluation.factionId);
+  const delta = Math.max(0, after - before);
+  appendFactionPressureHistory(deal, `${getFactionPressureLabel(evaluation.factionId)}: ${before} -> ${after} (+${delta}). ${options.historyText || evaluation.reason}.`);
+  appendFactionPressureEvaluation(
+    deal,
+    `${evaluation.reason}; faction ${evaluation.factionId}; rule ${evaluation.rule}; pressure ${before} -> ${after} (+${delta}); encounter source ${encounterSource}; duplicate guard clear; queue ${getFactionThugBlockReason(evaluation.factionId) || 'armed or already queued'}.`
+  );
+  if (delta > 0) renderConsequenceMeters();
+  return { applied: delta > 0, duplicate: false, result, factionId: evaluation.factionId, reason: delta > 0 ? 'applied' : 'no visible pressure changed' };
+}
+
+function formatPressureCustomerName(deal) {
+  return deal?.customer?.displayName || 'Customer';
+}
+
+function addNegotiationFactionPressure(deal, amount, reason, options = {}) {
+  const sourceKey = options.sourceKey || 'negotiation';
+  const encounterSource = getFactionPressureSourceKey(deal, sourceKey);
+  const pressureFactionId = getDealPressureFactionId(deal);
+  const implementedFactionId = getImplementedDealPressureFactionId(deal);
+  const descriptor = options.descriptor || reason || 'faction negotiation';
+  if (!implementedFactionId) {
+    appendFactionPressureEvaluation(
+      deal,
+      `${descriptor}; faction ${pressureFactionId || 'none'}; pressure +0; encounter source ${encounterSource}; ${pressureFactionId ? 'faction not implemented' : 'customer has no implemented faction'}.`
+    );
+    return { applied: false, duplicate: false, result: null, factionId: implementedFactionId, reason: pressureFactionId ? 'faction not implemented' : 'no implemented faction' };
+  }
+  if (hasFactionPressureActionKey(deal, sourceKey)) {
+    appendFactionPressureEvaluation(
+      deal,
+      `${descriptor}; faction ${implementedFactionId}; pressure +0; encounter source ${encounterSource}; duplicate guard blocked.`
+    );
+    return { applied: false, duplicate: true, result: null, factionId: implementedFactionId, reason: 'duplicate guard blocked' };
+  }
+  const pressureAmount = Math.max(0, Math.round(Number(amount) || 0));
+  if (pressureAmount <= 0) {
+    appendFactionPressureEvaluation(
+      deal,
+      `${descriptor}; faction ${implementedFactionId}; pressure +0; encounter source ${encounterSource}; below pressure severity.`
+    );
+    return { applied: false, duplicate: false, result: null, factionId: implementedFactionId, reason: 'below pressure severity' };
+  }
+  const before = getFactionPressure(implementedFactionId);
+  const result = addDealFactionPressure(deal, pressureAmount, reason);
+  rememberFactionPressureActionKey(deal, sourceKey);
+  const after = getFactionPressure(implementedFactionId);
+  const delta = Math.max(0, after - before);
+  const label = getFactionPressureLabel(implementedFactionId);
+  appendFactionPressureHistory(deal, `${label}: ${before} -> ${after} (+${delta}). ${options.historyText || reason}.`);
+  appendFactionPressureEvaluation(
+    deal,
+    `${descriptor}; faction ${implementedFactionId}; pressure +${delta}; encounter source ${encounterSource}; duplicate guard clear; transaction completed ${options.transactionCompleted ? 'yes' : 'no'}.`
+  );
+  if (delta > 0) renderConsequenceMeters();
+  return { applied: delta > 0, duplicate: false, result, factionId: implementedFactionId, reason: delta > 0 ? 'applied' : 'no visible pressure changed' };
+}
+
+function evaluateCompletedFactionNegotiationPressure(deal, outcome, options = {}) {
+  const type = options.type || outcome?.type || '';
+  const severity = outcome?.severity || 'mild';
+  const pressureFactionId = getDealPressureFactionId(deal);
+  const implementedFactionId = getImplementedDealPressureFactionId(deal);
+  const sourceKey = options.sourceKey || `${type}:${deal?.encounterId || 'encounter'}`;
+
+  if (options.fairTransaction) {
+    appendFactionPressureEvaluation(
+      deal,
+      `${options.descriptor || 'fair transaction'}; faction ${implementedFactionId}; pressure +0; encounter source ${getFactionPressureSourceKey(deal, sourceKey)}; fair transaction, no pressure.`
+    );
+    return { applied: false, factionId: implementedFactionId, reason: 'fair transaction' };
+  }
+
+  if (outcome?.selected === 'consequence') {
+    appendFactionPressureEvaluation(
+      deal,
+      `${options.descriptor || 'hostile outcome'}; faction ${implementedFactionId}; pressure +0; encounter source ${getFactionPressureSourceKey(deal, sourceKey)}; hostile outcome already applied pressure, duplicate prevented.`
+    );
+    return { applied: false, factionId: implementedFactionId, reason: 'hostile outcome already applied pressure' };
+  }
+
+  const customerName = formatPressureCustomerName(deal);
+  const actionText = type === 'lowball'
+    ? `${customerName} accepted a ${severity} lowball and left the dispute for their crew.`
+    : `${customerName} completed a ${severity} markup and left the dispute for their crew.`;
+  const evaluation = evaluateFactionPressure({
+    factionId: pressureFactionId,
+    dealType: deal?.dealType,
+    actionType: type,
+    severity,
+    outcome: options.counteroffer ? 'counterofferAccepted' : outcome?.selected,
+    transactionCompleted: true,
+    encounterId: deal?.encounterId
+  });
+  return applyEvaluatedFactionPressure(deal, evaluation, {
+    sourceKey,
+    reason: options.reason || actionText,
+    historyText: options.historyText || actionText
+  });
+}
+
+function getCompletedFactionPressureHint(deal, type) {
+  if (!getImplementedDealPressureFactionId(deal)) return '';
+  if (type === 'lowball') return ' The price was low enough that somebody else may come collect the difference.';
+  if (type === 'markup') return ' The look they give you says the markup has been recorded.';
+  return ' Deal done. Grudge pending.';
 }
 
 function isTracksuitConnectedDeal(deal) {
@@ -717,7 +1034,12 @@ function addTracksuitRelationshipPressure(deal, amount, sourceKey, reason, optio
     appendFactionPressureHistory(deal, `No Tracksuit pressure: duplicate relationship source suppressed for ${deal.customer?.displayName || 'customer'} (${reason}).`);
     return null;
   }
-  if (options.skipIfAnyPressureThisAction && (deal.factionPressureHistoryLines || []).some(line => /Tracksuit Crew Pressure Source/i.test(line))) {
+  if (hasFactionPressureActionKey(deal, sourceKey)) {
+    rememberTracksuitPressureKey(deal, key);
+    appendFactionPressureHistory(deal, `No Tracksuit pressure: generic faction pressure already handled this action; relationship source did not stack (${reason}).`);
+    return null;
+  }
+  if (options.skipIfAnyPressureThisAction && (deal.factionPressureHistoryLines || []).some(line => /Faction pressure source: tracksuits/i.test(line))) {
     rememberTracksuitPressureKey(deal, key);
     appendFactionPressureHistory(deal, `No Tracksuit pressure: existing explicit Tracksuit pressure already handled this encounter; relationship source did not stack (${reason}).`);
     return null;
@@ -727,7 +1049,8 @@ function addTracksuitRelationshipPressure(deal, amount, sourceKey, reason, optio
   const result = addDealFactionPressure(deal, boundedAmount, reason);
   const after = getFactionPressure(TRACKSUIT_CREW_FACTION_ID);
   rememberTracksuitPressureKey(deal, key);
-  appendFactionPressureHistory(deal, `Tracksuit Crew Pressure: ${before} -> ${after} (+${Math.max(0, after - before)}).`);
+  rememberFactionPressureActionKey(deal, sourceKey);
+  appendFactionPressureHistory(deal, `Tracksuit Pressure: ${before} -> ${after} (+${Math.max(0, after - before)}).`);
   appendFactionPressureHistory(deal, `Pressure source: ${reason}; customer ${deal.customer?.displayName || 'customer'}; faction ${TRACKSUIT_CREW_FACTION_ID}; transaction completed ${options.transactionCompleted ? 'yes' : 'no'}.`);
   if (!result?.delta && before === after) appendFactionPressureHistory(deal, 'Pressure source noted, but no visible pressure changed.');
   return result;
@@ -1074,8 +1397,19 @@ function appendNegotiationDiagnostics(deal, outcome, details = {}) {
   const markupNote = outcome.markupContext
     ? `; markup ${moneyText(outcome.markupContext.absoluteIncrease)} over original; tolerance ${outcome.markupContext.tolerance.toFixed(2)} (${outcome.markupContext.label}); consequences ${outcome.markupContext.consequencesAllowed ? 'allowed' : 'suppressed'}`
     : '';
+  const pressureFactionId = getDealPressureFactionId(deal);
+  const implementedFactionId = getImplementedDealPressureFactionId(deal);
+  const pressureDecision = implementedFactionId
+    ? details.pressureApplied
+      ? `applied to ${implementedFactionId}`
+      : outcome.selected === 'consequence'
+        ? `attempted for ${implementedFactionId} because hostile consequence was selected`
+        : `not applied because outcome was non-hostile`
+    : pressureFactionId
+      ? `not applied because faction ${pressureFactionId} is not implemented`
+      : `not applied because customer has no implemented faction`;
   const lowballNote = outcome.lowballContext
-    ? `; lowball gap ${moneyText(outcome.lowballContext.absoluteGap)}; tolerance ${outcome.lowballContext.tolerance.toFixed(2)} (${outcome.lowballContext.label}); faction pressure ${outcome.lowballContext.pressureAllowed ? 'eligible' : 'not eligible'}`
+    ? `; lowball gap ${moneyText(outcome.lowballContext.absoluteGap)}; tolerance ${outcome.lowballContext.tolerance.toFixed(2)} (${outcome.lowballContext.label}); faction pressure ${pressureDecision}`
     : '';
   appendNegotiationHistory(
     deal,
@@ -1086,27 +1420,64 @@ function appendNegotiationDiagnostics(deal, outcome, details = {}) {
 function applyNegotiationPenalty(deal, outcome, amount = 1) {
   const beforeRep = state.reputation;
   const beforeScam = state.scamRisk;
-  const beforePressure = getFactionPressure(getImplementedDealPressureFactionId(deal));
+  const implementedFactionId = getImplementedDealPressureFactionId(deal);
+  const beforePressure = getFactionPressure(implementedFactionId);
   const pressureFactionId = getDealPressureFactionId(deal);
   let factionResult = null;
-  if (outcome.factionConnected && outcome.pressureAllowed) {
-    factionResult = addDealFactionPressure(deal, amount + (outcome.severity === 'severe' ? 1 : 0), `${outcome.severity} ${outcome.type} insult from ${deal.customer?.displayName || 'customer'}`);
+  const hostileConsequenceSelected = outcome.selected === 'consequence';
+  const shouldApplyFactionPressure = outcome.factionConnected && (outcome.pressureAllowed || hostileConsequenceSelected);
+  if (shouldApplyFactionPressure) {
+    const sourceKey = `${outcome.type}:${outcome.selected}`;
+    const evaluation = evaluateFactionPressure({
+      factionId: pressureFactionId,
+      dealType: deal?.dealType,
+      actionType: outcome.type === 'trade' ? 'tradeOffer' : outcome.type,
+      severity: outcome.severity,
+      outcome: outcome.selected,
+      transactionCompleted: false,
+      encounterId: deal?.encounterId
+    });
+    const pressureResult = applyEvaluatedFactionPressure(deal, evaluation, {
+      sourceKey,
+      reason: `${outcome.severity} ${outcome.type} retaliation from ${deal.customer?.displayName || 'customer'}${hostileConsequenceSelected && !outcome.pressureAllowed ? ' after selected hostile consequence outcome' : ''}`,
+      historyText: `${deal.customer?.displayName || 'Customer'} retaliated after a hostile ${outcome.type} outcome.`
+    });
+    factionResult = pressureResult.result;
+    if (!pressureResult.applied && !pressureResult.duplicate && evaluation.eligible && deal) {
+      if (!Array.isArray(deal.factionPressureHistoryLines)) deal.factionPressureHistoryLines = [];
+      deal.factionPressureHistoryLines.push(`Faction pressure mutation failed: faction ${implementedFactionId || pressureFactionId || '(none)'}; outcome ${outcome.selected}; amount ${evaluation.amount}.`);
+    }
   } else if (!outcome.factionConnected && outcome.consequencesAllowed !== false) {
     state.reputation = Math.max(0, state.reputation - amount);
     if (deal) {
       if (!Array.isArray(deal.factionPressureHistoryLines)) deal.factionPressureHistoryLines = [];
       deal.factionPressureHistoryLines.push(`Hostile backlash: ${outcome.selected} against ${deal.customer?.displayName || 'customer'} is not an implemented faction pressure source${pressureFactionId ? ` (faction: ${pressureFactionId})` : ''}; resolved as reputation loss only.`);
     }
+  } else if (deal) {
+    if (!Array.isArray(deal.factionPressureHistoryLines)) deal.factionPressureHistoryLines = [];
+    const reason = outcome.factionConnected
+      ? `outcome ${outcome.selected} was not a pressure-applying hostile result`
+      : pressureFactionId
+        ? `faction ${pressureFactionId} is not implemented`
+        : 'customer has no pressure faction';
+    deal.factionPressureHistoryLines.push(`Faction pressure not applied: ${reason}.`);
   }
   if (outcome.type === 'markup' && outcome.consequencesAllowed !== false && (!outcome.factionConnected || outcome.severity === 'severe')) {
     state.scamRisk += amount + (outcome.severity === 'severe' ? 2 : 0);
   }
-  const afterPressure = getFactionPressure(getImplementedDealPressureFactionId(deal));
-  return [
+  const afterPressure = getFactionPressure(implementedFactionId);
+  const summary = [
     beforeRep !== state.reputation ? `reputation ${beforeRep} -> ${state.reputation}` : '',
     beforeScam !== state.scamRisk ? `scam risk ${beforeScam} -> ${state.scamRisk}` : '',
-    factionResult?.delta || beforePressure !== afterPressure ? `faction pressure ${beforePressure} -> ${afterPressure}` : ''
+    factionResult?.delta || beforePressure !== afterPressure ? `${implementedFactionId || 'faction'} pressure ${beforePressure} -> ${afterPressure}` : ''
   ].filter(Boolean).join('; ') || 'penalty had no visible state change';
+  if (summary === 'penalty had no visible state change' && hostileConsequenceSelected && deal) {
+    state.reputation = Math.max(0, state.reputation - amount);
+    if (!Array.isArray(deal.factionPressureHistoryLines)) deal.factionPressureHistoryLines = [];
+    deal.factionPressureHistoryLines.push(`Dead consequence fallback: no legal faction pressure or risk mutation applied, so the hostile outcome resolved as reputation ${beforeRep} -> ${state.reputation}.`);
+    return `reputation ${beforeRep} -> ${state.reputation}`;
+  }
+  return summary;
 }
 
 function randomRange([min, max]) {
@@ -1596,15 +1967,21 @@ function getNpcVisualLeft(customer) {
   return customer.facing === 'right' ? NPC_CUSTOMER_VISUAL_LEFT_RIGHT_FACING : NPC_CUSTOMER_VISUAL_LEFT;
 }
 
-function getNpcRenderedImageWidth(bounds) {
+function getNpcVisualHeight(customer) {
+  const configuredHeight = Number(customer?.spriteVisualHeight);
+  return configuredHeight > 0 ? `${configuredHeight}px` : NPC_CUSTOMER_VISUAL_HEIGHT;
+}
+
+function getNpcRenderedImageWidth(bounds, visualHeight = NPC_CUSTOMER_VISUAL_HEIGHT) {
+  const height = parseFloat(visualHeight) || parseFloat(NPC_CUSTOMER_VISUAL_HEIGHT);
   return bounds.sourceHeight > 0
-    ? (bounds.sourceWidth / bounds.sourceHeight) * parseFloat(NPC_CUSTOMER_VISUAL_HEIGHT)
-    : parseFloat(NPC_CUSTOMER_VISUAL_HEIGHT);
+    ? (bounds.sourceWidth / bounds.sourceHeight) * height
+    : height;
 }
 
 function getNpcSlideDistance(customer, stageWidth, anchorX) {
   const visualLeft = parseFloat(getNpcVisualLeft(customer)) || 0;
-  const renderedWidth = getNpcRenderedImageWidth(customer.spriteBounds);
+  const renderedWidth = getNpcRenderedImageWidth(customer.spriteBounds, getNpcVisualHeight(customer));
   const clearLeftDistance = anchorX + visualLeft + renderedWidth + NPC_OFFSCREEN_CLEARANCE;
   const clearRightDistance = stageWidth - anchorX - visualLeft + NPC_OFFSCREEN_CLEARANCE;
   return Math.ceil(Math.max(clearLeftDistance, clearRightDistance));
@@ -1619,8 +1996,8 @@ function validateCustomerFacing(character, reasons) {
     reasons.push(`sprite_path suffix _r disagrees with facing "${character.facing}"`);
   } else if (/_l\.png$/i.test(character.spritePath) && character.facing !== 'left') {
     reasons.push(`sprite_path suffix _l disagrees with facing "${character.facing}"`);
-  } else if (!/_[rl]\.png$/i.test(character.spritePath)) {
-    reasons.push('sprite_path must end in _r.png or _l.png for directional customers');
+  } else if (!/_[rli]\.png$/i.test(character.spritePath)) {
+    reasons.push('sprite_path must end in _r.png, _l.png, or _i.png for active customers');
   }
 }
 
@@ -1730,7 +2107,7 @@ function validateGameData() {
     if (!character.spritePath) console.error(`Active character has no sprite_path: ${character.id}`);
     if (!['left', 'right'].includes(character.facing)) console.error(`Active character has invalid facing: ${character.id} -> ${character.facing || '(blank)'}`);
     if (character.spritePath && character.facing === 'right' && !/_r\.png$/i.test(character.spritePath)) console.error(`Active character sprite_path/facing mismatch: ${character.id} sprite_path must end in _r.png for facing right`);
-    if (character.spritePath && character.facing === 'left' && !/_l\.png$/i.test(character.spritePath)) console.error(`Active character sprite_path/facing mismatch: ${character.id} sprite_path must end in _l.png for facing left`);
+    if (character.spritePath && character.facing === 'left' && !/_[li]\.png$/i.test(character.spritePath)) console.error(`Active character sprite_path/facing mismatch: ${character.id} sprite_path must end in _l.png or _i.png for facing left`);
     if (!traitIds.has(character.id)) console.error(`Active character has no commerce traits row: ${character.id}`);
   });
   CHARACTERS.forEach(character => {
@@ -1754,16 +2131,20 @@ function validateGameData() {
   });
   const copCharacter = getCharacter(COP_CONSEQUENCE_CHARACTER_ID);
   const copEvent = getConsequenceEvent(COP_CONSEQUENCE_TYPE);
-  const thugCharacter = getCharacter(THUG_CONSEQUENCE_CHARACTER_ID);
-  const thugEvent = getConsequenceEvent(THUG_CONSEQUENCE_TYPE);
   if (!copCharacter) console.error(`[consequence-validation] Missing cop character data: ${COP_CONSEQUENCE_CHARACTER_ID}`);
   else if (!copCharacter.spritePath) console.error(`[consequence-validation] Missing cop sprite path for ${COP_CONSEQUENCE_CHARACTER_ID}`);
   if (!copEvent) console.error(`[consequence-validation] Missing consequence event definition: ${COP_CONSEQUENCE_EVENT_ID}`);
-  if (!thugCharacter) console.error(`[consequence-validation] Missing thug character data: ${THUG_CONSEQUENCE_CHARACTER_ID}`);
-  else if (!thugCharacter.spritePath) console.error(`[consequence-validation] Missing thug sprite path for ${THUG_CONSEQUENCE_CHARACTER_ID}`);
-  else if (thugCharacter.factionId !== TRACKSUIT_CREW_FACTION_ID) console.error(`[consequence-validation] Tracksuit thug character must have faction_id ${TRACKSUIT_CREW_FACTION_ID}; got ${thugCharacter.factionId || '(blank)'}`);
-  if (!thugEvent) console.error(`[consequence-validation] Missing consequence event definition: ${THUG_CONSEQUENCE_EVENT_ID}`);
-  else if (thugEvent.pressureFactionId !== TRACKSUIT_CREW_FACTION_ID) console.error(`[consequence-validation] Tracksuit consequence must have pressure_faction_id ${TRACKSUIT_CREW_FACTION_ID}; got ${thugEvent.pressureFactionId || '(blank)'}`);
+  IMPLEMENTED_PRESSURE_FACTION_IDS.forEach(factionId => {
+    const thugCharacterId = getFactionThugCharacterId(factionId);
+    const thugCharacter = thugCharacterId ? getCharacter(thugCharacterId) : null;
+    const thugEvent = getConsequenceEvent(THUG_CONSEQUENCE_TYPE, factionId);
+    if (!thugCharacterId) console.error(`[consequence-validation] Missing thug config for faction ${factionId}`);
+    else if (!thugCharacter) console.error(`[consequence-validation] Missing thug character data: ${thugCharacterId}`);
+    else if (!thugCharacter.spritePath) console.error(`[consequence-validation] Missing thug sprite path for ${thugCharacterId}`);
+    else if (thugCharacter.factionId !== factionId) console.error(`[consequence-validation] Thug character ${thugCharacterId} must have faction_id ${factionId}; got ${thugCharacter.factionId || '(blank)'}`);
+    if (!thugEvent) console.error(`[consequence-validation] Missing consequence event definition for faction ${factionId}`);
+    else if (thugEvent.pressureFactionId !== factionId) console.error(`[consequence-validation] Thug consequence for ${factionId} must have pressure_faction_id ${factionId}; got ${thugEvent.pressureFactionId || '(blank)'}`);
+  });
 }
 
 function getCustomerDataRejectionReasons(character) {
@@ -1836,13 +2217,14 @@ function layoutNpc(customer) {
   const anchorX = Math.round(stageWidth * anchorRatio);
   const baselineY = Math.round(stageHeight * NPC_FEET_BASELINE);
   const image = els.customer.querySelector(".customer-visual");
+  const visualHeight = getNpcVisualHeight(customer);
   els.customer.style.left = `${anchorX}px`;
   els.customer.style.top = `${baselineY}px`;
   els.customer.style.setProperty("--npc-slide-distance", `${getNpcSlideDistance(customer, stageWidth, anchorX)}px`);
   if (image) {
     if (image.getAttribute("src") !== customer.spritePath) image.src = customer.spritePath;
     image.style.width = "auto";
-    image.style.height = NPC_CUSTOMER_VISUAL_HEIGHT;
+    image.style.height = visualHeight;
     image.style.left = getNpcVisualLeft(customer);
     image.style.top = NPC_CUSTOMER_VISUAL_TOP;
   }
@@ -1860,7 +2242,7 @@ function layoutNpc(customer) {
       },
       customerVisualStyle: {
         width: "auto",
-        height: NPC_CUSTOMER_VISUAL_HEIGHT,
+        height: visualHeight,
         left: getNpcVisualLeft(customer),
         top: NPC_CUSTOMER_VISUAL_TOP
       },
@@ -2659,7 +3041,8 @@ function getConsequenceFlavorText(deal) {
   if (deal?.consequenceResult) return getCurrentResultSummary(deal.consequenceResult);
   if (deal?.dealType === THUG_CONSEQUENCE_TYPE) {
     const item = deal.stolenItemCandidate ? ` ${deal.stolenItemCandidate.name} is within reach.` : '';
-    return `The Tracksuit Crew has decided the debt is due.${item}`;
+    const factionName = getFactionDisplayName(deal.consequence?.factionId || deal.consequence?.metadata?.factionId);
+    return `${factionName} have decided the debt is due.${item}`;
   }
   if (deal?.dealType === COP_CONSEQUENCE_TYPE) {
     const item = deal.targetInventoryItem || deal.item;
@@ -2842,6 +3225,7 @@ function renderLog(text) {
 
 function renderAll() {
   renderStats();
+  renderConsequenceMeters();
   renderInventory();
   renderDeal();
   renderChoices();
@@ -2862,13 +3246,26 @@ function clearDealTransaction(deal) {
   if (deal) deal.transaction = null;
 }
 
-function getConsequenceEvent(type) {
+function getConsequenceEvent(type, factionId = '') {
+  const normalizedFaction = normalizeFactionId(factionId);
+  if (type === THUG_CONSEQUENCE_TYPE && normalizedFaction) {
+    return EVENT_BLUEPRINTS.find(event =>
+      event.eventType === THUG_CONSEQUENCE_TYPE &&
+      normalizeFactionId(event.pressureFactionId) === normalizedFaction
+    ) || null;
+  }
   const eventId = type === COP_CONSEQUENCE_TYPE
     ? COP_CONSEQUENCE_EVENT_ID
     : type === THUG_CONSEQUENCE_TYPE
       ? THUG_CONSEQUENCE_EVENT_ID
       : '';
-  return EVENT_BLUEPRINTS.find(event => event.eventType === type || (eventId && event.id === eventId)) || null;
+  return EVENT_BLUEPRINTS.find(event => eventId && event.id === eventId) ||
+    EVENT_BLUEPRINTS.find(event => event.eventType === type) ||
+    null;
+}
+
+function getFactionThugCharacterId(factionId) {
+  return getFactionConfig(factionId)?.thug || (normalizeFactionId(factionId) === TRACKSUIT_CREW_FACTION_ID ? THUG_CONSEQUENCE_CHARACTER_ID : '');
 }
 
 function validateQueuedConsequence(consequence) {
@@ -2881,10 +3278,13 @@ function validateQueuedConsequence(consequence) {
   if (consequence.resolved === true) errors.push('already resolved');
   if (consequence.type === COP_CONSEQUENCE_TYPE && !getConsequenceEvent(COP_CONSEQUENCE_TYPE)) errors.push(`missing consequence event definition ${COP_CONSEQUENCE_EVENT_ID}`);
   if (consequence.type === THUG_CONSEQUENCE_TYPE) {
-    const event = getConsequenceEvent(THUG_CONSEQUENCE_TYPE);
-    if (!event) errors.push(`missing consequence event definition ${THUG_CONSEQUENCE_EVENT_ID}`);
-    const factionId = normalizeFactionId(consequence.factionId || consequence.metadata?.factionId || event?.pressureFactionId);
-    if (factionId !== TRACKSUIT_CREW_FACTION_ID) errors.push(`tracksuit consequence faction mismatch: expected ${TRACKSUIT_CREW_FACTION_ID}, got ${factionId || '(blank)'}`);
+    const factionId = normalizeFactionId(consequence.factionId || consequence.metadata?.factionId);
+    const event = getConsequenceEvent(THUG_CONSEQUENCE_TYPE, factionId);
+    const expectedThugId = getFactionThugCharacterId(factionId);
+    if (!factionId) errors.push('missing thug consequence faction');
+    if (!event) errors.push(`missing consequence event definition for faction ${factionId || '(blank)'}`);
+    else if (normalizeFactionId(event.pressureFactionId) !== factionId) errors.push(`thug consequence faction mismatch: expected ${factionId}, got ${event.pressureFactionId || '(blank)'}`);
+    if (expectedThugId && event && event.characterId !== expectedThugId) errors.push(`thug consequence character mismatch: expected ${expectedThugId}, got ${event.characterId || '(blank)'}`);
   }
   return errors;
 }
@@ -2918,14 +3318,22 @@ function normalizeConsequenceState() {
   if (!Number.isFinite(Number(state.thugConsequenceCooldownUntil))) state.thugConsequenceCooldownUntil = 0;
   if (!Object.prototype.hasOwnProperty.call(state, 'activeConsequence')) state.activeConsequence = null;
   if (!state.factionPressure || typeof state.factionPressure !== 'object') state.factionPressure = {};
+  if (TRACKSUIT_CREW_FACTION_ID !== 'tracksuit_crew' && Number.isFinite(Number(state.factionPressure.tracksuit_crew)) && Number(state.factionPressure.tracksuit_crew) > Number(state.factionPressure[TRACKSUIT_CREW_FACTION_ID] || 0)) {
+    state.factionPressure[TRACKSUIT_CREW_FACTION_ID] = Math.max(0, Math.floor(Number(state.factionPressure.tracksuit_crew)));
+  }
   if (Number.isFinite(Number(state.thugRisk)) && Number(state.thugRisk) > 0 && !state.factionPressure[TRACKSUIT_CREW_FACTION_ID]) {
     state.factionPressure[TRACKSUIT_CREW_FACTION_ID] = Math.max(0, Math.floor(Number(state.thugRisk)));
     console.info(`[faction-pressure] Migrated legacy thugRisk ${state.thugRisk} to ${TRACKSUIT_CREW_FACTION_ID} pressure.`);
   }
   delete state.thugRisk;
-  if (!Number.isFinite(Number(state.factionPressure[TRACKSUIT_CREW_FACTION_ID]))) state.factionPressure[TRACKSUIT_CREW_FACTION_ID] = 0;
+  IMPLEMENTED_PRESSURE_FACTION_IDS.forEach(factionId => {
+    if (!Number.isFinite(Number(state.factionPressure[factionId]))) state.factionPressure[factionId] = 0;
+  });
   if (!state.factionPressureSources || typeof state.factionPressureSources !== 'object') state.factionPressureSources = {};
-  getFactionPressureSources(TRACKSUIT_CREW_FACTION_ID);
+  if (TRACKSUIT_CREW_FACTION_ID !== 'tracksuit_crew' && Array.isArray(state.factionPressureSources.tracksuit_crew) && !Array.isArray(state.factionPressureSources[TRACKSUIT_CREW_FACTION_ID])) {
+    state.factionPressureSources[TRACKSUIT_CREW_FACTION_ID] = state.factionPressureSources.tracksuit_crew;
+  }
+  IMPLEMENTED_PRESSURE_FACTION_IDS.forEach(factionId => getFactionPressureSources(factionId));
   if (!Number.isFinite(Number(state.tracksuitRetaliationSettlingNormalEncountersRemaining))) state.tracksuitRetaliationSettlingNormalEncountersRemaining = 0;
   state.tracksuitRetaliationSettlingNormalEncountersRemaining = Math.max(0, Math.floor(Number(state.tracksuitRetaliationSettlingNormalEncountersRemaining) || 0));
 
@@ -2960,8 +3368,13 @@ function normalizeConsequenceState() {
   if (!Number.isFinite(Number(state.copStrikes))) state.copStrikes = 0;
 }
 
-function hasPendingConsequence(type) {
-  return getConsequenceQueue().some(consequence => consequence && typeof consequence === 'object' && consequence.type === type && consequence.resolved !== true && validateQueuedConsequence(consequence).length === 0);
+function hasPendingConsequence(type, factionId = '') {
+  const normalizedFaction = normalizeFactionId(factionId);
+  return getConsequenceQueue().some(consequence => {
+    if (!consequence || typeof consequence !== 'object' || consequence.type !== type || consequence.resolved === true) return false;
+    if (validateQueuedConsequence(consequence).length !== 0) return false;
+    return !normalizedFaction || normalizeFactionId(consequence.factionId || consequence.metadata?.factionId) === normalizedFaction;
+  });
 }
 
 function queueConsequence(details) {
@@ -2993,6 +3406,7 @@ function debugQueueCopConsequence() {
   const pending = getConsequenceQueue().find(consequence => consequence && typeof consequence === 'object' && consequence.type === COP_CONSEQUENCE_TYPE && consequence.resolved !== true && validateQueuedConsequence(consequence).length === 0);
   if (pending) {
     console.info(`[debug] Cop consequence already queued: ${pending.id}`);
+    renderConsequenceMeters();
     return pending;
   }
 
@@ -3008,6 +3422,7 @@ function debugQueueCopConsequence() {
     metadata: { debug: true, delay: 1 }
   });
   if (consequence) console.info(`[debug] Queued ${consequence.id}; the cop will arrive next turn.`);
+  renderConsequenceMeters();
   return consequence;
 }
 
@@ -3015,21 +3430,271 @@ function debugQueueThugConsequence() {
   const pending = getConsequenceQueue().find(consequence => consequence && typeof consequence === 'object' && consequence.type === THUG_CONSEQUENCE_TYPE && consequence.resolved !== true && validateQueuedConsequence(consequence).length === 0);
   if (pending) {
     console.info(`[debug] Thug consequence already queued: ${pending.id}`);
+    renderConsequenceMeters();
     return pending;
   }
 
-  const consequence = queueThugConsequence('Development test: manually queued tracksuit thug visit', { debug: true });
+  const consequence = queueThugConsequence('Development test: manually queued Tracksuit Heavy visit', { debug: true });
   if (consequence) {
     consequence.earliestTurn = state.turn + 1;
     consequence.metadata.delay = 1;
     consequence.metadata.debugTriggeredAtPressure = getFactionPressure(TRACKSUIT_CREW_FACTION_ID);
-    console.info(`[debug] Queued ${consequence.id}; the tracksuit thug will arrive next turn.`);
+    console.info(`[debug] Queued ${consequence.id}; ${getThugDisplayNameForFaction(TRACKSUIT_CREW_FACTION_ID, 'Tracksuit thug')} will arrive next turn.`);
   }
+  renderConsequenceMeters();
+  return consequence;
+}
+
+function debugQueueHustlerThugConsequence() {
+  const pending = getConsequenceQueue().find(consequence =>
+    consequence &&
+    typeof consequence === 'object' &&
+    consequence.type === THUG_CONSEQUENCE_TYPE &&
+    normalizeFactionId(consequence.factionId || consequence.metadata?.factionId) === HUSTLER_FACTION_ID &&
+    consequence.resolved !== true &&
+    validateQueuedConsequence(consequence).length === 0
+  );
+  if (pending) {
+    console.info(`[debug] Hustler thug consequence already queued: ${pending.id}`);
+    renderConsequenceMeters();
+    return pending;
+  }
+
+  if (getFactionPressure(HUSTLER_FACTION_ID) < TRACKSUIT_CONSEQUENCE_MIN_PRESSURE) {
+    setFactionPressure(HUSTLER_FACTION_ID, TRACKSUIT_CONSEQUENCE_MIN_PRESSURE);
+  }
+  const consequence = queueThugConsequence('Development test: manually queued hustler thug visit', { debug: true, factionId: HUSTLER_FACTION_ID }, state.currentDeal, HUSTLER_FACTION_ID);
+  if (consequence) {
+    consequence.earliestTurn = state.turn + 1;
+    consequence.metadata.delay = 1;
+    consequence.metadata.debugTriggeredAtPressure = getFactionPressure(HUSTLER_FACTION_ID);
+    console.info(`[debug] Queued ${consequence.id}; the hustler thug will arrive next turn.`);
+  }
+  renderConsequenceMeters();
   return consequence;
 }
 
 function cleanResolvedConsequences() {
   state.consequenceQueue = getConsequenceQueue().filter(consequence => !consequence || typeof consequence !== 'object' || consequence.resolved !== true);
+}
+
+function getSharedConsequenceSelectionDiagnostics(consequence) {
+  normalizeConsequenceState();
+  const normalTurns = Math.max(0, Number(state.normalEncountersSinceSpecial) || 0);
+  const emergency = consequence?.type === COP_CONSEQUENCE_TYPE && state.copRisk >= COP_EMERGENCY_RISK && normalTurns >= 1;
+  const evidenceReady = Boolean(consequence) && Number(consequence.earliestTurn) <= state.turn;
+  const cooldownReady = emergency || normalTurns >= SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS;
+  const eligible = evidenceReady && cooldownReady && !state.activeConsequence;
+  const eligibleTurn = normalTurns + 1;
+  const selectionStep = 100 / (SPECIAL_ENCOUNTER_GUARANTEE_TURN - SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS);
+  const previousChecks = Number(consequence?.metadata?.eligibleSelectionChecks) || 0;
+  const isThug = consequence?.type === THUG_CONSEQUENCE_TYPE;
+  const guaranteeReached = Boolean(consequence) && (isThug
+    ? previousChecks + 1 >= THUG_CONSEQUENCE_MAX_ELIGIBLE_CHECKS
+    : eligibleTurn >= SPECIAL_ENCOUNTER_GUARANTEE_TURN);
+  const selectionChance = eligible
+    ? emergency || guaranteeReached
+      ? 100
+      : Math.min(100, Math.max(0, (eligibleTurn - SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS) * selectionStep))
+    : null;
+  let blockedReason = '';
+  if (!consequence) blockedReason = 'not queued';
+  else if (state.activeConsequence) blockedReason = 'special encounter active';
+  else if (!evidenceReady) blockedReason = 'waiting for evidence delay';
+  else if (!cooldownReady) blockedReason = 'shared cooldown incomplete';
+  return {
+    normalTurns,
+    cooldownReady,
+    cooldownNeeded: SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS,
+    evidenceReady,
+    eligible,
+    selectionChance,
+    guaranteeReached,
+    previousChecks,
+    emergency,
+    blockedReason
+  };
+}
+
+function getQueuedConsequenceByType(type, factionId = '') {
+  return getConsequenceQueue().find(consequence => {
+    if (!consequence || typeof consequence !== 'object' || consequence.type !== type || consequence.resolved === true) return false;
+    if (validateQueuedConsequence(consequence).length) return false;
+    return !factionId || normalizeFactionId(consequence.factionId || consequence.metadata?.factionId) === normalizeFactionId(factionId);
+  }) || null;
+}
+
+function getFactionConfig(factionId) {
+  return (GAME_DATA.factions || []).find(faction => normalizeFactionId(faction.id) === normalizeFactionId(factionId)) || null;
+}
+
+function getFactionThugEvent(factionId, thugId) {
+  const normalizedFaction = normalizeFactionId(factionId);
+  return EVENT_BLUEPRINTS.find(event =>
+    event.eventType === THUG_CONSEQUENCE_TYPE &&
+    normalizeFactionId(event.pressureFactionId) === normalizedFaction &&
+    (!thugId || event.characterId === thugId)
+  ) || null;
+}
+
+function getFactionThugBlockReason(factionId, config = getFactionConfig(factionId), thugCharacter = null, thugEvent = null) {
+  const normalizedFaction = normalizeFactionId(factionId);
+  const resolvedThugCharacter = thugCharacter || (config?.thug ? getCharacter(config.thug) : null);
+  const resolvedThugEvent = thugEvent || getFactionThugEvent(normalizedFaction, config?.thug);
+  const pressure = getFactionPressure(normalizedFaction);
+  if (!config) return 'missing faction config';
+  if (!config.thug) return 'missing faction thug config';
+  if (!resolvedThugCharacter) return 'missing thug character';
+  if (!resolvedThugEvent) return 'missing thug event';
+  if (pressure < TRACKSUIT_CONSEQUENCE_MIN_PRESSURE) return 'pressure below threshold';
+  if (state.activeConsequence) return 'special encounter active';
+  if (hasPendingConsequence(THUG_CONSEQUENCE_TYPE)) return 'another consequence already queued';
+  if (normalizedFaction === TRACKSUIT_CREW_FACTION_ID && isTracksuitRetaliationSettling()) return 'retaliation settling period active';
+  return '';
+}
+
+function getCopConsequenceDiagnostic() {
+  const queued = getQueuedConsequenceByType(COP_CONSEQUENCE_TYPE);
+  const active = state.activeConsequence?.type === COP_CONSEQUENCE_TYPE;
+  const scheduling = getSharedConsequenceSelectionDiagnostics(queued);
+  const threshold = Number(state.nextCopInvestigationRisk) || deriveCopInvestigationCheckpoint(state.copRisk);
+  const progressMax = Math.max(1, threshold);
+  let status = 'Building pressure';
+  if (active) status = 'Consequence currently active';
+  else if (queued) {
+    if (/not selected on eligible check/i.test(queued.metadata?.schedulingStatus || '')) status = 'Random selection check failed';
+    else if (scheduling.eligible) status = scheduling.selectionChance === 100 ? 'Guaranteed on next eligible check' : `Eligible: ${scheduling.selectionChance}% chance`;
+    else if (scheduling.blockedReason === 'waiting for evidence delay') status = 'Waiting for evidence delay';
+    else if (scheduling.blockedReason === 'shared cooldown incomplete') status = 'Waiting for shared cooldown';
+    else status = 'Queued for next available special';
+  } else if (state.copRisk <= 0) status = 'No tracked evidence';
+  else if (state.copRisk >= threshold) status = 'Threshold reached';
+  return {
+    id: 'cop',
+    label: 'Cop',
+    value: Math.max(0, Number(state.copRisk) || 0),
+    threshold,
+    progress: Math.min(100, Math.max(0, (Number(state.copRisk) || 0) / progressMax * 100)),
+    queued: Boolean(queued),
+    active,
+    normalSinceSpecial: scheduling.normalTurns,
+    selectionChance: scheduling.selectionChance,
+    status,
+    detail: `Risk ${Math.max(0, Number(state.copRisk) || 0)}/${threshold} · Cooldown ${scheduling.cooldownReady ? 'ready' : `${scheduling.normalTurns}/${scheduling.cooldownNeeded}`} · ${queued ? `Queued T${queued.earliestTurn}` : state.copInvestigationArmed ? 'Armed' : 'Not armed'}${queued?.metadata?.schedulingStatus ? ` · ${queued.metadata.schedulingStatus}` : ''}`,
+    warning: !getConsequenceEvent(COP_CONSEQUENCE_TYPE)
+  };
+}
+
+function getThugConsequenceDiagnostic(factionId, label) {
+  const normalizedFaction = normalizeFactionId(factionId);
+  const config = getFactionConfig(normalizedFaction);
+  const thugCharacter = config?.thug ? getCharacter(config.thug) : null;
+  const thugEvent = getFactionThugEvent(normalizedFaction, config?.thug);
+  const queued = getQueuedConsequenceByType(THUG_CONSEQUENCE_TYPE, normalizedFaction);
+  const active = state.activeConsequence?.type === THUG_CONSEQUENCE_TYPE && normalizeFactionId(state.activeConsequence.factionId || state.activeConsequence.metadata?.factionId) === normalizedFaction;
+  const scheduling = getSharedConsequenceSelectionDiagnostics(queued);
+  const pressure = getFactionPressure(normalizedFaction);
+  const threshold = TRACKSUIT_CONSEQUENCE_MIN_PRESSURE;
+  const blockReason = getFactionThugBlockReason(normalizedFaction, config, thugCharacter, thugEvent);
+  let status = 'Building pressure';
+  if (active) status = 'Consequence currently active';
+  else if (!config || !config.thug || !thugCharacter || !thugEvent) status = blockReason;
+  else if (queued) {
+    if (/not selected on eligible check/i.test(queued.metadata?.schedulingStatus || '')) status = 'Random selection check failed';
+    else if (scheduling.eligible) status = scheduling.selectionChance === 100 ? 'Guaranteed on next eligible check' : `Eligible: ${scheduling.selectionChance}% chance`;
+    else if (scheduling.blockedReason === 'waiting for evidence delay') status = 'Waiting for evidence delay';
+    else if (scheduling.blockedReason === 'shared cooldown incomplete') status = 'Waiting for shared cooldown';
+    else status = 'Queued for next available special';
+  } else if (pressure < threshold) status = 'Below retaliation threshold';
+  else if (blockReason) status = blockReason;
+  else status = 'Threshold reached';
+  const configStatus = !config ? 'faction config missing' : 'faction config resolved';
+  const thugStatus = config?.thug && thugCharacter ? 'thug character resolved' : 'thug character missing';
+  const eventStatus = thugEvent ? 'event resolved' : 'event missing';
+  const queueStatus = active
+    ? 'consequence active'
+    : queued
+      ? 'queue armed'
+      : blockReason === 'another consequence already queued' || blockReason === 'retaliation settling period active' || blockReason === 'special encounter active'
+        ? 'queue blocked by cooldown'
+        : pressure >= threshold && !blockReason
+          ? 'queue armed'
+          : 'not queued';
+  return {
+    id: normalizedFaction,
+    label,
+    factionId: normalizedFaction,
+    value: pressure,
+    threshold,
+    progress: Math.min(100, Math.max(0, pressure / threshold * 100)),
+    queued: Boolean(queued),
+    active,
+    normalSinceSpecial: scheduling.normalTurns,
+    selectionChance: scheduling.selectionChance,
+    status,
+    thugId: config?.thug || '',
+    eventId: thugEvent?.id || '',
+    diagnosticState: {
+      configStatus,
+      thugStatus,
+      eventStatus,
+      queueStatus
+    },
+    detail: `Faction ${normalizedFaction} · Pressure ${pressure}/${threshold} · Cooldown ${scheduling.cooldownReady ? 'ready' : `${scheduling.normalTurns}/${scheduling.cooldownNeeded}`} · ${queued ? `Queued T${queued.earliestTurn}` : 'Not queued'} · Thug ${config?.thug || 'missing'} · Event ${thugEvent?.id || 'missing'}${queued?.metadata?.schedulingStatus ? ` · ${queued.metadata.schedulingStatus}` : ''}`,
+    warning: !config || !config.thug || !thugCharacter || !thugEvent || (pressure >= threshold && Boolean(blockReason) && blockReason !== 'another consequence already queued')
+  };
+}
+
+function getConsequenceDiagnostics() {
+  normalizeConsequenceState();
+  return [
+    getCopConsequenceDiagnostic(),
+    getThugConsequenceDiagnostic(HUSTLER_FACTION_ID, 'Hustler Thug'),
+    getThugConsequenceDiagnostic(TRACKSUIT_CREW_FACTION_ID, 'Tracksuit Thug')
+  ];
+}
+
+function renderConsequenceMeters() {
+  if (!els.consequenceMeters) return;
+  els.consequenceMeters.innerHTML = '';
+  getConsequenceDiagnostics().forEach(meter => {
+    const item = document.createElement('article');
+    item.className = `consequence-meter${meter.warning ? ' is-warning' : ''}`;
+
+    const head = document.createElement('div');
+    head.className = 'consequence-meter-head';
+    const title = document.createElement('div');
+    title.className = 'consequence-meter-title';
+    title.textContent = meter.label;
+    const value = document.createElement('div');
+    value.className = 'consequence-meter-value';
+    value.textContent = `${meter.value}/${meter.threshold}`;
+    head.append(title, value);
+
+    const bar = document.createElement('div');
+    bar.className = 'consequence-meter-bar';
+    const fill = document.createElement('div');
+    fill.className = 'consequence-meter-fill';
+    fill.style.setProperty('--meter-progress', `${meter.progress}%`);
+    bar.appendChild(fill);
+
+    const flags = document.createElement('div');
+    flags.className = 'consequence-meter-flags';
+    flags.append(`Queued: ${meter.queued ? 'yes' : 'no'}`);
+    flags.append(`Active: ${meter.active ? 'yes' : 'no'}`);
+    flags.append(`Normal: ${meter.normalSinceSpecial}`);
+    flags.append(`Chance: ${meter.selectionChance === null ? 'n/a' : `${meter.selectionChance}%`}`);
+
+    const status = document.createElement('div');
+    status.className = 'consequence-meter-status';
+    status.textContent = meter.status;
+    const detail = document.createElement('div');
+    detail.className = 'consequence-meter-detail';
+    detail.textContent = meter.detail;
+
+    item.append(head, bar, flags, status, detail);
+    els.consequenceMeters.appendChild(item);
+  });
 }
 
 function getEligibleQueuedConsequence() {
@@ -3154,12 +3819,14 @@ function getFactionPressureDeltaLines(before = {}, after = {}) {
     ...Object.keys(afterPressure)
   ]);
   const labels = {
-    [TRACKSUIT_CREW_FACTION_ID]: 'Tracksuit Crew Pressure'
+    [HUSTLER_FACTION_ID]: 'Hustler Pressure',
+    [TRACKSUIT_CREW_FACTION_ID]: 'Tracksuit Pressure',
+    tracksuit_crew: 'Tracksuit Pressure'
   };
   return [...factionIds]
     .sort()
     .map(factionId => formatDebugChange(
-      labels[factionId] || `Faction Pressure (${factionId})`,
+      labels[factionId] || `Faction pressure (${factionId})`,
       Number(beforePressure[factionId]) || 0,
       Number(afterPressure[factionId]) || 0
     ))
@@ -3261,7 +3928,10 @@ function buildHistoryLines(before, after, deal = null) {
   }
   if (deal?.tracksuitPressureResolution) {
     const pressure = deal.tracksuitPressureResolution;
-    lines.push(`Tracksuit Crew Pressure Resolution: ${pressure.before} -> ${pressure.after} (${signedNumber(pressure.delta)}); ${pressure.reason}`);
+    lines.push(`${pressure.label || 'Tracksuit Pressure'} Resolution: ${pressure.before} -> ${pressure.after} (${signedNumber(pressure.delta)}); ${pressure.reason}`);
+  } else if (deal?.factionPressureResolution) {
+    const pressure = deal.factionPressureResolution;
+    lines.push(`${pressure.label || `Faction pressure (${pressure.factionId})`} Resolution: ${pressure.before} -> ${pressure.after} (${signedNumber(pressure.delta)}); ${pressure.reason}`);
   }
   return lines.length ? lines : ['No state changes'];
 }
@@ -3340,8 +4010,41 @@ async function copyTextToClipboard(text) {
   return fallbackCopyText(text);
 }
 
+function formatMeterCopyValue(value) {
+  if (value === null || value === undefined || value === '') return 'n/a';
+  return String(value);
+}
+
+function formatConsequenceMeterCopySection(meter) {
+  const lines = [
+    meter.label,
+    meter.id === 'cop' ? `Risk: ${meter.value}/${meter.threshold}` : `Faction: ${meter.factionId}`,
+    meter.id === 'cop' ? null : `Pressure: ${meter.value}/${meter.threshold}`,
+    `Queued: ${meter.queued ? 'yes' : 'no'}`,
+    `Active: ${meter.active ? 'yes' : 'no'}`,
+    `Normal encounters since special: ${meter.normalSinceSpecial}`,
+    `Selection chance: ${meter.selectionChance === null ? 'n/a' : `${meter.selectionChance}%`}`,
+    `Status: ${meter.status}`,
+    meter.id === 'cop' ? null : `Thug: ${formatMeterCopyValue(meter.thugId)}`,
+    meter.id === 'cop' ? null : `Event: ${formatMeterCopyValue(meter.eventId)}`,
+    `Details: ${meter.detail}`
+  ].filter(Boolean);
+  if (meter.diagnosticState) {
+    lines.push(`Diagnostic: ${Object.values(meter.diagnosticState).filter(Boolean).join(' · ')}`);
+  }
+  return lines.join('\n');
+}
+
+function getConsequenceMetersCopyText() {
+  return [`Build: v${GAME_VERSION}`, ...getConsequenceDiagnostics().map(formatConsequenceMeterCopySection)].join('\n\n');
+}
+
 function setCopyHistoryLabel(label) {
   if (els.copyHistory) els.copyHistory.textContent = label;
+}
+
+function setCopyConsequenceMetersLabel(label) {
+  if (els.copyConsequenceMeters) els.copyConsequenceMeters.textContent = label;
 }
 
 async function copyTurnHistory() {
@@ -3351,6 +4054,25 @@ async function copyTurnHistory() {
   if (copied) {
     setCopyHistoryLabel('COPIED');
     window.setTimeout(() => setCopyHistoryLabel(originalLabel), 1200);
+  }
+  return { copied, text };
+}
+
+async function copyConsequenceMeters() {
+  const originalLabel = 'COPY CONSEQUENCE METERS';
+  const text = getConsequenceMetersCopyText();
+  let copied = false;
+  try {
+    copied = await copyTextToClipboard(text);
+  } catch (error) {
+    console.error('[clipboard] Could not copy consequence meters.', error);
+  }
+  if (copied) {
+    setCopyConsequenceMetersLabel('COPIED');
+    window.setTimeout(() => setCopyConsequenceMetersLabel(originalLabel), 1200);
+  } else {
+    setCopyConsequenceMetersLabel('COPY FAILED');
+    window.setTimeout(() => setCopyConsequenceMetersLabel(originalLabel), 1600);
   }
   return { copied, text };
 }
@@ -4673,13 +5395,13 @@ function buildThugConsequenceDeal(consequence, customer) {
     resolvedAction: null,
     transaction: null,
     consequenceResult: '',
-    blueprint: getConsequenceEvent(consequence.type)
+    blueprint: getConsequenceEvent(consequence.type, consequence.factionId || consequence.metadata?.factionId)
   };
 }
 
-function getConsequenceCharacterId(type) {
+function getConsequenceCharacterId(type, consequence = null) {
   if (type === COP_CONSEQUENCE_TYPE) return COP_CONSEQUENCE_CHARACTER_ID;
-  if (type === THUG_CONSEQUENCE_TYPE) return THUG_CONSEQUENCE_CHARACTER_ID;
+  if (type === THUG_CONSEQUENCE_TYPE) return getFactionThugCharacterId(consequence?.factionId || consequence?.metadata?.factionId) || THUG_CONSEQUENCE_CHARACTER_ID;
   return '';
 }
 
@@ -4688,17 +5410,23 @@ function getTracksuitWarningCustomerId(consequence) {
   return TRACKSUIT_RELATIONSHIP_CUSTOMER_IDS.has(sourceId) ? sourceId : THUG_CONSEQUENCE_CHARACTER_ID;
 }
 
-function prepareTracksuitConsequencePresentation(consequence) {
+function prepareThugConsequencePresentation(consequence) {
   if (!consequence || consequence.type !== THUG_CONSEQUENCE_TYPE) {
-    return { characterId: getConsequenceCharacterId(consequence?.type), warningOnly: false };
+    return { characterId: getConsequenceCharacterId(consequence?.type, consequence), warningOnly: false };
   }
+  const factionId = normalizeFactionId(consequence.factionId || consequence.metadata?.factionId);
+  const thugCharacterId = getFactionThugCharacterId(factionId) || THUG_CONSEQUENCE_CHARACTER_ID;
   const warningOnly = Number(state.turn) < TRACKSUIT_ROBBERY_MIN_TURN;
   consequence.metadata.warningOnly = warningOnly;
-  if (!warningOnly) return { characterId: THUG_CONSEQUENCE_CHARACTER_ID, warningOnly: false };
-  const characterId = getTracksuitWarningCustomerId(consequence);
+  if (!warningOnly) return { characterId: thugCharacterId, warningOnly: false };
+  const characterId = factionId === TRACKSUIT_CREW_FACTION_ID ? getTracksuitWarningCustomerId(consequence) : thugCharacterId;
   consequence.metadata.warningCustomerId = characterId;
   consequence.metadata.warningReason = `retaliation became eligible before T${TRACKSUIT_ROBBERY_MIN_TURN}`;
   return { characterId, warningOnly: true };
+}
+
+function prepareTracksuitConsequencePresentation(consequence) {
+  return prepareThugConsequencePresentation(consequence);
 }
 
 function buildConsequenceDeal(consequence, customer) {
@@ -4715,7 +5443,7 @@ async function startConsequenceTurn(consequence) {
     return false;
   }
 
-  const presentation = prepareTracksuitConsequencePresentation(consequence);
+  const presentation = prepareThugConsequencePresentation(consequence);
   const characterId = presentation.characterId;
   const character = getCharacter(characterId);
   if (!character || !character.spritePath) {
@@ -5438,22 +6166,26 @@ function finalizeFailedCashDemandTrade(deal, evaluation, successChance) {
     return choiceResult('The deal was already resolved.', { runRiskCheck: false });
   }
   const beforePressure = getFactionPressure(getImplementedDealPressureFactionId(deal));
-  const requestedPressure = 2 + Math.ceil(deal.customer.thugRiskBias / 2) + Math.ceil(deal.traits.haggleAggression / 3);
-  const cappedPressure = Math.min(
-    requestedPressure,
-    successChance <= 10
-      ? TRACKSUIT_RELATIONSHIP_PRESSURE.failedCashDemand.extreme
-      : TRACKSUIT_RELATIONSHIP_PRESSURE.failedCashDemand.ordinary
-  );
-  const pressureResult = addDealFactionPressure(
+  const pressureResult = applyEvaluatedFactionPressure(
     deal,
-    cappedPressure,
-    `failed demand-for-cash trade against ${deal.customer.displayName}`
+    evaluateFactionPressure({
+      factionId: getDealPressureFactionId(deal),
+      dealType: deal.dealType,
+      actionType: 'cashDemand',
+      outcome: 'failed',
+      transactionCompleted: false,
+      encounterId: deal.encounterId
+    }),
+    {
+      sourceKey: 'failed-cash-demand-trade',
+      reason: `failed demand-for-cash trade against ${deal.customer.displayName}`,
+      historyText: `Failed demand-for-cash trade against ${deal.customer.displayName}.`
+    }
   );
   const afterPressure = getFactionPressure(getImplementedDealPressureFactionId(deal));
   appendTradeHistory(
     deal,
-    `Trade cash demand finalized: failed terminal outcome; ordinary failed negotiation, not refund/dispute payout; success chance ${Math.round(successChance)}%; selected [${evaluation.selectedIds.join(', ')}]; no inventory, money, profit, reputation, cop risk, or scam risk changed; ordinary pressure capped ${requestedPressure} -> ${cappedPressure}; faction pressure ${beforePressure} -> ${afterPressure}${pressureResult?.delta ? '' : ' (no implemented pressure source)'}.`
+    `Trade cash demand finalized: failed terminal outcome; ordinary failed negotiation, not refund/dispute payout; success chance ${Math.round(successChance)}%; selected [${evaluation.selectedIds.join(', ')}]; no inventory, money, profit, reputation, cop risk, or scam risk changed; faction pressure ${beforePressure} -> ${afterPressure}${pressureResult.applied ? '' : ' (no implemented pressure source)'}.`
   );
   clearTradeSelectionState(deal);
   appendTradeHistory(
@@ -5898,9 +6630,14 @@ function getThugChoiceDescriptors(deal = state.currentDeal) {
   return choices;
 }
 
+function reduceThugFactionPressure(factionId, multiplier) {
+  const normalizedFaction = normalizeFactionId(factionId) || TRACKSUIT_CREW_FACTION_ID;
+  const before = getFactionPressure(normalizedFaction);
+  return setFactionPressure(normalizedFaction, Math.floor(before * multiplier));
+}
+
 function reduceTracksuitPressure(multiplier) {
-  const before = getFactionPressure(TRACKSUIT_CREW_FACTION_ID);
-  return setFactionPressure(TRACKSUIT_CREW_FACTION_ID, Math.floor(before * multiplier));
+  return reduceThugFactionPressure(TRACKSUIT_CREW_FACTION_ID, multiplier);
 }
 
 function appendThugHistory(deal, line) {
@@ -5909,6 +6646,7 @@ function appendThugHistory(deal, line) {
 }
 
 function appendThugRobberyDiagnostics(deal, details) {
+  const thugDisplay = details.thugDisplayName || getThugDisplayNameForFaction(details.factionId, 'Thug');
   const candidates = details.candidates || [];
   const itemValue = Math.max(0, Number(details.itemValue) || 0);
   const cashTaken = Math.max(0, Number(details.cashTaken) || 0);
@@ -5917,24 +6655,29 @@ function appendThugRobberyDiagnostics(deal, details) {
   const remainingValue = Math.max(0, Math.round((Number(details.intendedValue) || 0) - itemValue - cashTaken));
   appendThugHistory(
     deal,
-    `Robbery diagnostics: intended value ${moneyText(details.intendedValue)}; actual value taken ${moneyText(actualValueTaken)}; overage ${moneyText(overage)}; cash taken ${moneyText(cashTaken)}; remaining value sought ${moneyText(remainingValue)}; item candidates [${candidates.map(candidate => `${candidate.item.name} [${candidate.item.instanceId}] score ${Math.round(candidate.score)} weight ${Math.round(candidate.chanceWeight)} value ${moneyText(candidate.estimatedValue)} adjusted ${moneyText(candidate.adjustedValue)} basis ${moneyText(candidate.costBasis)} suitable ${candidate.suitable ? 'yes' : 'no'} reason ${candidate.reason}`).join(' | ') || 'none'}]; selected ${details.removedItem ? `${details.removedItem.name} [${details.removedItem.instanceId}] value ${moneyText(itemValue)} basis ${moneyText(details.itemBasis)} reason ${details.selectionReason || 'selected by Tracksuit Guy'}` : 'none'}; final consequence loss ${moneyText(details.finalLoss)}.`
+    `Robbery diagnostics: intended value ${moneyText(details.intendedValue)}; actual value taken ${moneyText(actualValueTaken)}; overage ${moneyText(overage)}; cash taken ${moneyText(cashTaken)}; remaining value sought ${moneyText(remainingValue)}; item candidates [${candidates.map(candidate => `${candidate.item.name} [${candidate.item.instanceId}] score ${Math.round(candidate.score)} weight ${Math.round(candidate.chanceWeight)} value ${moneyText(candidate.estimatedValue)} adjusted ${moneyText(candidate.adjustedValue)} basis ${moneyText(candidate.costBasis)} suitable ${candidate.suitable ? 'yes' : 'no'} reason ${candidate.reason}`).join(' | ') || 'none'}]; selected ${details.removedItem ? `${details.removedItem.name} [${details.removedItem.instanceId}] value ${moneyText(itemValue)} basis ${moneyText(details.itemBasis)} reason ${details.selectionReason || `selected by ${thugDisplay}`}` : 'none'}; final consequence loss ${moneyText(details.finalLoss)}.`
   );
 }
 
 function finishThugConsequence(deal, result, riskMultiplier) {
   const consequence = deal.consequence;
-  const pressure = reduceTracksuitPressure(riskMultiplier);
-  deal.tracksuitPressureResolution = {
+  const factionId = normalizeFactionId(consequence.factionId || consequence.metadata?.factionId) || TRACKSUIT_CREW_FACTION_ID;
+  const factionLabel = factionId === TRACKSUIT_CREW_FACTION_ID ? 'Tracksuit' : factionId === HUSTLER_FACTION_ID ? 'Hustler' : `Faction (${factionId})`;
+  const pressure = reduceThugFactionPressure(factionId, riskMultiplier);
+  deal.factionPressureResolution = {
+    factionId,
+    label: factionLabel,
     before: pressure.before,
     after: pressure.after,
     delta: pressure.delta,
-    reason: 'Tracksuit thug consequence resolved tracksuit crew pressure.'
+    reason: `${factionLabel} thug consequence resolved ${factionId} pressure.`
   };
-  appendThugHistory(deal, `Tracksuit pressure source summary: ${consequence.metadata?.pressureSourceSummary || 'no source details recorded'}.`);
-  appendThugHistory(deal, `Tracksuit consequence queued at pressure ${consequence.metadata?.factionPressureAtQueue ?? 'unknown'}; faction: ${consequence.factionId || consequence.metadata?.factionId || 'unknown'}; queue roll occurred on T${consequence.sourceTurn}; reason: ${consequence.reason}.`);
+  if (factionId === TRACKSUIT_CREW_FACTION_ID) deal.tracksuitPressureResolution = deal.factionPressureResolution;
+  appendThugHistory(deal, `${factionLabel} pressure source summary: ${consequence.metadata?.pressureSourceSummary || 'no source details recorded'}.`);
+  appendThugHistory(deal, `${factionLabel} consequence queued at pressure ${consequence.metadata?.factionPressureAtQueue ?? 'unknown'}; faction: ${factionId}; queue roll occurred on T${consequence.sourceTurn}; reason: ${consequence.reason}.`);
   deal.consequenceResult = result;
   markConsequenceResolved(consequence, result);
-  startTracksuitRetaliationSettling(deal);
+  if (factionId === TRACKSUIT_CREW_FACTION_ID) startTracksuitRetaliationSettling(deal);
   state.thugConsequenceCooldownUntil = state.turn + SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS;
   state.activeConsequence = null;
   return choiceResult(result, { runRiskCheck: false });
@@ -5942,10 +6685,12 @@ function finishThugConsequence(deal, result, riskMultiplier) {
 
 function resolveThugConsequence(action, deal) {
   const consequence = deal.consequence;
+  const factionId = normalizeFactionId(consequence.factionId || consequence.metadata?.factionId) || TRACKSUIT_CREW_FACTION_ID;
+  const thugDisplay = deal.customer?.displayName || getThugDisplayNameForFaction(factionId, 'Thug');
   const parsedAction = String(action || '');
   const actionName = parsedAction.split(':')[0];
   if (!['thugWarning', 'thugComply', 'thugCash', 'thugItem', 'thugRefuse'].includes(actionName)) {
-    return choiceResult('The tracksuit waits. That was not one of the bad options.', { runRiskCheck: false, keepEncounterOpen: true });
+    return choiceResult(`${thugDisplay} waits. That was not one of the bad options.`, { runRiskCheck: false, keepEncounterOpen: true });
   }
   if (consequence.resolved) {
     return choiceResult('This consequence was already resolved.', { runRiskCheck: false });
@@ -5953,8 +6698,8 @@ function resolveThugConsequence(action, deal) {
   if (!beginDealResolution(deal, parsedAction)) return choiceResult('The encounter was already resolved.', { runRiskCheck: false });
 
   if (consequence.metadata?.warningOnly) {
-    const warningCustomer = deal.customer?.displayName || 'Tracksuit Guy';
-    appendThugHistory(deal, `Early Tracksuit warning: retaliation became eligible before T${TRACKSUIT_ROBBERY_MIN_TURN}; ${warningCustomer} returned to deliver a warning.`);
+    const warningCustomer = deal.customer?.displayName || thugDisplay;
+    appendThugHistory(deal, `Early ${getFactionDisplayName(factionId)} warning: retaliation became eligible before T${TRACKSUIT_ROBBERY_MIN_TURN}; ${warningCustomer} returned to deliver a warning.`);
     appendThugHistory(deal, 'Warning resolution: no money, inventory, Profit, reputation, cop risk, or scam risk changed.');
     const result = `${warningCustomer} leans on the counter just long enough to make the message clear: the last offense is settled for now, but the crew is watching.`;
     return finishThugConsequence(deal, result, THUG_REFUSE_PRESSURE_MULTIPLIER);
@@ -5971,19 +6716,19 @@ function resolveThugConsequence(action, deal) {
     const shouldTakeItem = (cashTaken <= 0 || remainingValue > 0) && Boolean(targetSelection.selected);
     const target = shouldTakeItem ? targetSelection.selected.item : null;
     const removed = target ? removeInventoryInstance(target.instanceId) : null;
-    const cashLoss = applyRealizedConsequenceLoss(cashTaken, deal, 'tracksuit cash handover');
+    const cashLoss = applyRealizedConsequenceLoss(cashTaken, deal, `${factionId} cash handover`);
     const itemBasis = removed ? getInventoryCostBasis(removed) : 0;
     const itemValue = removed ? getInventoryItemValue(removed) : 0;
-    const itemLoss = removed ? applyRealizedConsequenceLoss(itemBasis, deal, `tracksuit cash fallback inventory theft ${removed.name} [${removed.instanceId}]`) : 0;
+    const itemLoss = removed ? applyRealizedConsequenceLoss(itemBasis, deal, `${factionId} cash fallback inventory theft ${removed.name} [${removed.instanceId}]`) : 0;
     const finalLoss = cashLoss + itemLoss;
     const result = cashTaken || removed
-      ? `The tracksuit thug takes ${[
+      ? `${thugDisplay} takes ${[
           cashTaken ? moneyText(cashTaken) : '',
           removed ? `${removed.name} [${removed.instanceId}]` : ''
         ].filter(Boolean).join(' and ')}. The drawer being short did not make the shelf invisible.`
-      : 'The drawer is empty and the shelves are bare. The tracksuit thug leaves empty-handed only because there is nothing to steal.';
+      : `The drawer is empty and the shelves are bare. ${thugDisplay} leaves empty-handed only because there is nothing to steal.`;
     appendThugHistory(deal, `Robbery cash handover: cash ${moneyText(cashBefore)} -> ${moneyText(state.money)}; item ${removed ? `${removed.name} [${removed.instanceId}]` : 'none'}; intended ${moneyText(intendedValue)}.`);
-    appendThugRobberyDiagnostics(deal, { intendedValue, cashTaken, remainingValue, candidates, removedItem: removed, itemBasis, itemValue, selectionReason: targetSelection.selected?.reason || '', finalLoss });
+    appendThugRobberyDiagnostics(deal, { intendedValue, cashTaken, remainingValue, candidates, removedItem: removed, itemBasis, itemValue, selectionReason: targetSelection.selected?.reason || '', finalLoss, factionId, thugDisplayName: thugDisplay });
     return finishThugConsequence(deal, result, THUG_HANDOVER_PRESSURE_MULTIPLIER);
   }
 
@@ -5996,12 +6741,12 @@ function resolveThugConsequence(action, deal) {
     if (!target) {
       const cashTaken = Math.min(cashBefore, intendedValue);
       state.money = Math.max(0, cashBefore - cashTaken);
-      const cashLoss = applyRealizedConsequenceLoss(cashTaken, deal, 'tracksuit compliance fallback cash');
+      const cashLoss = applyRealizedConsequenceLoss(cashTaken, deal, `${factionId} compliance fallback cash`);
       const result = cashTaken
         ? `He ignores the shelf junk and takes ${moneyText(cashTaken)} cash instead.`
-        : 'The drawer is empty and the shelves are bare. The tracksuit thug leaves empty-handed only because there is nothing to steal.';
+        : `The drawer is empty and the shelves are bare. ${thugDisplay} leaves empty-handed only because there is nothing to steal.`;
       appendThugHistory(deal, `Robbery compliance fallback: cash ${moneyText(cashBefore)} -> ${moneyText(state.money)}; no suitable item; intended ${moneyText(intendedValue)}.`);
-      appendThugRobberyDiagnostics(deal, { intendedValue, cashTaken, remainingValue: Math.max(0, intendedValue - cashTaken), candidates, removedItem: null, itemBasis: 0, itemValue: 0, finalLoss: cashLoss });
+      appendThugRobberyDiagnostics(deal, { intendedValue, cashTaken, remainingValue: Math.max(0, intendedValue - cashTaken), candidates, removedItem: null, itemBasis: 0, itemValue: 0, finalLoss: cashLoss, factionId, thugDisplayName: thugDisplay });
       return finishThugConsequence(deal, result, THUG_HANDOVER_PRESSURE_MULTIPLIER);
     }
     const removed = removeInventoryInstance(target.instanceId);
@@ -6014,12 +6759,12 @@ function resolveThugConsequence(action, deal) {
     const remainingValue = Math.max(0, intendedValue - itemValue);
     const cashTaken = Math.min(cashBefore, remainingValue);
     state.money = Math.max(0, cashBefore - cashTaken);
-    const itemLoss = applyRealizedConsequenceLoss(itemBasis, deal, `tracksuit chose inventory ${removed.name} [${removed.instanceId}]`);
-    const cashLoss = applyRealizedConsequenceLoss(cashTaken, deal, 'tracksuit compliance cash top-up');
+    const itemLoss = applyRealizedConsequenceLoss(itemBasis, deal, `${factionId} chose inventory ${removed.name} [${removed.instanceId}]`);
+    const cashLoss = applyRealizedConsequenceLoss(cashTaken, deal, `${factionId} compliance cash top-up`);
     const finalLoss = itemLoss + cashLoss;
-    const result = `The tracksuit thug chooses ${removed.name} [${removed.instanceId}]${cashTaken ? ` and ${moneyText(cashTaken)} cash` : ''}. He does not ask which shelf hurts least.`;
-    appendThugHistory(deal, `Robbery compliance: Tracksuit Guy selected ${removed.name} [${removed.instanceId}], estimated value ${moneyText(itemValue)}, adjusted ${moneyText(Math.max(itemValue, Math.round(itemBasis * 0.75)))}, stored cost basis ${moneyText(itemBasis)}, cash top-up ${moneyText(cashTaken)}, intended ${moneyText(intendedValue)}; reason: ${targetSelection.selected.reason}.`);
-    appendThugRobberyDiagnostics(deal, { intendedValue, cashTaken, remainingValue, candidates, removedItem: removed, itemBasis, itemValue, selectionReason: targetSelection.selected.reason, finalLoss });
+    const result = `${thugDisplay} chooses ${removed.name} [${removed.instanceId}]${cashTaken ? ` and ${moneyText(cashTaken)} cash` : ''}. He does not ask which shelf hurts least.`;
+    appendThugHistory(deal, `Robbery compliance: ${thugDisplay} selected ${removed.name} [${removed.instanceId}], estimated value ${moneyText(itemValue)}, adjusted ${moneyText(Math.max(itemValue, Math.round(itemBasis * 0.75)))}, stored cost basis ${moneyText(itemBasis)}, cash top-up ${moneyText(cashTaken)}, intended ${moneyText(intendedValue)}; reason: ${targetSelection.selected.reason}.`);
+    appendThugRobberyDiagnostics(deal, { intendedValue, cashTaken, remainingValue, candidates, removedItem: removed, itemBasis, itemValue, selectionReason: targetSelection.selected.reason, finalLoss, factionId, thugDisplayName: thugDisplay });
     return finishThugConsequence(deal, result, THUG_HANDOVER_PRESSURE_MULTIPLIER);
   }
 
@@ -6028,8 +6773,8 @@ function resolveThugConsequence(action, deal) {
   state.money = Math.max(0, cashBefore - loss);
   const target = getThugInventoryTarget();
   const removed = target ? removeInventoryInstance(target.instanceId) : null;
-  applyRealizedConsequenceLoss(cashBefore - state.money, deal, 'tracksuit refusal cash theft');
-  if (removed) applyRealizedConsequenceLoss(getInventoryCostBasis(removed), deal, `tracksuit refusal inventory theft ${removed.name} [${removed.instanceId}]`);
+  applyRealizedConsequenceLoss(cashBefore - state.money, deal, `${factionId} refusal cash theft`);
+  if (removed) applyRealizedConsequenceLoss(getInventoryCostBasis(removed), deal, `${factionId} refusal inventory theft ${removed.name} [${removed.instanceId}]`);
   const reputationBefore = state.reputation;
   state.reputation = Math.max(0, state.reputation - 1);
   const effects = [
@@ -6213,20 +6958,29 @@ function resolveBuy(action, deal) {
 
   if (action === 'refuse') {
     if (!beginDealResolution(deal, action)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
-    appendNegotiationHistory(deal, 'Neutral item refusal: no inventory, money, profit, reputation, or risk changed.');
-    if (isTracksuitRelationshipDeal(deal)) {
-      if (deal.availableCash >= deal.defaultOffer) {
-        addTracksuitRelationshipPressure(
-          deal,
-          TRACKSUIT_RELATIONSHIP_PRESSURE.actionableRefusal,
-          'actionable-seller-refusal',
-          `${customer.displayName} had an actionable offer refused while the shop could afford the original asking price`,
-          { transactionCompleted: false, skipIfAnyPressureThisAction: true }
-        );
-      } else {
-        noteNoTracksuitRelationshipPressure(deal, 'the shop could not afford the original asking price');
+    const offerExecutable = !validateShopPurchase(deal, deal.defaultOffer);
+    const priorPressureApplied = getFactionPressureActionKeys(deal).length > 0;
+    const pressureResult = applyEvaluatedFactionPressure(
+      deal,
+      evaluateFactionPressure({
+        factionId: getDealPressureFactionId(deal),
+        dealType: deal.dealType,
+        actionType: 'refuseItem',
+        outcome: offerExecutable && !priorPressureApplied ? 'refused' : 'invalid',
+        transactionCompleted: false,
+        encounterId: deal.encounterId
+      }),
+      {
+        sourceKey: 'seller-merchandise-refusal',
+        reason: `${customer.displayName}'s executable merchandise offer was refused`,
+        historyText: `${customer.displayName} did not appreciate the shop refusing the merchandise.`
       }
+    );
+    if (pressureResult.applied) {
+      appendNegotiationHistory(deal, 'Faction merchandise refusal: no money, inventory, profit, reputation, cop risk, or scam risk changed.');
+      return choiceResult('No deal. Apparently, that was not the end of the discussion.', { runRiskCheck: false });
     }
+    appendNegotiationHistory(deal, 'Neutral item refusal: no inventory, money, profit, reputation, cop risk, scam risk, or faction pressure changed.');
     return choiceResult('You pass. They pocket the item like it might testify later.', { runRiskCheck: false });
   }
 
@@ -6239,6 +6993,11 @@ function resolveBuy(action, deal) {
     }
     if (!beginDealResolution(deal, action)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
     if (!commitShopPurchase(deal, price, deal.pool.notes, 1)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
+    evaluateCompletedFactionNegotiationPressure(deal, { type: 'buyAsk', severity: 'mild' }, {
+      sourceKey: 'fair-asking-purchase',
+      descriptor: 'normal asking-price transaction',
+      fairTransaction: true
+    });
     return choiceResult('The item is now yours. So is the problem.', { runRiskCheck: false });
   }
 
@@ -6268,20 +7027,17 @@ function resolveBuy(action, deal) {
       changeSummary += `; ${hiddenSummary}; scam risk +1`;
       text = formatHiddenProblemDialogue(deal, acquired);
     }
-    if (isTracksuitRelationshipDeal(deal) && offer < ask) {
-      const pressureAmount = outcome.severity === 'severe'
-        ? TRACKSUIT_RELATIONSHIP_PRESSURE.acceptedLowball.severe
-        : TRACKSUIT_RELATIONSHIP_PRESSURE.acceptedLowball.modest;
-      addTracksuitRelationshipPressure(
-        deal,
-        pressureAmount,
-        'accepted-lowball',
-        `${customer.displayName} accepted a ${outcome.severity} below-asking fence offer and reported the short payment to the crew`,
-        { transactionCompleted: true }
-      );
-      changeSummary += `; Tracksuit pressure +${pressureAmount}`;
+    const pressureResult = evaluateCompletedFactionNegotiationPressure(deal, outcome, {
+      sourceKey: 'accepted-lowball',
+      descriptor: `accepted ${outcome.severity} lowball`,
+      reason: `${customer.displayName} accepted a ${outcome.severity} below-asking offer and left the dispute for their crew`,
+      historyText: `${customer.displayName} accepted a ${outcome.severity} lowball and left the dispute for their crew.`
+    });
+    if (pressureResult.applied) {
+      changeSummary += `; ${pressureResult.factionId} pressure +1`;
+      text += getCompletedFactionPressureHint(deal, 'lowball');
     }
-    appendNegotiationDiagnostics(deal, outcome, { originalPrice: ask, attemptedPrice: offer, dealOpen: false, changeSummary });
+    appendNegotiationDiagnostics(deal, outcome, { originalPrice: ask, attemptedPrice: offer, dealOpen: false, changeSummary, pressureApplied: pressureResult.applied });
     return choiceResult(text, { runRiskCheck: false });
   }
 
@@ -6300,15 +7056,32 @@ function resolveBuy(action, deal) {
   }
 
   if (outcome.selected === 'customerWalks') {
+    const pressureResult = applyEvaluatedFactionPressure(
+      deal,
+      evaluateFactionPressure({
+        factionId: getDealPressureFactionId(deal),
+        dealType: deal.dealType,
+        actionType: 'lowball',
+        severity: outcome.severity,
+        outcome: outcome.selected,
+        transactionCompleted: false,
+        encounterId: deal.encounterId
+      }),
+      {
+        sourceKey: 'lowball:customerWalks',
+        reason: `${customer.displayName} walked after a ${outcome.severity} below-asking offer`,
+        historyText: `${customer.displayName} walked after a ${outcome.severity} lowball.`
+      }
+    );
     if (!beginDealResolution(deal, action)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
     appendNegotiationHistory(deal, 'Lowball insulted seller. Customer ended the deal.');
-    appendNegotiationDiagnostics(deal, outcome, { originalPrice: ask, attemptedPrice: offer, dealOpen: false, changeSummary: 'customer walked; no transaction mutation' });
+    appendNegotiationDiagnostics(deal, outcome, { originalPrice: ask, attemptedPrice: offer, dealOpen: false, changeSummary: pressureResult.applied ? `${pressureResult.factionId} pressure +1; customer walked; no transaction mutation` : 'customer walked; no transaction mutation', pressureApplied: pressureResult.applied });
     return choiceResult(`The below-asking ${moneyText(offer)} offer insults them clean out the door. No deal.`, { runRiskCheck: false });
   }
 
   if (outcome.selected === 'consequence') {
     const changeSummary = applyNegotiationPenalty(deal, outcome, 1);
-    appendNegotiationDiagnostics(deal, outcome, { originalPrice: ask, attemptedPrice: offer, dealOpen: true, changeSummary });
+    appendNegotiationDiagnostics(deal, outcome, { originalPrice: ask, attemptedPrice: offer, dealOpen: true, changeSummary, pressureApplied: /(?:hustlers|tracksuits|faction) pressure \d+ -> \d+/i.test(changeSummary) });
     return choiceResult(`The below-asking ${moneyText(offer)} offer gets remembered. The original ${moneyText(ask)} ask remains, but the room is less friendly.`, { runRiskCheck: false, keepEncounterOpen: true });
   }
 
@@ -6335,19 +7108,23 @@ function resolveSell(action, deal) {
   }
   if (action === 'refuse') {
     if (!beginDealResolution(deal, action)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
-    if (isTracksuitRelationshipDeal(deal)) {
-      if (deal.intentionalUnavailableDemand || !deal.requestSatisfiable) {
-        noteNoTracksuitRelationshipPressure(deal, 'no matching requested inventory was available');
-      } else {
-        addTracksuitRelationshipPressure(
-          deal,
-          TRACKSUIT_RELATIONSHIP_PRESSURE.actionableRefusal,
-          'actionable-buyer-refusal',
-          `${customer.displayName} had a matching requested item refused by the shop`,
-          { transactionCompleted: false, skipIfAnyPressureThisAction: true }
-        );
+    applyEvaluatedFactionPressure(
+      deal,
+      evaluateFactionPressure({
+        factionId: getDealPressureFactionId(deal),
+        dealType: deal.dealType,
+        actionType: 'refuseSale',
+        requestMatched: !deal.intentionalUnavailableDemand && Boolean(deal.requestSatisfiable),
+        outcome: 'refused',
+        transactionCompleted: false,
+        encounterId: deal.encounterId
+      }),
+      {
+        sourceKey: 'matching-sale-refusal',
+        reason: `${customer.displayName} had a matching requested item refused by the shop`,
+        historyText: `${customer.displayName} had a matching requested item refused by the shop.`
       }
-    }
+    );
     return deal.requestSatisfiable
       ? choiceResult('You keep the shelf stocked. The customer leaves empty-handed and unimpressed.', { runRiskCheck: false })
       : choiceResult(`Missed sale. They wanted ${getCustomerBuyRequestPhrase(deal)}, and the shelf had nothing close.`, { runRiskCheck: false });
@@ -6407,7 +7184,21 @@ function resolveSell(action, deal) {
     if (!commitSale(price, action)) return choiceResult('The sale could not complete because the selected shelf item is gone.', { runRiskCheck: false, keepEncounterOpen: true });
     deal.counterofferOpen = false;
     appendNegotiationHistory(deal, `Markup counteroffer accepted: sold ${inventoryItem.name} [${inventoryItem.instanceId}] for ${moneyText(price)} exactly once.`);
-    return `They pay the counteroffer of ${moneyText(price)} for ${dealItemLabel(inventoryItem)}. The register accepts the compromise.`;
+    const pressureResult = deal.pendingMarkupPressureContext
+      ? evaluateCompletedFactionNegotiationPressure(deal, deal.pendingMarkupPressureContext.outcome, {
+          sourceKey: deal.pendingMarkupPressureContext.sourceKey,
+          descriptor: `counteroffer completed after ${deal.pendingMarkupPressureContext.outcome.severity} markup`,
+          counteroffer: true,
+          reason: `${customer.displayName} completed a counteroffer after a ${deal.pendingMarkupPressureContext.outcome.severity} marked-up sale attempt`,
+          historyText: `${customer.displayName} accepted the counteroffer after a ${deal.pendingMarkupPressureContext.outcome.severity} markup attempt.`
+        })
+      : evaluateCompletedFactionNegotiationPressure(deal, { type: 'markup', severity: 'mild' }, {
+          sourceKey: 'counteroffer-without-markup-context',
+          descriptor: 'counteroffer completed without original markup context',
+          fairTransaction: true
+        });
+    deal.pendingMarkupPressureContext = null;
+    return `They pay the counteroffer of ${moneyText(price)} for ${dealItemLabel(inventoryItem)}. The register accepts the compromise.${pressureResult.applied ? getCompletedFactionPressureHint(deal, 'markup') : ''}`;
   }
 
   const price = action === 'markup' ? deal.markupPrice : deal.salePrice;
@@ -6438,23 +7229,18 @@ function resolveSell(action, deal) {
         } else {
           changeSummary += '; future dispute suppressed by markup tolerance';
         }
-      } else if (isTracksuitRelationshipDeal(deal) && price > originalPrice) {
-        const pressureAmount = outcome.severity === 'severe'
-          ? TRACKSUIT_RELATIONSHIP_PRESSURE.acceptedMarkup.aggressive
-          : TRACKSUIT_RELATIONSHIP_PRESSURE.acceptedMarkup.meaningful;
-        addTracksuitRelationshipPressure(
-          deal,
-          pressureAmount,
-          `accepted-markup:${deal.transaction?.inventoryInstanceId || deal.encounterId}`,
-          `${customer.displayName} accepted a ${outcome.severity} marked-up sale from the shop`,
-          { transactionCompleted: true, skipIfAnyPressureThisAction: true }
-        );
-        changeSummary += `; Tracksuit markup pressure +${pressureAmount}`;
       }
-      appendNegotiationDiagnostics(deal, outcome, { originalPrice, attemptedPrice: price, dealOpen: false, changeSummary });
+      const pressureResult = evaluateCompletedFactionNegotiationPressure(deal, outcome, {
+        sourceKey: `accepted-markup:${deal.transaction?.inventoryInstanceId || deal.encounterId}`,
+        descriptor: `aggressive ${outcome.severity} markup completed`,
+        reason: `${customer.displayName} completed a ${outcome.severity} marked-up sale from the shop`,
+        historyText: `${customer.displayName} completed a ${outcome.severity} markup and left the dispute for their crew.`
+      });
+      if (pressureResult.applied) changeSummary += `; ${pressureResult.factionId} pressure +1`;
+      appendNegotiationDiagnostics(deal, outcome, { originalPrice, attemptedPrice: price, dealOpen: false, changeSummary, pressureApplied: pressureResult.applied });
       return outcome.selected === 'acceptedFutureDispute'
-        ? `They pay ${moneyText(price)}, but they keep staring at the item like it might come back with paperwork.`
-        : `They pay the markup for ${dealItemLabel(inventoryItem)}. Somewhere, a consumer protection office feels cold.`;
+        ? `They pay ${moneyText(price)}, but they keep staring at the item like it might come back with paperwork.${pressureResult.applied ? getCompletedFactionPressureHint(deal, 'markup') : ''}`
+        : `They pay the markup for ${dealItemLabel(inventoryItem)}. Somewhere, a consumer protection office feels cold.${pressureResult.applied ? getCompletedFactionPressureHint(deal, 'markup') : ''}`;
     }
 
     if (outcome.selected === 'counteroffer') {
@@ -6462,27 +7248,55 @@ function resolveSell(action, deal) {
       const counter = Math.max(1, Math.round(originalPrice * randomRange(range)));
       deal.counterofferPrice = Math.min(price - 1, Math.max(1, counter));
       deal.counterofferOpen = true;
+      deal.pendingMarkupPressureContext = {
+        outcome,
+        sourceKey: `accepted-markup-counteroffer:${deal.encounterId}`,
+        originalPrice,
+        attemptedPrice: price
+      };
       appendNegotiationDiagnostics(deal, outcome, { originalPrice, attemptedPrice: price, counteroffer: deal.counterofferPrice, dealOpen: true, changeSummary: 'counteroffer opened; no transaction mutation' });
       return choiceResult(`They will not pay ${moneyText(price)}. Counteroffer: ${moneyText(deal.counterofferPrice)}. Take it or leave the sale on the shelf.`, { runRiskCheck: false, keepEncounterOpen: true });
     }
 
     if (outcome.selected === 'consequence') {
       const changeSummary = applyNegotiationPenalty(deal, outcome, 1);
-      appendNegotiationDiagnostics(deal, outcome, { originalPrice, attemptedPrice: price, dealOpen: true, changeSummary });
+      appendNegotiationDiagnostics(deal, outcome, { originalPrice, attemptedPrice: price, dealOpen: true, changeSummary, pressureApplied: /(?:hustlers|tracksuits|faction) pressure \d+ -> \d+/i.test(changeSummary) });
       return choiceResult(`The markup gets ugly. The original ${moneyText(originalPrice)} sale is still possible, but the customer looks like they are pricing revenge.`, { runRiskCheck: false, keepEncounterOpen: true });
     }
 
     if (outcome.selected === 'customerWalks') {
-      appendNegotiationDiagnostics(deal, outcome, { originalPrice, attemptedPrice: price, dealOpen: false, changeSummary: 'customer walked; no transaction mutation' });
+      const pressureResult = applyEvaluatedFactionPressure(
+        deal,
+        evaluateFactionPressure({
+          factionId: getDealPressureFactionId(deal),
+          dealType: deal.dealType,
+          actionType: 'markup',
+          severity: outcome.severity,
+          outcome: outcome.selected,
+          transactionCompleted: false,
+          encounterId: deal.encounterId
+        }),
+        {
+          sourceKey: 'markup:customerWalks',
+          reason: `${customer.displayName} walked after a ${outcome.severity} markup`,
+          historyText: `${customer.displayName} walked after a ${outcome.severity} markup.`
+        }
+      );
+      appendNegotiationDiagnostics(deal, outcome, { originalPrice, attemptedPrice: price, dealOpen: false, changeSummary: pressureResult.applied ? `${pressureResult.factionId} pressure +1; customer walked; no transaction mutation` : 'customer walked; no transaction mutation', pressureApplied: pressureResult.applied });
       if (!beginDealResolution(deal, action)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
       return choiceResult(`The markup kills the sale. They walk, cash and all.`, { runRiskCheck: false });
     }
 
     appendNegotiationDiagnostics(deal, outcome, { originalPrice, attemptedPrice: price, dealOpen: true, changeSummary: 'original sale remains; no transaction mutation' });
-      return choiceResult(`They reject the higher price. The original ${moneyText(originalPrice)} offer still stands.`, { runRiskCheck: false, keepEncounterOpen: true });
+    return choiceResult(`They reject the higher price. The original ${moneyText(originalPrice)} offer still stands.`, { runRiskCheck: false, keepEncounterOpen: true });
   }
 
   if (!commitSale(price, action)) return choiceResult('The sale could not complete because the selected shelf item is gone.', { runRiskCheck: false, keepEncounterOpen: true });
+  evaluateCompletedFactionNegotiationPressure(deal, { type: 'sellTag', severity: 'mild' }, {
+    sourceKey: 'fair-asking-sale',
+    descriptor: 'normal asking-price transaction',
+    fairTransaction: true
+  });
   return `Sold ${dealItemLabel(inventoryItem)}. The register opens like it is ashamed of the noise.`;
 }
 function resolveTrade(action, deal) {
@@ -6545,20 +7359,27 @@ function resolveTrade(action, deal) {
     if (!beginDealResolution(deal, action)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
     const suppressCashlessPressure = isCriticalLowCashRecoveryActive() && !isRevenueCapableDeal(deal);
     const hasEligibleTradeInventory = getEligibleTradeInventoryItems(deal).length > 0;
-    if (isTracksuitRelationshipDeal(deal)) {
-      if (!hasEligibleTradeInventory) {
-        noteNoTracksuitRelationshipPressure(deal, 'trade could not be constructed because no eligible inventory existed');
-      } else {
-        addTracksuitRelationshipPressure(
-          deal,
-          TRACKSUIT_RELATIONSHIP_PRESSURE.actionableRefusal,
-          'actionable-trade-refusal',
-          `${customer.displayName} proposed an actionable trade and the shop refused it`,
-          { transactionCompleted: false, skipIfAnyPressureThisAction: true }
-        );
-      }
-    } else if (traits.haggleAggression >= 4 && !suppressCashlessPressure) addDealFactionPressure(deal, 2, `refused aggressive trade from ${customer.displayName}`);
-    else if (suppressCashlessPressure) appendTradeHistory(deal, 'Cashless non-revenue aggressive trade refusal: no added faction pressure; recovery can interrupt the sequence.');
+    if (suppressCashlessPressure) {
+      appendTradeHistory(deal, 'Cashless non-revenue aggressive trade refusal: no added faction pressure; recovery can interrupt the sequence.');
+    } else {
+      applyEvaluatedFactionPressure(
+        deal,
+        evaluateFactionPressure({
+          factionId: getDealPressureFactionId(deal),
+          dealType: deal.dealType,
+          actionType: 'refuseTrade',
+          tradeState: hasEligibleTradeInventory ? 'actionable' : 'not-actionable',
+          outcome: 'refused',
+          transactionCompleted: false,
+          encounterId: deal.encounterId
+        }),
+        {
+          sourceKey: 'actionable-trade-refusal',
+          reason: `${customer.displayName} proposed an actionable trade and the shop refused it`,
+          historyText: `${customer.displayName} proposed an actionable trade and the shop refused it.`
+        }
+      );
+    }
     return choiceResult('You refuse the trade. The bad idea leaves under its own power.', { runRiskCheck: false });
   }
 
@@ -6730,12 +7551,16 @@ function maybeQueueCopConsequence(deal, reason = 'cop risk increased', riskBefor
   return consequence;
 }
 
-function getTracksuitPressureSourceSummary() {
-  const sources = getFactionPressureSources(TRACKSUIT_CREW_FACTION_ID);
+function getFactionPressureSourceSummary(factionId) {
+  const sources = getFactionPressureSources(factionId);
   if (!sources.length) return '';
   return sources
     .map(source => `T${source.turn} ${source.customerName || source.customerId || 'unknown'} (${source.reason}, +${source.amount})`)
     .join('; ');
+}
+
+function getTracksuitPressureSourceSummary() {
+  return getFactionPressureSourceSummary(TRACKSUIT_CREW_FACTION_ID);
 }
 
 function getTracksuitSettlingRemaining() {
@@ -6776,17 +7601,22 @@ function advanceTracksuitRetaliationSettlingAfterNormal(deal) {
   }
 }
 
-function canQueueThugConsequence() {
+function canQueueThugConsequence(factionId = TRACKSUIT_CREW_FACTION_ID) {
   normalizeConsequenceState();
-  if (getFactionPressure(TRACKSUIT_CREW_FACTION_ID) < TRACKSUIT_CONSEQUENCE_MIN_PRESSURE) return false;
-  if (isTracksuitRetaliationSettling()) return false;
+  const normalizedFaction = normalizeFactionId(factionId);
+  if (!normalizedFaction || !isImplementedPressureFaction(normalizedFaction)) return false;
+  if (!getFactionThugCharacterId(normalizedFaction) || !getConsequenceEvent(THUG_CONSEQUENCE_TYPE, normalizedFaction)) return false;
+  if (getFactionPressure(normalizedFaction) < TRACKSUIT_CONSEQUENCE_MIN_PRESSURE) return false;
+  if (normalizedFaction === TRACKSUIT_CREW_FACTION_ID && isTracksuitRetaliationSettling()) return false;
   if (hasPendingConsequence(THUG_CONSEQUENCE_TYPE) || state.activeConsequence?.type === THUG_CONSEQUENCE_TYPE) return false;
   return true;
 }
 
-function queueThugConsequence(reason = 'tracksuit crew pressure came due', metadata = {}, sourceDeal = state.currentDeal) {
-  if (!canQueueThugConsequence() && !metadata.debug) return null;
-  const tracksuitPressure = getFactionPressure(TRACKSUIT_CREW_FACTION_ID);
+function queueThugConsequence(reason = 'thug pressure came due', metadata = {}, sourceDeal = state.currentDeal, factionId = metadata.factionId || TRACKSUIT_CREW_FACTION_ID) {
+  const normalizedFaction = normalizeFactionId(factionId) || TRACKSUIT_CREW_FACTION_ID;
+  if (!canQueueThugConsequence(normalizedFaction) && !metadata.debug) return null;
+  const factionPressure = getFactionPressure(normalizedFaction);
+  const thugCharacterId = getFactionThugCharacterId(normalizedFaction);
   return queueConsequence({
     type: THUG_CONSEQUENCE_TYPE,
     sourceTurn: state.turn,
@@ -6794,15 +7624,16 @@ function queueThugConsequence(reason = 'tracksuit crew pressure came due', metad
     triggeringDealId: sourceDeal?.pool?.id || sourceDeal?.blueprint?.id || null,
     triggeringItemId: getDealTriggerItemId(sourceDeal),
     triggeringInventoryInstanceId: getDealTriggerInventoryInstanceId(sourceDeal),
-    factionId: TRACKSUIT_CREW_FACTION_ID,
+    factionId: normalizedFaction,
     reason,
     earliestTurn: state.turn + THUG_CONSEQUENCE_MIN_FULL_TURNS + 1,
     metadata: {
-      factionId: TRACKSUIT_CREW_FACTION_ID,
-      factionPressureAtQueue: tracksuitPressure,
-      pressureBefore: tracksuitPressure,
-      pressureSources: getFactionPressureSources(TRACKSUIT_CREW_FACTION_ID).map(source => ({ ...source })),
-      pressureSourceSummary: getTracksuitPressureSourceSummary(),
+      factionId: normalizedFaction,
+      thugCharacterId,
+      factionPressureAtQueue: factionPressure,
+      pressureBefore: factionPressure,
+      pressureSources: getFactionPressureSources(normalizedFaction).map(source => ({ ...source })),
+      pressureSourceSummary: getFactionPressureSourceSummary(normalizedFaction),
       delay: THUG_CONSEQUENCE_MIN_FULL_TURNS + 1,
       threshold: TRACKSUIT_CONSEQUENCE_MIN_PRESSURE,
       maxEligibleChecks: THUG_CONSEQUENCE_MAX_ELIGIBLE_CHECKS,
@@ -6811,34 +7642,39 @@ function queueThugConsequence(reason = 'tracksuit crew pressure came due', metad
   });
 }
 
-function maybeQueueThugConsequence(deal, reason = 'tracksuit crew pressure came due') {
-  const pressure = getFactionPressure(TRACKSUIT_CREW_FACTION_ID);
+function maybeQueueFactionThugConsequence(factionId, deal, reason = 'thug pressure came due') {
+  const normalizedFaction = normalizeFactionId(factionId);
+  const label = normalizedFaction === TRACKSUIT_CREW_FACTION_ID ? 'Tracksuit' : normalizedFaction === HUSTLER_FACTION_ID ? 'Hustler' : normalizedFaction || 'Faction';
+  const pressure = getFactionPressure(normalizedFaction);
   if (pressure < TRACKSUIT_CONSEQUENCE_MIN_PRESSURE) {
     if (deal) {
       if (!Array.isArray(deal.thugHistoryLines)) deal.thugHistoryLines = [];
-      deal.thugHistoryLines.push(`Tracksuit scheduling: pressure ${pressure}/${TRACKSUIT_CONSEQUENCE_MIN_PRESSURE}; not queued.`);
+      deal.thugHistoryLines.push(`${label} scheduling: pressure ${pressure}/${TRACKSUIT_CONSEQUENCE_MIN_PRESSURE}; not queued.`);
     }
     return null;
   }
   if (deal) {
     if (!Array.isArray(deal.thugHistoryLines)) deal.thugHistoryLines = [];
-    deal.thugHistoryLines.push(`Tracksuit scheduling: pressure threshold reached ${pressure}/${TRACKSUIT_CONSEQUENCE_MIN_PRESSURE}; checking queue arm.`);
+    deal.thugHistoryLines.push(`${label} scheduling: pressure threshold reached ${pressure}/${TRACKSUIT_CONSEQUENCE_MIN_PRESSURE}; checking queue arm.`);
   }
-  if (!canQueueThugConsequence()) {
+  if (!canQueueThugConsequence(normalizedFaction)) {
     if (deal) {
       if (!Array.isArray(deal.thugHistoryLines)) deal.thugHistoryLines = [];
-      const pending = hasPendingConsequence(THUG_CONSEQUENCE_TYPE) || state.activeConsequence?.type === THUG_CONSEQUENCE_TYPE;
-      const settling = getTracksuitSettlingRemaining();
-      deal.thugHistoryLines.push(`Tracksuit scheduling: pressure ${pressure}; not queued (${settling > 0 ? `${settling} normal encounters remain in the post-retaliation settling period` : pending ? 'pending/active thug consequence; original source remains tracked' : 'queue gate unavailable'}).`);
+      const blockReason = getFactionThugBlockReason(normalizedFaction) || 'queue gate unavailable';
+      deal.thugHistoryLines.push(`${label} scheduling: pressure ${pressure}; not queued (${blockReason}; original source remains tracked).`);
     }
     return null;
   }
-  const consequence = queueThugConsequence(reason, {}, deal);
+  const consequence = queueThugConsequence(reason, {}, deal, normalizedFaction);
   if (deal && consequence) {
     if (!Array.isArray(deal.thugHistoryLines)) deal.thugHistoryLines = [];
-    deal.thugHistoryLines.push(`Tracksuit scheduling queued: source T${state.turn}; faction ${TRACKSUIT_CREW_FACTION_ID}; pressure ${pressure}; first eligible T${consequence.earliestTurn}; shared cooldown ${state.normalEncountersSinceSpecial}/${SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS}; max eligible checks ${THUG_CONSEQUENCE_MAX_ELIGIBLE_CHECKS}.`);
+    deal.thugHistoryLines.push(`${label} scheduling queued: source T${state.turn}; faction ${normalizedFaction}; pressure ${pressure}; first eligible T${consequence.earliestTurn}; shared cooldown ${state.normalEncountersSinceSpecial}/${SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS}; max eligible checks ${THUG_CONSEQUENCE_MAX_ELIGIBLE_CHECKS}.`);
   }
   return consequence;
+}
+
+function maybeQueueThugConsequence(deal, reason = 'tracksuit crew pressure came due') {
+  return maybeQueueFactionThugConsequence(TRACKSUIT_CREW_FACTION_ID, deal, reason);
 }
 
 function runRiskCheck() {
@@ -6998,6 +7834,12 @@ if (els.copyHistory) {
   });
 }
 
+if (els.copyConsequenceMeters) {
+  els.copyConsequenceMeters.addEventListener('click', () => {
+    copyConsequenceMeters().catch(error => console.error('[clipboard] Could not copy consequence meters.', error));
+  });
+}
+
 if (els.clearHistory) {
   els.clearHistory.addEventListener('click', () => {
     turnHistory = [];
@@ -7007,11 +7849,13 @@ if (els.clearHistory) {
 
 setInventoryOpen(false);
 renderStats();
+renderConsequenceMeters();
 renderFastTestToggle();
 renderInventory();
 renderHistory();
 window.debugQueueCopConsequence = debugQueueCopConsequence;
 window.debugQueueThugConsequence = debugQueueThugConsequence;
+window.debugQueueHustlerThugConsequence = debugQueueHustlerThugConsequence;
 window.ONE_STAR_PAWN_TEST_HOOKS = {
   data: GAME_DATA,
   state,
@@ -7063,6 +7907,7 @@ window.ONE_STAR_PAWN_TEST_HOOKS = {
   formatHiddenProblemDialogue,
   formatShopPurchaseDealPanelSummary,
   resolveNegotiationOutcome,
+  evaluateFactionPressure,
   resolveBuy,
   resolveSell,
   resolveTrade,
@@ -7072,6 +7917,12 @@ window.ONE_STAR_PAWN_TEST_HOOKS = {
   queueConsequence,
   queueThugConsequence,
   maybeQueueThugConsequence,
+  maybeQueueFactionThugConsequence,
+  debugQueueHustlerThugConsequence,
+  setFactionPressure,
+  addFactionPressure,
+  getConsequenceDiagnostics,
+  renderConsequenceMeters,
   prepareTracksuitConsequencePresentation,
   advanceTracksuitRetaliationSettlingAfterNormal,
   getEligibleQueuedConsequence,
@@ -7107,6 +7958,11 @@ window.ONE_STAR_PAWN_TEST_HOOKS = {
   },
   getTurnHistoryCopyText,
   copyTurnHistory,
+  getConsequenceMetersCopyText,
+  copyConsequenceMeters,
+  getCopyConsequenceMetersLabel() {
+    return els.copyConsequenceMeters?.textContent || '';
+  },
   getCopyHistoryLabel() {
     return els.copyHistory?.textContent || '';
   },

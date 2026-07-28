@@ -225,12 +225,80 @@ body {
 .notes { max-width: 360px; min-width: 0; flex: 0 1 360px; color: #c7b78d; line-height: 1.5; }
 .notes h1 { color: #f0c463; font-size: 22px; margin-top: 0; }
 .side-stat { color: #8f846a; }
-.debug-history {
-  margin-top: 18px;
+.debug-consequence-meters {
+  margin-top: 10px;
   border-top: 1px solid #3b2a12;
-  padding-top: 12px;
+  padding-top: 10px;
+  font-size: 11px;
+  line-height: 1.3;
+}
+.debug-consequence-meters h2 {
+  margin: 0 0 7px;
+  color: #f0c463;
+  font-size: 13px;
+  font-weight: 700;
+}
+.consequence-meter-list {
+  display: grid;
+  gap: 7px;
+}
+.consequence-meter {
+  border: 1px solid #2b2112;
+  background: rgba(13, 15, 19, .66);
+  padding: 7px;
+}
+.consequence-meter-head,
+.consequence-meter-flags {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.consequence-meter-title {
+  color: #f0c463;
+  font-weight: 700;
+}
+.consequence-meter-value,
+.consequence-meter-flags {
+  color: #d7be84;
+  font-size: 10px;
+}
+.consequence-meter-bar {
+  height: 6px;
+  margin: 5px 0;
+  border: 1px solid #473414;
+  background: #0d0f13;
+  overflow: hidden;
+}
+.consequence-meter-fill {
+  width: var(--meter-progress, 0%);
+  height: 100%;
+  background: linear-gradient(90deg, #b27421, #f0c463);
+}
+.consequence-meter-status {
+  color: #c7b78d;
+}
+.consequence-meter-detail {
+  margin-top: 2px;
+  color: #8f846a;
+  overflow-wrap: anywhere;
+}
+.consequence-meter.is-warning {
+  border-color: #7e3b27;
+}
+.consequence-meter.is-warning .consequence-meter-status {
+  color: #e0a06f;
+}
+.debug-history {
+  margin-top: 0;
+  padding-top: 0;
   font-size: 11px;
   line-height: 1.35;
+}
+.debug-history-list-section {
+  margin-top: 10px;
+  border-top: 1px solid #3b2a12;
+  padding-top: 10px;
 }
 .debug-history-head {
   display: flex;

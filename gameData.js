@@ -1,4 +1,27 @@
 window.ONE_STAR_PAWN_DATA = {
+  "factions": [
+    {
+      "id": "hustlers",
+      "displayName": "Hustlers",
+      "members": [
+        "hustler-shorty",
+        "hustler-sista",
+        "hustler-kangol"
+      ],
+      "thug": "hustler-heavy",
+      "notes": "Uses shared thug retaliation consequence metadata."
+    },
+    {
+      "id": "tracksuits",
+      "displayName": "Tracksuits",
+      "members": [
+        "tracksuit-legs",
+        "tracksuit-slim"
+      ],
+      "thug": "tracksuit-thug",
+      "notes": "Organizational metadata only; consequence behavior remains unchanged."
+    }
+  ],
   "characters": [
     {
       "id": "crackhead",
@@ -6,9 +29,10 @@ window.ONE_STAR_PAWN_DATA = {
       "archetype": "Desperate Seller",
       "spriteType": "seller",
       "factionId": "street_desperate",
-      "spritePath": "assets/sprites/crackhead-idle_l.png",
+      "spritePath": "assets/sprites/street-crackhead-idle_l.png",
       "facing": "left",
       "spriteClass": "npc-crackhead",
+      "spriteVisualHeight": null,
       "activeInRotation": true,
       "cashMin": 0.0,
       "cashMax": 70.0,
@@ -32,9 +56,10 @@ window.ONE_STAR_PAWN_DATA = {
       "archetype": "Desperate Regular",
       "spriteType": "regular",
       "factionId": "street_desperate",
-      "spritePath": "assets/sprites/bum-idle_l.png",
+      "spritePath": "assets/sprites/street-bum-idle_l.png",
       "facing": "left",
       "spriteClass": "npc-bum",
+      "spriteVisualHeight": null,
       "activeInRotation": true,
       "cashMin": 0.0,
       "cashMax": 45.0,
@@ -57,9 +82,10 @@ window.ONE_STAR_PAWN_DATA = {
       "archetype": "Dangerous Buyer",
       "spriteType": "thug",
       "factionId": "professional_independent",
-      "spritePath": "assets/sprites/hitman-idle_l.png",
+      "spritePath": "assets/sprites/service-hitman-idle_l.png",
       "facing": "left",
       "spriteClass": "npc-hitman",
+      "spriteVisualHeight": null,
       "activeInRotation": true,
       "cashMin": 80.0,
       "cashMax": 500.0,
@@ -83,9 +109,10 @@ window.ONE_STAR_PAWN_DATA = {
       "archetype": "Mystery Seller",
       "spriteType": "weirdo",
       "factionId": "street_desperate",
-      "spritePath": "assets/sprites/junkie-idle_r.png",
+      "spritePath": "assets/sprites/street-junkie-idle_r.png",
       "facing": "right",
       "spriteClass": "npc-junkie",
+      "spriteVisualHeight": null,
       "activeInRotation": true,
       "cashMin": 5.0,
       "cashMax": 110.0,
@@ -112,6 +139,7 @@ window.ONE_STAR_PAWN_DATA = {
       "spritePath": "",
       "facing": "",
       "spriteClass": "",
+      "spriteVisualHeight": null,
       "activeInRotation": false,
       "cashMin": 0.0,
       "cashMax": 40.0,
@@ -136,6 +164,7 @@ window.ONE_STAR_PAWN_DATA = {
       "spritePath": "",
       "facing": "",
       "spriteClass": "",
+      "spriteVisualHeight": null,
       "activeInRotation": false,
       "cashMin": 10.0,
       "cashMax": 120.0,
@@ -160,6 +189,7 @@ window.ONE_STAR_PAWN_DATA = {
       "spritePath": "",
       "facing": "",
       "spriteClass": "",
+      "spriteVisualHeight": null,
       "activeInRotation": false,
       "cashMin": 80.0,
       "cashMax": 500.0,
@@ -183,6 +213,7 @@ window.ONE_STAR_PAWN_DATA = {
       "spritePath": "",
       "facing": "",
       "spriteClass": "",
+      "spriteVisualHeight": null,
       "activeInRotation": false,
       "cashMin": 20.0,
       "cashMax": 180.0,
@@ -207,6 +238,7 @@ window.ONE_STAR_PAWN_DATA = {
       "spritePath": "",
       "facing": "",
       "spriteClass": "",
+      "spriteVisualHeight": null,
       "activeInRotation": false,
       "cashMin": 50.0,
       "cashMax": 300.0,
@@ -231,6 +263,7 @@ window.ONE_STAR_PAWN_DATA = {
       "spritePath": "",
       "facing": "",
       "spriteClass": "",
+      "spriteVisualHeight": null,
       "activeInRotation": false,
       "cashMin": 15.0,
       "cashMax": 160.0,
@@ -247,14 +280,15 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Wants a discount because Mercury is in retrograde, probably on Facebook Marketplace."
     },
     {
-      "id": "tracksuit_thug",
-      "displayName": "Tracksuit Guy",
+      "id": "tracksuit-thug",
+      "displayName": "Tracksuit Heavy",
       "archetype": "Thug",
       "spriteType": "thug",
-      "factionId": "tracksuit_crew",
+      "factionId": "tracksuits",
       "spritePath": "assets/sprites/tracksuit-thug-idle_l.png",
       "facing": "left",
       "spriteClass": "npc-tracksuit-thug",
+      "spriteVisualHeight": null,
       "activeInRotation": false,
       "cashMin": 20.0,
       "cashMax": 250.0,
@@ -279,6 +313,7 @@ window.ONE_STAR_PAWN_DATA = {
       "spritePath": "",
       "facing": "",
       "spriteClass": "",
+      "spriteVisualHeight": null,
       "activeInRotation": false,
       "cashMin": 40.0,
       "cashMax": 200.0,
@@ -303,6 +338,7 @@ window.ONE_STAR_PAWN_DATA = {
       "spritePath": "",
       "facing": "",
       "spriteClass": "",
+      "spriteVisualHeight": null,
       "activeInRotation": false,
       "cashMin": 0.0,
       "cashMax": 80.0,
@@ -326,6 +362,7 @@ window.ONE_STAR_PAWN_DATA = {
       "spritePath": "",
       "facing": "",
       "spriteClass": "",
+      "spriteVisualHeight": null,
       "activeInRotation": false,
       "cashMin": 0.0,
       "cashMax": 999.0,
@@ -350,6 +387,7 @@ window.ONE_STAR_PAWN_DATA = {
       "spritePath": "assets/sprites/customer-purple-idle.png",
       "facing": "",
       "spriteClass": "npc-purple",
+      "spriteVisualHeight": null,
       "activeInRotation": false,
       "cashMin": 0.0,
       "cashMax": 100.0,
@@ -364,14 +402,15 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Original prototype sprite. Kept as inactive fallback/reference only; not used in gameplay rotation."
     },
     {
-      "id": "70s_hustler",
-      "displayName": "70s Hustler",
-      "archetype": "Vintage Street Hustler",
-      "spriteType": "fence",
-      "factionId": "tracksuit_crew",
-      "spritePath": "assets/sprites/70s-hustler-idle_r.png",
+      "id": "regular-mr-seventies",
+      "displayName": "Mr. Seventies",
+      "archetype": "Vintage Regular",
+      "spriteType": "regular",
+      "factionId": "independent",
+      "spritePath": "assets/sprites/regular-mr-seventies-idle_r.png",
       "facing": "right",
-      "spriteClass": "npc-70s-hustler",
+      "spriteClass": "npc-regular-mr-seventies",
+      "spriteVisualHeight": null,
       "activeInRotation": true,
       "cashMin": 60.0,
       "cashMax": 350.0,
@@ -390,14 +429,69 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Dresses like a casino carpet and talks like every object has appreciated since 1978."
     },
     {
-      "id": "red_hustler",
-      "displayName": "Red Hustler",
+      "id": "regular-business-drunk",
+      "displayName": "Business Drunk",
+      "archetype": "Regular Buyer",
+      "spriteType": "regular",
+      "factionId": "independent",
+      "spritePath": "assets/sprites/regular-business-drunk-idle_i.png",
+      "facing": "left",
+      "spriteClass": "npc-regular-business-drunk",
+      "spriteVisualHeight": null,
+      "activeInRotation": true,
+      "cashMin": 35.0,
+      "cashMax": 260.0,
+      "trust": 50,
+      "trustLabel": "3 - mixed",
+      "copRiskBias": 0.0,
+      "thugRiskBias": 1.0,
+      "scamRiskBias": 2.0,
+      "preferredItemTags": [
+        "electronics",
+        "luxury",
+        "watch",
+        "collectible",
+        "portable"
+      ],
+      "notes": "Tie loose, judgment looser, but still knows a decent gadget when he sees one."
+    },
+    {
+      "id": "regular-lady-divorce",
+      "displayName": "Divorce Lady",
+      "archetype": "Regular Seller",
+      "spriteType": "regular",
+      "factionId": "independent",
+      "spritePath": "assets/sprites/regular-lady-divorce-idle_r.png",
+      "facing": "right",
+      "spriteClass": "npc-regular-lady-divorce",
+      "spriteVisualHeight": null,
+      "activeInRotation": true,
+      "cashMin": 20.0,
+      "cashMax": 240.0,
+      "trust": 50,
+      "trustLabel": "3 - mixed",
+      "copRiskBias": 0.0,
+      "thugRiskBias": 1.0,
+      "scamRiskBias": 2.0,
+      "preferredItemTags": [
+        "jewelry",
+        "watch",
+        "luxury",
+        "collectible",
+        "household"
+      ],
+      "notes": "Converting household history into cash with terrifying calm."
+    },
+    {
+      "id": "hustler-shorty",
+      "displayName": "Shorty",
       "archetype": "Flashy Deal Chaser",
       "spriteType": "buyer",
-      "factionId": "tracksuit_crew",
-      "spritePath": "assets/sprites/red-hustler-idle_l.png",
+      "factionId": "hustlers",
+      "spritePath": "assets/sprites/hustler-shorty-idle_l.png",
       "facing": "left",
-      "spriteClass": "npc-red-hustler",
+      "spriteClass": "npc-hustler-shorty",
+      "spriteVisualHeight": null,
       "activeInRotation": true,
       "cashMin": 40.0,
       "cashMax": 280.0,
@@ -416,14 +510,148 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Confident, impatient, and dressed like subtlety owes him money."
     },
     {
-      "id": "slot_grandma",
+      "id": "hustler-sista",
+      "displayName": "Sista",
+      "archetype": "Flashy Deal Chaser",
+      "spriteType": "buyer",
+      "factionId": "hustlers",
+      "spritePath": "assets/sprites/hustler-sista-idle_r.png",
+      "facing": "right",
+      "spriteClass": "npc-hustler-sista",
+      "spriteVisualHeight": null,
+      "activeInRotation": true,
+      "cashMin": 40.0,
+      "cashMax": 280.0,
+      "trust": 38,
+      "trustLabel": "2 - sketchy",
+      "copRiskBias": 1.0,
+      "thugRiskBias": 3.0,
+      "scamRiskBias": 3.0,
+      "preferredItemTags": [
+        "luxury",
+        "electronics",
+        "collectible",
+        "hot",
+        "suspicious"
+      ],
+      "notes": "Confident, impatient, and dressed like subtlety owes her money."
+    },
+    {
+      "id": "hustler-kangol",
+      "displayName": "Kangol",
+      "archetype": "Flashy Deal Chaser",
+      "spriteType": "buyer",
+      "factionId": "hustlers",
+      "spritePath": "assets/sprites/hustler-kangol-idle_l.png",
+      "facing": "left",
+      "spriteClass": "npc-hustler-kangol",
+      "spriteVisualHeight": null,
+      "activeInRotation": true,
+      "cashMin": 40.0,
+      "cashMax": 280.0,
+      "trust": 38,
+      "trustLabel": "2 - sketchy",
+      "copRiskBias": 1.0,
+      "thugRiskBias": 3.0,
+      "scamRiskBias": 3.0,
+      "preferredItemTags": [
+        "luxury",
+        "electronics",
+        "collectible",
+        "hot",
+        "suspicious"
+      ],
+      "notes": "Confident, impatient, and dressed like subtlety owes him money."
+    },
+    {
+      "id": "hustler-heavy",
+      "displayName": "Hustler Heavy",
+      "archetype": "Thug",
+      "spriteType": "thug",
+      "factionId": "hustlers",
+      "spritePath": "assets/sprites/hustler-heavy-idle_l.png",
+      "facing": "left",
+      "spriteClass": "npc-hustler-heavy",
+      "spriteVisualHeight": null,
+      "activeInRotation": false,
+      "cashMin": 20.0,
+      "cashMax": 250.0,
+      "trust": 38,
+      "trustLabel": "2 - sketchy",
+      "copRiskBias": 0.0,
+      "thugRiskBias": 4.0,
+      "scamRiskBias": 1.0,
+      "preferredItemTags": [
+        "weapon",
+        "luxury",
+        "hot"
+      ],
+      "notes": "Consequence-ready heavy for the hustlers metadata roster."
+    },
+    {
+      "id": "tracksuit-legs",
+      "displayName": "Tracksuit Legs",
+      "archetype": "Flashy Deal Chaser",
+      "spriteType": "buyer",
+      "factionId": "tracksuits",
+      "spritePath": "assets/sprites/tracksuit-legs-idle_l.png",
+      "facing": "left",
+      "spriteClass": "npc-tracksuit-legs",
+      "spriteVisualHeight": 196.0,
+      "activeInRotation": true,
+      "cashMin": 40.0,
+      "cashMax": 280.0,
+      "trust": 38,
+      "trustLabel": "2 - sketchy",
+      "copRiskBias": 1.0,
+      "thugRiskBias": 3.0,
+      "scamRiskBias": 3.0,
+      "preferredItemTags": [
+        "luxury",
+        "electronics",
+        "collectible",
+        "hot",
+        "suspicious"
+      ],
+      "notes": "All stride, all attitude, all cash-in-hand problems."
+    },
+    {
+      "id": "tracksuit-slim",
+      "displayName": "Tracksuit Slim",
+      "archetype": "Flashy Deal Chaser",
+      "spriteType": "buyer",
+      "factionId": "tracksuits",
+      "spritePath": "assets/sprites/tracksuit-slim-idle_r.png",
+      "facing": "right",
+      "spriteClass": "npc-tracksuit-slim",
+      "spriteVisualHeight": 242.0,
+      "activeInRotation": true,
+      "cashMin": 40.0,
+      "cashMax": 280.0,
+      "trust": 38,
+      "trustLabel": "2 - sketchy",
+      "copRiskBias": 1.0,
+      "thugRiskBias": 3.0,
+      "scamRiskBias": 3.0,
+      "preferredItemTags": [
+        "luxury",
+        "electronics",
+        "collectible",
+        "hot",
+        "suspicious"
+      ],
+      "notes": "Tall, sharp, and haggles like the price insulted him first."
+    },
+    {
+      "id": "old-grandma-slots",
       "displayName": "Slot Grandma",
       "archetype": "Compulsive Gambler",
       "spriteType": "seller",
       "factionId": "casino_regular",
-      "spritePath": "assets/sprites/slot-grandma-idle_r.png",
+      "spritePath": "assets/sprites/old_grandma-slots_idel_r.png",
       "facing": "right",
-      "spriteClass": "npc-slot-grandma",
+      "spriteClass": "npc-old-grandma-slots",
+      "spriteVisualHeight": null,
       "activeInRotation": true,
       "cashMin": 0.0,
       "cashMax": 65.0,
@@ -441,6 +669,34 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Sweet, broke, and one jackpot away from solving the problem she created with the last jackpot."
     },
     {
+      "id": "senior-grandpa-catfish",
+      "displayName": "Catfish Grandpa",
+      "archetype": "Senior Regular",
+      "spriteType": "regular",
+      "factionId": "independent",
+      "spritePath": "assets/sprites/senior-grandpa-catfish-idle_l.png",
+      "facing": "left",
+      "spriteClass": "npc-senior-grandpa-catfish",
+      "spriteVisualHeight": null,
+      "activeInRotation": true,
+      "cashMin": 10.0,
+      "cashMax": 180.0,
+      "trust": 50,
+      "trustLabel": "3 - mixed",
+      "copRiskBias": 0.0,
+      "thugRiskBias": 1.0,
+      "scamRiskBias": 1.0,
+      "preferredItemTags": [
+        "tool",
+        "electronics",
+        "appliance",
+        "watch",
+        "collectible",
+        "suspicious"
+      ],
+      "notes": "Has a garage full of practical objects and stories that almost line up."
+    },
+    {
       "id": "cop_consequence",
       "displayName": "Cop",
       "archetype": "Consequence Officer",
@@ -449,6 +705,7 @@ window.ONE_STAR_PAWN_DATA = {
       "spritePath": "assets/sprites/cop-highway-patrol_r.png",
       "facing": "right",
       "spriteClass": "npc-cop-consequence",
+      "spriteVisualHeight": null,
       "activeInRotation": false,
       "cashMin": 0.0,
       "cashMax": 0.0,
@@ -803,7 +1060,7 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Buys cheap inventory and argues like every dollar has a lawyer."
     },
     {
-      "characterId": "tracksuit_thug",
+      "characterId": "tracksuit-thug",
       "sellsToShopWeight": 3.0,
       "buysFromShopWeight": 3.0,
       "tradesWeight": 5.0,
@@ -925,7 +1182,7 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Trade goblin. May produce profit or a box that sounds wet."
     },
     {
-      "characterId": "70s_hustler",
+      "characterId": "regular-mr-seventies",
       "sellsToShopWeight": 4.0,
       "buysFromShopWeight": 3.0,
       "tradesWeight": 5.0,
@@ -960,10 +1217,81 @@ window.ONE_STAR_PAWN_DATA = {
       "prefersCash": true,
       "acceptsTrades": true,
       "acceptsJunkBundles": false,
-      "notes": "Trade-heavy old-school hustler. Values presentation more than provenance."
+      "notes": "Trade-heavy old-school regular. Values presentation more than provenance."
     },
     {
-      "characterId": "red_hustler",
+      "characterId": "regular-business-drunk",
+      "sellsToShopWeight": 2.0,
+      "buysFromShopWeight": 5.0,
+      "tradesWeight": 2.0,
+      "buyInterestTags": [
+        "electronics",
+        "luxury",
+        "watch",
+        "collectible",
+        "portable"
+      ],
+      "sellOfferTags": [
+        "electronics",
+        "luxury",
+        "watch"
+      ],
+      "tradeInterestTags": [
+        "electronics",
+        "luxury"
+      ],
+      "avoidTags": [
+        "cursed",
+        "junk",
+        "broken"
+      ],
+      "maxMarkupTolerance": 1.12,
+      "lowballTolerance": 0.7,
+      "haggleAggression": 3.0,
+      "tradeFairness": 0.8,
+      "riskTolerance": 2.0,
+      "prefersCash": true,
+      "acceptsTrades": true,
+      "acceptsJunkBundles": false,
+      "notes": "Normal buyer with a loose expense-account energy."
+    },
+    {
+      "characterId": "regular-lady-divorce",
+      "sellsToShopWeight": 5.0,
+      "buysFromShopWeight": 2.0,
+      "tradesWeight": 2.0,
+      "buyInterestTags": [
+        "jewelry",
+        "luxury",
+        "collectible"
+      ],
+      "sellOfferTags": [
+        "jewelry",
+        "luxury",
+        "household",
+        "collectible"
+      ],
+      "tradeInterestTags": [
+        "jewelry",
+        "collectible"
+      ],
+      "avoidTags": [
+        "weapon",
+        "hot",
+        "stolen"
+      ],
+      "maxMarkupTolerance": 1.08,
+      "lowballTolerance": 0.62,
+      "haggleAggression": 2.0,
+      "tradeFairness": 0.85,
+      "riskTolerance": 1.0,
+      "prefersCash": true,
+      "acceptsTrades": true,
+      "acceptsJunkBundles": false,
+      "notes": "Mostly sells valuables and accepts sober-enough offers."
+    },
+    {
+      "characterId": "hustler-shorty",
       "sellsToShopWeight": 3.0,
       "buysFromShopWeight": 5.0,
       "tradesWeight": 4.0,
@@ -1000,7 +1328,155 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Aggressive buyer and trader. Insults should raise thug risk."
     },
     {
-      "characterId": "slot_grandma",
+      "characterId": "hustler-sista",
+      "sellsToShopWeight": 3.0,
+      "buysFromShopWeight": 5.0,
+      "tradesWeight": 4.0,
+      "buyInterestTags": [
+        "luxury",
+        "electronics",
+        "collectible",
+        "hot"
+      ],
+      "sellOfferTags": [
+        "electronics",
+        "luxury",
+        "suspicious",
+        "hot"
+      ],
+      "tradeInterestTags": [
+        "luxury",
+        "electronics",
+        "collectible"
+      ],
+      "avoidTags": [
+        "cursed",
+        "appliance",
+        "junk"
+      ],
+      "maxMarkupTolerance": 1.15,
+      "lowballTolerance": 0.6,
+      "haggleAggression": 5.0,
+      "tradeFairness": 0.6,
+      "riskTolerance": 4.0,
+      "prefersCash": true,
+      "acceptsTrades": true,
+      "acceptsJunkBundles": false,
+      "notes": "Aggressive buyer and trader."
+    },
+    {
+      "characterId": "hustler-kangol",
+      "sellsToShopWeight": 3.0,
+      "buysFromShopWeight": 5.0,
+      "tradesWeight": 4.0,
+      "buyInterestTags": [
+        "luxury",
+        "electronics",
+        "collectible",
+        "hot"
+      ],
+      "sellOfferTags": [
+        "electronics",
+        "luxury",
+        "suspicious",
+        "hot"
+      ],
+      "tradeInterestTags": [
+        "luxury",
+        "electronics",
+        "collectible"
+      ],
+      "avoidTags": [
+        "cursed",
+        "appliance",
+        "junk"
+      ],
+      "maxMarkupTolerance": 1.15,
+      "lowballTolerance": 0.6,
+      "haggleAggression": 5.0,
+      "tradeFairness": 0.6,
+      "riskTolerance": 4.0,
+      "prefersCash": true,
+      "acceptsTrades": true,
+      "acceptsJunkBundles": false,
+      "notes": "Aggressive buyer and trader."
+    },
+    {
+      "characterId": "tracksuit-legs",
+      "sellsToShopWeight": 3.0,
+      "buysFromShopWeight": 5.0,
+      "tradesWeight": 4.0,
+      "buyInterestTags": [
+        "luxury",
+        "electronics",
+        "collectible",
+        "hot"
+      ],
+      "sellOfferTags": [
+        "electronics",
+        "luxury",
+        "suspicious",
+        "hot"
+      ],
+      "tradeInterestTags": [
+        "luxury",
+        "electronics",
+        "collectible"
+      ],
+      "avoidTags": [
+        "cursed",
+        "appliance",
+        "junk"
+      ],
+      "maxMarkupTolerance": 1.15,
+      "lowballTolerance": 0.6,
+      "haggleAggression": 5.0,
+      "tradeFairness": 0.6,
+      "riskTolerance": 4.0,
+      "prefersCash": true,
+      "acceptsTrades": true,
+      "acceptsJunkBundles": false,
+      "notes": "Aggressive buyer and trader."
+    },
+    {
+      "characterId": "tracksuit-slim",
+      "sellsToShopWeight": 3.0,
+      "buysFromShopWeight": 5.0,
+      "tradesWeight": 4.0,
+      "buyInterestTags": [
+        "luxury",
+        "electronics",
+        "collectible",
+        "hot"
+      ],
+      "sellOfferTags": [
+        "electronics",
+        "luxury",
+        "suspicious",
+        "hot"
+      ],
+      "tradeInterestTags": [
+        "luxury",
+        "electronics",
+        "collectible"
+      ],
+      "avoidTags": [
+        "cursed",
+        "appliance",
+        "junk"
+      ],
+      "maxMarkupTolerance": 1.15,
+      "lowballTolerance": 0.6,
+      "haggleAggression": 5.0,
+      "tradeFairness": 0.6,
+      "riskTolerance": 4.0,
+      "prefersCash": true,
+      "acceptsTrades": true,
+      "acceptsJunkBundles": false,
+      "notes": "Aggressive buyer and trader."
+    },
+    {
+      "characterId": "old-grandma-slots",
       "sellsToShopWeight": 7.0,
       "buysFromShopWeight": 1.0,
       "tradesWeight": 2.0,
@@ -1032,6 +1508,44 @@ window.ONE_STAR_PAWN_DATA = {
       "acceptsTrades": true,
       "acceptsJunkBundles": false,
       "notes": "Cash-starved but mostly honest. Sells personal valuables to feed the slots."
+    },
+    {
+      "characterId": "senior-grandpa-catfish",
+      "sellsToShopWeight": 5.0,
+      "buysFromShopWeight": 2.0,
+      "tradesWeight": 3.0,
+      "buyInterestTags": [
+        "tool",
+        "electronics",
+        "appliance",
+        "watch",
+        "collectible"
+      ],
+      "sellOfferTags": [
+        "tool",
+        "electronics",
+        "appliance",
+        "suspicious"
+      ],
+      "tradeInterestTags": [
+        "tool",
+        "electronics",
+        "appliance"
+      ],
+      "avoidTags": [
+        "luxury",
+        "weapon",
+        "hot"
+      ],
+      "maxMarkupTolerance": 1.08,
+      "lowballTolerance": 0.58,
+      "haggleAggression": 2.0,
+      "tradeFairness": 0.75,
+      "riskTolerance": 2.0,
+      "prefersCash": true,
+      "acceptsTrades": true,
+      "acceptsJunkBundles": true,
+      "notes": "Senior seller and trader with practical goods and dubious explanations."
     },
     {
       "characterId": "cop_consequence",
@@ -2959,7 +3473,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "tracksuit_knife",
-      "characterId": "tracksuit_thug",
+      "characterId": "tracksuit-thug",
       "itemId": "pocket_knife",
       "dealType": "trade",
       "itemRole": "npc_offers",
@@ -2981,7 +3495,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "tracksuit_prop_revolver",
-      "characterId": "tracksuit_thug",
+      "characterId": "tracksuit-thug",
       "itemId": "rusty_revolver_prop",
       "dealType": "sell_to_shop",
       "itemRole": "npc_offers",
@@ -3001,7 +3515,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "tracksuit_buys_hot",
-      "characterId": "tracksuit_thug",
+      "characterId": "tracksuit-thug",
       "itemId": "suspicious_gold_watch",
       "dealType": "buy_from_shop",
       "itemRole": "npc_requests",
@@ -3144,8 +3658,8 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "May buy cursed trash. Do not question blessings from the dumpster."
     },
     {
-      "id": "70s_hustler_gold_watch",
-      "characterId": "70s_hustler",
+      "id": "regular_mr_seventies_gold_watch",
+      "characterId": "regular-mr-seventies",
       "itemId": "suspicious_gold_watch",
       "dealType": "sell_to_shop",
       "itemRole": "npc_offers",
@@ -3164,8 +3678,8 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Claims it belonged to a nightclub owner. Does not clarify which owner."
     },
     {
-      "id": "70s_hustler_cards_trade",
-      "characterId": "70s_hustler",
+      "id": "regular_mr_seventies_cards_trade",
+      "characterId": "regular-mr-seventies",
       "itemId": "baseball_card_box",
       "dealType": "trade",
       "itemRole": "npc_offers",
@@ -3187,8 +3701,8 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Vintage cards in a box that has survived several bad decades."
     },
     {
-      "id": "70s_hustler_buys_luxury",
-      "characterId": "70s_hustler",
+      "id": "regular_mr_seventies_buys_luxury",
+      "characterId": "regular-mr-seventies",
       "itemId": "gold_ring_engravings",
       "dealType": "buy_from_shop",
       "itemRole": "npc_requests",
@@ -3207,8 +3721,112 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Pays for visible status and questionable history."
     },
     {
-      "id": "red_hustler_locked_watch",
-      "characterId": "red_hustler",
+      "id": "regular_business_drunk_sunglasses",
+      "characterId": "regular-business-drunk",
+      "itemId": "designer_sunglasses",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "luxury",
+        "portable"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_buys_speaker",
+      "characterId": "regular-business-drunk",
+      "itemId": "bluetooth_speaker",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "electronics",
+        "portable",
+        "luxury"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 1.02,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Wants something loud enough to make Monday negotiable."
+    },
+    {
+      "id": "regular_business_drunk_watch_trade",
+      "characterId": "regular-business-drunk",
+      "itemId": "designer_sunglasses",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "watch",
+        "luxury"
+      ],
+      "offeredItemTags": [
+        "luxury",
+        "portable"
+      ],
+      "chanceWeight": 3.0,
+      "askPriceMultiplier": 0.95,
+      "cashAdjustmentMin": -10.0,
+      "cashAdjustmentMax": 25.0,
+      "conditionOverride": "used",
+      "riskNote": "Low scam risk",
+      "notes": "Calls sunglasses a business accessory."
+    },
+    {
+      "id": "regular_lady_divorce_gold_bracelet",
+      "characterId": "regular-lady-divorce",
+      "itemId": "gold_bracelet",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_handbag_trade",
+      "characterId": "regular-lady-divorce",
+      "itemId": "luxury_handbag_fake",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "jewelry",
+        "luxury",
+        "collectible"
+      ],
+      "offeredItemTags": [
+        "luxury",
+        "possibly_fake"
+      ],
+      "chanceWeight": 3.0,
+      "askPriceMultiplier": 0.85,
+      "cashAdjustmentMin": -15.0,
+      "cashAdjustmentMax": 25.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Scam risk +1 if oversold",
+      "notes": "The bag is either designer or personally offensive to designers."
+    },
+    {
+      "id": "hustler_shorty_locked_watch",
+      "characterId": "hustler-shorty",
       "itemId": "smart_watch_locked",
       "dealType": "sell_to_shop",
       "itemRole": "npc_offers",
@@ -3226,8 +3844,8 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "The lock screen belongs to somebody with a different name."
     },
     {
-      "id": "red_hustler_buys_watch",
-      "characterId": "red_hustler",
+      "id": "hustler_shorty_buys_watch",
+      "characterId": "hustler-shorty",
       "itemId": "suspicious_gold_watch",
       "dealType": "buy_from_shop",
       "itemRole": "npc_requests",
@@ -3246,8 +3864,8 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Likes merchandise that looks expensive from across a parking lot."
     },
     {
-      "id": "red_hustler_figure_trade",
-      "characterId": "red_hustler",
+      "id": "hustler_shorty_figure_trade",
+      "characterId": "hustler-shorty",
       "itemId": "rare_action_figure",
       "dealType": "trade",
       "itemRole": "npc_offers",
@@ -3270,8 +3888,260 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Calls it mint while holding it by the head."
     },
     {
-      "id": "slot_grandma_gold_ring",
-      "characterId": "slot_grandma",
+      "id": "hustler_sista_locked_watch",
+      "characterId": "hustler-sista",
+      "itemId": "smart_watch_locked",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.65,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1; scam risk +1",
+      "notes": "The lock screen belongs to somebody with a different name."
+    },
+    {
+      "id": "hustler_sista_buys_watch",
+      "characterId": "hustler-sista",
+      "itemId": "suspicious_gold_watch",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "luxury",
+        "hot",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 1.1,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Thug risk if insulted",
+      "notes": "Likes merchandise that looks expensive from across a parking lot."
+    },
+    {
+      "id": "hustler_sista_figure_trade",
+      "characterId": "hustler-sista",
+      "itemId": "rare_action_figure",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "luxury",
+        "collectible"
+      ],
+      "offeredItemTags": [
+        "collectible",
+        "rare",
+        "broken"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.85,
+      "cashAdjustmentMin": -15.0,
+      "cashAdjustmentMax": 30.0,
+      "conditionOverride": "used",
+      "riskNote": "Scam risk +1; thug risk +1 on bad refusal",
+      "notes": "Calls it mint while holding it by the head."
+    },
+    {
+      "id": "hustler_kangol_locked_watch",
+      "characterId": "hustler-kangol",
+      "itemId": "smart_watch_locked",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.65,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1; scam risk +1",
+      "notes": "The lock screen belongs to somebody with a different name."
+    },
+    {
+      "id": "hustler_kangol_buys_watch",
+      "characterId": "hustler-kangol",
+      "itemId": "suspicious_gold_watch",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "luxury",
+        "hot",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 1.1,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Thug risk if insulted",
+      "notes": "Likes merchandise that looks expensive from across a parking lot."
+    },
+    {
+      "id": "hustler_kangol_figure_trade",
+      "characterId": "hustler-kangol",
+      "itemId": "rare_action_figure",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "luxury",
+        "collectible"
+      ],
+      "offeredItemTags": [
+        "collectible",
+        "rare",
+        "broken"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.85,
+      "cashAdjustmentMin": -15.0,
+      "cashAdjustmentMax": 30.0,
+      "conditionOverride": "used",
+      "riskNote": "Scam risk +1; thug risk +1 on bad refusal",
+      "notes": "Calls it mint while holding it by the head."
+    },
+    {
+      "id": "tracksuit_legs_locked_watch",
+      "characterId": "tracksuit-legs",
+      "itemId": "smart_watch_locked",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.65,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1; scam risk +1",
+      "notes": "The lock screen belongs to somebody with a different name."
+    },
+    {
+      "id": "tracksuit_legs_buys_watch",
+      "characterId": "tracksuit-legs",
+      "itemId": "suspicious_gold_watch",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "luxury",
+        "hot",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 1.1,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Thug risk if insulted",
+      "notes": "Likes merchandise that looks expensive from across a parking lot."
+    },
+    {
+      "id": "tracksuit_legs_figure_trade",
+      "characterId": "tracksuit-legs",
+      "itemId": "rare_action_figure",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "luxury",
+        "collectible"
+      ],
+      "offeredItemTags": [
+        "collectible",
+        "rare",
+        "broken"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.85,
+      "cashAdjustmentMin": -15.0,
+      "cashAdjustmentMax": 30.0,
+      "conditionOverride": "used",
+      "riskNote": "Scam risk +1; thug risk +1 on bad refusal",
+      "notes": "Calls it mint while holding it by the head."
+    },
+    {
+      "id": "tracksuit_slim_locked_watch",
+      "characterId": "tracksuit-slim",
+      "itemId": "smart_watch_locked",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.65,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1; scam risk +1",
+      "notes": "The lock screen belongs to somebody with a different name."
+    },
+    {
+      "id": "tracksuit_slim_buys_watch",
+      "characterId": "tracksuit-slim",
+      "itemId": "suspicious_gold_watch",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "luxury",
+        "hot",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 1.1,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Thug risk if insulted",
+      "notes": "Likes merchandise that looks expensive from across a parking lot."
+    },
+    {
+      "id": "tracksuit_slim_figure_trade",
+      "characterId": "tracksuit-slim",
+      "itemId": "rare_action_figure",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "luxury",
+        "collectible"
+      ],
+      "offeredItemTags": [
+        "collectible",
+        "rare",
+        "broken"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.85,
+      "cashAdjustmentMin": -15.0,
+      "cashAdjustmentMax": 30.0,
+      "conditionOverride": "used",
+      "riskNote": "Scam risk +1; thug risk +1 on bad refusal",
+      "notes": "Calls it mint while holding it by the head."
+    },
+    {
+      "id": "old_grandma_slots_gold_ring",
+      "characterId": "old-grandma-slots",
       "itemId": "gold_ring_engravings",
       "dealType": "sell_to_shop",
       "itemRole": "npc_offers",
@@ -3289,8 +4159,8 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "A real family ring being converted into another spin."
     },
     {
-      "id": "slot_grandma_silverware",
-      "characterId": "slot_grandma",
+      "id": "old_grandma_slots_silverware",
+      "characterId": "old-grandma-slots",
       "itemId": "silverware_bundle",
       "dealType": "sell_to_shop",
       "itemRole": "npc_offers",
@@ -3309,8 +4179,8 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Wrapped carefully in a dish towel older than the shop."
     },
     {
-      "id": "slot_grandma_cards_trade",
-      "characterId": "slot_grandma",
+      "id": "old_grandma_slots_cards_trade",
+      "characterId": "old-grandma-slots",
       "itemId": "baseball_card_box",
       "dealType": "trade",
       "itemRole": "npc_offers",
@@ -3329,6 +4199,67 @@ window.ONE_STAR_PAWN_DATA = {
       "conditionOverride": "used",
       "riskNote": "Low risk",
       "notes": "Would rather have cash, but may trade when desperate."
+    },
+    {
+      "id": "senior_grandpa_catfish_drill",
+      "characterId": "senior-grandpa-catfish",
+      "itemId": "cordless_drill",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "repairable"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Says it only needs a battery and optimism."
+    },
+    {
+      "id": "senior_grandpa_catfish_vcr",
+      "characterId": "senior-grandpa-catfish",
+      "itemId": "hospital_vcr",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "suspicious"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.6,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Claims the tape came with the machine and the machine came with the story."
+    },
+    {
+      "id": "senior_grandpa_catfish_tool_trade",
+      "characterId": "senior-grandpa-catfish",
+      "itemId": "socket_set",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "tool",
+        "electronics",
+        "appliance"
+      ],
+      "offeredItemTags": [
+        "tool",
+        "practical"
+      ],
+      "chanceWeight": 3.0,
+      "askPriceMultiplier": 0.85,
+      "cashAdjustmentMin": -10.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Mostly complete tools for mostly reasonable shelf goods."
     }
   ],
   "eventBlueprints": [
@@ -3390,7 +4321,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "tracksuit_bad_trade",
-      "characterId": "tracksuit_thug",
+      "characterId": "tracksuit-thug",
       "eventType": "trade",
       "pressureFactionId": "",
       "dialogue": "Nice shop. Be a shame if someone paid retail.",
@@ -3429,28 +4360,196 @@ window.ONE_STAR_PAWN_DATA = {
       "resultNotes": "Weird trade event; keep effects simple."
     },
     {
-      "id": "70s_hustler_watch_offer",
-      "characterId": "70s_hustler",
+      "id": "regular_mr_seventies_watch_offer",
+      "characterId": "regular-mr-seventies",
       "eventType": "sell_to_shop",
       "pressureFactionId": "",
       "dialogue": "Vintage gold. Vintage means the questions expired.",
-      "resultNotes": "Use 70s_hustler_gold_watch pool."
+      "resultNotes": "Use regular_mr_seventies_gold_watch pool."
     },
     {
-      "id": "red_hustler_luxury_buy",
-      "characterId": "red_hustler",
+      "id": "regular_business_drunk_sunglasses_offer",
+      "characterId": "regular-business-drunk",
+      "eventType": "sell_to_shop",
+      "pressureFactionId": "",
+      "dialogue": "These sunglasses got me through two sales meetings and one apology brunch.",
+      "resultNotes": "Use regular_business_drunk_sunglasses pool."
+    },
+    {
+      "id": "regular_business_drunk_speaker_buy",
+      "characterId": "regular-business-drunk",
+      "eventType": "buy_from_shop",
+      "pressureFactionId": "",
+      "dialogue": "I need something loud and business-adjacent before good judgment clocks back in.",
+      "resultNotes": "Use regular_business_drunk_buys_speaker or matching electronics inventory."
+    },
+    {
+      "id": "regular_business_drunk_trade",
+      "characterId": "regular-business-drunk",
+      "eventType": "trade",
+      "pressureFactionId": "",
+      "dialogue": "These sunglasses make me look employed. Trade me something with buttons.",
+      "resultNotes": "Use regular_business_drunk_watch_trade pool."
+    },
+    {
+      "id": "regular_lady_divorce_bracelet_offer",
+      "characterId": "regular-lady-divorce",
+      "eventType": "sell_to_shop",
+      "pressureFactionId": "",
+      "dialogue": "Fourteen karat closure. I am keeping the dog and selling the bracelet.",
+      "resultNotes": "Use regular_lady_divorce_gold_bracelet pool."
+    },
+    {
+      "id": "regular_lady_divorce_trade",
+      "characterId": "regular-lady-divorce",
+      "eventType": "trade",
+      "pressureFactionId": "",
+      "dialogue": "This bag survived the marriage. Let us see if it survives your appraisal.",
+      "resultNotes": "Use regular_lady_divorce_handbag_trade pool."
+    },
+    {
+      "id": "hustler_shorty_luxury_buy",
+      "characterId": "hustler-shorty",
       "eventType": "buy_from_shop",
       "pressureFactionId": "",
       "dialogue": "Show me something expensive enough to make strangers lie about knowing me.",
-      "resultNotes": "Use red_hustler_buys_watch or matching luxury inventory."
+      "resultNotes": "Use hustler_shorty_buys_watch or matching luxury inventory."
     },
     {
-      "id": "slot_grandma_ring_offer",
-      "characterId": "slot_grandma",
+      "id": "hustler_shorty_locked_watch_offer",
+      "characterId": "hustler-shorty",
+      "eventType": "sell_to_shop",
+      "pressureFactionId": "",
+      "dialogue": "Phone says the watch belongs to somebody else. Phone talks too much.",
+      "resultNotes": "Use hustler_shorty_locked_watch pool."
+    },
+    {
+      "id": "hustler_shorty_figure_trade_offer",
+      "characterId": "hustler-shorty",
+      "eventType": "trade",
+      "pressureFactionId": "",
+      "dialogue": "This figure is mint if you ignore how life works.",
+      "resultNotes": "Use hustler_shorty_figure_trade pool."
+    },
+    {
+      "id": "hustler_sista_luxury_buy",
+      "characterId": "hustler-sista",
+      "eventType": "buy_from_shop",
+      "pressureFactionId": "",
+      "dialogue": "Show me something expensive enough to make strangers lie about knowing me.",
+      "resultNotes": "Use hustler_sista_buys_watch or matching luxury inventory."
+    },
+    {
+      "id": "hustler_sista_locked_watch_offer",
+      "characterId": "hustler-sista",
+      "eventType": "sell_to_shop",
+      "pressureFactionId": "",
+      "dialogue": "Phone says the watch belongs to somebody else. Phone talks too much.",
+      "resultNotes": "Use hustler_sista_locked_watch pool."
+    },
+    {
+      "id": "hustler_sista_figure_trade_offer",
+      "characterId": "hustler-sista",
+      "eventType": "trade",
+      "pressureFactionId": "",
+      "dialogue": "This figure is mint if you ignore how life works.",
+      "resultNotes": "Use hustler_sista_figure_trade pool."
+    },
+    {
+      "id": "hustler_kangol_luxury_buy",
+      "characterId": "hustler-kangol",
+      "eventType": "buy_from_shop",
+      "pressureFactionId": "",
+      "dialogue": "Show me something expensive enough to make strangers lie about knowing me.",
+      "resultNotes": "Use hustler_kangol_buys_watch or matching luxury inventory."
+    },
+    {
+      "id": "hustler_kangol_locked_watch_offer",
+      "characterId": "hustler-kangol",
+      "eventType": "sell_to_shop",
+      "pressureFactionId": "",
+      "dialogue": "Phone says the watch belongs to somebody else. Phone talks too much.",
+      "resultNotes": "Use hustler_kangol_locked_watch pool."
+    },
+    {
+      "id": "hustler_kangol_figure_trade_offer",
+      "characterId": "hustler-kangol",
+      "eventType": "trade",
+      "pressureFactionId": "",
+      "dialogue": "This figure is mint if you ignore how life works.",
+      "resultNotes": "Use hustler_kangol_figure_trade pool."
+    },
+    {
+      "id": "tracksuit_legs_luxury_buy",
+      "characterId": "tracksuit-legs",
+      "eventType": "buy_from_shop",
+      "pressureFactionId": "",
+      "dialogue": "Show me something expensive enough to make strangers lie about knowing me.",
+      "resultNotes": "Use tracksuit_legs_buys_watch or matching luxury inventory."
+    },
+    {
+      "id": "tracksuit_legs_locked_watch_offer",
+      "characterId": "tracksuit-legs",
+      "eventType": "sell_to_shop",
+      "pressureFactionId": "",
+      "dialogue": "Phone says the watch belongs to somebody else. Phone talks too much.",
+      "resultNotes": "Use tracksuit_legs_locked_watch pool."
+    },
+    {
+      "id": "tracksuit_legs_figure_trade_offer",
+      "characterId": "tracksuit-legs",
+      "eventType": "trade",
+      "pressureFactionId": "",
+      "dialogue": "This figure is mint if you ignore how life works.",
+      "resultNotes": "Use tracksuit_legs_figure_trade pool."
+    },
+    {
+      "id": "tracksuit_slim_luxury_buy",
+      "characterId": "tracksuit-slim",
+      "eventType": "buy_from_shop",
+      "pressureFactionId": "",
+      "dialogue": "Show me something expensive enough to make strangers lie about knowing me.",
+      "resultNotes": "Use tracksuit_slim_buys_watch or matching luxury inventory."
+    },
+    {
+      "id": "tracksuit_slim_locked_watch_offer",
+      "characterId": "tracksuit-slim",
+      "eventType": "sell_to_shop",
+      "pressureFactionId": "",
+      "dialogue": "Phone says the watch belongs to somebody else. Phone talks too much.",
+      "resultNotes": "Use tracksuit_slim_locked_watch pool."
+    },
+    {
+      "id": "tracksuit_slim_figure_trade_offer",
+      "characterId": "tracksuit-slim",
+      "eventType": "trade",
+      "pressureFactionId": "",
+      "dialogue": "This figure is mint if you ignore how life works.",
+      "resultNotes": "Use tracksuit_slim_figure_trade pool."
+    },
+    {
+      "id": "old_grandma_slots_ring_offer",
+      "characterId": "old-grandma-slots",
       "eventType": "sell_to_shop",
       "pressureFactionId": "",
       "dialogue": "It was my anniversary ring. The machine is due, sweetheart.",
-      "resultNotes": "Use slot_grandma_gold_ring pool. Keep tone darkly funny, not cruel."
+      "resultNotes": "Use old_grandma_slots_gold_ring pool. Keep tone darkly funny, not cruel."
+    },
+    {
+      "id": "senior_grandpa_catfish_tool_offer",
+      "characterId": "senior-grandpa-catfish",
+      "eventType": "sell_to_shop",
+      "pressureFactionId": "",
+      "dialogue": "This drill still works if you talk to it like family.",
+      "resultNotes": "Use senior_grandpa_catfish_drill pool."
+    },
+    {
+      "id": "senior_grandpa_catfish_trade",
+      "characterId": "senior-grandpa-catfish",
+      "eventType": "trade",
+      "pressureFactionId": "",
+      "dialogue": "I got sockets. You got shelf clutter. Somewhere in there is commerce.",
+      "resultNotes": "Use senior_grandpa_catfish_tool_trade pool."
     },
     {
       "id": "cop_consequence_visit",
@@ -3461,10 +4560,18 @@ window.ONE_STAR_PAWN_DATA = {
       "resultNotes": "Visible cop consequence encounter."
     },
     {
-      "id": "tracksuit_thug_robbery",
-      "characterId": "tracksuit_thug",
+      "id": "hustler_thug_robbery",
+      "characterId": "hustler-heavy",
       "eventType": "thug_robbery_consequence",
-      "pressureFactionId": "tracksuit_crew",
+      "pressureFactionId": "hustlers",
+      "dialogue": "You been loud with people who know me. Register gets quiet now.",
+      "resultNotes": "Visible hustler-heavy robbery consequence."
+    },
+    {
+      "id": "tracksuit_thug_robbery",
+      "characterId": "tracksuit-thug",
+      "eventType": "thug_robbery_consequence",
+      "pressureFactionId": "tracksuits",
       "dialogue": "Nice shop. Shame the register has to learn fear today.",
       "resultNotes": "Visible tracksuit-thug robbery consequence."
     }

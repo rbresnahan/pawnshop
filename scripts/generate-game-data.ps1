@@ -50,6 +50,7 @@ $Characters = Import-Csv (Join-Path $TablesDir 'Characters.csv') | ForEach-Objec
     spritePath = $_.sprite_path
     facing = $_.facing
     spriteClass = $_.sprite_class
+    spriteVisualHeight = if ([string]::IsNullOrWhiteSpace([string]$_.sprite_visual_height)) { $null } else { To-Number $_.sprite_visual_height }
     activeInRotation = To-Bool $_.active_in_rotation
     cashMin = To-Number $_.cash_min
     cashMax = To-Number $_.cash_max
@@ -59,6 +60,16 @@ $Characters = Import-Csv (Join-Path $TablesDir 'Characters.csv') | ForEach-Objec
     thugRiskBias = To-Number $_.thug_risk_bias
     scamRiskBias = To-Number $_.scam_risk_bias
     preferredItemTags = @(Split-List $_.preferred_item_tags)
+    notes = $_.notes
+  }
+}
+
+$Factions = Import-Csv (Join-Path $TablesDir 'Factions.csv') | ForEach-Object {
+  [ordered]@{
+    id = $_.faction_id
+    displayName = $_.display_name
+    members = @(Split-List $_.members)
+    thug = $_.thug
     notes = $_.notes
   }
 }
@@ -201,6 +212,7 @@ if ($FactionErrors.Count) {
 }
 
 $Data = [ordered]@{
+  factions = @($Factions)
   characters = @($Characters)
   characterCommerceTraits = @($CharacterCommerceTraits)
   items = @($Items)

@@ -101,6 +101,7 @@ const characters = readTable('Characters.csv').map(row => ({
   spritePath: row.sprite_path,
   facing: row.facing,
   spriteClass: row.sprite_class,
+  spriteVisualHeight: row.sprite_visual_height ? number(row.sprite_visual_height) : null,
   activeInRotation: bool(row.active_in_rotation),
   cashMin: number(row.cash_min),
   cashMax: number(row.cash_max),
@@ -110,6 +111,14 @@ const characters = readTable('Characters.csv').map(row => ({
   thugRiskBias: number(row.thug_risk_bias),
   scamRiskBias: number(row.scam_risk_bias),
   preferredItemTags: list(row.preferred_item_tags),
+  notes: row.notes
+}));
+
+const factions = readTable('Factions.csv').map(row => ({
+  id: row.faction_id,
+  displayName: row.display_name,
+  members: list(row.members),
+  thug: row.thug,
   notes: row.notes
 }));
 
@@ -252,6 +261,7 @@ if (factionErrors.length) {
 }
 
 const data = {
+  factions,
   characters,
   characterCommerceTraits,
   items,
@@ -262,6 +272,7 @@ const data = {
 const decimalNumberKeys = new Set([
   'cashMin',
   'cashMax',
+  'spriteVisualHeight',
   'copRiskBias',
   'thugRiskBias',
   'scamRiskBias',

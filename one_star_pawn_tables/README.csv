@@ -16,16 +16,23 @@ Lists,Dropdown/reference values.
 ,
 Active sprite mappings,,
 character_id,sprite_path,facing
-70s_hustler,assets/sprites/70s-hustler-idle_r.png,right
-bum,assets/sprites/bum-idle_l.png,left
-crackhead,assets/sprites/crackhead-idle_l.png,left
-hitman,assets/sprites/hitman-idle_l.png,left
-junkie,assets/sprites/junkie-idle_r.png,right
-red_hustler,assets/sprites/red-hustler-idle_l.png,left
-slot_grandma,assets/sprites/slot-grandma-idle_r.png,right
+bum,assets/sprites/street-bum-idle_l.png,left
+crackhead,assets/sprites/street-crackhead-idle_l.png,left
+hitman,assets/sprites/service-hitman-idle_l.png,left
+hustler-kangol,assets/sprites/hustler-kangol-idle_l.png,left
+hustler-shorty,assets/sprites/hustler-shorty-idle_l.png,left
+hustler-sista,assets/sprites/hustler-sista-idle_r.png,right
+junkie,assets/sprites/street-junkie-idle_r.png,right
+old-grandma-slots,assets/sprites/old_grandma-slots_idel_r.png,right
+regular-business-drunk,assets/sprites/regular-business-drunk-idle_i.png,left
+regular-lady-divorce,assets/sprites/regular-lady-divorce-idle_r.png,right
+regular-mr-seventies,assets/sprites/regular-mr-seventies-idle_r.png,right
+senior-grandpa-catfish,assets/sprites/senior-grandpa-catfish-idle_l.png,left
+tracksuit-legs,assets/sprites/tracksuit-legs-idle_l.png,left
+tracksuit-slim,assets/sprites/tracksuit-slim-idle_r.png,right
 ""
 Adding an NPC,
-1,Add a transparent customer PNG under assets/sprites/ using the required _r or _l facing suffix.
+1,Add a transparent customer PNG under assets/sprites/ using the required _r or _l facing suffix; _i is allowed only for existing neutral/front-facing assets.
 2,Add a character row with a direct sprite_path matching the real asset exactly and set facing to right or left.
 3,Add or reference commerce traits.
 4,Add item-pool rows that can produce at least one valid deal.
@@ -36,9 +43,10 @@ Adding an NPC,
 Rules,
 No JavaScript whitelist should be updated.,
 No alias PNG should be created.,
-Customer sprite filenames used in active rotation must end in _r.png or _l.png.,
+Customer sprite filenames used in active rotation must end in _r.png or _l.png; existing neutral/front-facing assets may end in _i.png.,
 "_r means the sprite faces right, enters from the left, idles on the left side, and exits to the left.",
 "_l means the sprite faces left, enters from the right, idles on the right side, and exits to the right.",
+"_i means the sprite is neutral/front-facing; use the row facing value for entry side without mirroring.",
 The facing field in Characters.csv must match the filename suffix.,
 The filename stored in the data must match the real asset exactly.,
 clerk-idle.png is exempt because the clerk does not enter or exit the customer stage.,
