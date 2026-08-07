@@ -232,7 +232,7 @@ function activeTestCustomer(hooks, id) {
   };
 }
 
-function prepareFastNextSmoke(hooks, deal, nextCustomerId = 'slot_grandma') {
+function prepareFastNextSmoke(hooks, deal, nextCustomerId = 'regular-grandma-slots') {
   hooks.setFastTestMode(true);
   hooks.setActiveCustomers([
     activeTestCustomer(hooks, deal.customer.id),
@@ -255,7 +255,7 @@ async function pressNextAndWaitForNewNpc(hooks, previousCustomerId, previousTurn
   assert.equal(hooks.state.conversation?.phase, 'intro');
 }
 
-function prepareAutoAdvanceSmoke(hooks, deal, nextCustomerId = 'slot_grandma') {
+function prepareAutoAdvanceSmoke(hooks, deal, nextCustomerId = 'regular-grandma-slots') {
   hooks.setActiveCustomers([
     activeTestCustomer(hooks, deal.customer.id),
     activeTestCustomer(hooks, nextCustomerId)
@@ -359,7 +359,7 @@ test('v0.1.26 accepted marked-up sale auto-advances exactly once', async () => {
   const hooks = loadGame(0);
   resetState(hooks);
   forceNegotiationOutcome(hooks, 'markup', 'accepted');
-  const { deal, shelfItem } = prepareSaleDeal(hooks, 'red_hustler_buys_watch', 'suspicious_gold_watch');
+  const { deal, shelfItem } = prepareSaleDeal(hooks, 'hustler_shorty_buys_watch', 'suspicious_gold_watch');
   deal.salePrice = 50;
   deal.markupPrice = 65;
   prepareAutoAdvanceSmoke(hooks, deal);
@@ -379,27 +379,27 @@ test('v0.1.26 Tracksuit final refusal after rejected lowball queues future thug 
   hooks.state.turn = 31;
   hooks.state.factionPressure.tracksuit_crew = 3;
   forceNegotiationOutcome(hooks, 'lowball', 'rejectedOriginal');
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === '70s_hustler_gold_watch'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_legs_locked_watch'));
   prepareAutoAdvanceSmoke(hooks, deal);
   const previousTurn = hooks.state.turn;
 
   hooks.resolveChoice('lowball');
   assert.equal(hooks.state.conversation.phase, 'choices');
-  assert.equal(hooks.state.currentCustomer.id, '70s_hustler');
+  assert.equal(hooks.state.currentCustomer.id, 'tracksuit-legs');
   hooks.resolveChoice('refuse');
 
   assert.equal(hooks.state.factionPressure.tracksuit_crew, 4);
   assert.equal(hooks.state.consequenceQueue.filter(entry => entry.type === 'thug_robbery_consequence' && !entry.resolved).length, 1);
   await drainResolvedAutoAdvance(hooks, deal.customer.id, previousTurn);
   assert.equal(hooks.state.turn, previousTurn + 1);
-  assert.notEqual(hooks.state.currentCustomer?.id, 'tracksuit_thug');
+  assert.notEqual(hooks.state.currentCustomer?.id, 'tracksuit-thug-vincent');
 });
 
 test('v0.1.26 non-terminal counteroffer flow does not auto-advance until final refusal', async () => {
   const hooks = loadGame(0);
   resetState(hooks);
   forceNegotiationOutcome(hooks, 'markup', 'counteroffer');
-  const { deal } = prepareSaleDeal(hooks, 'red_hustler_buys_watch', 'suspicious_gold_watch');
+  const { deal } = prepareSaleDeal(hooks, 'hustler_shorty_buys_watch', 'suspicious_gold_watch');
   prepareAutoAdvanceSmoke(hooks, deal);
   const previousTurn = hooks.state.turn;
 
@@ -416,7 +416,7 @@ test('v0.1.26 accepted normal-price sale and completed seller purchase auto-adva
   let hooks = loadGame(0);
   resetState(hooks);
   let prepared = prepareSaleDeal(hooks, 'bargain_hunter_buys_dvds', 'dvd_stack');
-  prepareAutoAdvanceSmoke(hooks, prepared.deal, 'slot_grandma');
+  prepareAutoAdvanceSmoke(hooks, prepared.deal, 'regular-grandma-slots');
   let previousTurn = hooks.state.turn;
 
   hooks.resolveChoice('sellTag');
@@ -436,7 +436,7 @@ test('v0.1.26 rejected markup stays open without advancing', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   forceNegotiationOutcome(hooks, 'markup', 'rejectedOriginal');
-  const { deal } = prepareSaleDeal(hooks, 'red_hustler_buys_watch', 'suspicious_gold_watch');
+  const { deal } = prepareSaleDeal(hooks, 'hustler_shorty_buys_watch', 'suspicious_gold_watch');
   prepareAutoAdvanceSmoke(hooks, deal);
   const previousTurn = hooks.state.turn;
 
@@ -471,8 +471,8 @@ test('v0.1.26 resolved trade and special consequence auto-advance', async () => 
   hooks.state.money = 80;
   hooks.state.factionPressure.tracksuit_crew = 4;
   const consequence = hooks.queueThugConsequence('progression smoke', { debug: true });
-  deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit_thug'));
-  prepareAutoAdvanceSmoke(hooks, deal, 'slot_grandma');
+  deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit-thug-vincent'));
+  prepareAutoAdvanceSmoke(hooks, deal, 'regular-grandma-slots');
   previousTurn = hooks.state.turn;
 
   hooks.resolveChoice('thugCash');
@@ -485,7 +485,7 @@ test('copy turn history copies complete log without mutating game state', async 
   const firstDeal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'bum_microwave'));
   primeChoiceSmoke(hooks, firstDeal);
   hooks.resolveChoice('buyAsk');
-  const secondDeal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_locked_watch'));
+  const secondDeal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_locked_watch'));
   primeChoiceSmoke(hooks, secondDeal);
   hooks.resolveChoice('refuse');
   const before = {
@@ -525,9 +525,9 @@ test('v0.1.29 consequence meters read distinct cop, hustler, and tracksuit state
   assert.equal(cop.threshold, 25);
   assert.equal(hustler.value, 2);
   assert.equal(tracksuit.value, 3);
-  assert.match(hustler.detail, /Thug hustler-heavy/);
+  assert.match(hustler.detail, /Thug hustler-thug-red/);
   assert.match(hustler.detail, /Event hustler_thug_robbery/);
-  assert.match(tracksuit.detail, /Thug tracksuit-thug/);
+  assert.match(tracksuit.detail, /Thug tracksuit-thug-vincent/);
   assert.match(tracksuit.detail, /Event tracksuit_thug_robbery/);
 });
 
@@ -572,10 +572,10 @@ test('v0.1.33 copy consequence meters includes build and all meter diagnostics',
   assert.match(result.text, /Build: v0\.1\.33/);
   assert.match(result.text, /Cop\nRisk: 20\/25/);
   assert.match(result.text, /Hustler Thug\nFaction: hustlers\nPressure: 1\/4/);
-  assert.match(result.text, /Thug: hustler-heavy/);
+  assert.match(result.text, /Thug: hustler-thug-red/);
   assert.match(result.text, /Event: hustler_thug_robbery/);
   assert.match(result.text, /Tracksuit Thug\nFaction: tracksuits\nPressure: 3\/4/);
-  assert.match(result.text, /Thug: tracksuit-thug/);
+  assert.match(result.text, /Thug: tracksuit-thug-vincent/);
   assert.match(result.text, /Event: tracksuit_thug_robbery/);
   assert.equal(hooks.getCopyConsequenceMetersLabel(), 'COPIED');
 });
@@ -586,13 +586,13 @@ test('v0.1.30 restored normal NPC data chains resolve from generated data', () =
   const expected = [
     ['regular-business-drunk', 'regular_business_drunk_sunglasses', 'regular_business_drunk_sunglasses_offer', 'assets/sprites/regular-business-drunk-idle_r.png'],
     ['regular-lady-divorce', 'regular_lady_divorce_gold_bracelet', 'regular_lady_divorce_bracelet_offer', 'assets/sprites/regular-lady-divorce-idle_r.png'],
-    ['regular-jan-lee', 'regular_jan_lee_blender', 'regular_jan_lee_blender_offer', 'assets/sprites/regular-jan-lee-idle_r.png'],
+    ['money-jan-takai', 'regular_jan_lee_blender', 'regular_jan_lee_blender_offer', 'assets/sprites/money-jan-takai-idle_r.png'],
     ['regular-mr-tourist', 'regular_mr_tourist_camera', 'regular_mr_tourist_camera_offer', 'assets/sprites/regular-mr-tourist-idle_l.png'],
     ['regular-mrs-tourist', 'regular_mrs_tourist_bracelet', 'regular_mrs_tourist_bracelet_offer', 'assets/sprites/regular-mrs-tourist-idle_r.png'],
     ['regular-tim-lee', 'regular_tim_lee_laptop', 'regular_tim_lee_laptop_offer', 'assets/sprites/regular-tim-lee-idle_r.png'],
-    ['regular-salaryman', 'regular_salaryman_watch', 'regular_salaryman_watch_offer', 'assets/sprites/regular_salaryman_idle_r.png'],
-    ['old-grandma-slots', 'old_grandma_slots_gold_ring', 'old_grandma_slots_ring_offer', 'assets/sprites/old_grandma-slots_idel_r.png'],
-    ['senior-grandpa-catfish', 'senior_grandpa_catfish_drill', 'senior_grandpa_catfish_tool_offer', 'assets/sprites/senior-grandpa-catfish-idle_l.png']
+    ['money-salaryman', 'regular_salaryman_watch', 'regular_salaryman_watch_offer', 'assets/sprites/money-salaryman-idle_r.png'],
+    ['regular-grandma-slots', 'old_grandma_slots_gold_ring', 'old_grandma_slots_ring_offer', 'assets/sprites/regular-grandma-slots-idle_l.png'],
+    ['regular-grandpa-catfish', 'senior_grandpa_catfish_drill', 'senior_grandpa_catfish_tool_offer', 'assets/sprites/regular-grandpa-catfish-idle_l.png']
   ];
 
   expected.forEach(([characterId, poolId, eventId, spritePath]) => {
@@ -612,13 +612,13 @@ test('v0.1.30 restored normal NPCs have executable selectable encounters', () =>
   [
     'regular-business-drunk',
     'regular-lady-divorce',
-    'regular-jan-lee',
+    'money-jan-takai',
     'regular-mr-tourist',
     'regular-mrs-tourist',
     'regular-tim-lee',
-    'regular-salaryman',
-    'old-grandma-slots',
-    'senior-grandpa-catfish'
+    'money-salaryman',
+    'regular-grandma-slots',
+    'regular-grandpa-catfish'
   ].forEach(characterId => {
     const character = hooks.getCharacter(characterId);
     const pools = hooks.getSelectablePoolsForCharacter(character);
@@ -636,11 +636,11 @@ test('new regular NPCs have executable pools and blueprints for every enabled de
 
   [
     'regular-business-drunk',
-    'regular-jan-lee',
+    'money-jan-takai',
     'regular-mr-tourist',
     'regular-mrs-tourist',
     'regular-tim-lee',
-    'regular-salaryman'
+    'money-salaryman'
   ].forEach(characterId => {
     hooks.setActiveCustomers([activeTestCustomer(hooks, characterId)]);
     const character = hooks.getCharacter(characterId);
@@ -672,13 +672,13 @@ test('v0.1.30 hustler thug event resolves, queues, and updates the meter', () =>
   hooks.setFactionPressure('hustlers', hooks.constants.TRACKSUIT_CONSEQUENCE_MIN_PRESSURE);
 
   let hustler = hooks.getConsequenceDiagnostics().find(meter => meter.id === 'hustlers');
-  assert.match(hustler.detail, /Thug hustler-heavy/);
+  assert.match(hustler.detail, /Thug hustler-thug-red/);
   assert.match(hustler.detail, /Event hustler_thug_robbery/);
 
-  const consequence = hooks.maybeQueueFactionThugConsequence('hustlers', { customer: hooks.getCharacter('hustler-sista'), thugHistoryLines: [] }, 'hustler test threshold');
+  const consequence = hooks.maybeQueueFactionThugConsequence('hustlers', { customer: hooks.getCharacter('hustler-cool-j'), thugHistoryLines: [] }, 'hustler test threshold');
   assert.ok(consequence);
   assert.equal(consequence.factionId, 'hustlers');
-  assert.equal(consequence.metadata.thugCharacterId, 'hustler-heavy');
+  assert.equal(consequence.metadata.thugCharacterId, 'hustler-thug-red');
 
   hustler = hooks.getConsequenceDiagnostics().find(meter => meter.id === 'hustlers');
   assert.equal(hustler.queued, true);
@@ -917,7 +917,7 @@ test('v0.1.32 accepted faction lowball queues matching thug at threshold and ref
   assert.equal(hooks.state.factionPressure.hustlers, 4);
   const queued = hooks.state.consequenceQueue.find(entry => entry.type === 'thug_robbery_consequence' && entry.factionId === 'hustlers' && !entry.resolved);
   assert.ok(queued);
-  assert.equal(queued.metadata.thugCharacterId, 'hustler-heavy');
+  assert.equal(queued.metadata.thugCharacterId, 'hustler-thug-red');
   const hustler = hooks.getConsequenceDiagnostics().find(meter => meter.id === 'hustlers');
   assert.equal(hustler.value, 4);
   assert.equal(hustler.queued, true);
@@ -940,7 +940,7 @@ test('v0.1.32 accepted tracksuit lowball queues tracksuit thug at threshold', ()
   assert.equal(hooks.state.factionPressure.tracksuits, 4);
   const queued = hooks.state.consequenceQueue.find(entry => entry.type === 'thug_robbery_consequence' && entry.factionId === 'tracksuits' && !entry.resolved);
   assert.ok(queued);
-  assert.equal(queued.metadata.thugCharacterId, 'tracksuit-thug');
+  assert.equal(queued.metadata.thugCharacterId, 'tracksuit-thug-vincent');
   const tracksuit = hooks.getConsequenceDiagnostics().find(meter => meter.id === 'tracksuits');
   assert.equal(tracksuit.value, 4);
   assert.equal(tracksuit.queued, true);
@@ -987,7 +987,7 @@ test('v0.1.31 hustler pressure threshold queues hustler thug through shared sche
   assert.equal(hooks.state.factionPressure.hustlers, 4);
   const queued = hooks.state.consequenceQueue.find(entry => entry.type === 'thug_robbery_consequence' && entry.factionId === 'hustlers' && !entry.resolved);
   assert.ok(queued);
-  assert.equal(queued.metadata.thugCharacterId, 'hustler-heavy');
+  assert.equal(queued.metadata.thugCharacterId, 'hustler-thug-red');
   const hustler = hooks.getConsequenceDiagnostics().find(meter => meter.id === 'hustlers');
   assert.equal(hustler.queued, true);
   assert.match(hustler.detail, /Event hustler_thug_robbery/);
@@ -1064,7 +1064,7 @@ test('successful demand-cash trade receives Collectible Action Figure with insta
   resetState(hooks);
   const sourceItem = item(hooks, 'gold_ring_engravings', 64);
   hooks.state.inventory.push(sourceItem);
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_figure_trade'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_figure_trade'));
   deal.cashInstead = 38;
   deal.selectedTradeInventoryInstanceIds = [sourceItem.instanceId];
   deal.requestedInventoryItems = [sourceItem];
@@ -1125,7 +1125,7 @@ test('failed demand-cash trade does not mutate inventory', () => {
   resetState(hooks);
   const sourceItem = item(hooks, 'gold_ring_engravings', 64);
   hooks.state.inventory.push(sourceItem);
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_figure_trade'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_figure_trade'));
   deal.selectedTradeInventoryInstanceIds = [sourceItem.instanceId];
   deal.requestedInventoryItems = [sourceItem];
   deal.requestedInventoryItem = sourceItem;
@@ -1167,11 +1167,10 @@ test('v0.1.23 failed Hitman cash-demand trade resolves terminally and next custo
   assert.equal(hooks.getTurnHistory().length, 1);
   const history = hooks.getTurnHistory()[0].lines.join('\n');
   assert.match(history, /ordinary failed negotiation, not refund\/dispute payout/i);
-  assert.match(history, /ordinary pressure capped \d+ -> [12]/i);
-  assert.ok((hooks.state.factionPressure.tracksuit_crew || 0) <= 2);
+  assert.equal(hooks.state.factionPressure.tracksuit_crew || 0, 0);
   assert.match(history, /Finalized trade state after cash-demand resolution/i);
 
-  hooks.setActiveCustomers([activeTestCustomer(hooks, 'slot_grandma')]);
+  hooks.setActiveCustomers([activeTestCustomer(hooks, 'regular-grandma-slots')]);
   await new Promise(resolve => setTimeout(resolve, 160));
   assert.equal(hooks.state.conversation.phase, 'resolved');
   assert.equal(hooks.state.conversation.index, 1);
@@ -1184,7 +1183,7 @@ test('v0.1.27 identical item_id trade candidates are excluded from selection', (
   const cards = item(hooks, 'baseball_card_box', 16);
   const ring = item(hooks, 'gold_ring_engravings', 64);
   hooks.state.inventory.push(cards, ring);
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === '70s_hustler_cards_trade'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'regular_mr_seventies_cards_trade'));
   hooks.state.currentDeal = deal;
 
   hooks.openTradeSelection();
@@ -1203,7 +1202,7 @@ test('v0.1.27 baseball cards cannot be traded for baseball cards even with cash'
   resetState(hooks);
   const cards = item(hooks, 'baseball_card_box', 16);
   hooks.state.inventory.push(cards);
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === '70s_hustler_cards_trade'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'regular_mr_seventies_cards_trade'));
   deal.cashAdjustment = -25;
   deal.cashInstead = 25;
   deal.selectedTradeInventoryInstanceIds = [cards.instanceId];
@@ -1231,7 +1230,7 @@ test('v0.1.27 no eligible inventory after identical-item exclusion keeps trade u
   resetState(hooks);
   const cards = item(hooks, 'baseball_card_box', 16);
   hooks.state.inventory.push(cards);
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === '70s_hustler_cards_trade'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'regular_mr_seventies_cards_trade'));
   hooks.state.currentDeal = deal;
   deal.selectedTradeInventoryInstanceIds = [cards.instanceId];
   const before = hooks.snapshotState();
@@ -1258,7 +1257,7 @@ test('v0.1.27 different item types remain eligible and normal trade confirmation
   resetState(hooks);
   const ring = item(hooks, 'gold_ring_engravings', 64);
   hooks.state.inventory.push(ring);
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === '70s_hustler_cards_trade'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'regular_mr_seventies_cards_trade'));
   deal.cashAdjustment = 0;
   deal.selectedTradeInventoryInstanceIds = [ring.instanceId];
 
@@ -1275,20 +1274,20 @@ test('v0.1.27 different item types remain eligible and normal trade confirmation
 test('v0.1.27 repeated customer item offers remain possible across separate encounters', () => {
   const hooks = loadGame(0);
   resetState(hooks);
-  const cardsPool = hooks.data.characterItemPools.find(entry => entry.id === '70s_hustler_cards_trade');
-  const redHustlerPool = hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_figure_trade');
+  const cardsPool = hooks.data.characterItemPools.find(entry => entry.id === 'regular_mr_seventies_cards_trade');
+  const redHustlerPool = hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_figure_trade');
 
   const firstDeal = hooks.buildDeal(cardsPool);
   const secondDeal = hooks.buildDeal(cardsPool);
   const firstRedHustlerDeal = hooks.buildDeal(redHustlerPool);
   const secondRedHustlerDeal = hooks.buildDeal(redHustlerPool);
 
-  assert.equal(firstDeal.customer.id, '70s_hustler');
-  assert.equal(secondDeal.customer.id, '70s_hustler');
+  assert.equal(firstDeal.customer.id, 'regular-mr-seventies');
+  assert.equal(secondDeal.customer.id, 'regular-mr-seventies');
   assert.equal(firstDeal.item.id, 'baseball_card_box');
   assert.equal(secondDeal.item.id, 'baseball_card_box');
-  assert.equal(firstRedHustlerDeal.customer.id, 'red_hustler');
-  assert.equal(secondRedHustlerDeal.customer.id, 'red_hustler');
+  assert.equal(firstRedHustlerDeal.customer.id, 'hustler-shorty');
+  assert.equal(secondRedHustlerDeal.customer.id, 'hustler-shorty');
   assert.equal(firstRedHustlerDeal.item.id, 'rare_action_figure');
   assert.equal(secondRedHustlerDeal.item.id, 'rare_action_figure');
 });
@@ -1360,82 +1359,82 @@ test('multi-item trade offer does not duplicate inventory removal', () => {
 test('normal selection blocks Bum on the third consecutive normal selection', () => {
   const hooks = loadGame(0);
   resetState(hooks);
-  hooks.setActiveCustomers([hooks.getCharacter('bum'), hooks.getCharacter('slot_grandma')]);
-  hooks.state.normalCustomerHistory = ['bum', 'bum'];
+  hooks.setActiveCustomers([hooks.getCharacter('street-bum'), hooks.getCharacter('regular-grandma-slots')]);
+  hooks.state.normalCustomerHistory = ['street-bum', 'street-bum'];
 
   const selection = hooks.chooseNextCustomerWithPools();
 
-  assert.equal(selection.customer.id, 'slot_grandma');
-  assert.deepEqual(Array.from(selection.diagnostics.blockedCustomerIds), ['bum']);
-  assert.match(hooks.formatSelectionDiagnostics(selection.diagnostics), /bum \(2 consecutive normal encounters\)/);
+  assert.equal(selection.customer.id, 'regular-grandma-slots');
+  assert.deepEqual(Array.from(selection.diagnostics.blockedCustomerIds), ['street-bum']);
+  assert.match(hooks.formatSelectionDiagnostics(selection.diagnostics), /street-bum \(2 consecutive normal encounters\)/);
 });
 
 test('special consequence does not clear a normal Bum streak', () => {
   const hooks = loadGame(0);
   resetState(hooks);
-  hooks.setActiveCustomers([hooks.getCharacter('bum'), hooks.getCharacter('slot_grandma')]);
-  hooks.state.normalCustomerHistory = ['bum', 'bum'];
+  hooks.setActiveCustomers([hooks.getCharacter('street-bum'), hooks.getCharacter('regular-grandma-slots')]);
+  hooks.state.normalCustomerHistory = ['street-bum', 'street-bum'];
   hooks.state.normalEncountersSinceSpecial = 0;
 
   const selection = hooks.chooseNextCustomerWithPools();
 
-  assert.equal(selection.customer.id, 'slot_grandma');
-  assert.deepEqual(Array.from(hooks.state.normalCustomerHistory), ['bum', 'bum']);
+  assert.equal(selection.customer.id, 'regular-grandma-slots');
+  assert.deepEqual(Array.from(hooks.state.normalCustomerHistory), ['street-bum', 'street-bum']);
 });
 
 test('encounter follow-up choices do not duplicate normal-history entries', () => {
   const hooks = loadGame(0.99);
   resetState(hooks);
-  hooks.rememberNormalCustomer('bum');
+  hooks.rememberNormalCustomer('street-bum');
   const sourceItem = item(hooks, 'gold_ring_engravings', 64);
   hooks.state.inventory.push(sourceItem);
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_figure_trade'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_figure_trade'));
 
   hooks.resolveTrade('tradeCash', deal);
   hooks.resolveTrade('tradeCash', deal);
 
-  assert.deepEqual(Array.from(hooks.state.normalCustomerHistory), ['bum']);
+  assert.deepEqual(Array.from(hooks.state.normalCustomerHistory), ['street-bum']);
 });
 
 test('sole eligible normal customer remains selectable after two consecutive appearances', () => {
   const hooks = loadGame(0);
   resetState(hooks);
-  hooks.setActiveCustomers([hooks.getCharacter('bum')]);
-  hooks.state.normalCustomerHistory = ['bum', 'bum'];
+  hooks.setActiveCustomers([hooks.getCharacter('street-bum')]);
+  hooks.state.normalCustomerHistory = ['street-bum', 'street-bum'];
 
   const selection = hooks.chooseNextCustomerWithPools();
 
-  assert.equal(selection.customer.id, 'bum');
+  assert.equal(selection.customer.id, 'street-bum');
   assert.deepEqual(Array.from(selection.diagnostics.blockedCustomerIds), []);
 });
 
 test('non-Bum customers follow the same consecutive-repeat block', () => {
   const hooks = loadGame(0);
   resetState(hooks);
-  hooks.setActiveCustomers([hooks.getCharacter('red_hustler'), hooks.getCharacter('slot_grandma')]);
+  hooks.setActiveCustomers([hooks.getCharacter('hustler-shorty'), hooks.getCharacter('regular-grandma-slots')]);
   hooks.state.inventory.push(item(hooks, 'gold_ring_engravings', 64));
-  hooks.state.normalCustomerHistory = ['red_hustler', 'red_hustler'];
+  hooks.state.normalCustomerHistory = ['hustler-shorty', 'hustler-shorty'];
 
   const selection = hooks.chooseNextCustomerWithPools();
 
-  assert.equal(selection.customer.id, 'slot_grandma');
-  assert.deepEqual(Array.from(selection.diagnostics.blockedCustomerIds), ['red_hustler']);
+  assert.equal(selection.customer.id, 'regular-grandma-slots');
+  assert.deepEqual(Array.from(selection.diagnostics.blockedCustomerIds), ['hustler-shorty']);
 });
 
 test('v0.1.23 alternating low-tier customers receive group saturation penalty', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   hooks.setActiveCustomers([
-    hooks.getCharacter('bum'),
-    hooks.getCharacter('crackhead'),
-    hooks.getCharacter('junkie'),
-    hooks.getCharacter('slot_grandma')
+    hooks.getCharacter('street-bum'),
+    hooks.getCharacter('street-crackhead'),
+    hooks.getCharacter('street-junkie'),
+    hooks.getCharacter('regular-grandma-slots')
   ]);
-  hooks.state.normalCustomerHistory = ['bum', 'crackhead', 'junkie'];
+  hooks.state.normalCustomerHistory = ['street-bum', 'street-crackhead', 'street-junkie'];
 
   const selection = hooks.chooseNextCustomerWithPools();
   const diagnostics = selection.diagnostics;
-  const lowTierIds = ['bum', 'crackhead', 'junkie'];
+  const lowTierIds = ['street-bum', 'street-crackhead', 'street-junkie'];
   const lowTierWeights = diagnostics.weights.filter(entry => lowTierIds.includes(entry.id));
   const nonLowTierWeights = diagnostics.weights.filter(entry => !lowTierIds.includes(entry.id));
 
@@ -1450,15 +1449,15 @@ test('v0.1.23 low-tier group is not suppressed without executable alternative', 
   const hooks = loadGame(0);
   resetState(hooks);
   hooks.setActiveCustomers([
-    hooks.getCharacter('bum'),
-    hooks.getCharacter('crackhead'),
-    hooks.getCharacter('junkie')
+    hooks.getCharacter('street-bum'),
+    hooks.getCharacter('street-crackhead'),
+    hooks.getCharacter('street-junkie')
   ]);
-  hooks.state.normalCustomerHistory = ['bum', 'crackhead', 'junkie', 'bum'];
+  hooks.state.normalCustomerHistory = ['street-bum', 'street-crackhead', 'street-junkie', 'street-bum'];
 
   const selection = hooks.chooseNextCustomerWithPools();
 
-  assert.ok(['bum', 'crackhead', 'junkie'].includes(selection.customer.id));
+  assert.ok(['street-bum', 'street-crackhead', 'street-junkie'].includes(selection.customer.id));
   assert.ok(selection.diagnostics.weights.every(entry => entry.lowTierGroupMultiplier === 1));
   assert.match(hooks.formatSelectionDiagnostics(selection.diagnostics), /alternative available no/i);
 });
@@ -1477,11 +1476,11 @@ test('v0.1.23 reputation modifier remains mild at extremes', () => {
   assert.ok(Math.abs(lowRep.reputationModifier) <= 3);
 });
 
-test('v0.1.24 70s Hustler accepted modest lowball completes purchase and adds one Tracksuit pressure', () => {
+test('v0.1.24 Tracksuit Legs accepted modest lowball completes purchase without Tracksuit pressure', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   forceNegotiationOutcome(hooks, 'lowball', 'accepted');
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === '70s_hustler_gold_watch'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_legs_locked_watch'));
   deal.lowballPrice = Math.max(1, Math.ceil(deal.askingPrice * 0.75));
   const before = hooks.snapshotState();
 
@@ -1490,16 +1489,15 @@ test('v0.1.24 70s Hustler accepted modest lowball completes purchase and adds on
   assert.equal(deal.lowballOutcome, 'accepted');
   assert.equal(hooks.state.money, before.money - deal.lowballPrice);
   assert.equal(hooks.state.inventory.length, before.inventory.length + 1);
-  assert.equal(hooks.state.factionPressure.tracksuit_crew, 1);
-  assert.match((deal.factionPressureHistoryLines || []).join('\n'), /Tracksuit Pressure: 0 -> 1 \(\+1\)/);
-  assert.match((deal.factionPressureHistoryLines || []).join('\n'), /accepted a mild below-asking fence offer/i);
+  assert.equal(hooks.state.factionPressure.tracksuits || 0, 0);
+  assert.doesNotMatch((deal.factionPressureHistoryLines || []).join('\n'), /Tracksuit Pressure:/);
 });
 
-test('v0.1.25 Red Hustler accepted severe lowball completes purchase and adds one Tracksuit pressure', () => {
+test('v0.1.25 Tracksuit Legs accepted severe lowball completes purchase and adds one Tracksuit pressure', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   forceNegotiationOutcome(hooks, 'lowball', 'accepted');
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_locked_watch'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_legs_locked_watch'));
   deal.lowballPrice = Math.max(1, Math.ceil(deal.askingPrice * 0.45));
   const before = hooks.snapshotState();
 
@@ -1508,21 +1506,21 @@ test('v0.1.25 Red Hustler accepted severe lowball completes purchase and adds on
   assert.equal(deal.lowballOutcome, 'accepted');
   assert.equal(hooks.state.money, before.money - deal.lowballPrice);
   assert.equal(hooks.state.inventory.length, before.inventory.length + 1);
-  assert.equal(hooks.state.factionPressure.tracksuit_crew, 1);
+  assert.equal(hooks.state.factionPressure.tracksuits, 1);
   assert.ok(hooks.state.copRisk >= before.copRisk);
   assert.equal(hooks.state.scamRisk, before.scamRisk + 1);
-  assert.match((deal.factionPressureHistoryLines || []).join('\n'), /accepted a severe below-asking fence offer/i);
+  assert.match((deal.factionPressureHistoryLines || []).join('\n'), /accepted a severe below-asking offer/i);
 });
 
 test('v0.1.24 refusing affordable Tracksuit seller offer adds pressure once', () => {
   const hooks = loadGame(0);
   resetState(hooks);
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_locked_watch'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_legs_locked_watch'));
 
   hooks.resolveBuy('refuse', deal);
   hooks.resolveBuy('refuse', deal);
 
-  assert.equal(hooks.state.factionPressure.tracksuit_crew, 1);
+  assert.equal(hooks.state.factionPressure.tracksuits, 1);
   assert.equal((deal.factionPressureHistoryLines || []).filter(line => /Tracksuit Pressure:/.test(line)).length, 1);
 });
 
@@ -1530,71 +1528,71 @@ test('v0.1.24 refusing unaffordable Tracksuit seller offer adds no pressure', ()
   const hooks = loadGame(0);
   resetState(hooks);
   hooks.state.money = 1;
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_locked_watch'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_legs_locked_watch'));
 
   hooks.resolveBuy('refuse', deal);
 
-  assert.equal(hooks.state.factionPressure.tracksuit_crew || 0, 0);
-  assert.match((deal.factionPressureHistoryLines || []).join('\n'), /No Tracksuit pressure: the shop could not afford the original asking price/i);
+  assert.equal(hooks.state.factionPressure.tracksuits || 0, 0);
+  assert.match((deal.factionPressureHistoryLines || []).join('\n'), /offer was invalid or not executable/i);
 });
 
 test('v0.1.24 refusing Tracksuit buyer with matching inventory adds pressure once', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   hooks.state.inventory.push(item(hooks, 'suspicious_gold_watch', 43));
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_buys_watch'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_legs_buys_watch'));
 
   hooks.resolveSell('refuse', deal);
   hooks.resolveSell('refuse', deal);
 
-  assert.equal(hooks.state.factionPressure.tracksuit_crew, 1);
+  assert.equal(hooks.state.factionPressure.tracksuits, 1);
   assert.equal((deal.factionPressureHistoryLines || []).filter(line => /Tracksuit Pressure:/.test(line)).length, 1);
 });
 
 test('v0.1.24 refusing Tracksuit buyer with no matching inventory adds no pressure', () => {
   const hooks = loadGame(0);
   resetState(hooks);
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_buys_watch'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_legs_buys_watch'));
 
   hooks.resolveSell('refuse', deal);
 
-  assert.equal(hooks.state.factionPressure.tracksuit_crew || 0, 0);
-  assert.match((deal.factionPressureHistoryLines || []).join('\n'), /No Tracksuit pressure: no matching requested inventory was available/i);
+  assert.equal(hooks.state.factionPressure.tracksuits || 0, 0);
+  assert.match((deal.factionPressureHistoryLines || []).join('\n'), /requested item unavailable or unmatched/i);
 });
 
 test('v0.1.24 refusing Tracksuit trade with eligible inventory adds pressure once', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   hooks.state.inventory.push(item(hooks, 'cracked_tablet', 18));
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_figure_trade'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_legs_figure_trade'));
 
   hooks.resolveTrade('refuse', deal);
 
-  assert.equal(hooks.state.factionPressure.tracksuit_crew, 1);
+  assert.equal(hooks.state.factionPressure.tracksuits, 2);
   assert.match((deal.factionPressureHistoryLines || []).join('\n'), /proposed an actionable trade and the shop refused/i);
 });
 
 test('v0.1.24 refusing unavailable Tracksuit trade adds no pressure', () => {
   const hooks = loadGame(0);
   resetState(hooks);
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_figure_trade'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_legs_figure_trade'));
 
   hooks.resolveTrade('refuse', deal);
 
-  assert.equal(hooks.state.factionPressure.tracksuit_crew || 0, 0);
-  assert.match((deal.factionPressureHistoryLines || []).join('\n'), /No Tracksuit pressure: trade could not be constructed/i);
+  assert.equal(hooks.state.factionPressure.tracksuits || 0, 0);
+  assert.match((deal.factionPressureHistoryLines || []).join('\n'), /cancelled before a valid trade offer was formed/i);
 });
 
 test('v0.1.25 future-dispute Tracksuit sale records pending incident before dispute pressure', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   forceNegotiationOutcome(hooks, 'markup', 'acceptedFutureDispute');
-  const { deal } = prepareSaleDeal(hooks, 'red_hustler_buys_watch', 'suspicious_gold_watch');
+  const { deal } = prepareSaleDeal(hooks, 'tracksuit_legs_buys_watch', 'suspicious_gold_watch');
 
   hooks.resolveSell('markup', deal);
   hooks.resolveSell('markup', deal);
 
-  assert.equal(hooks.state.factionPressure.tracksuit_crew || 0, 0);
+  assert.equal(hooks.state.factionPressure.tracksuits || 0, 0);
   assert.equal(deal.tracksuitBadMerchandiseIncident.status, 'pending');
   assert.match((deal.factionPressureHistoryLines || []).join('\n'), /bad merchandise incident recorded as pending/i);
 });
@@ -1603,14 +1601,14 @@ test('v0.1.25 resolving pending Tracksuit dispute adds pressure exactly once', (
   const hooks = loadGame(0);
   resetState(hooks);
   forceNegotiationOutcome(hooks, 'markup', 'acceptedFutureDispute');
-  const { deal } = prepareSaleDeal(hooks, 'red_hustler_buys_watch', 'suspicious_gold_watch');
+  const { deal } = prepareSaleDeal(hooks, 'tracksuit_legs_buys_watch', 'suspicious_gold_watch');
 
   hooks.resolveSell('markup', deal);
   hooks.state.currentDeal = deal;
   hooks.angryCustomer();
   hooks.angryCustomer();
 
-  assert.equal(hooks.state.factionPressure.tracksuit_crew, 2);
+  assert.equal(hooks.state.factionPressure.tracksuits, 2);
   assert.equal((deal.factionPressureHistoryLines || []).filter(line => /Tracksuit Pressure:/.test(line)).length, 1);
   assert.equal(deal.tracksuitBadMerchandiseIncident.status, 'consumed');
   assert.match((deal.factionPressureHistoryLines || []).join('\n'), /duplicate bad merchandise dispute suppressed/i);
@@ -1620,32 +1618,32 @@ test('v0.1.25 one bad Tracksuit merchandise incident cannot exceed bounded press
   const hooks = loadGame(0);
   resetState(hooks);
   forceNegotiationOutcome(hooks, 'markup', 'acceptedFutureDispute');
-  const { deal } = prepareSaleDeal(hooks, 'red_hustler_buys_watch', 'suspicious_gold_watch');
+  const { deal } = prepareSaleDeal(hooks, 'tracksuit_legs_buys_watch', 'suspicious_gold_watch');
 
   hooks.resolveSell('markup', deal);
   hooks.state.currentDeal = deal;
   hooks.angryCustomer();
 
-  assert.equal(hooks.state.factionPressure.tracksuit_crew, hooks.constants.TRACKSUIT_RELATIONSHIP_PRESSURE.badMerchandise);
-  assert.ok(hooks.state.factionPressure.tracksuit_crew <= 2);
+  assert.equal(hooks.state.factionPressure.tracksuits, hooks.constants.TRACKSUIT_RELATIONSHIP_PRESSURE.badMerchandise);
+  assert.ok(hooks.state.factionPressure.tracksuits <= 2);
 });
 
 test('v0.1.24 ordinary sale of hidden-problem merchandise to Tracksuit buyer does not add premature pressure', () => {
   const hooks = loadGame(0);
   resetState(hooks);
-  const { deal, shelfItem } = prepareSaleDeal(hooks, 'red_hustler_buys_watch', 'luxury_handbag_fake');
+  const { deal, shelfItem } = prepareSaleDeal(hooks, 'tracksuit_legs_buys_watch', 'luxury_handbag_fake');
   shelfItem.hiddenProblem = { source: 'test' };
 
   hooks.resolveSell('sellTag', deal);
 
-  assert.equal(hooks.state.factionPressure.tracksuit_crew || 0, 0);
+  assert.equal(hooks.state.factionPressure.tracksuits || 0, 0);
 });
 
 test('v0.1.27 Tracksuit pressure 3 does not queue retaliation', () => {
   const hooks = loadGame(0);
   resetState(hooks);
-  hooks.state.factionPressure.tracksuit_crew = 3;
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === '70s_hustler_gold_watch'));
+  hooks.setFactionPressure('tracksuits', 3);
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_legs_locked_watch'));
 
   const consequence = hooks.maybeQueueThugConsequence(deal, 'below v0.1.27 threshold');
 
@@ -1657,16 +1655,16 @@ test('v0.1.27 Tracksuit pressure 3 does not queue retaliation', () => {
 test('v0.1.24 Tracksuit relationship pressure crossing threshold queues one thug consequence', () => {
   const hooks = loadGame(0);
   resetState(hooks);
-  hooks.state.factionPressure.tracksuit_crew = 3;
+  hooks.setFactionPressure('tracksuits', 3);
   forceNegotiationOutcome(hooks, 'lowball', 'accepted');
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === '70s_hustler_gold_watch'));
-  deal.lowballPrice = Math.max(1, Math.ceil(deal.askingPrice * 0.75));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_legs_locked_watch'));
+  deal.lowballPrice = Math.max(1, Math.ceil(deal.askingPrice * 0.45));
 
   hooks.resolveBuy('lowball', deal);
   hooks.resolveBuy('lowball', deal);
 
   const thugQueue = hooks.state.consequenceQueue.filter(entry => entry.type === 'thug_robbery_consequence');
-  assert.equal(hooks.state.factionPressure.tracksuit_crew, 4);
+  assert.equal(hooks.state.factionPressure.tracksuits, 4);
   assert.equal(thugQueue.length, 1);
   assert.equal(thugQueue[0].metadata.threshold, 4);
   assert.equal(thugQueue[0].metadata.factionPressureAtQueue, 4);
@@ -1677,14 +1675,14 @@ test('v0.1.25 accepted Tracksuit lowball and actionable refusal stay at one pres
   const hooks = loadGame(0);
   resetState(hooks);
   forceNegotiationOutcome(hooks, 'lowball', 'accepted');
-  const lowballDeal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === '70s_hustler_gold_watch'));
-  lowballDeal.lowballPrice = Math.max(1, Math.ceil(lowballDeal.askingPrice * 0.75));
+  const lowballDeal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_legs_locked_watch'));
+  lowballDeal.lowballPrice = Math.max(1, Math.ceil(lowballDeal.askingPrice * 0.45));
   hooks.resolveBuy('lowball', lowballDeal);
 
-  const refusalDeal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_locked_watch'));
+  const refusalDeal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_legs_locked_watch'));
   hooks.resolveBuy('refuse', refusalDeal);
 
-  assert.equal(hooks.state.factionPressure.tracksuit_crew, 2);
+  assert.equal(hooks.state.factionPressure.tracksuits, 2);
   assert.match((lowballDeal.factionPressureHistoryLines || []).join('\n'), /Tracksuit Pressure: 0 -> 1 \(\+1\)/);
   assert.match((refusalDeal.factionPressureHistoryLines || []).join('\n'), /Tracksuit Pressure: 1 -> 2 \(\+1\)/);
 });
@@ -1693,7 +1691,7 @@ test('v0.1.25 accepted Tracksuit markup adds bounded pressure without changing s
   const hooks = loadGame(0);
   resetState(hooks);
   forceNegotiationOutcome(hooks, 'markup', 'accepted');
-  const { deal } = prepareSaleDeal(hooks, 'red_hustler_buys_watch', 'suspicious_gold_watch');
+  const { deal } = prepareSaleDeal(hooks, 'tracksuit_legs_buys_watch', 'suspicious_gold_watch');
   deal.salePrice = 50;
   deal.markupPrice = 65;
   const before = hooks.snapshotState();
@@ -1702,39 +1700,39 @@ test('v0.1.25 accepted Tracksuit markup adds bounded pressure without changing s
 
   assert.equal(hooks.state.money, before.money + deal.markupPrice);
   assert.equal(hooks.state.inventory.length, before.inventory.length - 1);
-  assert.equal(hooks.state.factionPressure.tracksuit_crew, hooks.constants.TRACKSUIT_RELATIONSHIP_PRESSURE.acceptedMarkup.meaningful);
-  assert.match((deal.factionPressureHistoryLines || []).join('\n'), /accepted a moderate marked-up sale/i);
+  assert.equal(hooks.state.factionPressure.tracksuits, hooks.constants.TRACKSUIT_RELATIONSHIP_PRESSURE.acceptedMarkup.meaningful);
+  assert.match((deal.factionPressureHistoryLines || []).join('\n'), /completed a moderate marked-up sale/i);
 });
 
-test('v0.1.25 accepted aggressive Tracksuit markup caps at two pressure', () => {
+test('v0.1.25 accepted aggressive Tracksuit markup records bounded pressure', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   forceNegotiationOutcome(hooks, 'markup', 'accepted');
-  const { deal } = prepareSaleDeal(hooks, 'red_hustler_buys_watch', 'suspicious_gold_watch');
+  const { deal } = prepareSaleDeal(hooks, 'tracksuit_legs_buys_watch', 'suspicious_gold_watch');
   deal.salePrice = 50;
   deal.markupPrice = 110;
 
   hooks.resolveSell('markup', deal);
 
-  assert.equal(hooks.state.factionPressure.tracksuit_crew, hooks.constants.TRACKSUIT_RELATIONSHIP_PRESSURE.acceptedMarkup.aggressive);
-  assert.ok(hooks.state.factionPressure.tracksuit_crew <= 2);
-  assert.match((deal.factionPressureHistoryLines || []).join('\n'), /accepted a severe marked-up sale/i);
+  assert.equal(hooks.state.factionPressure.tracksuits, hooks.constants.TRACKSUIT_RELATIONSHIP_PRESSURE.acceptedMarkup.meaningful);
+  assert.ok(hooks.state.factionPressure.tracksuits <= 2);
+  assert.match((deal.factionPressureHistoryLines || []).join('\n'), /completed a severe marked-up sale/i);
 });
 
 test('v0.1.25 markup pressure and later dispute from same sale do not stack', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   forceNegotiationOutcome(hooks, 'markup', 'acceptedFutureDispute');
-  const { deal } = prepareSaleDeal(hooks, 'red_hustler_buys_watch', 'suspicious_gold_watch');
+  const { deal } = prepareSaleDeal(hooks, 'tracksuit_legs_buys_watch', 'suspicious_gold_watch');
   deal.salePrice = 50;
   deal.markupPrice = 110;
 
   hooks.resolveSell('markup', deal);
-  assert.equal(hooks.state.factionPressure.tracksuit_crew || 0, 0);
+  assert.equal(hooks.state.factionPressure.tracksuits || 0, hooks.constants.TRACKSUIT_RELATIONSHIP_PRESSURE.acceptedMarkup.meaningful);
   hooks.state.currentDeal = deal;
   hooks.angryCustomer();
 
-  assert.equal(hooks.state.factionPressure.tracksuit_crew, hooks.constants.TRACKSUIT_RELATIONSHIP_PRESSURE.badMerchandise);
+  assert.equal(hooks.state.factionPressure.tracksuits, hooks.constants.TRACKSUIT_RELATIONSHIP_PRESSURE.acceptedMarkup.meaningful);
   assert.equal((deal.factionPressureHistoryLines || []).filter(line => /Tracksuit Pressure:/.test(line)).length, 1);
   assert.doesNotMatch((deal.factionPressureHistoryLines || []).join('\n'), /accepted a severe marked-up sale/i);
 });
@@ -1750,9 +1748,9 @@ test('v0.1.25 early Tracksuit consequence uses source customer warning and has n
   hooks.state.scamRisk = 3;
   hooks.state.inventory.push(item(hooks, 'dvd_stack', 4));
   hooks.state.factionPressure.tracksuit_crew = 4;
-  hooks.state.factionPressureSources.tracksuit_crew = [{ turn: 7, customerName: 'Red Hustler', reason: 'test early offense', amount: 4 }];
-  const consequence = hooks.queueThugConsequence('early test pressure', { debug: true }, { customer: hooks.getCharacter('red_hustler') });
-  consequence.triggeringCharacterId = 'red_hustler';
+  hooks.state.factionPressureSources.tracksuit_crew = [{ turn: 7, customerName: 'Tracksuit Legs', reason: 'test early offense', amount: 4 }];
+  const consequence = hooks.queueThugConsequence('early test pressure', { debug: true }, { customer: hooks.getCharacter('tracksuit-legs') });
+  consequence.triggeringCharacterId = 'tracksuit-legs';
   const presentation = hooks.prepareTracksuitConsequencePresentation(consequence);
   const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter(presentation.characterId));
   const before = hooks.snapshotState();
@@ -1760,7 +1758,7 @@ test('v0.1.25 early Tracksuit consequence uses source customer warning and has n
   hooks.resolveConsequenceChoice('thugWarning', deal);
 
   assert.equal(presentation.warningOnly, true);
-  assert.equal(deal.customer.id, 'red_hustler');
+  assert.equal(deal.customer.id, 'tracksuit-legs');
   assert.equal(hooks.state.money, before.money);
   assert.equal(hooks.state.inventory.length, before.inventory.length);
   assert.equal(hooks.state.profit, before.profit);
@@ -1771,7 +1769,7 @@ test('v0.1.25 early Tracksuit consequence uses source customer warning and has n
   assert.equal(hooks.state.factionPressure.tracksuit_crew, 0);
   assert.equal(hooks.state.consequenceQueue.filter(entry => entry.type === 'thug_robbery_consequence' && !entry.resolved).length, 0);
   assert.equal(hooks.state.tracksuitRetaliationSettlingNormalEncountersRemaining, hooks.constants.TRACKSUIT_RETALIATION_SETTLING_NORMAL_ENCOUNTERS);
-  assert.match((deal.thugHistoryLines || []).join('\n'), /Early Tracksuit warning/i);
+  assert.match((deal.thugHistoryLines || []).join('\n'), /Early Tracksuits warning/i);
   assert.match((deal.thugHistoryLines || []).join('\n'), /Warning resolution: no money, inventory, Profit, reputation, cop risk, or scam risk changed/i);
 });
 
@@ -1781,8 +1779,8 @@ test('v0.1.25 T10 Tracksuit consequence keeps normal robbery presentation', () =
   hooks.state.turn = hooks.constants.TRACKSUIT_ROBBERY_MIN_TURN;
   hooks.state.money = 80;
   hooks.state.factionPressure.tracksuit_crew = 4;
-  const consequence = hooks.queueThugConsequence('turn ten pressure', { debug: true }, { customer: hooks.getCharacter('red_hustler') });
-  consequence.triggeringCharacterId = 'red_hustler';
+  const consequence = hooks.queueThugConsequence('turn ten pressure', { debug: true }, { customer: hooks.getCharacter('tracksuit-legs') });
+  consequence.triggeringCharacterId = 'tracksuit-legs';
   const presentation = hooks.prepareTracksuitConsequencePresentation(consequence);
   const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter(presentation.characterId));
   const before = hooks.snapshotState();
@@ -1790,7 +1788,7 @@ test('v0.1.25 T10 Tracksuit consequence keeps normal robbery presentation', () =
   hooks.resolveConsequenceChoice('thugCash', deal);
 
   assert.equal(presentation.warningOnly, false);
-  assert.equal(deal.customer.id, 'tracksuit_thug');
+  assert.equal(deal.customer.id, 'tracksuit-thug-vincent');
   assert.ok(hooks.state.money < before.money);
   assert.equal(consequence.resolved, true);
   assert.doesNotMatch((deal.thugHistoryLines || []).join('\n'), /Early Tracksuit warning/i);
@@ -1803,7 +1801,7 @@ test('v0.1.25 thug resolution resets pressure and starts settling period', () =>
   hooks.state.factionPressure.tracksuit_crew = 5;
   hooks.state.factionPressureSources.tracksuit_crew = [{ turn: 1, customerName: 'Old Source', reason: 'old pressure', amount: 5 }];
   const consequence = hooks.queueThugConsequence('old tracksuit debt', { debug: true });
-  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit_thug'));
+  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit-thug-vincent'));
 
   hooks.resolveConsequenceChoice('thugRefuse', deal);
 
@@ -1817,27 +1815,27 @@ test('v0.1.25 threshold pressure during settling defers thug queue and preserves
   const hooks = loadGame(0);
   resetState(hooks);
   hooks.state.tracksuitRetaliationSettlingNormalEncountersRemaining = hooks.constants.TRACKSUIT_RETALIATION_SETTLING_NORMAL_ENCOUNTERS;
-  hooks.state.factionPressure.tracksuit_crew = 3;
+  hooks.setFactionPressure('tracksuits', 3);
   forceNegotiationOutcome(hooks, 'lowball', 'accepted');
-  const pressureDeal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === '70s_hustler_gold_watch'));
-  pressureDeal.lowballPrice = Math.max(1, Math.ceil(pressureDeal.askingPrice * 0.75));
+  const pressureDeal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_legs_locked_watch'));
+  pressureDeal.lowballPrice = Math.max(1, Math.ceil(pressureDeal.askingPrice * 0.45));
 
   hooks.resolveBuy('lowball', pressureDeal);
 
-  assert.equal(hooks.state.factionPressure.tracksuit_crew, 4);
+  assert.equal(hooks.state.factionPressure.tracksuits, 4);
   assert.equal(hooks.state.consequenceQueue.filter(entry => entry.type === 'thug_robbery_consequence' && !entry.resolved).length, 0);
-  assert.match((pressureDeal.thugHistoryLines || []).join('\n'), /post-retaliation settling period/i);
-  assert.match(hooks.state.factionPressureSources.tracksuit_crew[0].reason, /accepted a mild below-asking fence offer/i);
+  assert.match((pressureDeal.thugHistoryLines || []).join('\n'), /retaliation settling period active/i);
+  assert.match(hooks.state.factionPressureSources.tracksuits[0].reason, /accepted a severe below-asking offer/i);
 });
 
 test('v0.1.25 settling completion queues one thug with earliest post-retaliation source', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   hooks.state.tracksuitRetaliationSettlingNormalEncountersRemaining = 2;
-  hooks.state.factionPressure.tracksuit_crew = 4;
-  hooks.state.factionPressureSources.tracksuit_crew = [
-    { turn: 21, customerName: '70s Hustler', reason: 'post-retaliation short payment', amount: 1 },
-    { turn: 22, customerName: 'Red Hustler', reason: 'post-retaliation refusal', amount: 1 }
+  hooks.setFactionPressure('tracksuits', 4);
+  hooks.state.factionPressureSources.tracksuits = [
+    { turn: 21, customerName: 'Tracksuit Legs', reason: 'post-retaliation short payment', amount: 1 },
+    { turn: 22, customerName: 'Tracksuit Slim', reason: 'post-retaliation refusal', amount: 1 }
   ];
   const firstNormalDeal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'bum_dvd_stack'));
   const secondNormalDeal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'junkie_vcr'));
@@ -1848,7 +1846,7 @@ test('v0.1.25 settling completion queues one thug with earliest post-retaliation
 
   const thugQueue = hooks.state.consequenceQueue.filter(entry => entry.type === 'thug_robbery_consequence' && !entry.resolved);
   assert.equal(thugQueue.length, 1);
-  assert.match(thugQueue[0].metadata.pressureSourceSummary, /^T21 70s Hustler/);
+  assert.match(thugQueue[0].metadata.pressureSourceSummary, /^T21 Tracksuit Legs/);
   assert.doesNotMatch(thugQueue[0].metadata.pressureSourceSummary, /Old Source/i);
   assert.match((secondNormalDeal.thugHistoryLines || []).join('\n'), /queued after settling period/i);
 });
@@ -1857,17 +1855,17 @@ test('v0.1.25 cop investigation can queue while Tracksuit settling defers thug',
   const hooks = loadGame(0);
   resetState(hooks);
   hooks.state.tracksuitRetaliationSettlingNormalEncountersRemaining = 4;
-  hooks.state.factionPressure.tracksuit_crew = 4;
+  hooks.setFactionPressure('tracksuits', 4);
   hooks.state.copRisk = 24;
   hooks.state.nextCopInvestigationRisk = 25;
-  const { deal } = prepareSaleDeal(hooks, 'red_hustler_buys_watch', 'suspicious_gold_watch');
+  const { deal } = prepareSaleDeal(hooks, 'tracksuit_legs_buys_watch', 'suspicious_gold_watch');
 
   hooks.resolveSell('sellTag', deal);
   hooks.maybeQueueThugConsequence(deal, 'test threshold during settling');
 
   assert.equal(hooks.state.consequenceQueue.filter(entry => entry.type === 'cop_consequence').length, 1);
   assert.equal(hooks.state.consequenceQueue.filter(entry => entry.type === 'thug_robbery_consequence' && !entry.resolved).length, 0);
-  assert.match((deal.thugHistoryLines || []).join('\n'), /post-retaliation settling period/i);
+  assert.match((deal.thugHistoryLines || []).join('\n'), /retaliation settling period active/i);
 });
 
 test('generated catalog includes liquidity for every item', () => {
@@ -1907,7 +1905,7 @@ test('strong buyer match completes a normal sale and records inventory age', () 
   const shelfItem = item(hooks, 'suspicious_gold_watch', 70);
   hooks.state.inventory.push(shelfItem);
   hooks.state.turn = 22;
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_buys_watch'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_buys_watch'));
   hooks.applySelectedInventoryItemToDeal(deal, shelfItem);
 
   const before = hooks.snapshotState();
@@ -1959,7 +1957,7 @@ test('buy-from-shop demand applies inventory age multipliers without hard-blocki
   const pool = hooks.data.characterItemPools.find(entry => entry.id === 'hitman_buys_luxury');
 
   hooks.state.normalEncounterCount = watch.normalEncounterAcquired;
-  let candidates = hooks.getEligibleDemandCandidatesForPool(pool, hooks.getCharacter('hitman'));
+  let candidates = hooks.getEligibleDemandCandidatesForPool(pool, hooks.getCharacter('service-hitman'));
   assert.equal(candidates.some(candidate => candidate.instanceId === watch.instanceId), true);
   assert.equal(hooks.getInventoryAgeDemandMultiplier(watch), 0.1);
 
@@ -1967,7 +1965,7 @@ test('buy-from-shop demand applies inventory age multipliers without hard-blocki
   assert.equal(hooks.getInventoryAgeDemandMultiplier(watch), 0.2);
 
   hooks.state.normalEncounterCount = watch.normalEncounterAcquired + 4;
-  candidates = hooks.getEligibleDemandCandidatesForPool(pool, hooks.getCharacter('hitman'));
+  candidates = hooks.getEligibleDemandCandidatesForPool(pool, hooks.getCharacter('service-hitman'));
   assert.equal(hooks.getInventoryAgeDemandMultiplier(watch), 1);
   assert.ok(candidates[0].finalWeight > 0);
 });
@@ -2024,11 +2022,11 @@ test('Hitman cannot buy back the same weapon instance on the next normal turn', 
   hooks.resolveBuy('buyAsk', sellDeal);
   const weapon = hooks.state.inventory.find(entry => entry.itemId === 'rusty_revolver_prop');
   assert.ok(weapon);
-  assert.equal(weapon.sourceCustomerId, 'hitman');
+  assert.equal(weapon.sourceCustomerId, 'service-hitman');
 
   hooks.state.normalEncounterCount = weapon.normalEncounterAcquired + 1;
   const pool = hooks.data.characterItemPools.find(entry => entry.id === 'hitman_buys_weapon');
-  const eligible = hooks.getEligibleInventoryItemsForPool(pool, hooks.getCharacter('hitman'));
+  const eligible = hooks.getEligibleInventoryItemsForPool(pool, hooks.getCharacter('service-hitman'));
 
   assert.equal(eligible.some(entry => entry.instanceId === weapon.instanceId), false);
   assert.ok(hooks.state.buybackCooldownDiagnostics.some(line => line.includes(weapon.instanceId) && line.includes('required cooldown 4')));
@@ -2039,13 +2037,13 @@ test('Hitman weapon buyback becomes eligible after cooldown', () => {
   resetState(hooks);
   hooks.state.normalEncounterCount = 8;
   const weapon = item(hooks, 'rusty_revolver_prop', 40);
-  weapon.sourceCustomerId = 'hitman';
+  weapon.sourceCustomerId = 'service-hitman';
   weapon.normalEncounterAcquired = 8;
   hooks.state.inventory.push(weapon);
   hooks.state.normalEncounterCount = 12;
   const pool = hooks.data.characterItemPools.find(entry => entry.id === 'hitman_buys_weapon');
 
-  const eligible = hooks.getEligibleInventoryItemsForPool(pool, hooks.getCharacter('hitman'));
+  const eligible = hooks.getEligibleInventoryItemsForPool(pool, hooks.getCharacter('service-hitman'));
 
   assert.equal(eligible.some(entry => entry.instanceId === weapon.instanceId), true);
 });
@@ -2079,7 +2077,7 @@ test('unavailable-demand encounters are capped at two consecutive requests', () 
   hooks.state.inventory.push(item(hooks, 'dvd_stack', 4));
   hooks.state.unavailableSellRequestStreak = hooks.constants.BUY_FROM_SHOP_ECONOMY.maxConsecutiveUnavailableDemand;
 
-  const selectable = hooks.getSelectablePoolsForCharacter(hooks.getCharacter('bum'));
+  const selectable = hooks.getSelectablePoolsForCharacter(hooks.getCharacter('street-bum'));
 
   assert.equal(selectable.some(pool => pool.id === 'bum_buys_cursed' && pool.intentionalUnavailableDemand), false);
 });
@@ -2088,7 +2086,7 @@ test('another customer can buy a Hitman-sold weapon during cooldown', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   const weapon = item(hooks, 'rusty_revolver_prop', 40);
-  weapon.sourceCustomerId = 'hitman';
+  weapon.sourceCustomerId = 'service-hitman';
   weapon.normalEncounterAcquired = 8;
   hooks.state.normalEncounterCount = 9;
   hooks.state.inventory.push(weapon);
@@ -2139,7 +2137,7 @@ test('rejected lowball can raise the asking price for the encounter', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   forceNegotiationOutcome(hooks, 'lowball', 'priceWorsened');
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_locked_watch'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_locked_watch'));
   const ask = deal.askingPrice;
 
   const result = hooks.resolveBuy('lowball', deal);
@@ -2171,7 +2169,7 @@ test('faction-connected customer can add faction pressure after insulting lowbal
   const hooks = loadGame(0);
   resetState(hooks);
   forceNegotiationOutcome(hooks, 'lowball', 'consequence');
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_prop_revolver'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_legs_locked_watch'));
   deal.lowballPrice = Math.max(1, Math.floor(deal.askingPrice * 0.35));
 
   const result = hooks.resolveBuy('lowball', deal);
@@ -2198,7 +2196,7 @@ test('v0.1.20 genuinely insulting faction lowball can still add pressure', () =>
   assert.ok((hooks.state.factionPressure.tracksuit_crew || 0) > beforePressure);
 });
 
-test('v0.1.20 routine moderate faction lowball does not automatically add pressure', () => {
+test('v0.1.20 routine moderate faction lowball consequence records pressure', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   forceNegotiationOutcome(hooks, 'lowball', 'consequence');
@@ -2211,7 +2209,7 @@ test('v0.1.20 routine moderate faction lowball does not automatically add pressu
 
   hooks.resolveBuy('lowball', deal);
 
-  assert.equal(hooks.state.factionPressure.tracksuit_crew || 0, before.factionPressure.tracksuit_crew || 0);
+  assert.ok((hooks.state.factionPressure.tracksuits || 0) > (before.factionPressure.tracksuits || 0));
   assert.equal(hooks.state.reputation, before.reputation);
 });
 
@@ -2231,8 +2229,8 @@ test('v0.1.20 neutral refusal after pressure lowball does not repeat pressure-so
   hooks.resolveChoice('refuse');
   const refusalEntry = hooks.getTurnHistory()[0];
 
-  assert.match(lowballEntry.lines.join('\n'), /Tracksuit Pressure Source/);
-  assert.doesNotMatch(refusalEntry.lines.join('\n'), /Tracksuit Pressure Source/);
+  assert.match(lowballEntry.lines.join('\n'), /Faction pressure source: tracksuits/i);
+  assert.doesNotMatch(refusalEntry.lines.join('\n'), /Faction pressure source: tracksuits/i);
   assert.match(refusalEntry.lines.join('\n'), /Neutral item refusal/);
 });
 
@@ -2258,7 +2256,7 @@ test('v0.1.19 hidden problem dialogue names item and only summarizes meaningful 
   const hooks = loadGame(0);
   resetState(hooks);
   forceNegotiationOutcome(hooks, 'lowball', 'acceptedHiddenProblem');
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_locked_watch'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_locked_watch'));
 
   const result = hooks.resolveBuy('lowball', deal);
   const text = result.text || result;
@@ -2276,7 +2274,7 @@ test('v0.1.19 hidden problem Deal panel summarizes transaction and current item 
   const hooks = loadGame(0);
   resetState(hooks);
   forceNegotiationOutcome(hooks, 'lowball', 'acceptedHiddenProblem');
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_locked_watch'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_locked_watch'));
   hooks.state.currentDeal = deal;
   hooks.state.conversation = { phase: 'resolved' };
 
@@ -2299,7 +2297,7 @@ test('v0.1.19 hidden problem Turn History keeps diagnostics with readable item n
   for (let index = 0; index < 11; index += 1) {
     hooks.state.inventory.push(item(hooks, 'dvd_stack', 4));
   }
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_locked_watch'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_locked_watch'));
   primeChoiceSmoke(hooks, deal);
 
   hooks.resolveChoice('lowball');
@@ -2378,7 +2376,7 @@ test('v0.1.17 hidden problems are rare for ordinary goods but possible for suspi
   const hooks = loadGame(0.5);
   resetState(hooks);
   const ordinaryDeal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'bum_dvd_stack'));
-  const suspiciousDeal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_locked_watch'));
+  const suspiciousDeal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_locked_watch'));
   const ordinaryOutcome = hooks.resolveNegotiationOutcome('lowball', ordinaryDeal, {
     ratio: 0.8,
     item: ordinaryDeal.item
@@ -2404,7 +2402,7 @@ test('customer sale quote respects inventory-instance defects and heat tolerance
   damagedWatch.tags = [...new Set([...damagedWatch.tags, 'broken', 'fake', 'hot'])];
   damagedWatch.heat = 5;
   damagedWatch.resaleModifier = 0.6;
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_buys_watch'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_buys_watch'));
 
   const cleanQuote = hooks.calculateCustomerOfferForInventoryItem(deal, cleanWatch);
   const damagedQuote = hooks.calculateCustomerOfferForInventoryItem(deal, damagedWatch);
@@ -2439,7 +2437,7 @@ test('v0.1.17 exact-match buyer offer is tied to market-adjusted value', () => {
   resetState(hooks);
   const watch = item(hooks, 'suspicious_gold_watch', 43);
   hooks.state.inventory.push(watch);
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_buys_watch'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_buys_watch'));
   hooks.applySelectedInventoryItemToDeal(deal, watch);
 
   assert.ok(deal.saleQuote.marketAdjustedValue > 0);
@@ -2453,7 +2451,7 @@ test('v0.1.17 market-adjusted $56 watch floor is not near $13', () => {
   resetState(hooks);
   const watch = item(hooks, 'suspicious_gold_watch', 43);
   hooks.state.inventory.push(watch);
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_buys_watch'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_buys_watch'));
   hooks.applySelectedInventoryItemToDeal(deal, watch);
 
   deal.saleQuote.marketAdjustedValue = 56;
@@ -2519,7 +2517,7 @@ test('healthy exact match receives stronger offer than low-demand unrelated inve
   healthyWatch.tags = ['luxury'];
   healthyWatch.heat = 0;
   const unrelated = item(hooks, 'dvd_stack', 4);
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_buys_watch'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_buys_watch'));
 
   const exactQuote = hooks.calculateCustomerOfferForInventoryItem(deal, healthyWatch);
   const unrelatedQuote = hooks.calculateCustomerOfferForInventoryItem(deal, unrelated);
@@ -2656,7 +2654,7 @@ test('v0.1.20 $6 to $8 markup is not severe and has no automatic consequence', (
 test('v0.1.20 markup within customer tolerance stays ordinary negotiation', () => {
   const hooks = loadGame(0);
   resetState(hooks);
-  const { deal, shelfItem } = prepareSaleDeal(hooks, 'red_hustler_buys_watch', 'suspicious_gold_watch');
+  const { deal, shelfItem } = prepareSaleDeal(hooks, 'hustler_shorty_buys_watch', 'suspicious_gold_watch');
   deal.traits = { ...deal.traits, maxMarkupTolerance: 1.2 };
   deal.salePrice = 47;
   deal.markupPrice = 56;
@@ -2952,7 +2950,7 @@ test('tracksuit inventory theft reduces realized profit by stored cost basis', (
   const watch = item(hooks, 'smart_watch_locked', 42);
   hooks.state.inventory.push(watch);
   const consequence = hooks.queueThugConsequence('test robbery', { debug: true });
-  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit_thug'));
+  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit-thug-vincent'));
 
   hooks.resolveConsequenceChoice('thugComply', deal);
 
@@ -2971,7 +2969,7 @@ test('v0.1.20 actual thug consequence history keeps original queue-source summar
     pressureSourceSummary: 'moderate lowball insult from Tracksuit Thug; faction: tracksuit_crew.'
   });
   assert.ok(consequence);
-  const thugDeal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit_thug'));
+  const thugDeal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit-thug-vincent'));
 
   hooks.resolveConsequenceChoice('thugRefuse', thugDeal);
   const history = (thugDeal.thugHistoryLines || []).join('\n');
@@ -2988,7 +2986,7 @@ test('v0.1.17 tracksuit choices split cash and item surrender based on available
   const watch = item(hooks, 'smart_watch_locked', 42);
   hooks.state.inventory.push(watch);
   let consequence = hooks.queueThugConsequence('test choice resources', { debug: true });
-  let deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit_thug'));
+  let deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit-thug-vincent'));
 
   let choices = hooks.getThugChoiceDescriptors(deal);
   assert.ok(choices.some(choice => choice.label === 'Don\'t make this worse' && choice.action === 'thugComply'));
@@ -3002,7 +3000,7 @@ test('v0.1.17 tracksuit choices split cash and item surrender based on available
   hooks.state.money = 40;
   hooks.state.factionPressure.tracksuit_crew = 5;
   consequence = hooks.queueThugConsequence('test cash only choice', { debug: true });
-  deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit_thug'));
+  deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit-thug-vincent'));
   choices = hooks.getThugChoiceDescriptors(deal);
   assert.ok(choices.some(choice => choice.action === 'thugCash'));
   assert.ok(choices.some(choice => choice.action === 'thugComply'));
@@ -3014,7 +3012,7 @@ test('v0.1.17 tracksuit choices split cash and item surrender based on available
   const dvd = item(hooks, 'dvd_stack', 4);
   hooks.state.inventory.push(dvd);
   consequence = hooks.queueThugConsequence('test item only choice', { debug: true });
-  deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit_thug'));
+  deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit-thug-vincent'));
   choices = hooks.getThugChoiceDescriptors(deal);
   assert.equal(choices.some(choice => choice.action === 'thugCash'), false);
   assert.ok(choices.some(choice => choice.action === 'thugComply'));
@@ -3025,7 +3023,7 @@ test('v0.1.17 tracksuit choices split cash and item surrender based on available
   hooks.state.inventory = [];
   hooks.state.factionPressure.tracksuit_crew = 5;
   consequence = hooks.queueThugConsequence('test empty choice', { debug: true });
-  deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit_thug'));
+  deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit-thug-vincent'));
   choices = hooks.getThugChoiceDescriptors(deal);
   assert.equal(choices.some(choice => choice.action === 'thugCash'), false);
   assert.equal(choices.some(choice => choice.action === 'thugComply'), false);
@@ -3041,7 +3039,7 @@ test('v0.1.23 Tracksuit Guy chooses stolen item without opening player inventory
   const ring = item(hooks, 'gold_ring_engravings', 64);
   hooks.state.inventory.push(ring);
   const consequence = hooks.queueThugConsequence('test thug-controlled selection', { debug: true });
-  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit_thug'));
+  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit-thug-vincent'));
 
   const choices = hooks.getThugChoiceDescriptors(deal);
   const result = hooks.resolveConsequenceChoice('thugComply', deal);
@@ -3051,7 +3049,7 @@ test('v0.1.23 Tracksuit Guy chooses stolen item without opening player inventory
   assert.equal(hooks.isInventoryOpen(), false);
   assert.equal(hooks.state.inventory.some(entry => entry.instanceId === ring.instanceId), false);
   assert.match(result.text, /Gold Ring With Weird Engraving/);
-  assert.match((deal.thugHistoryLines || []).join('\n'), /Tracksuit Heavy selected Gold Ring With Weird Engraving/);
+  assert.match((deal.thugHistoryLines || []).join('\n'), /Vincent selected Gold Ring With Weird Engraving/);
 });
 
 test('v0.1.23 luxury and valuable inventory is preferred over fake or junk inventory', () => {
@@ -3063,7 +3061,7 @@ test('v0.1.23 luxury and valuable inventory is preferred over fake or junk inven
   const dvd = item(hooks, 'dvd_stack', 4);
   hooks.state.inventory.push(ring, fakeBag, dvd);
   const consequence = hooks.queueThugConsequence('test valuable preferred', { debug: true });
-  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit_thug'));
+  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit-thug-vincent'));
 
   hooks.resolveConsequenceChoice('thugComply', deal);
 
@@ -3083,7 +3081,7 @@ test('v0.1.23 thug robbery selection is weighted rather than highest-value only'
   const revolver = item(hooks, 'rusty_revolver_prop', 45);
   hooks.state.inventory.push(watch, revolver);
   const consequence = hooks.queueThugConsequence('test weighted selection', { debug: true });
-  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit_thug'));
+  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit-thug-vincent'));
 
   hooks.resolveConsequenceChoice('thugComply', deal);
 
@@ -3102,7 +3100,7 @@ test('tracksuit cash payoff takes shelf item when cash drawer is empty', () => {
   const watch = item(hooks, 'smart_watch_locked', 42);
   hooks.state.inventory.push(watch);
   const consequence = hooks.queueThugConsequence('test empty drawer robbery', { debug: true });
-  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit_thug'));
+  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit-thug-vincent'));
 
   const result = hooks.resolveConsequenceChoice('thugCash', deal);
 
@@ -3124,7 +3122,7 @@ test('v0.1.23 tracksuit compliance falls back to cash when inventory is unsuitab
   hooks.state.inventory = [fakeBag, dvd];
   hooks.state.factionPressure.tracksuit_crew = 5;
   const consequence = hooks.queueThugConsequence('test item fallback cash robbery', { debug: true });
-  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit_thug'));
+  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit-thug-vincent'));
 
   const result = hooks.resolveConsequenceChoice('thugComply', deal);
 
@@ -3144,7 +3142,7 @@ test('v0.1.23 junk inventory can be selected when no cash or better item exists'
   const dvd = item(hooks, 'dvd_stack', 4);
   hooks.state.inventory.push(dvd);
   const consequence = hooks.queueThugConsequence('test junk fallback', { debug: true });
-  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit_thug'));
+  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit-thug-vincent'));
 
   hooks.resolveConsequenceChoice('thugComply', deal);
 
@@ -3161,7 +3159,7 @@ test('v0.1.23 thug-selected item can be paired with cash for remaining robbery v
   const knife = item(hooks, 'pocket_knife', 10);
   hooks.state.inventory.push(knife);
   const consequence = hooks.queueThugConsequence('test mixed compliance loss', { debug: true });
-  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit_thug'));
+  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit-thug-vincent'));
 
   hooks.resolveConsequenceChoice('thugComply', deal);
   const history = (deal.thugHistoryLines || []).join('\n');
@@ -3185,7 +3183,7 @@ test('v0.1.23 thug-selected small robbery can prefer weighted suitable item over
   const dvd = item(hooks, 'dvd_stack', 4);
   hooks.state.inventory.push(watch, dvd);
   const consequence = hooks.queueThugConsequence('test proportionate item robbery', { debug: true });
-  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit_thug'));
+  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit-thug-vincent'));
 
   hooks.resolveConsequenceChoice('thugComply', deal);
 
@@ -3206,7 +3204,7 @@ test('tracksuit cash payoff uses available cash without disproportionate item ov
   const watch = item(hooks, 'smart_watch_locked', 42);
   hooks.state.inventory.push(watch);
   const consequence = hooks.queueThugConsequence('test short drawer robbery', { debug: true });
-  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit_thug'));
+  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit-thug-vincent'));
 
   const result = hooks.resolveConsequenceChoice('thugCash', deal);
 
@@ -3224,7 +3222,7 @@ test('tracksuit cash payoff leaves empty-handed only when cash and inventory are
   hooks.state.money = 0;
   hooks.state.factionPressure.tracksuit_crew = 5;
   const consequence = hooks.queueThugConsequence('test bare shop robbery', { debug: true });
-  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit_thug'));
+  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit-thug-vincent'));
 
   const result = hooks.resolveConsequenceChoice('thugCash', deal);
 
@@ -3379,14 +3377,14 @@ test('v0.1.22 deal-panel lowball rejection includes item display name without ra
   const hooks = loadGame(0);
   resetState(hooks);
   forceNegotiationOutcome(hooks, 'lowball', 'rejectedOriginal');
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_locked_watch'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_locked_watch'));
   primeChoiceSmoke(hooks, deal);
 
   hooks.resolveChoice('lowball');
   const visible = hooks.getVisibleDealPanelText();
 
   assert.match(visible, /^Locked Smart Watch: The below-asking/);
-  assert.doesNotMatch(visible, /\binv_\d+\b|red_hustler_locked_watch|undefined|null/);
+  assert.doesNotMatch(visible, /\binv_\d+\b|hustler_shorty_locked_watch|undefined|null/);
 });
 
 test('v0.1.22 deal-panel negotiation outcomes use item context when available', () => {
@@ -3395,21 +3393,21 @@ test('v0.1.22 deal-panel negotiation outcomes use item context when available', 
       label: 'worsened price',
       make(hooks) {
         forceNegotiationOutcome(hooks, 'lowball', 'priceWorsened');
-        return { action: 'lowball', deal: hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_locked_watch')), prefix: 'Locked Smart Watch:' };
+        return { action: 'lowball', deal: hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_locked_watch')), prefix: 'Locked Smart Watch:' };
       }
     },
     {
       label: 'walk away',
       make(hooks) {
         forceNegotiationOutcome(hooks, 'lowball', 'customerWalks');
-        return { action: 'lowball', deal: hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_locked_watch')), prefix: 'Locked Smart Watch:' };
+        return { action: 'lowball', deal: hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_locked_watch')), prefix: 'Locked Smart Watch:' };
       }
     },
     {
       label: 'markup rejection',
       make(hooks) {
         forceNegotiationOutcome(hooks, 'markup', 'rejectedOriginal');
-        const { deal } = prepareSaleDeal(hooks, 'red_hustler_buys_watch', 'suspicious_gold_watch');
+        const { deal } = prepareSaleDeal(hooks, 'hustler_shorty_buys_watch', 'suspicious_gold_watch');
         return { action: 'markup', deal, prefix: 'Suspicious Gold Watch:' };
       }
     },
@@ -3417,7 +3415,7 @@ test('v0.1.22 deal-panel negotiation outcomes use item context when available', 
       label: 'counteroffer',
       make(hooks) {
         forceNegotiationOutcome(hooks, 'markup', 'counteroffer');
-        const { deal } = prepareSaleDeal(hooks, 'red_hustler_buys_watch', 'suspicious_gold_watch');
+        const { deal } = prepareSaleDeal(hooks, 'hustler_shorty_buys_watch', 'suspicious_gold_watch');
         return { action: 'markup', deal, prefix: 'Suspicious Gold Watch:' };
       }
     }
@@ -3461,7 +3459,7 @@ test('v0.1.22 missing result lookup uses safe generic fallback', () => {
   hooks.state.currentDeal = {
     encounterId: 'encounter-safe-fallback',
     dealType: 'trade',
-    customer: hooks.getCharacter('bum'),
+    customer: hooks.getCharacter('street-bum'),
     item: null,
     currentResultSummary: 'The offer lands badly.'
   };
@@ -3477,7 +3475,7 @@ test('price-worsened lowball text and deal UI show old and new price and purchas
   const hooks = loadGame(0);
   resetState(hooks);
   forceNegotiationOutcome(hooks, 'lowball', 'priceWorsened');
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_locked_watch'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_locked_watch'));
   const oldAsk = deal.askingPrice;
 
   const result = hooks.resolveBuy('lowball', deal);
@@ -3497,7 +3495,7 @@ test('price-worsened lowball text and deal UI show old and new price and purchas
 test('clerk assessment dialogue uses in-world warnings instead of raw diagnostics', () => {
   const hooks = loadGame(0);
   resetState(hooks);
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === '70s_hustler_gold_watch'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'regular_mr_seventies_gold_watch'));
   const assessment = hooks.clerkAssessment(deal);
 
   assert.doesNotMatch(assessment, /Assessment:/);
@@ -3509,11 +3507,11 @@ test('clerk assessment dialogue uses in-world warnings instead of raw diagnostic
 
 test('player-facing dialogue sanitizer removes source notes and internal ids', () => {
   const hooks = loadGame(0);
-  const text = hooks.sanitizePlayerDialogueText('Claims it belonged to a nightclub owner. Use 70s_hustler_gold_watch pool. Cop risk +1; scam risk +1.');
+  const text = hooks.sanitizePlayerDialogueText('Claims it belonged to a nightclub owner. Use regular_mr_seventies_gold_watch pool. Cop risk +1; scam risk +1.');
 
   assert.match(text, /nightclub owner/);
   assert.doesNotMatch(text, /Use .*pool/i);
-  assert.doesNotMatch(text, /70s_hustler_gold_watch/);
+  assert.doesNotMatch(text, /regular_mr_seventies_gold_watch/);
   assert.doesNotMatch(text, /risk \+\d+/i);
 });
 
@@ -3532,7 +3530,7 @@ test('deal panel hides normalized duplicate dialogue when no distinct fallback e
 test('deal panel uses distinct changed-term fallback instead of duplicating dialogue', () => {
   const hooks = loadGame(0);
   resetState(hooks);
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_locked_watch'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_locked_watch'));
   hooks.state.currentDeal = deal;
   hooks.state.conversation = { phase: 'choices' };
   deal.priceWorsenedNotice = { oldAsk: 50, newAsk: 63 };
@@ -3552,7 +3550,7 @@ test('deal panel uses distinct changed-term fallback instead of duplicating dial
 test('v0.1.14 deal panel prefixes sell-to-shop flavor with runtime item name', () => {
   const hooks = loadGame(0);
   resetState(hooks);
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_locked_watch'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_locked_watch'));
   hooks.state.currentDeal = deal;
   hooks.state.conversation = { phase: 'choices' };
 
@@ -3576,7 +3574,7 @@ test('v0.1.14 deal panel prefixes another item dynamically', () => {
 test('v0.1.14 deal panel does not duplicate an item name already in text', () => {
   const hooks = loadGame(0);
   resetState(hooks);
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_locked_watch'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_locked_watch'));
   hooks.state.currentDeal = deal;
   hooks.state.conversation = { phase: 'choices' };
 
@@ -3588,7 +3586,7 @@ test('v0.1.14 deal panel does not duplicate an item name already in text', () =>
 test('v0.1.14 deal panel leaves itemless deals unchanged', () => {
   const hooks = loadGame(0);
   resetState(hooks);
-  hooks.state.currentDeal = { dealType: 'pawn', customer: hooks.getCharacter('bum') };
+  hooks.state.currentDeal = { dealType: 'pawn', customer: hooks.getCharacter('street-bum') };
   hooks.state.conversation = { phase: 'choices' };
 
   const visible = hooks.renderDealPanelText('No associated item on this counter.');
@@ -3615,11 +3613,11 @@ test('v0.1.14 inventory selection refreshes deal panel item prefix', () => {
   assert.match(second, /^Cracked Tablet:/);
 });
 
-test('$2 against $60 Red Hustler ask cannot be accepted below lowball floor', () => {
+test('$2 against $60 Shorty ask cannot be accepted below lowball floor', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   forceNegotiationOutcome(hooks, 'lowball', 'accepted');
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_locked_watch'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_locked_watch'));
   deal.askingPrice = 60;
   deal.askPrice = 60;
   deal.defaultOffer = 60;
@@ -3804,7 +3802,7 @@ test('v0.1.21 tracksuit pressure arms thug queue during shared special cooldown'
   const hooks = loadGame(0);
   resetState(hooks);
   forceNegotiationOutcome(hooks, 'lowball', 'consequence');
-  hooks.state.factionPressure.tracksuit_crew = 2;
+  hooks.setFactionPressure('tracksuits', 3);
   hooks.state.normalEncountersSinceSpecial = 0;
   hooks.state.thugConsequenceCooldownUntil = hooks.state.turn + 6;
   const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_prop_revolver'));
@@ -3818,7 +3816,7 @@ test('v0.1.21 tracksuit pressure arms thug queue during shared special cooldown'
 
   assert.equal(thugQueue.length, 1);
   assert.equal(thugQueue[0].sourceTurn, hooks.state.turn);
-  assert.equal(thugQueue[0].triggeringCharacterId, 'tracksuit_thug');
+  assert.equal(thugQueue[0].triggeringCharacterId, 'tracksuit-thug-vincent');
   assert.equal(thugQueue[0].triggeringDealId, 'tracksuit_prop_revolver');
   assert.ok(thugQueue[0].metadata.factionPressureAtQueue >= hooks.constants.TRACKSUIT_CONSEQUENCE_MIN_PRESSURE);
   assert.match((deal.thugHistoryLines || []).join('\n'), /pressure threshold reached/);
@@ -3862,7 +3860,7 @@ test('v0.1.21 additional tracksuit pressure does not duplicate queue or replace 
   assert.equal(thugQueue[0].id, original.id);
   assert.equal(thugQueue[0].reason, 'original source test');
   assert.equal(thugQueue[0].triggeringDealId, originalDeal.pool.id);
-  assert.match((laterDeal.thugHistoryLines || []).join('\n'), /pending\/active thug consequence; original source remains tracked/);
+  assert.match((laterDeal.thugHistoryLines || []).join('\n'), /another consequence already queued; original source remains tracked/);
 });
 
 test('v0.1.21 pending cop and thug consequences coexist without overwriting each other', () => {
@@ -3999,7 +3997,7 @@ test('v0.1.13 changing or cancelling a pending trade leaves state unchanged', ()
 test('v0.1.13 neutral refusals preserve reputation while severe pressure still works', () => {
   const hooks = loadGame(0);
   resetState(hooks);
-  const lowTrustDeal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'red_hustler_locked_watch'));
+  const lowTrustDeal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_locked_watch'));
   const reputationBefore = hooks.state.reputation;
 
   hooks.resolveBuy('refuse', lowTrustDeal);
@@ -4023,10 +4021,10 @@ test('v0.1.13 low-cash recovery favors revenue encounters without guaranteeing o
   hooks.state.money = 0;
   hooks.state.inventory.push(item(hooks, 'dvd_stack', 4), item(hooks, 'cracked_tablet', 12));
   hooks.setActiveCustomers([
-    activeTestCustomer(hooks, 'bum'),
-    activeTestCustomer(hooks, 'junkie'),
-    activeTestCustomer(hooks, 'hitman'),
-    activeTestCustomer(hooks, 'slot_grandma')
+    activeTestCustomer(hooks, 'street-bum'),
+    activeTestCustomer(hooks, 'street-junkie'),
+    activeTestCustomer(hooks, 'service-hitman'),
+    activeTestCustomer(hooks, 'regular-grandma-slots')
   ]);
 
   const selection = hooks.chooseNextCustomerWithPools();
@@ -4046,7 +4044,7 @@ test('v0.1.16 critical low-cash dry streak creates a broadened revenue fallback 
   hooks.state.lowCashRecoveryDryStreak = hooks.constants.LOW_CASH_RECOVERY.guaranteeDryStreak;
   const phone = item(hooks, 'used_smartphone', 260);
   hooks.state.inventory.push(phone);
-  hooks.setActiveCustomers([activeTestCustomer(hooks, 'bum')]);
+  hooks.setActiveCustomers([activeTestCustomer(hooks, 'street-bum')]);
 
   const { normalSelection, deal } = hooks.chooseNextNormalDeal();
   const diagnostics = hooks.formatSelectionDiagnostics(normalSelection.diagnostics);
@@ -4079,7 +4077,7 @@ test('v0.1.17 low operating cash dry streak forces revenue before the drawer hit
   hooks.state.lowCashRecoveryDryStreak = hooks.constants.LOW_CASH_RECOVERY.guaranteeDryStreak;
   const phone = item(hooks, 'used_smartphone', 260);
   hooks.state.inventory.push(phone);
-  hooks.setActiveCustomers([activeTestCustomer(hooks, 'bum')]);
+  hooks.setActiveCustomers([activeTestCustomer(hooks, 'street-bum')]);
 
   const { normalSelection, deal } = hooks.chooseNextNormalDeal();
   const diagnostics = hooks.formatSelectionDiagnostics(normalSelection.diagnostics);
@@ -4101,11 +4099,11 @@ test('v0.1.17 seeded 20-turn economy smoke presents repeated buy-from-shop oppor
     item(hooks, 'suspicious_gold_watch', 43)
   );
   hooks.setActiveCustomers([
-    activeTestCustomer(hooks, 'bum'),
-    activeTestCustomer(hooks, 'junkie'),
+    activeTestCustomer(hooks, 'street-bum'),
+    activeTestCustomer(hooks, 'street-junkie'),
     activeTestCustomer(hooks, 'bargain_hunter'),
-    activeTestCustomer(hooks, 'red_hustler'),
-    activeTestCustomer(hooks, 'slot_grandma')
+    activeTestCustomer(hooks, 'hustler-shorty'),
+    activeTestCustomer(hooks, 'regular-grandma-slots')
   ]);
   let buyerOpportunities = 0;
   let longestDryRun = 0;
@@ -4162,13 +4160,13 @@ test('v0.1.18 normal encounter mix is transaction driven over 25 seeded turns', 
     item(hooks, 'cracked_tablet', 12)
   );
   hooks.setActiveCustomers([
-    activeTestCustomer(hooks, 'bum'),
-    activeTestCustomer(hooks, 'crackhead'),
-    activeTestCustomer(hooks, 'junkie'),
+    activeTestCustomer(hooks, 'street-bum'),
+    activeTestCustomer(hooks, 'street-crackhead'),
+    activeTestCustomer(hooks, 'street-junkie'),
     activeTestCustomer(hooks, 'bargain_hunter'),
-    activeTestCustomer(hooks, 'red_hustler'),
-    activeTestCustomer(hooks, 'slot_grandma'),
-    activeTestCustomer(hooks, 'hitman')
+    activeTestCustomer(hooks, 'hustler-shorty'),
+    activeTestCustomer(hooks, 'regular-grandma-slots'),
+    activeTestCustomer(hooks, 'service-hitman')
   ]);
   let buyers = 0;
   let sellers = 0;
@@ -4269,7 +4267,7 @@ test('v0.1.18 matching buyers can purchase ordinary categories and low liquidity
     ['bum_buys_cursed', 'microwave_haunted'],
     ['junkie_tablet_buy', 'cracked_tablet'],
     ['mechanic_buys_tools', 'cordless_drill'],
-    ['red_hustler_buys_watch', 'suspicious_gold_watch'],
+    ['hustler_shorty_buys_watch', 'suspicious_gold_watch'],
     ['hitman_buys_weapon', 'pocket_knife']
   ];
 
@@ -4287,9 +4285,9 @@ test('v0.1.18 buyer selection only chooses executable inventory matches', () => 
   resetState(hooks);
   hooks.state.inventory.push(item(hooks, 'dvd_stack', 4), item(hooks, 'microwave_haunted', 7));
   hooks.setActiveCustomers([
-    activeTestCustomer(hooks, 'bum'),
+    activeTestCustomer(hooks, 'street-bum'),
     activeTestCustomer(hooks, 'bargain_hunter'),
-    activeTestCustomer(hooks, 'hitman')
+    activeTestCustomer(hooks, 'service-hitman')
   ]);
 
   for (let i = 0; i < 8; i += 1) {
@@ -4310,7 +4308,7 @@ test('v0.1.18 forced recovery buyer uses broad-buyer pricing instead of automati
   hooks.state.lowCashRecoveryDryStreak = hooks.constants.LOW_CASH_RECOVERY.guaranteeDryStreak;
   const phone = item(hooks, 'used_smartphone', 120);
   hooks.state.inventory.push(phone);
-  hooks.setActiveCustomers([activeTestCustomer(hooks, 'bum')]);
+  hooks.setActiveCustomers([activeTestCustomer(hooks, 'street-bum')]);
 
   const { deal } = hooks.chooseNextNormalDeal();
   hooks.applySelectedInventoryItemToDeal(deal, phone);
@@ -4352,7 +4350,7 @@ test('v0.1.16 consequence encounters do not extend low-cash recovery dry streak'
   hooks.state.inventory.push(item(hooks, 'dvd_stack', 4));
   hooks.state.factionPressure.tracksuit_crew = 5;
   const consequence = hooks.queueThugConsequence('test consequence does not count', { debug: true });
-  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit_thug'));
+  const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit-thug-vincent'));
 
   hooks.resolveConsequenceChoice('thugItem', deal);
 
@@ -4363,7 +4361,7 @@ test('low-funds full-price purchase stays open without transfer', () => {
   const hooks = loadGame(0.5);
   resetState(hooks);
   hooks.state.money = 5;
-  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'slot_grandma_gold_ring'));
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'old_grandma_slots_gold_ring'));
   const before = hooks.snapshotState();
 
   const result = hooks.resolveBuy('buyAsk', deal);

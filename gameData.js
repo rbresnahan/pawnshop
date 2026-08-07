@@ -5,10 +5,10 @@ window.ONE_STAR_PAWN_DATA = {
       "displayName": "Hustlers",
       "members": [
         "hustler-shorty",
-        "hustler-sista",
+        "hustler-cool-j",
         "hustler-kangol"
       ],
-      "thug": "hustler-heavy",
+      "thug": "hustler-thug-red",
       "notes": "Uses shared thug retaliation consequence metadata."
     },
     {
@@ -18,20 +18,20 @@ window.ONE_STAR_PAWN_DATA = {
         "tracksuit-legs",
         "tracksuit-slim"
       ],
-      "thug": "tracksuit-thug",
+      "thug": "tracksuit-thug-vincent",
       "notes": "Organizational metadata only; consequence behavior remains unchanged."
     }
   ],
   "characters": [
     {
-      "id": "crackhead",
+      "id": "street-crackhead",
       "displayName": "Crackhead",
       "archetype": "Desperate Seller",
       "spriteType": "seller",
       "factionId": "street_desperate",
       "spritePath": "assets/sprites/street-crackhead-idle_l.png",
       "facing": "left",
-      "spriteClass": "npc-crackhead",
+      "spriteClass": "npc-street-crackhead",
       "spriteVisualHeight": null,
       "activeInRotation": true,
       "cashMin": 0.0,
@@ -51,14 +51,14 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Moves like a shopping cart with a court date. Sells fast, lies faster."
     },
     {
-      "id": "bum",
+      "id": "street-bum",
       "displayName": "Bum",
       "archetype": "Desperate Regular",
       "spriteType": "regular",
       "factionId": "street_desperate",
       "spritePath": "assets/sprites/street-bum-idle_l.png",
       "facing": "left",
-      "spriteClass": "npc-bum",
+      "spriteClass": "npc-street-bum",
       "spriteVisualHeight": null,
       "activeInRotation": true,
       "cashMin": 0.0,
@@ -77,14 +77,14 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Smells like sidewalk rain and bad economics. Somehow knows the value of copper."
     },
     {
-      "id": "hitman",
+      "id": "service-hitman",
       "displayName": "Hitman",
       "archetype": "Dangerous Buyer",
       "spriteType": "thug",
       "factionId": "professional_independent",
       "spritePath": "assets/sprites/service-hitman-idle_l.png",
       "facing": "left",
-      "spriteClass": "npc-hitman",
+      "spriteClass": "npc-service-hitman",
       "spriteVisualHeight": null,
       "activeInRotation": true,
       "cashMin": 80.0,
@@ -104,14 +104,14 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Too calm, too clean, and somehow worse than both. Never asks for a receipt."
     },
     {
-      "id": "junkie",
+      "id": "street-junkie",
       "displayName": "Junkie",
       "archetype": "Mystery Seller",
       "spriteType": "weirdo",
       "factionId": "street_desperate",
       "spritePath": "assets/sprites/street-junkie-idle_r.png",
       "facing": "right",
-      "spriteClass": "npc-junkie",
+      "spriteClass": "npc-street-junkie",
       "spriteVisualHeight": null,
       "activeInRotation": true,
       "cashMin": 5.0,
@@ -280,14 +280,14 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Wants a discount because Mercury is in retrograde, probably on Facebook Marketplace."
     },
     {
-      "id": "tracksuit-thug",
-      "displayName": "Tracksuit Heavy",
+      "id": "tracksuit-thug-vincent",
+      "displayName": "Vincent",
       "archetype": "Thug",
       "spriteType": "thug",
       "factionId": "tracksuits",
-      "spritePath": "assets/sprites/tracksuit-thug-idle_l.png",
-      "facing": "left",
-      "spriteClass": "npc-tracksuit-thug",
+      "spritePath": "assets/sprites/tracksuit-thug-vincent-idle_r.png",
+      "facing": "right",
+      "spriteClass": "npc-tracksuit-thug-vincent",
       "spriteVisualHeight": null,
       "activeInRotation": false,
       "cashMin": 20.0,
@@ -384,9 +384,9 @@ window.ONE_STAR_PAWN_DATA = {
       "archetype": "Prototype Placeholder",
       "spriteType": "regular",
       "factionId": "independent",
-      "spritePath": "assets/sprites/customer-purple-idle.png",
+      "spritePath": "",
       "facing": "",
-      "spriteClass": "npc-purple",
+      "spriteClass": "",
       "spriteVisualHeight": null,
       "activeInRotation": false,
       "cashMin": 0.0,
@@ -399,7 +399,7 @@ window.ONE_STAR_PAWN_DATA = {
       "preferredItemTags": [
         "prototype"
       ],
-      "notes": "Original prototype sprite. Kept as inactive fallback/reference only; not used in gameplay rotation."
+      "notes": "Original prototype row. Kept inactive for reference only; not used in gameplay rotation."
     },
     {
       "id": "regular-mr-seventies",
@@ -484,14 +484,14 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Converting household history into cash with terrifying calm."
     },
     {
-      "id": "regular-jan-lee",
-      "displayName": "Jan Lee",
+      "id": "money-jan-takai",
+      "displayName": "Jan Takai",
       "archetype": "Practical Regular",
       "spriteType": "regular",
       "factionId": "independent",
-      "spritePath": "assets/sprites/regular-jan-lee-idle_r.png",
+      "spritePath": "assets/sprites/money-jan-takai-idle_r.png",
       "facing": "right",
-      "spriteClass": "npc-regular-jan-lee",
+      "spriteClass": "npc-money-jan-takai",
       "spriteVisualHeight": null,
       "activeInRotation": true,
       "cashMin": 25.0,
@@ -607,8 +607,8 @@ window.ONE_STAR_PAWN_DATA = {
       "archetype": "Flashy Deal Chaser",
       "spriteType": "buyer",
       "factionId": "hustlers",
-      "spritePath": "assets/sprites/hustler-shorty-idle_l.png",
-      "facing": "left",
+      "spritePath": "assets/sprites/hustler-shorty-idle_r.png",
+      "facing": "right",
       "spriteClass": "npc-hustler-shorty",
       "spriteVisualHeight": null,
       "activeInRotation": true,
@@ -629,14 +629,14 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Confident, impatient, and dressed like subtlety owes him money."
     },
     {
-      "id": "hustler-sista",
-      "displayName": "Sista",
+      "id": "hustler-cool-j",
+      "displayName": "Cool J",
       "archetype": "Flashy Deal Chaser",
       "spriteType": "buyer",
       "factionId": "hustlers",
-      "spritePath": "assets/sprites/hustler-sista-idle_r.png",
-      "facing": "right",
-      "spriteClass": "npc-hustler-sista",
+      "spritePath": "assets/sprites/hustler-cool-J-idle_l.png",
+      "facing": "left",
+      "spriteClass": "npc-hustler-cool-j",
       "spriteVisualHeight": null,
       "activeInRotation": true,
       "cashMin": 40.0,
@@ -653,7 +653,7 @@ window.ONE_STAR_PAWN_DATA = {
         "hot",
         "suspicious"
       ],
-      "notes": "Confident, impatient, and dressed like subtlety owes her money."
+      "notes": "Confident, impatient, and dressed like subtlety owes him money."
     },
     {
       "id": "hustler-kangol",
@@ -683,14 +683,14 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Confident, impatient, and dressed like subtlety owes him money."
     },
     {
-      "id": "hustler-heavy",
-      "displayName": "Hustler Heavy",
+      "id": "hustler-thug-red",
+      "displayName": "Red",
       "archetype": "Thug",
       "spriteType": "thug",
       "factionId": "hustlers",
-      "spritePath": "assets/sprites/hustler-heavy-idle_l.png",
+      "spritePath": "assets/sprites/hustler-thug-red-idle_l.png",
       "facing": "left",
-      "spriteClass": "npc-hustler-heavy",
+      "spriteClass": "npc-hustler-thug-red",
       "spriteVisualHeight": null,
       "activeInRotation": false,
       "cashMin": 20.0,
@@ -716,7 +716,7 @@ window.ONE_STAR_PAWN_DATA = {
       "spritePath": "assets/sprites/tracksuit-legs-idle_l.png",
       "facing": "left",
       "spriteClass": "npc-tracksuit-legs",
-      "spriteVisualHeight": 196.0,
+      "spriteVisualHeight": null,
       "activeInRotation": true,
       "cashMin": 40.0,
       "cashMax": 280.0,
@@ -743,7 +743,7 @@ window.ONE_STAR_PAWN_DATA = {
       "spritePath": "assets/sprites/tracksuit-slim-idle_r.png",
       "facing": "right",
       "spriteClass": "npc-tracksuit-slim",
-      "spriteVisualHeight": 242.0,
+      "spriteVisualHeight": null,
       "activeInRotation": true,
       "cashMin": 40.0,
       "cashMax": 280.0,
@@ -762,14 +762,41 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Tall, sharp, and haggles like the price insulted him first."
     },
     {
-      "id": "old-grandma-slots",
+      "id": "tracksuit-tommy",
+      "displayName": "Tommy",
+      "archetype": "Tracksuit Regular",
+      "spriteType": "buyer",
+      "factionId": "tracksuits",
+      "spritePath": "assets/sprites/tracksuit-tommy-idle_l.png",
+      "facing": "left",
+      "spriteClass": "npc-tracksuit-tommy",
+      "spriteVisualHeight": null,
+      "activeInRotation": false,
+      "cashMin": 40.0,
+      "cashMax": 280.0,
+      "trust": 38,
+      "trustLabel": "2 - sketchy",
+      "copRiskBias": 1.0,
+      "thugRiskBias": 3.0,
+      "scamRiskBias": 3.0,
+      "preferredItemTags": [
+        "luxury",
+        "electronics",
+        "collectible",
+        "hot",
+        "suspicious"
+      ],
+      "notes": "Tracksuit roster record awaiting deal data."
+    },
+    {
+      "id": "regular-grandma-slots",
       "displayName": "Slot Grandma",
       "archetype": "Compulsive Gambler",
       "spriteType": "seller",
       "factionId": "casino_regular",
-      "spritePath": "assets/sprites/old_grandma-slots_idel_r.png",
-      "facing": "right",
-      "spriteClass": "npc-old-grandma-slots",
+      "spritePath": "assets/sprites/regular-grandma-slots-idle_l.png",
+      "facing": "left",
+      "spriteClass": "npc-regular-grandma-slots",
       "spriteVisualHeight": null,
       "activeInRotation": true,
       "cashMin": 0.0,
@@ -788,14 +815,14 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Sweet, broke, and one jackpot away from solving the problem she created with the last jackpot."
     },
     {
-      "id": "senior-grandpa-catfish",
+      "id": "regular-grandpa-catfish",
       "displayName": "Catfish Grandpa",
       "archetype": "Senior Regular",
       "spriteType": "regular",
       "factionId": "independent",
-      "spritePath": "assets/sprites/senior-grandpa-catfish-idle_l.png",
+      "spritePath": "assets/sprites/regular-grandpa-catfish-idle_l.png",
       "facing": "left",
-      "spriteClass": "npc-senior-grandpa-catfish",
+      "spriteClass": "npc-regular-grandpa-catfish",
       "spriteVisualHeight": null,
       "activeInRotation": true,
       "cashMin": 10.0,
@@ -816,14 +843,14 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Has a garage full of practical objects and stories that almost line up."
     },
     {
-      "id": "regular-salaryman",
+      "id": "money-salaryman",
       "displayName": "Salaryman",
       "archetype": "Office Regular",
       "spriteType": "regular",
       "factionId": "independent",
-      "spritePath": "assets/sprites/regular_salaryman_idle_r.png",
+      "spritePath": "assets/sprites/money-salaryman-idle_r.png",
       "facing": "right",
-      "spriteClass": "npc-regular-salaryman",
+      "spriteClass": "npc-money-salaryman",
       "spriteVisualHeight": null,
       "activeInRotation": true,
       "cashMin": 40.0,
@@ -847,14 +874,268 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Arrives with spreadsheet posture and lunch-break desperation."
     },
     {
+      "id": "money-devon-dollars",
+      "displayName": "Devon Dollars",
+      "archetype": "Money Regular",
+      "spriteType": "regular",
+      "factionId": "independent",
+      "spritePath": "assets/sprites/money-devon-dollars-idle_r.png",
+      "facing": "right",
+      "spriteClass": "npc-money-devon-dollars",
+      "spriteVisualHeight": null,
+      "activeInRotation": false,
+      "cashMin": 40.0,
+      "cashMax": 340.0,
+      "trust": 50,
+      "trustLabel": "3 - mixed",
+      "copRiskBias": 0.0,
+      "thugRiskBias": 1.0,
+      "scamRiskBias": 2.0,
+      "preferredItemTags": [
+        "watch",
+        "electronics",
+        "computer",
+        "office",
+        "instrument",
+        "luxury",
+        "collectible",
+        "appliance",
+        "practical"
+      ],
+      "notes": "Money roster record awaiting deal data."
+    },
+    {
+      "id": "money-douche-brad",
+      "displayName": "Brad",
+      "archetype": "Money Regular",
+      "spriteType": "regular",
+      "factionId": "independent",
+      "spritePath": "assets/sprites/money-douche-brad-idle_l.png",
+      "facing": "left",
+      "spriteClass": "npc-money-douche-brad",
+      "spriteVisualHeight": null,
+      "activeInRotation": false,
+      "cashMin": 40.0,
+      "cashMax": 340.0,
+      "trust": 50,
+      "trustLabel": "3 - mixed",
+      "copRiskBias": 0.0,
+      "thugRiskBias": 1.0,
+      "scamRiskBias": 2.0,
+      "preferredItemTags": [
+        "watch",
+        "electronics",
+        "computer",
+        "office",
+        "instrument",
+        "luxury",
+        "collectible",
+        "appliance",
+        "practical"
+      ],
+      "notes": "Money roster record awaiting deal data."
+    },
+    {
+      "id": "money-penny",
+      "displayName": "Penny",
+      "archetype": "Money Regular",
+      "spriteType": "regular",
+      "factionId": "independent",
+      "spritePath": "assets/sprites/money-penny-idle_r.png",
+      "facing": "right",
+      "spriteClass": "npc-money-penny",
+      "spriteVisualHeight": null,
+      "activeInRotation": false,
+      "cashMin": 40.0,
+      "cashMax": 340.0,
+      "trust": 50,
+      "trustLabel": "3 - mixed",
+      "copRiskBias": 0.0,
+      "thugRiskBias": 1.0,
+      "scamRiskBias": 2.0,
+      "preferredItemTags": [
+        "watch",
+        "electronics",
+        "computer",
+        "office",
+        "instrument",
+        "luxury",
+        "collectible",
+        "appliance",
+        "practical"
+      ],
+      "notes": "Money roster record awaiting deal data."
+    },
+    {
+      "id": "vice-addict-arty",
+      "displayName": "Addict Arty",
+      "archetype": "Vice Regular",
+      "spriteType": "weirdo",
+      "factionId": "independent",
+      "spritePath": "assets/sprites/vice-addict-arty-idle_r.png",
+      "facing": "right",
+      "spriteClass": "npc-vice-addict-arty",
+      "spriteVisualHeight": null,
+      "activeInRotation": false,
+      "cashMin": 5.0,
+      "cashMax": 110.0,
+      "trust": 26,
+      "trustLabel": "1 - liar",
+      "copRiskBias": 3.0,
+      "thugRiskBias": 1.0,
+      "scamRiskBias": 5.0,
+      "preferredItemTags": [
+        "electronics",
+        "mystery",
+        "suspicious",
+        "cursed",
+        "broken"
+      ],
+      "notes": "Vice roster record awaiting deal data."
+    },
+    {
+      "id": "vice-clepto-carlo",
+      "displayName": "Clepto Carlo",
+      "archetype": "Vice Regular",
+      "spriteType": "weirdo",
+      "factionId": "independent",
+      "spritePath": "assets/sprites/vice-clepto-carlo-idle_l.png",
+      "facing": "left",
+      "spriteClass": "npc-vice-clepto-carlo",
+      "spriteVisualHeight": null,
+      "activeInRotation": false,
+      "cashMin": 5.0,
+      "cashMax": 110.0,
+      "trust": 26,
+      "trustLabel": "1 - liar",
+      "copRiskBias": 3.0,
+      "thugRiskBias": 1.0,
+      "scamRiskBias": 5.0,
+      "preferredItemTags": [
+        "electronics",
+        "mystery",
+        "suspicious",
+        "cursed",
+        "broken"
+      ],
+      "notes": "Vice roster record awaiting deal data."
+    },
+    {
+      "id": "vice-dealer-danny",
+      "displayName": "Dealer Danny",
+      "archetype": "Vice Regular",
+      "spriteType": "weirdo",
+      "factionId": "independent",
+      "spritePath": "assets/sprites/vice-dealer-danny-idle_r.png",
+      "facing": "right",
+      "spriteClass": "npc-vice-dealer-danny",
+      "spriteVisualHeight": null,
+      "activeInRotation": false,
+      "cashMin": 5.0,
+      "cashMax": 110.0,
+      "trust": 26,
+      "trustLabel": "1 - liar",
+      "copRiskBias": 3.0,
+      "thugRiskBias": 1.0,
+      "scamRiskBias": 5.0,
+      "preferredItemTags": [
+        "electronics",
+        "mystery",
+        "suspicious",
+        "cursed",
+        "broken"
+      ],
+      "notes": "Vice roster record awaiting deal data."
+    },
+    {
+      "id": "vice-pervert-pete",
+      "displayName": "Pervert Pete",
+      "archetype": "Vice Regular",
+      "spriteType": "weirdo",
+      "factionId": "independent",
+      "spritePath": "assets/sprites/vice-pervert-pete-idle_r.png",
+      "facing": "right",
+      "spriteClass": "npc-vice-pervert-pete",
+      "spriteVisualHeight": null,
+      "activeInRotation": false,
+      "cashMin": 5.0,
+      "cashMax": 110.0,
+      "trust": 26,
+      "trustLabel": "1 - liar",
+      "copRiskBias": 3.0,
+      "thugRiskBias": 1.0,
+      "scamRiskBias": 5.0,
+      "preferredItemTags": [
+        "electronics",
+        "mystery",
+        "suspicious",
+        "cursed",
+        "broken"
+      ],
+      "notes": "Vice roster record awaiting deal data."
+    },
+    {
+      "id": "vice-raver-remy",
+      "displayName": "Raver Remy",
+      "archetype": "Vice Regular",
+      "spriteType": "weirdo",
+      "factionId": "independent",
+      "spritePath": "assets/sprites/vice-raver-remy-idle_l.png",
+      "facing": "left",
+      "spriteClass": "npc-vice-raver-remy",
+      "spriteVisualHeight": null,
+      "activeInRotation": false,
+      "cashMin": 5.0,
+      "cashMax": 110.0,
+      "trust": 26,
+      "trustLabel": "1 - liar",
+      "copRiskBias": 3.0,
+      "thugRiskBias": 1.0,
+      "scamRiskBias": 5.0,
+      "preferredItemTags": [
+        "electronics",
+        "mystery",
+        "suspicious",
+        "cursed",
+        "broken"
+      ],
+      "notes": "Vice roster record awaiting deal data."
+    },
+    {
+      "id": "service-boots-penales",
+      "displayName": "Boots Penales",
+      "archetype": "Service Regular",
+      "spriteType": "regular",
+      "factionId": "independent",
+      "spritePath": "assets/sprites/service-boots-penales-idle_l.png",
+      "facing": "left",
+      "spriteClass": "npc-service-boots-penales",
+      "spriteVisualHeight": null,
+      "activeInRotation": false,
+      "cashMin": 40.0,
+      "cashMax": 220.0,
+      "trust": 50,
+      "trustLabel": "3 - mixed",
+      "copRiskBias": 0.0,
+      "thugRiskBias": 1.0,
+      "scamRiskBias": 1.0,
+      "preferredItemTags": [
+        "tool",
+        "electronics",
+        "watch",
+        "collectible"
+      ],
+      "notes": "Service roster record awaiting deal data."
+    },
+    {
       "id": "cop_consequence",
       "displayName": "Cop",
       "archetype": "Consequence Officer",
       "spriteType": "cop",
       "factionId": "law_enforcement",
-      "spritePath": "assets/sprites/cop-highway-patrol_r.png",
+      "spritePath": "assets/sprites/cop-highway-patrol-idle_r.png",
       "facing": "right",
-      "spriteClass": "npc-cop-consequence",
+      "spriteClass": "npc-cop-highway-patrol",
       "spriteVisualHeight": null,
       "activeInRotation": false,
       "cashMin": 0.0,
@@ -875,7 +1156,7 @@ window.ONE_STAR_PAWN_DATA = {
   ],
   "characterCommerceTraits": [
     {
-      "characterId": "crackhead",
+      "characterId": "street-crackhead",
       "sellsToShopWeight": 6.0,
       "buysFromShopWeight": 1.0,
       "tradesWeight": 4.0,
@@ -911,7 +1192,7 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "High-chaos seller/trader. Good source of cheap bad decisions."
     },
     {
-      "characterId": "bum",
+      "characterId": "street-bum",
       "sellsToShopWeight": 5.0,
       "buysFromShopWeight": 1.0,
       "tradesWeight": 3.0,
@@ -945,7 +1226,7 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Mostly harmless junk economy. Will accept humiliating offers if they include cash."
     },
     {
-      "characterId": "hitman",
+      "characterId": "service-hitman",
       "sellsToShopWeight": 2.0,
       "buysFromShopWeight": 5.0,
       "tradesWeight": 5.0,
@@ -981,7 +1262,7 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Dangerous buyer/trader. Refusing or insulting him should wake up thug risk."
     },
     {
-      "characterId": "junkie",
+      "characterId": "street-junkie",
       "sellsToShopWeight": 5.0,
       "buysFromShopWeight": 2.0,
       "tradesWeight": 5.0,
@@ -1210,7 +1491,7 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Buys cheap inventory and argues like every dollar has a lawyer."
     },
     {
-      "characterId": "tracksuit-thug",
+      "characterId": "tracksuit-thug-vincent",
       "sellsToShopWeight": 3.0,
       "buysFromShopWeight": 3.0,
       "tradesWeight": 5.0,
@@ -1441,7 +1722,7 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Mostly sells valuables and accepts sober-enough offers."
     },
     {
-      "characterId": "regular-jan-lee",
+      "characterId": "money-jan-takai",
       "sellsToShopWeight": 4.0,
       "buysFromShopWeight": 4.0,
       "tradesWeight": 3.0,
@@ -1650,7 +1931,7 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Aggressive buyer and trader. Insults should raise thug risk."
     },
     {
-      "characterId": "hustler-sista",
+      "characterId": "hustler-cool-j",
       "sellsToShopWeight": 3.0,
       "buysFromShopWeight": 5.0,
       "tradesWeight": 4.0,
@@ -1798,7 +2079,7 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Aggressive buyer and trader."
     },
     {
-      "characterId": "old-grandma-slots",
+      "characterId": "regular-grandma-slots",
       "sellsToShopWeight": 7.0,
       "buysFromShopWeight": 1.0,
       "tradesWeight": 2.0,
@@ -1832,7 +2113,7 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Cash-starved but mostly honest. Sells personal valuables to feed the slots."
     },
     {
-      "characterId": "senior-grandpa-catfish",
+      "characterId": "regular-grandpa-catfish",
       "sellsToShopWeight": 5.0,
       "buysFromShopWeight": 2.0,
       "tradesWeight": 3.0,
@@ -1870,7 +2151,7 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Senior seller and trader with practical goods and dubious explanations."
     },
     {
-      "characterId": "regular-salaryman",
+      "characterId": "money-salaryman",
       "sellsToShopWeight": 3.0,
       "buysFromShopWeight": 5.0,
       "tradesWeight": 3.0,
@@ -3090,7 +3371,7 @@ window.ONE_STAR_PAWN_DATA = {
   "characterItemPools": [
     {
       "id": "crackhead_fake_chain",
-      "characterId": "crackhead",
+      "characterId": "street-crackhead",
       "itemId": "fake_gold_chain",
       "dealType": "sell_to_shop",
       "itemRole": "npc_offers",
@@ -3110,7 +3391,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "crackhead_locked_watch",
-      "characterId": "crackhead",
+      "characterId": "street-crackhead",
       "itemId": "smart_watch_locked",
       "dealType": "sell_to_shop",
       "itemRole": "npc_offers",
@@ -3129,7 +3410,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "crackhead_mystery_trade",
-      "characterId": "crackhead",
+      "characterId": "street-crackhead",
       "itemId": "sealed_mystery_box",
       "dealType": "trade",
       "itemRole": "npc_offers",
@@ -3152,7 +3433,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "crackhead_buys_junk",
-      "characterId": "crackhead",
+      "characterId": "street-crackhead",
       "itemId": "dvd_stack",
       "dealType": "buy_from_shop",
       "itemRole": "npc_requests",
@@ -3171,7 +3452,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "bum_microwave",
-      "characterId": "bum",
+      "characterId": "street-bum",
       "itemId": "microwave_haunted",
       "dealType": "sell_to_shop",
       "itemRole": "npc_offers",
@@ -3191,7 +3472,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "bum_dvd_stack",
-      "characterId": "bum",
+      "characterId": "street-bum",
       "itemId": "dvd_stack",
       "dealType": "sell_to_shop",
       "itemRole": "npc_offers",
@@ -3210,7 +3491,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "bum_buys_cursed",
-      "characterId": "bum",
+      "characterId": "street-bum",
       "itemId": "microwave_haunted",
       "dealType": "buy_from_shop",
       "itemRole": "npc_requests",
@@ -3230,7 +3511,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "bum_junk_trade",
-      "characterId": "bum",
+      "characterId": "street-bum",
       "itemId": "silverware_bundle",
       "dealType": "trade",
       "itemRole": "npc_offers",
@@ -3253,7 +3534,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "hitman_buys_weapon",
-      "characterId": "hitman",
+      "characterId": "service-hitman",
       "itemId": "rusty_revolver_prop",
       "dealType": "buy_from_shop",
       "itemRole": "npc_requests",
@@ -3273,7 +3554,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "hitman_buys_luxury",
-      "characterId": "hitman",
+      "characterId": "service-hitman",
       "itemId": "suspicious_gold_watch",
       "dealType": "buy_from_shop",
       "itemRole": "npc_requests",
@@ -3293,7 +3574,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "hitman_knife_trade",
-      "characterId": "hitman",
+      "characterId": "service-hitman",
       "itemId": "pocket_knife",
       "dealType": "trade",
       "itemRole": "npc_offers",
@@ -3315,7 +3596,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "hitman_prop_revolver",
-      "characterId": "hitman",
+      "characterId": "service-hitman",
       "itemId": "rusty_revolver_prop",
       "dealType": "sell_to_shop",
       "itemRole": "npc_offers",
@@ -3335,7 +3616,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "junkie_vcr",
-      "characterId": "junkie",
+      "characterId": "street-junkie",
       "itemId": "hospital_vcr",
       "dealType": "sell_to_shop",
       "itemRole": "npc_offers",
@@ -3355,7 +3636,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "junkie_mystery_box",
-      "characterId": "junkie",
+      "characterId": "street-junkie",
       "itemId": "sealed_mystery_box",
       "dealType": "sell_to_shop",
       "itemRole": "npc_offers",
@@ -3374,7 +3655,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "junkie_tablet_buy",
-      "characterId": "junkie",
+      "characterId": "street-junkie",
       "itemId": "cracked_tablet",
       "dealType": "buy_from_shop",
       "itemRole": "npc_requests",
@@ -3393,7 +3674,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "junkie_weird_trade",
-      "characterId": "junkie",
+      "characterId": "street-junkie",
       "itemId": "cracked_tablet",
       "dealType": "trade",
       "itemRole": "npc_offers",
@@ -3842,7 +4123,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "tracksuit_knife",
-      "characterId": "tracksuit-thug",
+      "characterId": "tracksuit-thug-vincent",
       "itemId": "pocket_knife",
       "dealType": "trade",
       "itemRole": "npc_offers",
@@ -3864,7 +4145,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "tracksuit_prop_revolver",
-      "characterId": "tracksuit-thug",
+      "characterId": "tracksuit-thug-vincent",
       "itemId": "rusty_revolver_prop",
       "dealType": "sell_to_shop",
       "itemRole": "npc_offers",
@@ -3884,7 +4165,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "tracksuit_buys_hot",
-      "characterId": "tracksuit-thug",
+      "characterId": "tracksuit-thug-vincent",
       "itemId": "suspicious_gold_watch",
       "dealType": "buy_from_shop",
       "itemRole": "npc_requests",
@@ -4195,7 +4476,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "regular_jan_lee_blender",
-      "characterId": "regular-jan-lee",
+      "characterId": "money-jan-takai",
       "itemId": "countertop_blender",
       "dealType": "sell_to_shop",
       "itemRole": "npc_offers",
@@ -4214,7 +4495,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "regular_jan_lee_buys_tv",
-      "characterId": "regular-jan-lee",
+      "characterId": "money-jan-takai",
       "itemId": "flat_screen_tv",
       "dealType": "buy_from_shop",
       "itemRole": "npc_requests",
@@ -4233,7 +4514,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "regular_jan_lee_socket_trade",
-      "characterId": "regular-jan-lee",
+      "characterId": "money-jan-takai",
       "itemId": "socket_set",
       "dealType": "trade",
       "itemRole": "npc_offers",
@@ -4512,7 +4793,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "hustler_sista_locked_watch",
-      "characterId": "hustler-sista",
+      "characterId": "hustler-cool-j",
       "itemId": "smart_watch_locked",
       "dealType": "sell_to_shop",
       "itemRole": "npc_offers",
@@ -4531,7 +4812,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "hustler_sista_buys_watch",
-      "characterId": "hustler-sista",
+      "characterId": "hustler-cool-j",
       "itemId": "suspicious_gold_watch",
       "dealType": "buy_from_shop",
       "itemRole": "npc_requests",
@@ -4551,7 +4832,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "hustler_sista_figure_trade",
-      "characterId": "hustler-sista",
+      "characterId": "hustler-cool-j",
       "itemId": "rare_action_figure",
       "dealType": "trade",
       "itemRole": "npc_offers",
@@ -4764,7 +5045,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "old_grandma_slots_gold_ring",
-      "characterId": "old-grandma-slots",
+      "characterId": "regular-grandma-slots",
       "itemId": "gold_ring_engravings",
       "dealType": "sell_to_shop",
       "itemRole": "npc_offers",
@@ -4783,7 +5064,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "old_grandma_slots_silverware",
-      "characterId": "old-grandma-slots",
+      "characterId": "regular-grandma-slots",
       "itemId": "silverware_bundle",
       "dealType": "sell_to_shop",
       "itemRole": "npc_offers",
@@ -4803,7 +5084,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "old_grandma_slots_cards_trade",
-      "characterId": "old-grandma-slots",
+      "characterId": "regular-grandma-slots",
       "itemId": "baseball_card_box",
       "dealType": "trade",
       "itemRole": "npc_offers",
@@ -4825,7 +5106,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "senior_grandpa_catfish_drill",
-      "characterId": "senior-grandpa-catfish",
+      "characterId": "regular-grandpa-catfish",
       "itemId": "cordless_drill",
       "dealType": "sell_to_shop",
       "itemRole": "npc_offers",
@@ -4844,7 +5125,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "senior_grandpa_catfish_vcr",
-      "characterId": "senior-grandpa-catfish",
+      "characterId": "regular-grandpa-catfish",
       "itemId": "hospital_vcr",
       "dealType": "sell_to_shop",
       "itemRole": "npc_offers",
@@ -4863,7 +5144,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "senior_grandpa_catfish_tool_trade",
-      "characterId": "senior-grandpa-catfish",
+      "characterId": "regular-grandpa-catfish",
       "itemId": "socket_set",
       "dealType": "trade",
       "itemRole": "npc_offers",
@@ -4886,7 +5167,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "regular_salaryman_watch",
-      "characterId": "regular-salaryman",
+      "characterId": "money-salaryman",
       "itemId": "automatic_watch",
       "dealType": "sell_to_shop",
       "itemRole": "npc_offers",
@@ -4906,7 +5187,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "regular_salaryman_buys_laptop",
-      "characterId": "regular-salaryman",
+      "characterId": "money-salaryman",
       "itemId": "budget_laptop",
       "dealType": "buy_from_shop",
       "itemRole": "npc_requests",
@@ -4926,7 +5207,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "regular_salaryman_guitar_trade",
-      "characterId": "regular-salaryman",
+      "characterId": "money-salaryman",
       "itemId": "pawn_shop_guitar",
       "dealType": "trade",
       "itemRole": "npc_offers",
@@ -4953,7 +5234,7 @@ window.ONE_STAR_PAWN_DATA = {
   "eventBlueprints": [
     {
       "id": "crackhead_locked_watch_offer",
-      "characterId": "crackhead",
+      "characterId": "street-crackhead",
       "eventType": "sell_to_shop",
       "pressureFactionId": "",
       "dialogue": "Got a smart watch. Locked for privacy. My privacy, your problem.",
@@ -4961,7 +5242,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "bum_microwave_offer",
-      "characterId": "bum",
+      "characterId": "street-bum",
       "eventType": "sell_to_shop",
       "pressureFactionId": "",
       "dialogue": "Microwave works. Sometimes it starts before you touch it. Saves time.",
@@ -4969,7 +5250,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "hitman_luxury_buy",
-      "characterId": "hitman",
+      "characterId": "service-hitman",
       "eventType": "buy_from_shop",
       "pressureFactionId": "",
       "dialogue": "I need something classy. Not traceable-classy. Just classy.",
@@ -4977,7 +5258,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "hitman_knife_trade",
-      "characterId": "hitman",
+      "characterId": "service-hitman",
       "eventType": "trade",
       "pressureFactionId": "",
       "dialogue": "I have a knife and a calm attitude. One is for trade.",
@@ -4985,7 +5266,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "junkie_mystery_box_trade",
-      "characterId": "junkie",
+      "characterId": "street-junkie",
       "eventType": "trade",
       "pressureFactionId": "",
       "dialogue": "This box has value. Emotional, legal, maybe electrical.",
@@ -5009,7 +5290,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "tracksuit_bad_trade",
-      "characterId": "tracksuit-thug",
+      "characterId": "tracksuit-thug-vincent",
       "eventType": "trade",
       "pressureFactionId": "",
       "dialogue": "Nice shop. Be a shame if someone paid retail.",
@@ -5097,7 +5378,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "regular_jan_lee_blender_offer",
-      "characterId": "regular-jan-lee",
+      "characterId": "money-jan-takai",
       "eventType": "sell_to_shop",
       "pressureFactionId": "",
       "dialogue": "Blender has one speed. That speed is lawsuit.",
@@ -5105,7 +5386,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "regular_jan_lee_tv_buy",
-      "characterId": "regular-jan-lee",
+      "characterId": "money-jan-takai",
       "eventType": "buy_from_shop",
       "pressureFactionId": "",
       "dialogue": "I need a TV that works and does not require a family meeting.",
@@ -5113,7 +5394,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "regular_jan_lee_trade",
-      "characterId": "regular-jan-lee",
+      "characterId": "money-jan-takai",
       "eventType": "trade",
       "pressureFactionId": "",
       "dialogue": "I brought sockets. You bring something that does not make my week worse.",
@@ -5217,7 +5498,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "hustler_sista_luxury_buy",
-      "characterId": "hustler-sista",
+      "characterId": "hustler-cool-j",
       "eventType": "buy_from_shop",
       "pressureFactionId": "",
       "dialogue": "Show me something expensive enough to make strangers lie about knowing me.",
@@ -5225,7 +5506,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "hustler_sista_locked_watch_offer",
-      "characterId": "hustler-sista",
+      "characterId": "hustler-cool-j",
       "eventType": "sell_to_shop",
       "pressureFactionId": "",
       "dialogue": "Phone says the watch belongs to somebody else. Phone talks too much.",
@@ -5233,7 +5514,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "hustler_sista_figure_trade_offer",
-      "characterId": "hustler-sista",
+      "characterId": "hustler-cool-j",
       "eventType": "trade",
       "pressureFactionId": "",
       "dialogue": "This figure is mint if you ignore how life works.",
@@ -5313,7 +5594,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "old_grandma_slots_ring_offer",
-      "characterId": "old-grandma-slots",
+      "characterId": "regular-grandma-slots",
       "eventType": "sell_to_shop",
       "pressureFactionId": "",
       "dialogue": "It was my anniversary ring. The machine is due, sweetheart.",
@@ -5321,7 +5602,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "senior_grandpa_catfish_tool_offer",
-      "characterId": "senior-grandpa-catfish",
+      "characterId": "regular-grandpa-catfish",
       "eventType": "sell_to_shop",
       "pressureFactionId": "",
       "dialogue": "This drill still works if you talk to it like family.",
@@ -5329,7 +5610,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "senior_grandpa_catfish_trade",
-      "characterId": "senior-grandpa-catfish",
+      "characterId": "regular-grandpa-catfish",
       "eventType": "trade",
       "pressureFactionId": "",
       "dialogue": "I got sockets. You got shelf clutter. Somewhere in there is commerce.",
@@ -5337,7 +5618,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "regular_salaryman_watch_offer",
-      "characterId": "regular-salaryman",
+      "characterId": "money-salaryman",
       "eventType": "sell_to_shop",
       "pressureFactionId": "",
       "dialogue": "Watch keeps perfect time. Unfortunately I am still late to everything.",
@@ -5345,7 +5626,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "regular_salaryman_laptop_buy",
-      "characterId": "regular-salaryman",
+      "characterId": "money-salaryman",
       "eventType": "buy_from_shop",
       "pressureFactionId": "",
       "dialogue": "I need a laptop for work and whatever dignity fits in the charger bag.",
@@ -5353,7 +5634,7 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "regular_salaryman_trade",
-      "characterId": "regular-salaryman",
+      "characterId": "money-salaryman",
       "eventType": "trade",
       "pressureFactionId": "",
       "dialogue": "This guitar lost to overtime. Maybe it can still win on your shelf.",
@@ -5369,19 +5650,19 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "id": "hustler_thug_robbery",
-      "characterId": "hustler-heavy",
+      "characterId": "hustler-thug-red",
       "eventType": "thug_robbery_consequence",
       "pressureFactionId": "hustlers",
       "dialogue": "You been loud with people who know me. Register gets quiet now.",
-      "resultNotes": "Visible hustler-heavy robbery consequence."
+      "resultNotes": "Visible hustler-thug-red robbery consequence."
     },
     {
       "id": "tracksuit_thug_robbery",
-      "characterId": "tracksuit-thug",
+      "characterId": "tracksuit-thug-vincent",
       "eventType": "thug_robbery_consequence",
       "pressureFactionId": "tracksuits",
       "dialogue": "Nice shop. Shame the register has to learn fear today.",
-      "resultNotes": "Visible tracksuit-thug robbery consequence."
+      "resultNotes": "Visible tracksuit-thug-vincent robbery consequence."
     }
   ]
 };

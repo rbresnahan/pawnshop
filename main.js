@@ -41,7 +41,7 @@ const COP_CONSEQUENCE_TYPE = 'cop_consequence';
 const COP_CONSEQUENCE_CHARACTER_ID = 'cop_consequence';
 const COP_CONSEQUENCE_EVENT_ID = 'cop_consequence_visit';
 const THUG_CONSEQUENCE_TYPE = 'thug_robbery_consequence';
-const THUG_CONSEQUENCE_CHARACTER_ID = 'tracksuit-thug';
+const THUG_CONSEQUENCE_CHARACTER_ID = 'tracksuit-thug-vincent';
 const THUG_CONSEQUENCE_EVENT_ID = 'tracksuit_thug_robbery';
 const HUSTLER_FACTION_ID = 'hustlers';
 const TRACKSUIT_CREW_FACTION_ID = 'tracksuits';
@@ -127,7 +127,7 @@ const LOW_CASH_RECOVERY = {
   fallbackPoolWeight: 14,
   fallbackMinAskMultiplier: 0.55,
   fallbackMaxAskMultiplier: 0.8,
-  opportunisticBuyerIds: ['bum', 'crackhead', 'junkie', 'desperate_regular', 'bargain_hunter', 'hustler-shorty']
+  opportunisticBuyerIds: ['street-bum', 'street-crackhead', 'street-junkie', 'desperate_regular', 'bargain_hunter', 'hustler-shorty']
 };
 const ECONOMY_BALANCE = {
   // Profit is realized net economic performance: completed sale margins minus
@@ -329,7 +329,7 @@ const NEUTRAL_DIALOGUE_PROFILE = {
 };
 
 const NPC_DIALOGUE_PROFILES = {
-  crackhead: {
+  'street-crackhead': {
     intro: ['Door was open, so fate sent me.', 'I got something and I need cash before my luck wakes up.', 'Quick deal, quick feet, everybody wins.'],
     item: ['This is {quantity} {item}, {condition}. I need {price}, no opera about it.', '{quantity} {item}. Condition says {condition}. Price says {price}.', 'Look, {quantity} {item}, {condition}, and I only need {price}.'],
     accept: ['Beautiful. I knew this counter loved me.', 'Done. No receipts, no speeches.', 'That is the number I meant the whole time.'],
@@ -338,7 +338,7 @@ const NPC_DIALOGUE_PROFILES = {
     trade: ['Trade works. Cash is a rumor anyway.', 'Swap it and let me vanish.', 'Fine, trade before I think.'],
     exit: ['I was never here loudly.', 'Door and me got business.', 'Tell the cameras I blinked.']
   },
-  bum: {
+  'street-bum': {
     intro: ['Morning, boss. The sidewalk economy is moving.', 'I brought you a little opportunity with dents.', 'Got a deal if your register is feeling neighborly.'],
     item: ['It is {quantity} {item}, {condition}. I am asking {price}.', '{quantity} {item}. Seen worse days, condition is {condition}. Need {price}.', 'This here {quantity} {item} is {condition}. {price} gets it gone.'],
     accept: ['Much obliged. That helps.', 'Fair enough. We are square.', 'Done, boss.'],
@@ -347,7 +347,7 @@ const NPC_DIALOGUE_PROFILES = {
     trade: ['Trade is alright if it carries easier.', 'I can work with a swap.', 'Fine, I will take the trade.'],
     exit: ['Stay dry in here.', 'I will be around.', 'Mind the door, it judges.']
   },
-  hitman: {
+  'service-hitman': {
     intro: ['I require a quiet transaction.', 'This should be brief.', 'I prefer business without witnesses to confusion.'],
     item: ['{quantity} {item}. {condition}. The price is {price}.', 'You are looking at {quantity} {item}, {condition}. I expect {price}.', '{quantity} {item}, condition {condition}. {price} is clean enough.'],
     accept: ['Acceptable.', 'Good. Efficient.', 'We understand each other.'],
@@ -356,7 +356,7 @@ const NPC_DIALOGUE_PROFILES = {
     trade: ['The exchange is acceptable.', 'A trade will do.', 'Fine. Transfer ownership.'],
     exit: ['Forget the face.', 'Close the register slowly.', 'I was not here long.']
   },
-  junkie: {
+  'street-junkie': {
     intro: ['The universe coughed this up and told me your address.', 'I got a deal with wires in its dreams.', 'You ever feel like merchandise is watching? Anyway.'],
     item: ['It is {quantity} {item}, {condition}. The spirits say {price}.', '{quantity} {item}. Condition is {condition}, legally or emotionally. Need {price}.', 'This {quantity} {item} is {condition}. {price} keeps the moon quiet.'],
     accept: ['Yes. The counter agrees.', 'Good, good, good. Done.', 'The deal has chosen us.'],
@@ -383,7 +383,7 @@ const NPC_DIALOGUE_PROFILES = {
     trade: ['Trade works if the math behaves.', 'Fine. Swap it.', 'I can live with that trade.'],
     exit: ['Keep looking busy.', 'I will remember the counter.', 'Later.']
   },
-  'hustler-sista': {
+  'hustler-cool-j': {
     intro: ['I need something handled quick.', 'You look open enough for business.', 'Let us talk numbers before somebody talks too much.'],
     item: ['{quantity} {item}, {condition}. I want {price}.', 'Here: {quantity} {item}. Condition {condition}. Price {price}.', 'This {quantity} {item} is {condition}. {price}, and we stay friendly.'],
     accept: ['Good. Smart choice.', 'Done. Easy.', 'That works for both of us.'],
@@ -419,7 +419,7 @@ const NPC_DIALOGUE_PROFILES = {
     trade: ['Trade works if the math behaves.', 'Fine. Swap it.', 'I can live with that trade.'],
     exit: ['Keep looking busy.', 'I will remember the counter.', 'Later.']
   },
-  'old-grandma-slots': {
+  'regular-grandma-slots': {
     intro: ['Hello, sweetheart. Grandma needs a little cash miracle.', 'Be a dear and look at this for me.', 'The machines are due, and I brought something nice.'],
     item: ['It is {quantity} {item}, {condition}. I am asking {price}.', 'This {quantity} {item} is {condition}. I would like {price}, honey.', '{quantity} {item}, condition {condition}. {price} would help me greatly.'],
     accept: ['Bless you. That will do.', 'Good enough, sweetheart.', 'Done. Wish me luck.'],
@@ -1088,6 +1088,19 @@ function resolvePendingTracksuitBadMerchandiseIncident(deal, reason) {
     appendFactionPressureHistory(deal, `No Tracksuit pressure: duplicate bad merchandise dispute suppressed for ${deal.customer?.displayName || 'customer'} (${reason}).`);
     return null;
   }
+  const salePressureAlreadyApplied = getFactionPressureActionKeys(deal)
+    .some(actionKey => /:accepted-markup(?::|-)/.test(actionKey));
+  if (salePressureAlreadyApplied) {
+    rememberTracksuitPressureKey(deal, `tracksuit-relationship:${consumedKey}`);
+    deal.tracksuitBadMerchandiseIncident = {
+      ...(incident || { key, recordedTurn: state.turn }),
+      status: 'consumed',
+      consumedTurn: state.turn
+    };
+    appendFactionPressureHistory(deal, `No Tracksuit pressure: bad merchandise dispute already accounted for by accepted sale pressure (${reason}).`);
+    appendFactionPressureHistory(deal, `Tracksuit bad merchandise incident consumed: final dispute pressure suppressed for ${deal.customer?.displayName || 'customer'}.`);
+    return null;
+  }
   const result = addTracksuitRelationshipPressure(
     deal,
     TRACKSUIT_RELATIONSHIP_PRESSURE.badMerchandise,
@@ -1269,7 +1282,7 @@ function applyContextWeightModifiers(weights, deal, negotiationType, item) {
 
   if (negotiationType === 'lowball') {
     const desperation = Math.max(0, 0.65 - lowballTolerance) * 24 + (traits.prefersCash ? 4 : 0);
-    const desperateSeller = lowballTolerance <= 0.5 || ['bum', 'crackhead', 'junkie', 'desperate_regular'].includes(customer.id);
+    const desperateSeller = lowballTolerance <= 0.5 || ['street-bum', 'street-crackhead', 'street-junkie', 'desperate_regular'].includes(customer.id);
     weights.accepted += desperation + reputationMod + (desperateSeller ? 16 : 0);
     weights.rejectedOriginal += Math.max(0, 8 - aggression);
     weights.customerWalks += Math.max(0, aggression - (desperateSeller ? 1 : 0)) * 1.5 + Math.max(0, riskTolerance - 3) * 1.5 - reputationMod * 0.35;
@@ -2132,7 +2145,6 @@ function validateGameData() {
   const copCharacter = getCharacter(COP_CONSEQUENCE_CHARACTER_ID);
   const copEvent = getConsequenceEvent(COP_CONSEQUENCE_TYPE);
   if (!copCharacter) console.error(`[consequence-validation] Missing cop character data: ${COP_CONSEQUENCE_CHARACTER_ID}`);
-  else if (!copCharacter.spritePath) console.error(`[consequence-validation] Missing cop sprite path for ${COP_CONSEQUENCE_CHARACTER_ID}`);
   if (!copEvent) console.error(`[consequence-validation] Missing consequence event definition: ${COP_CONSEQUENCE_EVENT_ID}`);
   IMPLEMENTED_PRESSURE_FACTION_IDS.forEach(factionId => {
     const thugCharacterId = getFactionThugCharacterId(factionId);
@@ -3434,7 +3446,7 @@ function debugQueueThugConsequence() {
     return pending;
   }
 
-  const consequence = queueThugConsequence('Development test: manually queued Tracksuit Heavy visit', { debug: true });
+  const consequence = queueThugConsequence('Development test: manually queued Vincent visit', { debug: true });
   if (consequence) {
     consequence.earliestTurn = state.turn + 1;
     consequence.metadata.delay = 1;
@@ -4572,7 +4584,7 @@ function getSameSellerBuybackBlock(deal, inventoryItem) {
   if (!customerId || !inventoryItem?.sourceCustomerId || inventoryItem.sourceCustomerId !== customerId) return { blocked: false };
   const tags = [inventoryItem.category, ...(inventoryItem.tags || [])].filter(Boolean);
   const isWeapon = inventoryItem.category === 'weapon' || tags.includes('weapon');
-  const requiredCooldown = customerId === 'hitman' && isWeapon ? HITMAN_WEAPON_BUYBACK_COOLDOWN_NORMAL_ENCOUNTERS : 0;
+  const requiredCooldown = customerId === 'service-hitman' && isWeapon ? HITMAN_WEAPON_BUYBACK_COOLDOWN_NORMAL_ENCOUNTERS : 0;
   if (!requiredCooldown) return { blocked: false };
   const heldNormalEncounters = getHeldNormalEncounters(inventoryItem);
   if (heldNormalEncounters >= requiredCooldown) return { blocked: false };
