@@ -24,9 +24,14 @@ hustler-shorty,assets/sprites/hustler-shorty-idle_l.png,left
 hustler-sista,assets/sprites/hustler-sista-idle_r.png,right
 junkie,assets/sprites/street-junkie-idle_r.png,right
 old-grandma-slots,assets/sprites/old_grandma-slots_idel_r.png,right
-regular-business-drunk,assets/sprites/regular-business-drunk-idle_i.png,left
+regular-business-drunk,assets/sprites/regular-business-drunk-idle_r.png,right
+regular-jan-lee,assets/sprites/regular-jan-lee-idle_r.png,right
 regular-lady-divorce,assets/sprites/regular-lady-divorce-idle_r.png,right
 regular-mr-seventies,assets/sprites/regular-mr-seventies-idle_r.png,right
+regular-mr-tourist,assets/sprites/regular-mr-tourist-idle_l.png,left
+regular-mrs-tourist,assets/sprites/regular-mrs-tourist-idle_r.png,right
+regular-salaryman,assets/sprites/regular_salaryman_idle_r.png,right
+regular-tim-lee,assets/sprites/regular-tim-lee-idle_r.png,right
 senior-grandpa-catfish,assets/sprites/senior-grandpa-catfish-idle_l.png,left
 tracksuit-legs,assets/sprites/tracksuit-legs-idle_l.png,left
 tracksuit-slim,assets/sprites/tracksuit-slim-idle_r.png,right
@@ -44,6 +49,7 @@ Rules,
 No JavaScript whitelist should be updated.,
 No alias PNG should be created.,
 Customer sprite filenames used in active rotation must end in _r.png or _l.png; existing neutral/front-facing assets may end in _i.png.,
+regular_salaryman_idle_r.png uses underscores instead of the dominant hyphenated naming pattern; keep the exact asset path and facing=right.,
 "_r means the sprite faces right, enters from the left, idles on the left side, and exits to the left.",
 "_l means the sprite faces left, enters from the right, idles on the right side, and exits to the right.",
 "_i means the sprite is neutral/front-facing; use the row facing value for entry side without mirroring.",

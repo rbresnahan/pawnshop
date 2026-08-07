@@ -584,8 +584,13 @@ test('v0.1.30 restored normal NPC data chains resolve from generated data', () =
   const hooks = loadGame(0);
   resetState(hooks);
   const expected = [
-    ['regular-business-drunk', 'regular_business_drunk_sunglasses', 'regular_business_drunk_sunglasses_offer', 'assets/sprites/regular-business-drunk-idle_i.png'],
+    ['regular-business-drunk', 'regular_business_drunk_sunglasses', 'regular_business_drunk_sunglasses_offer', 'assets/sprites/regular-business-drunk-idle_r.png'],
     ['regular-lady-divorce', 'regular_lady_divorce_gold_bracelet', 'regular_lady_divorce_bracelet_offer', 'assets/sprites/regular-lady-divorce-idle_r.png'],
+    ['regular-jan-lee', 'regular_jan_lee_blender', 'regular_jan_lee_blender_offer', 'assets/sprites/regular-jan-lee-idle_r.png'],
+    ['regular-mr-tourist', 'regular_mr_tourist_camera', 'regular_mr_tourist_camera_offer', 'assets/sprites/regular-mr-tourist-idle_l.png'],
+    ['regular-mrs-tourist', 'regular_mrs_tourist_bracelet', 'regular_mrs_tourist_bracelet_offer', 'assets/sprites/regular-mrs-tourist-idle_r.png'],
+    ['regular-tim-lee', 'regular_tim_lee_laptop', 'regular_tim_lee_laptop_offer', 'assets/sprites/regular-tim-lee-idle_r.png'],
+    ['regular-salaryman', 'regular_salaryman_watch', 'regular_salaryman_watch_offer', 'assets/sprites/regular_salaryman_idle_r.png'],
     ['old-grandma-slots', 'old_grandma_slots_gold_ring', 'old_grandma_slots_ring_offer', 'assets/sprites/old_grandma-slots_idel_r.png'],
     ['senior-grandpa-catfish', 'senior_grandpa_catfish_drill', 'senior_grandpa_catfish_tool_offer', 'assets/sprites/senior-grandpa-catfish-idle_l.png']
   ];
@@ -607,6 +612,11 @@ test('v0.1.30 restored normal NPCs have executable selectable encounters', () =>
   [
     'regular-business-drunk',
     'regular-lady-divorce',
+    'regular-jan-lee',
+    'regular-mr-tourist',
+    'regular-mrs-tourist',
+    'regular-tim-lee',
+    'regular-salaryman',
     'old-grandma-slots',
     'senior-grandpa-catfish'
   ].forEach(characterId => {
@@ -616,6 +626,42 @@ test('v0.1.30 restored normal NPCs have executable selectable encounters', () =>
     const deal = hooks.buildDeal(pools[0]);
     assert.equal(deal.customer.id, characterId);
     assert.ok(deal.blueprint, `${characterId} matching event blueprint`);
+  });
+});
+
+test('new regular NPCs have executable pools and blueprints for every enabled deal type', () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  hooks.state.inventory = hooks.data.items.map(catalogItem => hooks.createInventoryItem(catalogItem, catalogItem.shopBuyMin || 1, 'fixture', '', 'Test fixture.'));
+
+  [
+    'regular-business-drunk',
+    'regular-jan-lee',
+    'regular-mr-tourist',
+    'regular-mrs-tourist',
+    'regular-tim-lee',
+    'regular-salaryman'
+  ].forEach(characterId => {
+    hooks.setActiveCustomers([activeTestCustomer(hooks, characterId)]);
+    const character = hooks.getCharacter(characterId);
+    const traits = hooks.getTraits(characterId);
+    const enabledDealTypes = [
+      [traits.sellsToShopWeight, 'sell_to_shop'],
+      [traits.buysFromShopWeight, 'buy_from_shop'],
+      [traits.tradesWeight, 'trade']
+    ].filter(([weight]) => weight > 0).map(([, dealType]) => dealType);
+    const selectablePools = hooks.getSelectablePoolsForCharacter(character);
+    const normalSelection = hooks.chooseNextNormalDeal();
+    assert.equal(normalSelection.deal.customer.id, characterId);
+
+    enabledDealTypes.forEach(dealType => {
+      const pool = selectablePools.find(entry => entry.dealType === dealType);
+      assert.ok(pool, `${characterId} selectable ${dealType} pool`);
+      const deal = hooks.buildDeal(pool);
+      assert.equal(deal.customer.id, characterId);
+      assert.equal(deal.dealType, dealType);
+      assert.ok(deal.blueprint, `${characterId} ${dealType} blueprint`);
+    });
   });
 });
 

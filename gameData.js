@@ -434,8 +434,8 @@ window.ONE_STAR_PAWN_DATA = {
       "archetype": "Regular Buyer",
       "spriteType": "regular",
       "factionId": "independent",
-      "spritePath": "assets/sprites/regular-business-drunk-idle_i.png",
-      "facing": "left",
+      "spritePath": "assets/sprites/regular-business-drunk-idle_r.png",
+      "facing": "right",
       "spriteClass": "npc-regular-business-drunk",
       "spriteVisualHeight": null,
       "activeInRotation": true,
@@ -451,7 +451,8 @@ window.ONE_STAR_PAWN_DATA = {
         "luxury",
         "watch",
         "collectible",
-        "portable"
+        "portable",
+        "suspicious"
       ],
       "notes": "Tie loose, judgment looser, but still knows a decent gadget when he sees one."
     },
@@ -481,6 +482,124 @@ window.ONE_STAR_PAWN_DATA = {
         "household"
       ],
       "notes": "Converting household history into cash with terrifying calm."
+    },
+    {
+      "id": "regular-jan-lee",
+      "displayName": "Jan Lee",
+      "archetype": "Practical Regular",
+      "spriteType": "regular",
+      "factionId": "independent",
+      "spritePath": "assets/sprites/regular-jan-lee-idle_r.png",
+      "facing": "right",
+      "spriteClass": "npc-regular-jan-lee",
+      "spriteVisualHeight": null,
+      "activeInRotation": true,
+      "cashMin": 25.0,
+      "cashMax": 260.0,
+      "trust": 62,
+      "trustLabel": "4 - mostly honest",
+      "copRiskBias": 0.0,
+      "thugRiskBias": 0.0,
+      "scamRiskBias": 1.0,
+      "preferredItemTags": [
+        "household",
+        "appliance",
+        "jewelry",
+        "electronics",
+        "tool",
+        "collectible",
+        "practical"
+      ],
+      "notes": "Shops like every object has to justify its shelf space by Friday."
+    },
+    {
+      "id": "regular-mr-tourist",
+      "displayName": "Mr. Tourist",
+      "archetype": "Tourist Regular",
+      "spriteType": "regular",
+      "factionId": "independent",
+      "spritePath": "assets/sprites/regular-mr-tourist-idle_l.png",
+      "facing": "left",
+      "spriteClass": "npc-regular-mr-tourist",
+      "spriteVisualHeight": null,
+      "activeInRotation": true,
+      "cashMin": 45.0,
+      "cashMax": 360.0,
+      "trust": 50,
+      "trustLabel": "3 - mixed",
+      "copRiskBias": 1.0,
+      "thugRiskBias": 1.0,
+      "scamRiskBias": 2.0,
+      "preferredItemTags": [
+        "electronics",
+        "camera",
+        "watch",
+        "jewelry",
+        "souvenir",
+        "collectible",
+        "luxury",
+        "suspicious"
+      ],
+      "notes": "Wants local authenticity and keeps finding regional lawsuits instead."
+    },
+    {
+      "id": "regular-mrs-tourist",
+      "displayName": "Mrs. Tourist",
+      "archetype": "Tourist Regular",
+      "spriteType": "regular",
+      "factionId": "independent",
+      "spritePath": "assets/sprites/regular-mrs-tourist-idle_r.png",
+      "facing": "right",
+      "spriteClass": "npc-regular-mrs-tourist",
+      "spriteVisualHeight": null,
+      "activeInRotation": true,
+      "cashMin": 45.0,
+      "cashMax": 360.0,
+      "trust": 62,
+      "trustLabel": "4 - mostly honest",
+      "copRiskBias": 0.0,
+      "thugRiskBias": 1.0,
+      "scamRiskBias": 2.0,
+      "preferredItemTags": [
+        "jewelry",
+        "watch",
+        "luxury",
+        "souvenir",
+        "collectible",
+        "decorative",
+        "household"
+      ],
+      "notes": "Knows the difference between a keepsake and clutter. Buys both anyway."
+    },
+    {
+      "id": "regular-tim-lee",
+      "displayName": "Tim Lee",
+      "archetype": "Everyday Regular",
+      "spriteType": "regular",
+      "factionId": "independent",
+      "spritePath": "assets/sprites/regular-tim-lee-idle_r.png",
+      "facing": "right",
+      "spriteClass": "npc-regular-tim-lee",
+      "spriteVisualHeight": null,
+      "activeInRotation": true,
+      "cashMin": 30.0,
+      "cashMax": 280.0,
+      "trust": 50,
+      "trustLabel": "3 - mixed",
+      "copRiskBias": 0.0,
+      "thugRiskBias": 1.0,
+      "scamRiskBias": 1.0,
+      "preferredItemTags": [
+        "electronics",
+        "computer",
+        "console",
+        "tool",
+        "watch",
+        "collectible",
+        "household",
+        "practical"
+      ],
+      "notes": "Practical until the price drops, then suddenly sentimental."
     },
     {
       "id": "hustler-shorty",
@@ -695,6 +814,37 @@ window.ONE_STAR_PAWN_DATA = {
         "suspicious"
       ],
       "notes": "Has a garage full of practical objects and stories that almost line up."
+    },
+    {
+      "id": "regular-salaryman",
+      "displayName": "Salaryman",
+      "archetype": "Office Regular",
+      "spriteType": "regular",
+      "factionId": "independent",
+      "spritePath": "assets/sprites/regular_salaryman_idle_r.png",
+      "facing": "right",
+      "spriteClass": "npc-regular-salaryman",
+      "spriteVisualHeight": null,
+      "activeInRotation": true,
+      "cashMin": 40.0,
+      "cashMax": 340.0,
+      "trust": 50,
+      "trustLabel": "3 - mixed",
+      "copRiskBias": 0.0,
+      "thugRiskBias": 1.0,
+      "scamRiskBias": 2.0,
+      "preferredItemTags": [
+        "watch",
+        "electronics",
+        "computer",
+        "office",
+        "instrument",
+        "luxury",
+        "collectible",
+        "appliance",
+        "practical"
+      ],
+      "notes": "Arrives with spreadsheet posture and lunch-break desperation."
     },
     {
       "id": "cop_consequence",
@@ -1291,6 +1441,178 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Mostly sells valuables and accepts sober-enough offers."
     },
     {
+      "characterId": "regular-jan-lee",
+      "sellsToShopWeight": 4.0,
+      "buysFromShopWeight": 4.0,
+      "tradesWeight": 3.0,
+      "buyInterestTags": [
+        "household",
+        "appliance",
+        "jewelry",
+        "electronics",
+        "tool",
+        "collectible",
+        "practical"
+      ],
+      "sellOfferTags": [
+        "household",
+        "appliance",
+        "jewelry",
+        "electronics",
+        "tool",
+        "collectible"
+      ],
+      "tradeInterestTags": [
+        "household",
+        "electronics",
+        "tool",
+        "collectible"
+      ],
+      "avoidTags": [
+        "weapon",
+        "hot",
+        "stolen"
+      ],
+      "maxMarkupTolerance": 1.1,
+      "lowballTolerance": 0.65,
+      "haggleAggression": 2.0,
+      "tradeFairness": 0.9,
+      "riskTolerance": 2.0,
+      "prefersCash": true,
+      "acceptsTrades": true,
+      "acceptsJunkBundles": true,
+      "notes": "Practical regular who moves useful goods without much theater."
+    },
+    {
+      "characterId": "regular-mr-tourist",
+      "sellsToShopWeight": 3.0,
+      "buysFromShopWeight": 5.0,
+      "tradesWeight": 3.0,
+      "buyInterestTags": [
+        "camera",
+        "electronics",
+        "watch",
+        "jewelry",
+        "souvenir",
+        "collectible",
+        "luxury"
+      ],
+      "sellOfferTags": [
+        "camera",
+        "watch",
+        "jewelry",
+        "collectible",
+        "luxury",
+        "suspicious"
+      ],
+      "tradeInterestTags": [
+        "camera",
+        "watch",
+        "collectible",
+        "luxury"
+      ],
+      "avoidTags": [
+        "broken",
+        "cursed",
+        "weapon"
+      ],
+      "maxMarkupTolerance": 1.18,
+      "lowballTolerance": 0.62,
+      "haggleAggression": 3.0,
+      "tradeFairness": 0.8,
+      "riskTolerance": 3.0,
+      "prefersCash": true,
+      "acceptsTrades": true,
+      "acceptsJunkBundles": false,
+      "notes": "Tourist commerce with souvenir logic and luxury curiosity."
+    },
+    {
+      "characterId": "regular-mrs-tourist",
+      "sellsToShopWeight": 3.0,
+      "buysFromShopWeight": 5.0,
+      "tradesWeight": 3.0,
+      "buyInterestTags": [
+        "jewelry",
+        "watch",
+        "luxury",
+        "souvenir",
+        "collectible",
+        "household"
+      ],
+      "sellOfferTags": [
+        "jewelry",
+        "watch",
+        "luxury",
+        "household",
+        "collectible"
+      ],
+      "tradeInterestTags": [
+        "jewelry",
+        "watch",
+        "luxury",
+        "collectible"
+      ],
+      "avoidTags": [
+        "weapon",
+        "hot",
+        "stolen"
+      ],
+      "maxMarkupTolerance": 1.16,
+      "lowballTolerance": 0.66,
+      "haggleAggression": 2.0,
+      "tradeFairness": 0.88,
+      "riskTolerance": 2.0,
+      "prefersCash": true,
+      "acceptsTrades": true,
+      "acceptsJunkBundles": false,
+      "notes": "Tourist buyer and seller with a sharp eye for wearable status."
+    },
+    {
+      "characterId": "regular-tim-lee",
+      "sellsToShopWeight": 4.0,
+      "buysFromShopWeight": 4.0,
+      "tradesWeight": 3.0,
+      "buyInterestTags": [
+        "electronics",
+        "computer",
+        "console",
+        "tool",
+        "watch",
+        "collectible",
+        "household",
+        "practical"
+      ],
+      "sellOfferTags": [
+        "electronics",
+        "computer",
+        "console",
+        "tool",
+        "watch",
+        "household"
+      ],
+      "tradeInterestTags": [
+        "electronics",
+        "computer",
+        "console",
+        "tool",
+        "collectible"
+      ],
+      "avoidTags": [
+        "weapon",
+        "cursed",
+        "stolen"
+      ],
+      "maxMarkupTolerance": 1.12,
+      "lowballTolerance": 0.63,
+      "haggleAggression": 3.0,
+      "tradeFairness": 0.82,
+      "riskTolerance": 2.0,
+      "prefersCash": true,
+      "acceptsTrades": true,
+      "acceptsJunkBundles": true,
+      "notes": "Everyday regular with broad sell-buy-trade behavior."
+    },
+    {
       "characterId": "hustler-shorty",
       "sellsToShopWeight": 3.0,
       "buysFromShopWeight": 5.0,
@@ -1546,6 +1868,53 @@ window.ONE_STAR_PAWN_DATA = {
       "acceptsTrades": true,
       "acceptsJunkBundles": true,
       "notes": "Senior seller and trader with practical goods and dubious explanations."
+    },
+    {
+      "characterId": "regular-salaryman",
+      "sellsToShopWeight": 3.0,
+      "buysFromShopWeight": 5.0,
+      "tradesWeight": 3.0,
+      "buyInterestTags": [
+        "watch",
+        "electronics",
+        "computer",
+        "office",
+        "instrument",
+        "luxury",
+        "collectible",
+        "appliance",
+        "practical"
+      ],
+      "sellOfferTags": [
+        "watch",
+        "electronics",
+        "computer",
+        "office",
+        "instrument",
+        "luxury",
+        "appliance"
+      ],
+      "tradeInterestTags": [
+        "watch",
+        "electronics",
+        "computer",
+        "instrument",
+        "luxury"
+      ],
+      "avoidTags": [
+        "cursed",
+        "stolen",
+        "junk"
+      ],
+      "maxMarkupTolerance": 1.15,
+      "lowballTolerance": 0.64,
+      "haggleAggression": 3.0,
+      "tradeFairness": 0.84,
+      "riskTolerance": 2.0,
+      "prefersCash": true,
+      "acceptsTrades": true,
+      "acceptsJunkBundles": false,
+      "notes": "Office regular with decent cash and tired standards."
     },
     {
       "characterId": "cop_consequence",
@@ -3825,6 +4194,260 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "The bag is either designer or personally offensive to designers."
     },
     {
+      "id": "regular_jan_lee_blender",
+      "characterId": "regular-jan-lee",
+      "itemId": "countertop_blender",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "appliance",
+        "practical"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.72,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "One-speed blender for people who enjoy loud smoothies and poor choices."
+    },
+    {
+      "id": "regular_jan_lee_buys_tv",
+      "characterId": "regular-jan-lee",
+      "itemId": "flat_screen_tv",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "electronics",
+        "practical"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 1.02,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Wants a useful screen without retail asking personal questions."
+    },
+    {
+      "id": "regular_jan_lee_socket_trade",
+      "characterId": "regular-jan-lee",
+      "itemId": "socket_set",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "tool",
+        "appliance",
+        "practical"
+      ],
+      "offeredItemTags": [
+        "tool",
+        "practical"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.88,
+      "cashAdjustmentMin": -10.0,
+      "cashAdjustmentMax": 18.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "A mostly complete socket set for something else that mostly works."
+    },
+    {
+      "id": "regular_mr_tourist_camera",
+      "characterId": "regular-mr-tourist",
+      "itemId": "mirrorless_camera",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "luxury"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; scam risk if oversold",
+      "notes": "Says it captured authentic local flavor and one parking dispute."
+    },
+    {
+      "id": "regular_mr_tourist_buys_watch",
+      "characterId": "regular-mr-tourist",
+      "itemId": "automatic_watch",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "watch",
+        "luxury",
+        "collectible"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 1.08,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk if misrepresented",
+      "notes": "Wants a keepsake that looks expensive in airport lighting."
+    },
+    {
+      "id": "regular_mr_tourist_cards_trade",
+      "characterId": "regular-mr-tourist",
+      "itemId": "baseball_card_box",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "camera",
+        "electronics",
+        "watch",
+        "collectible",
+        "luxury"
+      ],
+      "offeredItemTags": [
+        "collectible",
+        "mystery"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.9,
+      "cashAdjustmentMin": -15.0,
+      "cashAdjustmentMax": 30.0,
+      "conditionOverride": "used",
+      "riskNote": "Scam risk +1",
+      "notes": "Trades local nostalgia he bought ninety minutes ago."
+    },
+    {
+      "id": "regular_mrs_tourist_bracelet",
+      "characterId": "regular-mrs-tourist",
+      "itemId": "gold_bracelet",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.74,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk",
+      "notes": "Says it no longer matches the vacation mood or the credit-card statement."
+    },
+    {
+      "id": "regular_mrs_tourist_buys_sunglasses",
+      "characterId": "regular-mrs-tourist",
+      "itemId": "designer_sunglasses",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "luxury",
+        "portable"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 1.06,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Wants designer shade for sightseeing and financial denial."
+    },
+    {
+      "id": "regular_mrs_tourist_silverware_trade",
+      "characterId": "regular-mrs-tourist",
+      "itemId": "silverware_bundle",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "jewelry",
+        "watch",
+        "luxury",
+        "collectible",
+        "household"
+      ],
+      "offeredItemTags": [
+        "possibly_fake",
+        "household",
+        "suspicious"
+      ],
+      "chanceWeight": 3.0,
+      "askPriceMultiplier": 0.82,
+      "cashAdjustmentMin": -12.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Scam risk +1",
+      "notes": "A souvenir table setting with a very flexible origin story."
+    },
+    {
+      "id": "regular_tim_lee_laptop",
+      "characterId": "regular-tim-lee",
+      "itemId": "budget_laptop",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "practical"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Works fine except for the fan sounding legally upset."
+    },
+    {
+      "id": "regular_tim_lee_buys_console",
+      "characterId": "regular-tim-lee",
+      "itemId": "game_console",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "console",
+        "electronics",
+        "popular"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 1.04,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Needs a console before adulthood notices the receipt."
+    },
+    {
+      "id": "regular_tim_lee_drill_trade",
+      "characterId": "regular-tim-lee",
+      "itemId": "cordless_drill",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "computer",
+        "console",
+        "tool",
+        "practical"
+      ],
+      "offeredItemTags": [
+        "tool",
+        "repairable"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.86,
+      "cashAdjustmentMin": -10.0,
+      "cashAdjustmentMax": 22.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "A drill for whatever shelf item feels easier to explain."
+    },
+    {
       "id": "hustler_shorty_locked_watch",
       "characterId": "hustler-shorty",
       "itemId": "smart_watch_locked",
@@ -4260,6 +4883,71 @@ window.ONE_STAR_PAWN_DATA = {
       "conditionOverride": "used",
       "riskNote": "Low risk",
       "notes": "Mostly complete tools for mostly reasonable shelf goods."
+    },
+    {
+      "id": "regular_salaryman_watch",
+      "characterId": "regular-salaryman",
+      "itemId": "automatic_watch",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "watch",
+        "luxury",
+        "collectible"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.66,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "excellent",
+      "riskNote": "Low risk; scam risk if authenticity lied about",
+      "notes": "Says the watch is too accurate for his current life."
+    },
+    {
+      "id": "regular_salaryman_buys_laptop",
+      "characterId": "regular-salaryman",
+      "itemId": "budget_laptop",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "computer",
+        "electronics",
+        "practical"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 1.05,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Needs a laptop that can survive spreadsheets and resentment."
+    },
+    {
+      "id": "regular_salaryman_guitar_trade",
+      "characterId": "regular-salaryman",
+      "itemId": "pawn_shop_guitar",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "watch",
+        "electronics",
+        "computer",
+        "instrument",
+        "luxury"
+      ],
+      "offeredItemTags": [
+        "instrument",
+        "repairable"
+      ],
+      "chanceWeight": 3.0,
+      "askPriceMultiplier": 0.88,
+      "cashAdjustmentMin": -15.0,
+      "cashAdjustmentMax": 28.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low risk",
+      "notes": "Offers a guitar from a hobby that lost to overtime."
     }
   ],
   "eventBlueprints": [
@@ -4408,6 +5096,102 @@ window.ONE_STAR_PAWN_DATA = {
       "resultNotes": "Use regular_lady_divorce_handbag_trade pool."
     },
     {
+      "id": "regular_jan_lee_blender_offer",
+      "characterId": "regular-jan-lee",
+      "eventType": "sell_to_shop",
+      "pressureFactionId": "",
+      "dialogue": "Blender has one speed. That speed is lawsuit.",
+      "resultNotes": "Use regular_jan_lee_blender pool."
+    },
+    {
+      "id": "regular_jan_lee_tv_buy",
+      "characterId": "regular-jan-lee",
+      "eventType": "buy_from_shop",
+      "pressureFactionId": "",
+      "dialogue": "I need a TV that works and does not require a family meeting.",
+      "resultNotes": "Use regular_jan_lee_buys_tv or matching practical electronics inventory."
+    },
+    {
+      "id": "regular_jan_lee_trade",
+      "characterId": "regular-jan-lee",
+      "eventType": "trade",
+      "pressureFactionId": "",
+      "dialogue": "I brought sockets. You bring something that does not make my week worse.",
+      "resultNotes": "Use regular_jan_lee_socket_trade pool."
+    },
+    {
+      "id": "regular_mr_tourist_camera_offer",
+      "characterId": "regular-mr-tourist",
+      "eventType": "sell_to_shop",
+      "pressureFactionId": "",
+      "dialogue": "Camera is authentic local purchase. I bought it three blocks from panic.",
+      "resultNotes": "Use regular_mr_tourist_camera pool."
+    },
+    {
+      "id": "regular_mr_tourist_watch_buy",
+      "characterId": "regular-mr-tourist",
+      "eventType": "buy_from_shop",
+      "pressureFactionId": "",
+      "dialogue": "Show me a watch that says vacation success louder than my bank app.",
+      "resultNotes": "Use regular_mr_tourist_buys_watch or matching luxury watch inventory."
+    },
+    {
+      "id": "regular_mr_tourist_trade",
+      "characterId": "regular-mr-tourist",
+      "eventType": "trade",
+      "pressureFactionId": "",
+      "dialogue": "I have collectible cards and a suitcase full of bad confidence.",
+      "resultNotes": "Use regular_mr_tourist_cards_trade pool."
+    },
+    {
+      "id": "regular_mrs_tourist_bracelet_offer",
+      "characterId": "regular-mrs-tourist",
+      "eventType": "sell_to_shop",
+      "pressureFactionId": "",
+      "dialogue": "It is real gold. The vacation budget is becoming more theoretical.",
+      "resultNotes": "Use regular_mrs_tourist_bracelet pool."
+    },
+    {
+      "id": "regular_mrs_tourist_sunglasses_buy",
+      "characterId": "regular-mrs-tourist",
+      "eventType": "buy_from_shop",
+      "pressureFactionId": "",
+      "dialogue": "I want sunglasses expensive enough to hide this itinerary.",
+      "resultNotes": "Use regular_mrs_tourist_buys_sunglasses or matching luxury inventory."
+    },
+    {
+      "id": "regular_mrs_tourist_trade",
+      "characterId": "regular-mrs-tourist",
+      "eventType": "trade",
+      "pressureFactionId": "",
+      "dialogue": "This silverware is decorative if you do not inspect the shoelace.",
+      "resultNotes": "Use regular_mrs_tourist_silverware_trade pool."
+    },
+    {
+      "id": "regular_tim_lee_laptop_offer",
+      "characterId": "regular-tim-lee",
+      "eventType": "sell_to_shop",
+      "pressureFactionId": "",
+      "dialogue": "Laptop runs great if you respect its breathing problems.",
+      "resultNotes": "Use regular_tim_lee_laptop pool."
+    },
+    {
+      "id": "regular_tim_lee_console_buy",
+      "characterId": "regular-tim-lee",
+      "eventType": "buy_from_shop",
+      "pressureFactionId": "",
+      "dialogue": "Got a console back there? I need a reward for surviving errands.",
+      "resultNotes": "Use regular_tim_lee_buys_console or matching electronics inventory."
+    },
+    {
+      "id": "regular_tim_lee_trade",
+      "characterId": "regular-tim-lee",
+      "eventType": "trade",
+      "pressureFactionId": "",
+      "dialogue": "I can trade a drill and pretend this is home improvement.",
+      "resultNotes": "Use regular_tim_lee_drill_trade pool."
+    },
+    {
       "id": "hustler_shorty_luxury_buy",
       "characterId": "hustler-shorty",
       "eventType": "buy_from_shop",
@@ -4550,6 +5334,30 @@ window.ONE_STAR_PAWN_DATA = {
       "pressureFactionId": "",
       "dialogue": "I got sockets. You got shelf clutter. Somewhere in there is commerce.",
       "resultNotes": "Use senior_grandpa_catfish_tool_trade pool."
+    },
+    {
+      "id": "regular_salaryman_watch_offer",
+      "characterId": "regular-salaryman",
+      "eventType": "sell_to_shop",
+      "pressureFactionId": "",
+      "dialogue": "Watch keeps perfect time. Unfortunately I am still late to everything.",
+      "resultNotes": "Use regular_salaryman_watch pool."
+    },
+    {
+      "id": "regular_salaryman_laptop_buy",
+      "characterId": "regular-salaryman",
+      "eventType": "buy_from_shop",
+      "pressureFactionId": "",
+      "dialogue": "I need a laptop for work and whatever dignity fits in the charger bag.",
+      "resultNotes": "Use regular_salaryman_buys_laptop or matching computer inventory."
+    },
+    {
+      "id": "regular_salaryman_trade",
+      "characterId": "regular-salaryman",
+      "eventType": "trade",
+      "pressureFactionId": "",
+      "dialogue": "This guitar lost to overtime. Maybe it can still win on your shelf.",
+      "resultNotes": "Use regular_salaryman_guitar_trade pool."
     },
     {
       "id": "cop_consequence_visit",
