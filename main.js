@@ -508,6 +508,8 @@ const els = {
   log: document.getElementById('log'),
   historyList: document.getElementById('historyList'),
   consequenceMeters: document.getElementById('consequenceMeters'),
+  moneyViceMarker: document.getElementById('moneyViceMarker'),
+  moneyViceDetail: document.getElementById('moneyViceDetail'),
   fastTestToggle: document.getElementById('fastTestToggle'),
   copyConsequenceMeters: document.getElementById('copyConsequenceMeters'),
   copyHistory: document.getElementById('copyHistory'),
@@ -3238,6 +3240,7 @@ function renderLog(text) {
 function renderAll() {
   renderStats();
   renderConsequenceMeters();
+  renderMoneyViceTendency();
   renderInventory();
   renderDeal();
   renderChoices();
@@ -5268,7 +5271,7 @@ function buildNormalEncounterCategoryBuckets(entries) {
   return buckets;
 }
 
-function chooseNormalEncounterCategory(buckets) {
+function getNormalEncounterCategoryWeightEntries(buckets) {
   const targetMix = getTargetEncounterMix();
   const redistributionReasons = [];
   const weights = Object.entries(targetMix).map(([category, targetWeight]) => {
@@ -5294,13 +5297,107 @@ function chooseNormalEncounterCategory(buckets) {
   const fallbackWeights = Object.entries(buckets)
     .filter(([, entries]) => entries.length)
     .map(([category]) => ({ category, chanceWeight: 1 }));
-  const selected = pickWeighted(weights.length ? weights : fallbackWeights);
   return {
-    selectedCategory: selected.category,
     targetMix,
     redistributedReasons: redistributionReasons,
     categoryWeights: weights.length ? weights : fallbackWeights
   };
+}
+
+function chooseNormalEncounterCategory(buckets) {
+  const categoryWeightEntries = getNormalEncounterCategoryWeightEntries(buckets);
+  const selected = pickWeighted(categoryWeightEntries.categoryWeights);
+  return {
+    selectedCategory: selected.category,
+    targetMix: categoryWeightEntries.targetMix,
+    redistributedReasons: categoryWeightEntries.redistributedReasons,
+    categoryWeights: categoryWeightEntries.categoryWeights
+  };
+}
+
+function getWeightedNormalPoolEntriesForCategory(entries, selectedCategory) {
+  const categoryEntries = entries.filter(entry => getNormalPoolCategory(entry.pool) === selectedCategory);
+  const fallbackEntries = categoryEntries.length ? categoryEntries : entries;
+  let eligibleEntries = fallbackEntries;
+  if (fallbackEntries.length > 1) {
+    const unblocked = fallbackEntries.filter(entry => getConsecutiveNormalCustomerCount(entry.character.id) < NORMAL_CUSTOMER_MAX_CONSECUTIVE);
+    if (unblocked.length) eligibleEntries = unblocked;
+  }
+  return eligibleEntries.map(entry => {
+    const repeatMultiplier = getNormalCustomerRepeatMultiplier(entry.character.id);
+    const lowTierGroupMultiplier = getLowTierGroupMultiplier(entry.character, eligibleEntries);
+    const typeWeight = entry.pool.dealType === 'trade' && isLowCashRecoveryActive() && getPoolTradeCashDelta(entry.pool) > 0
+      ? LOW_CASH_RECOVERY.tradeCashToPlayerPoolMultiplier
+      : 1;
+    return {
+      ...entry,
+      chanceWeight: Math.max(0.01, (Number(entry.pool.chanceWeight) || 1) * repeatMultiplier * lowTierGroupMultiplier * typeWeight),
+      repeatMultiplier,
+      lowTierGroupMultiplier,
+      baseWeight: Number(entry.pool.chanceWeight) || 1
+    };
+  });
+}
+
+function getMoneyViceCustomerKind(characterId) {
+  const id = String(characterId || '');
+  if (id.startsWith('money-')) return 'money';
+  if (id.startsWith('vice-')) return 'vice';
+  return '';
+}
+
+function getMoneyViceTendency() {
+  const entries = getExecutableNormalPoolEntries();
+  if (!entries.length) {
+    return { score: 0, moneyWeight: 0, viceWeight: 0, totalTrackedWeight: 0, totalSelectionWeight: 0, position: 50 };
+  }
+  const buckets = buildNormalEncounterCategoryBuckets(entries);
+  const categoryWeights = getNormalEncounterCategoryWeightEntries(buckets).categoryWeights;
+  const categoryTotal = categoryWeights.reduce((sum, entry) => sum + Math.max(0, Number(entry.chanceWeight) || 0), 0);
+  let moneyWeight = 0;
+  let viceWeight = 0;
+  let totalSelectionWeight = 0;
+
+  categoryWeights.forEach(categoryEntry => {
+    const categoryChanceWeight = Math.max(0, Number(categoryEntry.chanceWeight) || 0);
+    if (!categoryChanceWeight || !categoryTotal) return;
+    const weightedEntries = getWeightedNormalPoolEntriesForCategory(entries, categoryEntry.category);
+    const entryTotal = weightedEntries.reduce((sum, entry) => sum + Math.max(0, Number(entry.chanceWeight) || 0), 0);
+    if (!entryTotal) return;
+    const categoryShare = categoryChanceWeight / categoryTotal;
+    totalSelectionWeight += categoryShare;
+    weightedEntries.forEach(entry => {
+      const kind = getMoneyViceCustomerKind(entry.character.id);
+      if (!kind) return;
+      const weightedShare = categoryShare * (Math.max(0, Number(entry.chanceWeight) || 0) / entryTotal);
+      if (kind === 'money') moneyWeight += weightedShare;
+      if (kind === 'vice') viceWeight += weightedShare;
+    });
+  });
+
+  const totalTrackedWeight = moneyWeight + viceWeight;
+  const score = totalTrackedWeight ? (moneyWeight - viceWeight) / totalTrackedWeight : 0;
+  return {
+    score,
+    moneyWeight,
+    viceWeight,
+    totalTrackedWeight,
+    totalSelectionWeight,
+    position: Math.max(0, Math.min(100, (score + 1) * 50))
+  };
+}
+
+function renderMoneyViceTendency() {
+  if (!els.moneyViceMarker && !els.moneyViceDetail) return null;
+  const tendency = getMoneyViceTendency();
+  if (els.moneyViceMarker) {
+    els.moneyViceMarker.style.setProperty('--money-vice-position', `${tendency.position}%`);
+  }
+  if (els.moneyViceDetail) {
+    const leaning = tendency.score < -0.04 ? 'Vice leaning' : tendency.score > 0.04 ? 'Money leaning' : 'Neutral';
+    els.moneyViceDetail.textContent = `${leaning} (${tendency.score.toFixed(2)})`;
+  }
+  return tendency;
 }
 
 function buildNormalSelectionFromPoolEntries(entries, categorySelection) {
@@ -7862,6 +7959,7 @@ if (els.clearHistory) {
 setInventoryOpen(false);
 renderStats();
 renderConsequenceMeters();
+renderMoneyViceTendency();
 renderFastTestToggle();
 renderInventory();
 renderHistory();
@@ -7893,6 +7991,8 @@ window.ONE_STAR_PAWN_TEST_HOOKS = {
   getEligibleDemandCandidatesForPool,
   getBuyPoolDemandMultiplier,
   getSelectablePoolsForCharacter,
+  getMoneyViceTendency,
+  renderMoneyViceTendency,
   buildDeal,
   generateDeal,
   chooseNextNormalDeal,

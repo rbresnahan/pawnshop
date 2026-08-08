@@ -144,6 +144,7 @@ function loadGame(randomValue = 0) {
   vm.runInContext(fs.readFileSync(path.join(ROOT, 'main.js'), 'utf8'), context, { filename: 'main.js' });
   const hooks = window.ONE_STAR_PAWN_TEST_HOOKS;
   hooks.getClipboardText = () => clipboardText;
+  hooks.getTestElementById = id => document.getElementById(id);
   return hooks;
 }
 
@@ -4476,6 +4477,42 @@ test('Money and Vice roster is active with executable commerce data', () => {
   assert.equal(hooks.getCharacter('hustler-shorty').factionId, 'hustlers');
   assert.equal(hooks.getCharacter('tracksuit-legs').factionId, 'tracksuits');
   assert.equal(hooks.getCharacter('cop_consequence').activeInRotation, false);
+});
+
+test('Money Vice tendency meter maps existing normal selection weights without mutation', () => {
+  const hooks = loadGame(0.5);
+  resetState(hooks);
+  const originalCustomers = hooks.activeCustomers;
+  const snapshot = () => JSON.stringify({
+    money: hooks.state.money,
+    inventory: hooks.state.inventory,
+    normalCustomerHistory: hooks.state.normalCustomerHistory,
+    normalEncounterTypeHistory: hooks.state.normalEncounterTypeHistory,
+    sellMissStreak: hooks.state.sellMissStreak,
+    unavailableSellRequestStreak: hooks.state.unavailableSellRequestStreak,
+    lowCashRecoveryDryStreak: hooks.state.lowCashRecoveryDryStreak
+  });
+
+  hooks.setActiveCustomers(originalCustomers.filter(customer => !String(customer.id).startsWith('money-') && !String(customer.id).startsWith('vice-')));
+  const neutralBefore = snapshot();
+  const neutral = hooks.getMoneyViceTendency();
+  assert.equal(neutral.score, 0);
+  assert.equal(neutral.position, 50);
+  assert.equal(snapshot(), neutralBefore);
+
+  hooks.setActiveCustomers([hooks.getCharacter('vice-addict-arty')]);
+  const vice = hooks.getMoneyViceTendency();
+  assert.ok(vice.score < 0);
+  assert.ok(vice.position < 50);
+
+  hooks.setActiveCustomers([hooks.getCharacter('money-jan-takai')]);
+  const money = hooks.getMoneyViceTendency();
+  assert.ok(money.score > 0);
+  assert.ok(money.position > 50);
+
+  hooks.renderMoneyViceTendency();
+  assert.equal(hooks.getTestElementById('moneyViceMarker').style['--money-vice-position'], `${money.position}%`);
+  hooks.setActiveCustomers(originalCustomers);
 });
 
 test('low-funds full-price purchase stays open without transfer', () => {

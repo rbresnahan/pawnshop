@@ -289,6 +289,57 @@ body {
 .consequence-meter.is-warning .consequence-meter-status {
   color: #e0a06f;
 }
+.debug-money-vice {
+  margin-top: 10px;
+  border-top: 1px solid #3b2a12;
+  padding-top: 10px;
+  font-size: 10px;
+  line-height: 1.3;
+}
+.debug-money-vice h2 {
+  margin: 0 0 7px;
+  color: #f0c463;
+  font-size: 13px;
+  font-weight: 700;
+}
+.money-vice-meter {
+  display: grid;
+  grid-template-columns: auto minmax(80px, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+}
+.money-vice-label {
+  color: #b7a475;
+  font-weight: 700;
+}
+.money-vice-bar {
+  position: relative;
+  height: 6px;
+  border: 1px solid #473414;
+  background: linear-gradient(90deg, #8f2020 0%, #2a1715 50%, #1f7b3b 100%);
+}
+.money-vice-midpoint,
+.money-vice-marker {
+  position: absolute;
+  top: -3px;
+  width: 1px;
+  height: 12px;
+  background: #d7be84;
+}
+.money-vice-midpoint {
+  left: 50%;
+  opacity: .7;
+}
+.money-vice-marker {
+  left: var(--money-vice-position, 50%);
+  width: 2px;
+  transform: translateX(-1px);
+  background: #f4e4b0;
+}
+.money-vice-detail {
+  margin-top: 3px;
+  color: #8f846a;
+}
 .debug-history {
   margin-top: 0;
   padding-top: 0;
