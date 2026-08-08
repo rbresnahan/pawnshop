@@ -883,9 +883,9 @@ window.ONE_STAR_PAWN_DATA = {
       "facing": "right",
       "spriteClass": "npc-money-devon-dollars",
       "spriteVisualHeight": null,
-      "activeInRotation": false,
-      "cashMin": 40.0,
-      "cashMax": 340.0,
+      "activeInRotation": true,
+      "cashMin": 120.0,
+      "cashMax": 760.0,
       "trust": 50,
       "trustLabel": "3 - mixed",
       "copRiskBias": 0.0,
@@ -893,16 +893,13 @@ window.ONE_STAR_PAWN_DATA = {
       "scamRiskBias": 2.0,
       "preferredItemTags": [
         "watch",
+        "jewelry",
+        "luxury",
         "electronics",
         "computer",
-        "office",
-        "instrument",
-        "luxury",
-        "collectible",
-        "appliance",
-        "practical"
+        "collectible"
       ],
-      "notes": "Money roster record awaiting deal data."
+      "notes": "Buys like the receipt is evidence of taste, sells like liquidity is a lifestyle."
     },
     {
       "id": "money-douche-brad",
@@ -914,26 +911,23 @@ window.ONE_STAR_PAWN_DATA = {
       "facing": "left",
       "spriteClass": "npc-money-douche-brad",
       "spriteVisualHeight": null,
-      "activeInRotation": false,
-      "cashMin": 40.0,
-      "cashMax": 340.0,
-      "trust": 50,
-      "trustLabel": "3 - mixed",
-      "copRiskBias": 0.0,
-      "thugRiskBias": 1.0,
-      "scamRiskBias": 2.0,
+      "activeInRotation": true,
+      "cashMin": 90.0,
+      "cashMax": 620.0,
+      "trust": 38,
+      "trustLabel": "2 - sketchy",
+      "copRiskBias": 1.0,
+      "thugRiskBias": 2.0,
+      "scamRiskBias": 3.0,
       "preferredItemTags": [
+        "luxury",
         "watch",
         "electronics",
-        "computer",
-        "office",
-        "instrument",
-        "luxury",
-        "collectible",
-        "appliance",
-        "practical"
+        "portable",
+        "possibly_fake",
+        "collectible"
       ],
-      "notes": "Money roster record awaiting deal data."
+      "notes": "Has more confidence than provenance and wants every deal to look expensive."
     },
     {
       "id": "money-penny",
@@ -945,26 +939,23 @@ window.ONE_STAR_PAWN_DATA = {
       "facing": "right",
       "spriteClass": "npc-money-penny",
       "spriteVisualHeight": null,
-      "activeInRotation": false,
-      "cashMin": 40.0,
-      "cashMax": 340.0,
-      "trust": 50,
-      "trustLabel": "3 - mixed",
+      "activeInRotation": true,
+      "cashMin": 100.0,
+      "cashMax": 700.0,
+      "trust": 62,
+      "trustLabel": "4 - mostly honest",
       "copRiskBias": 0.0,
-      "thugRiskBias": 1.0,
-      "scamRiskBias": 2.0,
+      "thugRiskBias": 0.0,
+      "scamRiskBias": 1.0,
       "preferredItemTags": [
-        "watch",
-        "electronics",
-        "computer",
-        "office",
-        "instrument",
+        "jewelry",
         "luxury",
+        "watch",
         "collectible",
-        "appliance",
-        "practical"
+        "electronics",
+        "camera"
       ],
-      "notes": "Money roster record awaiting deal data."
+      "notes": "Quiet money, sharp eye, and no patience for display-case theater."
     },
     {
       "id": "vice-addict-arty",
@@ -976,9 +967,9 @@ window.ONE_STAR_PAWN_DATA = {
       "facing": "right",
       "spriteClass": "npc-vice-addict-arty",
       "spriteVisualHeight": null,
-      "activeInRotation": false,
+      "activeInRotation": true,
       "cashMin": 5.0,
-      "cashMax": 110.0,
+      "cashMax": 130.0,
       "trust": 26,
       "trustLabel": "1 - liar",
       "copRiskBias": 3.0,
@@ -989,9 +980,10 @@ window.ONE_STAR_PAWN_DATA = {
         "mystery",
         "suspicious",
         "cursed",
-        "broken"
+        "broken",
+        "junk"
       ],
-      "notes": "Vice roster record awaiting deal data."
+      "notes": "Shows up with shaky math and merchandise that sounds like it came from under a stairwell."
     },
     {
       "id": "vice-clepto-carlo",
@@ -1003,22 +995,23 @@ window.ONE_STAR_PAWN_DATA = {
       "facing": "left",
       "spriteClass": "npc-vice-clepto-carlo",
       "spriteVisualHeight": null,
-      "activeInRotation": false,
-      "cashMin": 5.0,
-      "cashMax": 110.0,
+      "activeInRotation": true,
+      "cashMin": 10.0,
+      "cashMax": 180.0,
       "trust": 26,
       "trustLabel": "1 - liar",
-      "copRiskBias": 3.0,
-      "thugRiskBias": 1.0,
-      "scamRiskBias": 5.0,
+      "copRiskBias": 4.0,
+      "thugRiskBias": 2.0,
+      "scamRiskBias": 4.0,
       "preferredItemTags": [
-        "electronics",
-        "mystery",
+        "stolen",
+        "hot",
         "suspicious",
-        "cursed",
-        "broken"
+        "electronics",
+        "portable",
+        "jewelry"
       ],
-      "notes": "Vice roster record awaiting deal data."
+      "notes": "Everything he owns was borrowed from a timeline where permission got lost."
     },
     {
       "id": "vice-dealer-danny",
@@ -1030,22 +1023,23 @@ window.ONE_STAR_PAWN_DATA = {
       "facing": "right",
       "spriteClass": "npc-vice-dealer-danny",
       "spriteVisualHeight": null,
-      "activeInRotation": false,
-      "cashMin": 5.0,
-      "cashMax": 110.0,
+      "activeInRotation": true,
+      "cashMin": 20.0,
+      "cashMax": 240.0,
       "trust": 26,
       "trustLabel": "1 - liar",
-      "copRiskBias": 3.0,
-      "thugRiskBias": 1.0,
-      "scamRiskBias": 5.0,
+      "copRiskBias": 4.0,
+      "thugRiskBias": 3.0,
+      "scamRiskBias": 4.0,
       "preferredItemTags": [
-        "electronics",
-        "mystery",
+        "hot",
         "suspicious",
-        "cursed",
-        "broken"
+        "weapon",
+        "electronics",
+        "luxury",
+        "portable"
       ],
-      "notes": "Vice roster record awaiting deal data."
+      "notes": "Friendly in a way that makes the serial numbers sweat."
     },
     {
       "id": "vice-pervert-pete",
@@ -1057,22 +1051,23 @@ window.ONE_STAR_PAWN_DATA = {
       "facing": "right",
       "spriteClass": "npc-vice-pervert-pete",
       "spriteVisualHeight": null,
-      "activeInRotation": false,
-      "cashMin": 5.0,
-      "cashMax": 110.0,
+      "activeInRotation": true,
+      "cashMin": 15.0,
+      "cashMax": 160.0,
       "trust": 26,
       "trustLabel": "1 - liar",
-      "copRiskBias": 3.0,
+      "copRiskBias": 2.0,
       "thugRiskBias": 1.0,
       "scamRiskBias": 5.0,
       "preferredItemTags": [
-        "electronics",
-        "mystery",
+        "junk",
+        "collectible",
+        "luxury",
+        "possibly_fake",
         "suspicious",
-        "cursed",
-        "broken"
+        "portable"
       ],
-      "notes": "Vice roster record awaiting deal data."
+      "notes": "Browses like the shelf owes him a secret and pays like shame has a budget."
     },
     {
       "id": "vice-raver-remy",
@@ -1084,22 +1079,23 @@ window.ONE_STAR_PAWN_DATA = {
       "facing": "left",
       "spriteClass": "npc-vice-raver-remy",
       "spriteVisualHeight": null,
-      "activeInRotation": false,
-      "cashMin": 5.0,
-      "cashMax": 110.0,
-      "trust": 26,
-      "trustLabel": "1 - liar",
-      "copRiskBias": 3.0,
+      "activeInRotation": true,
+      "cashMin": 20.0,
+      "cashMax": 220.0,
+      "trust": 38,
+      "trustLabel": "2 - sketchy",
+      "copRiskBias": 2.0,
       "thugRiskBias": 1.0,
-      "scamRiskBias": 5.0,
+      "scamRiskBias": 3.0,
       "preferredItemTags": [
         "electronics",
-        "mystery",
-        "suspicious",
-        "cursed",
-        "broken"
+        "portable",
+        "collectible",
+        "instrument",
+        "luxury",
+        "suspicious"
       ],
-      "notes": "Vice roster record awaiting deal data."
+      "notes": "Runs on bass, bracelets, and an alarming understanding of resale value."
     },
     {
       "id": "service-boots-penales",
@@ -2196,6 +2192,308 @@ window.ONE_STAR_PAWN_DATA = {
       "acceptsTrades": true,
       "acceptsJunkBundles": false,
       "notes": "Office regular with decent cash and tired standards."
+    },
+    {
+      "characterId": "money-devon-dollars",
+      "sellsToShopWeight": 2.0,
+      "buysFromShopWeight": 6.0,
+      "tradesWeight": 3.0,
+      "buyInterestTags": [
+        "watch",
+        "jewelry",
+        "luxury",
+        "electronics",
+        "computer",
+        "collectible"
+      ],
+      "sellOfferTags": [
+        "jewelry",
+        "watch",
+        "luxury",
+        "electronics"
+      ],
+      "tradeInterestTags": [
+        "watch",
+        "jewelry",
+        "luxury",
+        "electronics"
+      ],
+      "avoidTags": [
+        "junk",
+        "cursed",
+        "broken"
+      ],
+      "maxMarkupTolerance": 1.22,
+      "lowballTolerance": 0.72,
+      "haggleAggression": 3.0,
+      "tradeFairness": 0.92,
+      "riskTolerance": 2.0,
+      "prefersCash": true,
+      "acceptsTrades": true,
+      "acceptsJunkBundles": false,
+      "notes": "High-cash regular who likes clean status goods and quality electronics."
+    },
+    {
+      "characterId": "money-douche-brad",
+      "sellsToShopWeight": 3.0,
+      "buysFromShopWeight": 5.0,
+      "tradesWeight": 3.0,
+      "buyInterestTags": [
+        "luxury",
+        "watch",
+        "electronics",
+        "portable",
+        "collectible"
+      ],
+      "sellOfferTags": [
+        "luxury",
+        "watch",
+        "electronics",
+        "possibly_fake"
+      ],
+      "tradeInterestTags": [
+        "luxury",
+        "electronics",
+        "collectible"
+      ],
+      "avoidTags": [
+        "junk",
+        "cursed",
+        "broken"
+      ],
+      "maxMarkupTolerance": 1.18,
+      "lowballTolerance": 0.58,
+      "haggleAggression": 4.0,
+      "tradeFairness": 0.72,
+      "riskTolerance": 3.0,
+      "prefersCash": true,
+      "acceptsTrades": true,
+      "acceptsJunkBundles": false,
+      "notes": "Flashy money customer with sketchier taste and weaker provenance."
+    },
+    {
+      "characterId": "money-penny",
+      "sellsToShopWeight": 3.0,
+      "buysFromShopWeight": 5.0,
+      "tradesWeight": 2.0,
+      "buyInterestTags": [
+        "jewelry",
+        "luxury",
+        "watch",
+        "collectible",
+        "electronics",
+        "camera"
+      ],
+      "sellOfferTags": [
+        "jewelry",
+        "luxury",
+        "watch",
+        "electronics"
+      ],
+      "tradeInterestTags": [
+        "jewelry",
+        "watch",
+        "collectible",
+        "luxury"
+      ],
+      "avoidTags": [
+        "weapon",
+        "hot",
+        "stolen"
+      ],
+      "maxMarkupTolerance": 1.2,
+      "lowballTolerance": 0.7,
+      "haggleAggression": 2.0,
+      "tradeFairness": 0.95,
+      "riskTolerance": 1.0,
+      "prefersCash": true,
+      "acceptsTrades": true,
+      "acceptsJunkBundles": false,
+      "notes": "Discerning money customer for legitimate jewelry and premium keepsakes."
+    },
+    {
+      "characterId": "vice-addict-arty",
+      "sellsToShopWeight": 5.0,
+      "buysFromShopWeight": 2.0,
+      "tradesWeight": 4.0,
+      "buyInterestTags": [
+        "electronics",
+        "broken",
+        "junk",
+        "mystery"
+      ],
+      "sellOfferTags": [
+        "electronics",
+        "mystery",
+        "suspicious",
+        "broken"
+      ],
+      "tradeInterestTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "avoidTags": [
+        "luxury",
+        "weapon"
+      ],
+      "maxMarkupTolerance": 1.06,
+      "lowballTolerance": 0.44,
+      "haggleAggression": 4.0,
+      "tradeFairness": 0.42,
+      "riskTolerance": 5.0,
+      "prefersCash": true,
+      "acceptsTrades": true,
+      "acceptsJunkBundles": true,
+      "notes": "Low-cash vice regular who sells weird goods and takes rough trades."
+    },
+    {
+      "characterId": "vice-clepto-carlo",
+      "sellsToShopWeight": 5.0,
+      "buysFromShopWeight": 3.0,
+      "tradesWeight": 4.0,
+      "buyInterestTags": [
+        "electronics",
+        "portable",
+        "hot",
+        "suspicious"
+      ],
+      "sellOfferTags": [
+        "stolen",
+        "hot",
+        "suspicious",
+        "electronics"
+      ],
+      "tradeInterestTags": [
+        "electronics",
+        "portable",
+        "jewelry"
+      ],
+      "avoidTags": [
+        "cursed",
+        "appliance"
+      ],
+      "maxMarkupTolerance": 1.1,
+      "lowballTolerance": 0.48,
+      "haggleAggression": 4.0,
+      "tradeFairness": 0.55,
+      "riskTolerance": 5.0,
+      "prefersCash": true,
+      "acceptsTrades": true,
+      "acceptsJunkBundles": false,
+      "notes": "Hot-goods seller and trader using existing cop-risk inventory paths."
+    },
+    {
+      "characterId": "vice-dealer-danny",
+      "sellsToShopWeight": 4.0,
+      "buysFromShopWeight": 4.0,
+      "tradesWeight": 4.0,
+      "buyInterestTags": [
+        "weapon",
+        "hot",
+        "suspicious",
+        "luxury",
+        "electronics"
+      ],
+      "sellOfferTags": [
+        "hot",
+        "suspicious",
+        "electronics",
+        "weapon"
+      ],
+      "tradeInterestTags": [
+        "weapon",
+        "electronics",
+        "luxury"
+      ],
+      "avoidTags": [
+        "junk",
+        "cursed"
+      ],
+      "maxMarkupTolerance": 1.12,
+      "lowballTolerance": 0.52,
+      "haggleAggression": 5.0,
+      "tradeFairness": 0.58,
+      "riskTolerance": 5.0,
+      "prefersCash": true,
+      "acceptsTrades": true,
+      "acceptsJunkBundles": false,
+      "notes": "Risk-tolerant vice regular for dangerous or suspicious merchandise."
+    },
+    {
+      "characterId": "vice-pervert-pete",
+      "sellsToShopWeight": 3.0,
+      "buysFromShopWeight": 4.0,
+      "tradesWeight": 3.0,
+      "buyInterestTags": [
+        "junk",
+        "collectible",
+        "luxury",
+        "possibly_fake",
+        "portable"
+      ],
+      "sellOfferTags": [
+        "luxury",
+        "possibly_fake",
+        "suspicious",
+        "collectible"
+      ],
+      "tradeInterestTags": [
+        "junk",
+        "collectible",
+        "luxury"
+      ],
+      "avoidTags": [
+        "weapon",
+        "stolen",
+        "cursed"
+      ],
+      "maxMarkupTolerance": 1.08,
+      "lowballTolerance": 0.5,
+      "haggleAggression": 3.0,
+      "tradeFairness": 0.6,
+      "riskTolerance": 4.0,
+      "prefersCash": true,
+      "acceptsTrades": true,
+      "acceptsJunkBundles": true,
+      "notes": "Sleazy bargain layer for fake luxury and low-value collectibles."
+    },
+    {
+      "characterId": "vice-raver-remy",
+      "sellsToShopWeight": 4.0,
+      "buysFromShopWeight": 4.0,
+      "tradesWeight": 4.0,
+      "buyInterestTags": [
+        "electronics",
+        "portable",
+        "collectible",
+        "instrument"
+      ],
+      "sellOfferTags": [
+        "electronics",
+        "portable",
+        "collectible",
+        "suspicious"
+      ],
+      "tradeInterestTags": [
+        "electronics",
+        "portable",
+        "instrument",
+        "collectible"
+      ],
+      "avoidTags": [
+        "weapon",
+        "cursed"
+      ],
+      "maxMarkupTolerance": 1.12,
+      "lowballTolerance": 0.56,
+      "haggleAggression": 3.0,
+      "tradeFairness": 0.7,
+      "riskTolerance": 3.0,
+      "prefersCash": true,
+      "acceptsTrades": true,
+      "acceptsJunkBundles": false,
+      "notes": "Nightlife electronics trader with medium risk tolerance."
     },
     {
       "characterId": "cop_consequence",
@@ -4739,7 +5037,7 @@ window.ONE_STAR_PAWN_DATA = {
         "electronics",
         "suspicious"
       ],
-      "chanceWeight": 6.0,
+      "chanceWeight": 6.9,
       "askPriceMultiplier": 0.65,
       "cashAdjustmentMin": 0.0,
       "cashAdjustmentMax": 0.0,
@@ -4759,7 +5057,7 @@ window.ONE_STAR_PAWN_DATA = {
         "suspicious"
       ],
       "offeredItemTags": null,
-      "chanceWeight": 6.0,
+      "chanceWeight": 6.9,
       "askPriceMultiplier": 1.1,
       "cashAdjustmentMin": 0.0,
       "cashAdjustmentMax": 0.0,
@@ -4783,7 +5081,7 @@ window.ONE_STAR_PAWN_DATA = {
         "rare",
         "broken"
       ],
-      "chanceWeight": 4.0,
+      "chanceWeight": 4.6,
       "askPriceMultiplier": 0.85,
       "cashAdjustmentMin": -15.0,
       "cashAdjustmentMax": 30.0,
@@ -4802,7 +5100,7 @@ window.ONE_STAR_PAWN_DATA = {
         "electronics",
         "suspicious"
       ],
-      "chanceWeight": 6.0,
+      "chanceWeight": 6.9,
       "askPriceMultiplier": 0.65,
       "cashAdjustmentMin": 0.0,
       "cashAdjustmentMax": 0.0,
@@ -4822,7 +5120,7 @@ window.ONE_STAR_PAWN_DATA = {
         "suspicious"
       ],
       "offeredItemTags": null,
-      "chanceWeight": 6.0,
+      "chanceWeight": 6.9,
       "askPriceMultiplier": 1.1,
       "cashAdjustmentMin": 0.0,
       "cashAdjustmentMax": 0.0,
@@ -4846,7 +5144,7 @@ window.ONE_STAR_PAWN_DATA = {
         "rare",
         "broken"
       ],
-      "chanceWeight": 4.0,
+      "chanceWeight": 4.6,
       "askPriceMultiplier": 0.85,
       "cashAdjustmentMin": -15.0,
       "cashAdjustmentMax": 30.0,
@@ -4865,7 +5163,7 @@ window.ONE_STAR_PAWN_DATA = {
         "electronics",
         "suspicious"
       ],
-      "chanceWeight": 6.0,
+      "chanceWeight": 6.9,
       "askPriceMultiplier": 0.65,
       "cashAdjustmentMin": 0.0,
       "cashAdjustmentMax": 0.0,
@@ -4885,7 +5183,7 @@ window.ONE_STAR_PAWN_DATA = {
         "suspicious"
       ],
       "offeredItemTags": null,
-      "chanceWeight": 6.0,
+      "chanceWeight": 6.9,
       "askPriceMultiplier": 1.1,
       "cashAdjustmentMin": 0.0,
       "cashAdjustmentMax": 0.0,
@@ -4909,7 +5207,7 @@ window.ONE_STAR_PAWN_DATA = {
         "rare",
         "broken"
       ],
-      "chanceWeight": 4.0,
+      "chanceWeight": 4.6,
       "askPriceMultiplier": 0.85,
       "cashAdjustmentMin": -15.0,
       "cashAdjustmentMax": 30.0,
@@ -4928,7 +5226,7 @@ window.ONE_STAR_PAWN_DATA = {
         "electronics",
         "suspicious"
       ],
-      "chanceWeight": 6.0,
+      "chanceWeight": 6.9,
       "askPriceMultiplier": 0.65,
       "cashAdjustmentMin": 0.0,
       "cashAdjustmentMax": 0.0,
@@ -4948,7 +5246,7 @@ window.ONE_STAR_PAWN_DATA = {
         "suspicious"
       ],
       "offeredItemTags": null,
-      "chanceWeight": 6.0,
+      "chanceWeight": 6.9,
       "askPriceMultiplier": 1.1,
       "cashAdjustmentMin": 0.0,
       "cashAdjustmentMax": 0.0,
@@ -4972,7 +5270,7 @@ window.ONE_STAR_PAWN_DATA = {
         "rare",
         "broken"
       ],
-      "chanceWeight": 4.0,
+      "chanceWeight": 4.6,
       "askPriceMultiplier": 0.85,
       "cashAdjustmentMin": -15.0,
       "cashAdjustmentMax": 30.0,
@@ -4991,7 +5289,7 @@ window.ONE_STAR_PAWN_DATA = {
         "electronics",
         "suspicious"
       ],
-      "chanceWeight": 6.0,
+      "chanceWeight": 6.9,
       "askPriceMultiplier": 0.65,
       "cashAdjustmentMin": 0.0,
       "cashAdjustmentMax": 0.0,
@@ -5011,7 +5309,7 @@ window.ONE_STAR_PAWN_DATA = {
         "suspicious"
       ],
       "offeredItemTags": null,
-      "chanceWeight": 6.0,
+      "chanceWeight": 6.9,
       "askPriceMultiplier": 1.1,
       "cashAdjustmentMin": 0.0,
       "cashAdjustmentMax": 0.0,
@@ -5035,7 +5333,7 @@ window.ONE_STAR_PAWN_DATA = {
         "rare",
         "broken"
       ],
-      "chanceWeight": 4.0,
+      "chanceWeight": 4.6,
       "askPriceMultiplier": 0.85,
       "cashAdjustmentMin": -15.0,
       "cashAdjustmentMax": 30.0,
@@ -5229,6 +5527,503 @@ window.ONE_STAR_PAWN_DATA = {
       "conditionOverride": "poor",
       "riskNote": "Low risk",
       "notes": "Offers a guitar from a hobby that lost to overtime."
+    },
+    {
+      "id": "money_devon_earrings",
+      "characterId": "money-devon-dollars",
+      "itemId": "diamond_stud_earrings",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.78,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; scam risk if authenticity lied about",
+      "notes": "Legitimate sparkle with a very loud asking price."
+    },
+    {
+      "id": "money_devon_buys_watch",
+      "characterId": "money-devon-dollars",
+      "itemId": "automatic_watch",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "watch",
+        "luxury",
+        "collectible"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 1.12,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Wants a watch that looks expensive without explaining itself."
+    },
+    {
+      "id": "money_devon_pc_trade",
+      "characterId": "money-devon-dollars",
+      "itemId": "old_gaming_pc",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "watch",
+        "jewelry",
+        "luxury",
+        "electronics",
+        "computer"
+      ],
+      "offeredItemTags": [
+        "electronics",
+        "repairable"
+      ],
+      "chanceWeight": 3.0,
+      "askPriceMultiplier": 0.92,
+      "cashAdjustmentMin": -25.0,
+      "cashAdjustmentMax": 45.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Trades a gaming PC for shelf status."
+    },
+    {
+      "id": "money_brad_handbag",
+      "characterId": "money-douche-brad",
+      "itemId": "luxury_handbag_fake",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "luxury",
+        "possibly_fake"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.62,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Scam risk +1",
+      "notes": "A fake designer bag carried with real confidence."
+    },
+    {
+      "id": "money_brad_buys_sunglasses",
+      "characterId": "money-douche-brad",
+      "itemId": "designer_sunglasses",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "luxury",
+        "portable"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 1.08,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Wants designer sunglasses loud enough to count as personality."
+    },
+    {
+      "id": "money_brad_watch_trade",
+      "characterId": "money-douche-brad",
+      "itemId": "suspicious_gold_watch",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "luxury",
+        "electronics",
+        "collectible"
+      ],
+      "offeredItemTags": [
+        "watch",
+        "luxury",
+        "suspicious"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.84,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 35.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1; scam risk +1",
+      "notes": "Trades a questionable watch for anything shinier."
+    },
+    {
+      "id": "money_penny_bracelet",
+      "characterId": "money-penny",
+      "itemId": "gold_bracelet",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.76,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk",
+      "notes": "A clean gold bracelet from a customer who knows exactly what it is worth."
+    },
+    {
+      "id": "money_penny_buys_earrings",
+      "characterId": "money-penny",
+      "itemId": "diamond_stud_earrings",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 1.1,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Wants small jewelry with paperwork energy."
+    },
+    {
+      "id": "money_penny_camera_trade",
+      "characterId": "money-penny",
+      "itemId": "mirrorless_camera",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "jewelry",
+        "watch",
+        "luxury",
+        "collectible",
+        "electronics"
+      ],
+      "offeredItemTags": [
+        "electronics",
+        "luxury"
+      ],
+      "chanceWeight": 3.0,
+      "askPriceMultiplier": 0.92,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 40.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk",
+      "notes": "A premium camera body offered for something easier to wear."
+    },
+    {
+      "id": "vice_arty_mystery_box",
+      "characterId": "vice-addict-arty",
+      "itemId": "sealed_mystery_box",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "mystery",
+        "suspicious"
+      ],
+      "chanceWeight": 7.0,
+      "askPriceMultiplier": 0.62,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "The box has a rattle and a bad alibi."
+    },
+    {
+      "id": "vice_arty_buys_tablet",
+      "characterId": "vice-addict-arty",
+      "itemId": "cracked_tablet",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "electronics",
+        "broken"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.78,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk if oversold",
+      "notes": "Wants cracked electronics if the price looks injured."
+    },
+    {
+      "id": "vice_arty_watch_trade",
+      "characterId": "vice-addict-arty",
+      "itemId": "smart_watch_locked",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "electronics",
+        "suspicious"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": -18.0,
+      "cashAdjustmentMax": 22.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1; scam risk +1",
+      "notes": "Trades a locked watch for something with fewer questions."
+    },
+    {
+      "id": "vice_carlo_bike_wheel",
+      "characterId": "vice-clepto-carlo",
+      "itemId": "stolen_bike_wheel",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "stolen",
+        "hot",
+        "suspicious"
+      ],
+      "chanceWeight": 7.0,
+      "askPriceMultiplier": 0.48,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Cop risk +2",
+      "notes": "A single bike wheel with a whole-bike problem."
+    },
+    {
+      "id": "vice_carlo_buys_phone",
+      "characterId": "vice-clepto-carlo",
+      "itemId": "used_smartphone",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "electronics",
+        "portable"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.95,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk; cop risk if hot substitute",
+      "notes": "Needs a phone that does not remember him."
+    },
+    {
+      "id": "vice_carlo_silverware_trade",
+      "characterId": "vice-clepto-carlo",
+      "itemId": "silverware_bundle",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "portable",
+        "jewelry"
+      ],
+      "offeredItemTags": [
+        "possibly_fake",
+        "suspicious"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.72,
+      "cashAdjustmentMin": -12.0,
+      "cashAdjustmentMax": 25.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Scam risk +1",
+      "notes": "Trades bundled silverware with flexible ownership."
+    },
+    {
+      "id": "vice_danny_locked_watch",
+      "characterId": "vice-dealer-danny",
+      "itemId": "smart_watch_locked",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.6,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1; scam risk +1",
+      "notes": "The watch is locked and Danny is offended by follow-up questions."
+    },
+    {
+      "id": "vice_danny_buys_knife",
+      "characterId": "vice-dealer-danny",
+      "itemId": "pocket_knife",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "weapon",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 1.0,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Cop/thug risk if suspicious",
+      "notes": "Wants something small sharp and deniable."
+    },
+    {
+      "id": "vice_danny_vcr_trade",
+      "characterId": "vice-dealer-danny",
+      "itemId": "hospital_vcr",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "weapon",
+        "electronics",
+        "luxury"
+      ],
+      "offeredItemTags": [
+        "hot",
+        "suspicious"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.78,
+      "cashAdjustmentMin": -15.0,
+      "cashAdjustmentMax": 35.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Trades hot electronics with a salesman smile."
+    },
+    {
+      "id": "vice_pete_handbag",
+      "characterId": "vice-pervert-pete",
+      "itemId": "luxury_handbag_fake",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "luxury",
+        "possibly_fake"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.58,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Scam risk +1",
+      "notes": "A fake handbag with too much backstory."
+    },
+    {
+      "id": "vice_pete_buys_dvds",
+      "characterId": "vice-pervert-pete",
+      "itemId": "dvd_stack",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "junk",
+        "collectible"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.86,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Buys low-rent media without asking for titles."
+    },
+    {
+      "id": "vice_pete_sunglasses_trade",
+      "characterId": "vice-pervert-pete",
+      "itemId": "designer_sunglasses",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "junk",
+        "collectible",
+        "luxury"
+      ],
+      "offeredItemTags": [
+        "luxury",
+        "portable"
+      ],
+      "chanceWeight": 3.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": -10.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "used",
+      "riskNote": "Low scam risk",
+      "notes": "Trades sunglasses with the confidence of a parking-lot receipt."
+    },
+    {
+      "id": "vice_remy_turntable",
+      "characterId": "vice-raver-remy",
+      "itemId": "dj_turntable",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "collectible"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; scam risk if oversold",
+      "notes": "A turntable from a party that outlived the lease."
+    },
+    {
+      "id": "vice_remy_buys_speaker",
+      "characterId": "vice-raver-remy",
+      "itemId": "bluetooth_speaker",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "electronics",
+        "portable"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 1.02,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Wants a speaker loud enough to erase Tuesday."
+    },
+    {
+      "id": "vice_remy_console_trade",
+      "characterId": "vice-raver-remy",
+      "itemId": "handheld_console",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "portable",
+        "instrument",
+        "collectible"
+      ],
+      "offeredItemTags": [
+        "electronics",
+        "portable",
+        "collectible"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.88,
+      "cashAdjustmentMin": -15.0,
+      "cashAdjustmentMax": 30.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Trades handheld gaming gear for something with more bass or buttons."
     }
   ],
   "eventBlueprints": [
@@ -5639,6 +6434,198 @@ window.ONE_STAR_PAWN_DATA = {
       "pressureFactionId": "",
       "dialogue": "This guitar lost to overtime. Maybe it can still win on your shelf.",
       "resultNotes": "Use regular_salaryman_guitar_trade pool."
+    },
+    {
+      "id": "money_devon_earrings_offer",
+      "characterId": "money-devon-dollars",
+      "eventType": "sell_to_shop",
+      "pressureFactionId": "",
+      "dialogue": "These studs are real enough to make the receipt feel underdressed.",
+      "resultNotes": "Use money_devon_earrings pool."
+    },
+    {
+      "id": "money_devon_watch_buy",
+      "characterId": "money-devon-dollars",
+      "eventType": "buy_from_shop",
+      "pressureFactionId": "",
+      "dialogue": "Show me a watch that says I arrived before I open my mouth.",
+      "resultNotes": "Use money_devon_buys_watch or matching luxury watch inventory."
+    },
+    {
+      "id": "money_devon_trade",
+      "characterId": "money-devon-dollars",
+      "eventType": "trade",
+      "pressureFactionId": "",
+      "dialogue": "I have a gaming PC and a sudden need for something less basement-coded.",
+      "resultNotes": "Use money_devon_pc_trade pool."
+    },
+    {
+      "id": "money_brad_handbag_offer",
+      "characterId": "money-douche-brad",
+      "eventType": "sell_to_shop",
+      "pressureFactionId": "",
+      "dialogue": "Designer bag. Basically designer. Do not get microscopic about it.",
+      "resultNotes": "Use money_brad_handbag pool."
+    },
+    {
+      "id": "money_brad_sunglasses_buy",
+      "characterId": "money-douche-brad",
+      "eventType": "buy_from_shop",
+      "pressureFactionId": "",
+      "dialogue": "I need sunglasses that make waiting in line look optional.",
+      "resultNotes": "Use money_brad_buys_sunglasses or matching luxury portable inventory."
+    },
+    {
+      "id": "money_brad_trade",
+      "characterId": "money-douche-brad",
+      "eventType": "trade",
+      "pressureFactionId": "",
+      "dialogue": "This watch has weight. History too probably. Trade me up.",
+      "resultNotes": "Use money_brad_watch_trade pool."
+    },
+    {
+      "id": "money_penny_bracelet_offer",
+      "characterId": "money-penny",
+      "eventType": "sell_to_shop",
+      "pressureFactionId": "",
+      "dialogue": "Fourteen karat and no drama attached. Price it like both are rare.",
+      "resultNotes": "Use money_penny_bracelet pool."
+    },
+    {
+      "id": "money_penny_earrings_buy",
+      "characterId": "money-penny",
+      "eventType": "buy_from_shop",
+      "pressureFactionId": "",
+      "dialogue": "I am looking for earrings that do not require a story after purchase.",
+      "resultNotes": "Use money_penny_buys_earrings or matching jewelry inventory."
+    },
+    {
+      "id": "money_penny_trade",
+      "characterId": "money-penny",
+      "eventType": "trade",
+      "pressureFactionId": "",
+      "dialogue": "Camera body is clean. I would rather leave with something that fits in a case smaller than my plans.",
+      "resultNotes": "Use money_penny_camera_trade pool."
+    },
+    {
+      "id": "vice_arty_box_offer",
+      "characterId": "vice-addict-arty",
+      "eventType": "sell_to_shop",
+      "pressureFactionId": "",
+      "dialogue": "Box is sealed for value. Also because opening it feels like a court date.",
+      "resultNotes": "Use vice_arty_mystery_box pool."
+    },
+    {
+      "id": "vice_arty_tablet_buy",
+      "characterId": "vice-addict-arty",
+      "eventType": "buy_from_shop",
+      "pressureFactionId": "",
+      "dialogue": "Got a cracked tablet? I like screens that already understand failure.",
+      "resultNotes": "Use vice_arty_buys_tablet or matching broken electronics inventory."
+    },
+    {
+      "id": "vice_arty_trade",
+      "characterId": "vice-addict-arty",
+      "eventType": "trade",
+      "pressureFactionId": "",
+      "dialogue": "Locked watch for whatever you got that does not beep at me.",
+      "resultNotes": "Use vice_arty_watch_trade pool."
+    },
+    {
+      "id": "vice_carlo_wheel_offer",
+      "characterId": "vice-clepto-carlo",
+      "eventType": "sell_to_shop",
+      "pressureFactionId": "",
+      "dialogue": "It is a premium bike wheel. The bike decided to pursue other opportunities.",
+      "resultNotes": "Use vice_carlo_bike_wheel pool."
+    },
+    {
+      "id": "vice_carlo_phone_buy",
+      "characterId": "vice-clepto-carlo",
+      "eventType": "buy_from_shop",
+      "pressureFactionId": "",
+      "dialogue": "I need a phone that does not recognize me first.",
+      "resultNotes": "Use vice_carlo_buys_phone or matching portable electronics inventory."
+    },
+    {
+      "id": "vice_carlo_trade",
+      "characterId": "vice-clepto-carlo",
+      "eventType": "trade",
+      "pressureFactionId": "",
+      "dialogue": "Silverware bundle for pocket electronics. Everybody leaves shiny.",
+      "resultNotes": "Use vice_carlo_silverware_trade pool."
+    },
+    {
+      "id": "vice_danny_watch_offer",
+      "characterId": "vice-dealer-danny",
+      "eventType": "sell_to_shop",
+      "pressureFactionId": "",
+      "dialogue": "Smart watch. Locked because privacy is important to whoever used to own it.",
+      "resultNotes": "Use vice_danny_locked_watch pool."
+    },
+    {
+      "id": "vice_danny_knife_buy",
+      "characterId": "vice-dealer-danny",
+      "eventType": "buy_from_shop",
+      "pressureFactionId": "",
+      "dialogue": "Anything sharp and forgettable in the case today?",
+      "resultNotes": "Use vice_danny_buys_knife or matching weapon inventory."
+    },
+    {
+      "id": "vice_danny_trade",
+      "characterId": "vice-dealer-danny",
+      "eventType": "trade",
+      "pressureFactionId": "",
+      "dialogue": "Hospital VCR for something with less paperwork smell.",
+      "resultNotes": "Use vice_danny_vcr_trade pool."
+    },
+    {
+      "id": "vice_pete_handbag_offer",
+      "characterId": "vice-pervert-pete",
+      "eventType": "sell_to_shop",
+      "pressureFactionId": "",
+      "dialogue": "Luxury bag. Maybe. The logo is close if you squint morally.",
+      "resultNotes": "Use vice_pete_handbag pool."
+    },
+    {
+      "id": "vice_pete_dvds_buy",
+      "characterId": "vice-pervert-pete",
+      "eventType": "buy_from_shop",
+      "pressureFactionId": "",
+      "dialogue": "Got a stack of DVDs cheap enough that nobody asks what is in it?",
+      "resultNotes": "Use vice_pete_buys_dvds or matching junk collectible inventory."
+    },
+    {
+      "id": "vice_pete_trade",
+      "characterId": "vice-pervert-pete",
+      "eventType": "trade",
+      "pressureFactionId": "",
+      "dialogue": "These sunglasses saw things. Trade me something with fewer witnesses.",
+      "resultNotes": "Use vice_pete_sunglasses_trade pool."
+    },
+    {
+      "id": "vice_remy_turntable_offer",
+      "characterId": "vice-raver-remy",
+      "eventType": "sell_to_shop",
+      "pressureFactionId": "",
+      "dialogue": "Turntable works. Last party did not survive its own group chat.",
+      "resultNotes": "Use vice_remy_turntable pool."
+    },
+    {
+      "id": "vice_remy_speaker_buy",
+      "characterId": "vice-raver-remy",
+      "eventType": "buy_from_shop",
+      "pressureFactionId": "",
+      "dialogue": "I need a speaker that makes rent feel theoretical.",
+      "resultNotes": "Use vice_remy_buys_speaker or matching portable electronics inventory."
+    },
+    {
+      "id": "vice_remy_trade",
+      "characterId": "vice-raver-remy",
+      "eventType": "trade",
+      "pressureFactionId": "",
+      "dialogue": "Handheld console for anything with volume knobs or better buttons.",
+      "resultNotes": "Use vice_remy_console_trade pool."
     },
     {
       "id": "cop_consequence_visit",

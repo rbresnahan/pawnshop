@@ -1,4 +1,4 @@
-const GAME_VERSION = '0.1.33';
+const GAME_VERSION = '0.1.34';
 const GAME_BUILD_LOADED_AT = new Date().toISOString();
 
 window.ONE_STAR_PAWN_VERSION = GAME_VERSION;

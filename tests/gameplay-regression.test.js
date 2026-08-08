@@ -558,7 +558,7 @@ test('v0.1.29 consequence meters show queued eligibility, chance, active, and co
   assert.match(tracksuit.detail, /Cooldown 2\/6/);
 });
 
-test('v0.1.33 copy consequence meters includes build and all meter diagnostics', async () => {
+test('v0.1.34 copy consequence meters includes build and all meter diagnostics', async () => {
   const hooks = loadGame(0);
   resetState(hooks);
   hooks.state.factionPressure = { hustlers: 1, tracksuits: 3 };
@@ -569,7 +569,7 @@ test('v0.1.33 copy consequence meters includes build and all meter diagnostics',
 
   assert.equal(result.copied, true);
   assert.equal(hooks.getClipboardText(), hooks.getConsequenceMetersCopyText());
-  assert.match(result.text, /Build: v0\.1\.33/);
+  assert.match(result.text, /Build: v0\.1\.34/);
   assert.match(result.text, /Cop\nRisk: 20\/25/);
   assert.match(result.text, /Hustler Thug\nFaction: hustlers\nPressure: 1\/4/);
   assert.match(result.text, /Thug: hustler-thug-red/);
@@ -969,8 +969,8 @@ test('v0.1.32 admin panel starts with history controls before consequence meters
   assert.ok(clear > copy);
   assert.ok(meters > clear);
   assert.ok(historyList > meters);
-  assert.match(html, /gameData\.js\?v=0\.1\.33/);
-  assert.match(html, /main\.js\?v=0\.1\.33/);
+  assert.match(html, /gameData\.js\?v=0\.1\.34/);
+  assert.match(html, /main\.js\?v=0\.1\.34/);
 });
 
 test('v0.1.31 hustler pressure threshold queues hustler thug through shared scheduler', () => {
@@ -1411,6 +1411,62 @@ test('sole eligible normal customer remains selectable after two consecutive app
 test('non-Bum customers follow the same consecutive-repeat block', () => {
   const hooks = loadGame(0);
   resetState(hooks);
+  hooks.setActiveCustomers([hooks.getCharacter('hustler-shorty'), hooks.getCharacter('regular-grandma-slots')]);
+  hooks.state.inventory.push(item(hooks, 'gold_ring_engravings', 64));
+  hooks.state.normalCustomerHistory = ['hustler-shorty', 'hustler-shorty'];
+
+  const selection = hooks.chooseNextCustomerWithPools();
+
+  assert.equal(selection.customer.id, 'regular-grandma-slots');
+  assert.deepEqual(Array.from(selection.diagnostics.blockedCustomerIds), ['hustler-shorty']);
+});
+
+test('Hustler and Tracksuit normal pool weights get a modest parity boost without bypassing repeat blocks', () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  const boostedCustomers = ['hustler-shorty', 'hustler-cool-j', 'hustler-kangol', 'tracksuit-legs', 'tracksuit-slim'];
+  const expectedEffectiveWeights = {
+    sell_to_shop: 20.7,
+    buy_from_shop: 34.5,
+    trade: 18.4
+  };
+  const expectedRawWeights = {
+    sell_to_shop: 6.9,
+    buy_from_shop: 6.9,
+    trade: 4.6
+  };
+  const effectiveWeight = pool => {
+    const traits = hooks.getTraits(pool.characterId);
+    if (pool.dealType === 'sell_to_shop') return pool.chanceWeight * traits.sellsToShopWeight;
+    if (pool.dealType === 'buy_from_shop') return pool.chanceWeight * traits.buysFromShopWeight;
+    if (pool.dealType === 'trade') return pool.chanceWeight * traits.tradesWeight;
+    return pool.chanceWeight;
+  };
+
+  boostedCustomers.forEach(characterId => {
+    const pools = hooks.data.characterItemPools.filter(pool => pool.characterId === characterId);
+    assert.equal(pools.length, 3, `${characterId} should keep lightweight normal pool coverage`);
+    pools.forEach(pool => {
+      assert.equal(pool.chanceWeight, expectedRawWeights[pool.dealType], `${pool.id} raw weight`);
+      assert.equal(Number(effectiveWeight(pool).toFixed(1)), expectedEffectiveWeights[pool.dealType], `${pool.id} effective weight`);
+    });
+  });
+
+  const hustlerWeights = hooks.data.characterItemPools
+    .filter(pool => pool.characterId === 'hustler-shorty')
+    .map(pool => [pool.dealType, pool.chanceWeight]);
+  const tracksuitWeights = hooks.data.characterItemPools
+    .filter(pool => pool.characterId === 'tracksuit-legs')
+    .map(pool => [pool.dealType, pool.chanceWeight]);
+  assert.deepEqual(tracksuitWeights, hustlerWeights);
+
+  const thugPools = hooks.data.characterItemPools.filter(pool => pool.characterId === 'tracksuit-thug-vincent');
+  assert.deepEqual(Array.from(thugPools.map(pool => `${pool.id}:${pool.chanceWeight}`)), [
+    'tracksuit_knife:5',
+    'tracksuit_prop_revolver:3',
+    'tracksuit_buys_hot:3'
+  ]);
+
   hooks.setActiveCustomers([hooks.getCharacter('hustler-shorty'), hooks.getCharacter('regular-grandma-slots')]);
   hooks.state.inventory.push(item(hooks, 'gold_ring_engravings', 64));
   hooks.state.normalCustomerHistory = ['hustler-shorty', 'hustler-shorty'];
@@ -4355,6 +4411,71 @@ test('v0.1.16 consequence encounters do not extend low-cash recovery dry streak'
   hooks.resolveConsequenceChoice('thugItem', deal);
 
   assert.equal(hooks.state.lowCashRecoveryDryStreak, 2);
+});
+
+test('Money and Vice roster is active with executable commerce data', () => {
+  const hooks = loadGame(0.5);
+  resetState(hooks);
+  const roster = [
+    'money-devon-dollars',
+    'money-douche-brad',
+    'money-jan-takai',
+    'money-penny',
+    'money-salaryman',
+    'vice-addict-arty',
+    'vice-clepto-carlo',
+    'vice-dealer-danny',
+    'vice-pervert-pete',
+    'vice-raver-remy'
+  ];
+  const requiredDealTypes = new Map([
+    ['money-devon-dollars', ['sell_to_shop', 'buy_from_shop', 'trade']],
+    ['money-douche-brad', ['sell_to_shop', 'buy_from_shop', 'trade']],
+    ['money-jan-takai', ['sell_to_shop', 'buy_from_shop', 'trade']],
+    ['money-penny', ['sell_to_shop', 'buy_from_shop', 'trade']],
+    ['money-salaryman', ['sell_to_shop', 'buy_from_shop', 'trade']],
+    ['vice-addict-arty', ['sell_to_shop', 'buy_from_shop', 'trade']],
+    ['vice-clepto-carlo', ['sell_to_shop', 'buy_from_shop', 'trade']],
+    ['vice-dealer-danny', ['sell_to_shop', 'buy_from_shop', 'trade']],
+    ['vice-pervert-pete', ['sell_to_shop', 'buy_from_shop', 'trade']],
+    ['vice-raver-remy', ['sell_to_shop', 'buy_from_shop', 'trade']]
+  ]);
+
+  roster.forEach(characterId => {
+    const character = hooks.getCharacter(characterId);
+    assert.equal(character?.activeInRotation, true, `${characterId} should be active`);
+    assert.ok(hooks.data.characterCommerceTraits.some(traits => traits.characterId === characterId), `${characterId} should have commerce traits`);
+
+    const pools = hooks.data.characterItemPools.filter(pool => pool.characterId === characterId);
+    assert.ok(pools.length >= 3, `${characterId} should have lightweight pool coverage`);
+    requiredDealTypes.get(characterId).forEach(dealType => {
+      assert.ok(pools.some(pool => pool.dealType === dealType), `${characterId} should have ${dealType}`);
+      assert.ok(hooks.data.eventBlueprints.some(event => event.characterId === characterId && event.eventType === dealType), `${characterId} should have ${dealType} blueprint`);
+    });
+
+    pools.forEach(pool => {
+      assert.ok(hooks.getItem(pool.itemId), `${pool.id} should reference an existing item`);
+      const deal = hooks.buildDeal(pool);
+      assert.ok(deal.blueprint, `${pool.id} should resolve an event blueprint`);
+    });
+
+    assert.ok(hooks.getSelectablePoolsForCharacter(character).length > 0, `${characterId} should be selectable in normal rotation`);
+  });
+
+  hooks.state.money = 120;
+  const moneyDeal = hooks.buildDeal(hooks.data.characterItemPools.find(pool => pool.id === 'regular_jan_lee_blender'));
+  hooks.resolveBuy('buyAsk', moneyDeal);
+  assert.ok(hooks.state.inventory.some(entry => entry.itemId === 'countertop_blender'));
+
+  resetState(hooks);
+  hooks.state.money = 120;
+  const viceDeal = hooks.buildDeal(hooks.data.characterItemPools.find(pool => pool.id === 'vice_arty_mystery_box'));
+  hooks.resolveBuy('buyAsk', viceDeal);
+  assert.ok(hooks.state.inventory.some(entry => entry.itemId === 'sealed_mystery_box'));
+
+  assert.equal(hooks.getCharacter('hustler-shorty').factionId, 'hustlers');
+  assert.equal(hooks.getCharacter('tracksuit-legs').factionId, 'tracksuits');
+  assert.equal(hooks.getCharacter('cop_consequence').activeInRotation, false);
 });
 
 test('low-funds full-price purchase stays open without transfer', () => {
