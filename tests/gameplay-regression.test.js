@@ -150,6 +150,7 @@ function loadGame(randomValue = 0) {
 
 function resetState(hooks) {
   const { state } = hooks;
+  hooks.resetInventorySerial();
   state.money = 120;
   state.reputation = 5;
   state.profit = 0;
@@ -334,6 +335,57 @@ test('fast test mode is runtime-only and only changes presentation timing', () =
 
   const reloadedHooks = loadGame(0);
   assert.equal(reloadedHooks.isFastTestModeEnabled(), false);
+});
+
+test('new game starter inventory uses normal instances and sale cost basis', () => {
+  const hooks = loadGame(0);
+  assert.equal(hooks.state.inventory.length, 7);
+  resetState(hooks);
+  hooks.initializeStarterInventory({ replaceExisting: true });
+
+  const expectedStarterItems = [
+    ['Stack of DVDs Nobody Asked For', 'dvd_stack', 5],
+    ['Cracked Tablet', 'cracked_tablet', 18],
+    ['Cordless Drill', 'cordless_drill', 30],
+    ['Guitar Missing Two Strings', 'pawn_shop_guitar', 33],
+    ['Box of Baseball Cards', 'baseball_card_box', 35],
+    ['Gold Ring With Weird Engraving', 'gold_ring_engravings', 85],
+    ['Old Gaming PC', 'old_gaming_pc', 115]
+  ];
+
+  assert.equal(hooks.state.inventory.length, 7);
+  expectedStarterItems.forEach(([name, itemId, cost]) => {
+    const catalogItem = hooks.getItemByName(name);
+    const inventoryItem = hooks.state.inventory.find(entry => entry.name === name);
+    assert.equal(catalogItem?.id, itemId);
+    assert.equal(inventoryItem?.itemId, itemId);
+    assert.equal(inventoryItem?.acquisitionCost, cost);
+    assert.equal(hooks.getInventoryCostBasis(inventoryItem), cost);
+    assert.equal(inventoryItem?.condition, catalogItem.condition);
+    assert.deepEqual(inventoryItem?.tags, catalogItem.tags);
+    assert.equal(inventoryItem?.heat, catalogItem.heat);
+  });
+
+  hooks.initializeStarterInventory();
+  assert.equal(hooks.state.inventory.length, 7);
+
+  const dvd = hooks.state.inventory.find(entry => entry.itemId === 'dvd_stack');
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'bargain_hunter_buys_dvds'));
+  hooks.applySelectedInventoryItemToDeal(deal, dvd);
+  primeChoiceSmoke(hooks, deal);
+  const salePrice = deal.salePrice;
+
+  hooks.resolveChoice('sellTag');
+
+  assert.equal(hooks.state.money, 120 + salePrice);
+  assert.equal(hooks.state.profit, salePrice - 5);
+  assert.equal(hooks.state.inventory.some(entry => entry.instanceId === dvd.instanceId), false);
+  assert.equal(hooks.state.inventory.length, 6);
+
+  resetState(hooks);
+  hooks.initializeStarterInventory({ replaceExisting: true });
+  hooks.initializeStarterInventory();
+  assert.equal(hooks.state.inventory.length, 7);
 });
 
 test('normal mode smoke: standard purchase uses resolveChoice and records full turn history', () => {
@@ -559,7 +611,7 @@ test('v0.1.29 consequence meters show queued eligibility, chance, active, and co
   assert.match(tracksuit.detail, /Cooldown 2\/6/);
 });
 
-test('v0.1.34 copy consequence meters includes build and all meter diagnostics', async () => {
+test('v0.1.37 copy consequence meters includes build and all meter diagnostics', async () => {
   const hooks = loadGame(0);
   resetState(hooks);
   hooks.state.factionPressure = { hustlers: 1, tracksuits: 3 };
@@ -570,15 +622,63 @@ test('v0.1.34 copy consequence meters includes build and all meter diagnostics',
 
   assert.equal(result.copied, true);
   assert.equal(hooks.getClipboardText(), hooks.getConsequenceMetersCopyText());
-  assert.match(result.text, /Build: v0\.1\.34/);
+  assert.match(result.text, /Build: v0\.1\.37/);
   assert.match(result.text, /Cop\nRisk: 20\/25/);
   assert.match(result.text, /Hustler Thug\nFaction: hustlers\nPressure: 1\/4/);
   assert.match(result.text, /Thug: hustler-thug-red/);
   assert.match(result.text, /Event: hustler_thug_robbery/);
   assert.match(result.text, /Tracksuit Thug\nFaction: tracksuits\nPressure: 3\/4/);
+  assert.match(result.text, /Normal member boost: 1\.5x/);
   assert.match(result.text, /Thug: tracksuit-thug-vincent/);
   assert.match(result.text, /Event: tracksuit_thug_robbery/);
   assert.equal(hooks.getCopyConsequenceMetersLabel(), 'COPIED');
+});
+
+test('v0.1.37 gang pressure at one below retaliation boosts only that faction normal selection weight', () => {
+  const hooks = loadGame(0);
+  const roster = ['hustler-shorty', 'tracksuit-legs', 'regular-grandma-slots'];
+  const configure = (hustlerPressure, tracksuitPressure) => {
+    resetState(hooks);
+    hooks.setActiveCustomers(roster.map(id => hooks.getCharacter(id)));
+    hooks.state.factionPressure = { hustlers: hustlerPressure, tracksuits: tracksuitPressure };
+    return hooks.chooseNextNormalDeal().normalSelection.diagnostics.weights;
+  };
+  const byId = (weights, id) => weights.find(entry => entry.id === id);
+
+  let weights = configure(3, 2);
+  assert.equal(byId(weights, 'hustler-shorty').normalMemberPressureBoostMultiplier, 1.5);
+  assert.equal(byId(weights, 'tracksuit-legs').normalMemberPressureBoostMultiplier, 1);
+  assert.equal(byId(weights, 'regular-grandma-slots').normalMemberPressureBoostMultiplier, 1);
+  assert.equal(byId(weights, 'hustler-shorty').finalWeight, Number((byId(weights, 'hustler-shorty').baseWeight * 1.5).toFixed(2)));
+
+  weights = configure(2, 3);
+  assert.equal(byId(weights, 'hustler-shorty').normalMemberPressureBoostMultiplier, 1);
+  assert.equal(byId(weights, 'tracksuit-legs').normalMemberPressureBoostMultiplier, 1.5);
+
+  weights = configure(3, 3);
+  assert.equal(byId(weights, 'hustler-shorty').normalMemberPressureBoostMultiplier, 1.5);
+  assert.equal(byId(weights, 'tracksuit-legs').normalMemberPressureBoostMultiplier, 1.5);
+
+  weights = configure(2, 1);
+  assert.equal(byId(weights, 'hustler-shorty').normalMemberPressureBoostMultiplier, 1);
+  assert.equal(byId(weights, 'tracksuit-legs').normalMemberPressureBoostMultiplier, 1);
+
+  weights = configure(4, 4);
+  assert.equal(byId(weights, 'hustler-shorty').normalMemberPressureBoostMultiplier, 1);
+  assert.equal(byId(weights, 'tracksuit-legs').normalMemberPressureBoostMultiplier, 1);
+  const queued = hooks.maybeQueueFactionThugConsequence('hustlers', null, 'test threshold remains four');
+  assert.ok(queued);
+  assert.equal(queued.metadata.threshold, 4);
+
+  resetState(hooks);
+  hooks.setActiveCustomers(roster.map(id => hooks.getCharacter(id)));
+  hooks.state.factionPressure = { hustlers: 3, tracksuits: 0 };
+  hooks.state.normalCustomerHistory = ['hustler-shorty'];
+  weights = hooks.chooseNextNormalDeal().normalSelection.diagnostics.weights;
+  const hustler = byId(weights, 'hustler-shorty');
+  assert.equal(hustler.repeatMultiplier, 0.35);
+  assert.equal(hustler.normalMemberPressureBoostMultiplier, 1.5);
+  assert.equal(hustler.finalWeight, Number((hustler.baseWeight * 0.35 * 1.5).toFixed(2)));
 });
 
 test('v0.1.30 restored normal NPC data chains resolve from generated data', () => {
@@ -695,14 +795,14 @@ test('v0.1.31 hustler lowball consequence applies hustler pressure without touch
 
   hooks.resolveChoice('lowball');
 
-  assert.equal(hooks.state.factionPressure.hustlers, 1);
+  assert.equal(hooks.state.factionPressure.hustlers, 2);
   assert.equal(hooks.state.factionPressure.tracksuits, 0);
   const history = hooks.getTurnHistory()[0].lines.join('\n');
-  assert.match(history, /Hustler Pressure: 0 -> 1 \(\+1\)/);
+  assert.match(history, /Hustler Pressure: 0 -> 2 \(\+2\)/);
   assert.match(history, /faction pressure applied to hustlers/);
   assert.doesNotMatch(history, /penalty had no visible state change/);
   const hustler = hooks.getConsequenceDiagnostics().find(meter => meter.id === 'hustlers');
-  assert.equal(hustler.value, 1);
+  assert.equal(hustler.value, 2);
 });
 
 test('v0.1.31 hustler-kangol uses the same generic hustler pressure path', () => {
@@ -714,7 +814,7 @@ test('v0.1.31 hustler-kangol uses the same generic hustler pressure path', () =>
 
   hooks.resolveChoice('lowball');
 
-  assert.equal(hooks.state.factionPressure.hustlers, 1);
+  assert.equal(hooks.state.factionPressure.hustlers, 2);
   assert.equal(hooks.state.factionPressure.tracksuits, 0);
   assert.match(hooks.getTurnHistory()[0].lines.join('\n'), /Kangol retaliated after a hostile lowball outcome|Hustler Pressure/);
 });
@@ -728,9 +828,9 @@ test('v0.1.31 tracksuit lowball consequence still applies tracksuit pressure onl
 
   hooks.resolveChoice('lowball');
 
-  assert.equal(hooks.state.factionPressure.tracksuits, 1);
+  assert.equal(hooks.state.factionPressure.tracksuits, 2);
   assert.equal(hooks.state.factionPressure.hustlers, 0);
-  assert.match(hooks.getTurnHistory()[0].lines.join('\n'), /Tracksuit Pressure: 0 -> 1 \(\+1\)/);
+  assert.match(hooks.getTurnHistory()[0].lines.join('\n'), /Tracksuit Pressure: 0 -> 2 \(\+2\)/);
 });
 
 test('v0.1.31 non-faction lowball consequence falls back visibly without faction pressure', () => {
@@ -750,7 +850,7 @@ test('v0.1.31 non-faction lowball consequence falls back visibly without faction
   assert.doesNotMatch(history, /penalty had no visible state change/);
 });
 
-test('v0.1.31 accepted mild hustler lowball does not automatically add pressure', () => {
+test('v0.1.37 accepted mild hustler lowball adds minor pressure', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   hooks.state.money = 500;
@@ -761,9 +861,9 @@ test('v0.1.31 accepted mild hustler lowball does not automatically add pressure'
 
   hooks.resolveChoice('lowball');
 
-  assert.equal(hooks.state.factionPressure.hustlers, 0);
+  assert.equal(hooks.state.factionPressure.hustlers, 0.5);
   assert.equal(hooks.state.factionPressure.tracksuits, 0);
-  assert.doesNotMatch(hooks.getTurnHistory()[0].lines.join('\n'), /Hustler Pressure:/);
+  assert.match(hooks.getTurnHistory()[0].lines.join('\n'), /Hustler Pressure: 0 -> 0\.5 \(\+0\.5\)/);
 });
 
 test('v0.1.32 accepted moderate hustler lowball applies hustler pressure only', () => {
@@ -797,14 +897,14 @@ test('v0.1.32 accepted severe hustler hidden-problem lowball applies pressure on
   hooks.resolveChoice('lowball');
 
   assert.equal(deal.lowballOutcome, 'acceptedHiddenProblem');
-  assert.equal(hooks.state.factionPressure.hustlers, 1);
+  assert.equal(hooks.state.factionPressure.hustlers, 1.5);
   assert.equal(hooks.state.factionPressure.tracksuits, 0);
   const history = hooks.getTurnHistory()[0].lines.join('\n');
   assert.equal((history.match(/Faction pressure source: hustlers/g) || []).length, 1);
   assert.match(history, /accepted severe lowball/);
 });
 
-test('v0.1.32 accepted mild hustler lowball records below-severity diagnostic', () => {
+test('v0.1.37 accepted mild hustler lowball records minor-pressure diagnostic', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   hooks.state.money = 500;
@@ -815,8 +915,8 @@ test('v0.1.32 accepted mild hustler lowball records below-severity diagnostic', 
 
   hooks.resolveChoice('lowball');
 
-  assert.equal(hooks.state.factionPressure.hustlers, 0);
-  assert.match(hooks.getTurnHistory()[0].lines.join('\n'), /accepted mild lowball; faction hustlers; rule mild accepted seller lowball; pressure \+0; .*below pressure rule/);
+  assert.equal(hooks.state.factionPressure.hustlers, 0.5);
+  assert.match(hooks.getTurnHistory()[0].lines.join('\n'), /accepted mild lowball; faction hustlers; rule accepted seller lowball; pressure 0 -> 0\.5 \(\+0\.5\)/);
 });
 
 test('v0.1.32 accepted moderate tracksuit lowball applies tracksuit pressure only', () => {
@@ -850,7 +950,7 @@ test('v0.1.32 accepted moderate hustler markup applies hustler pressure only', (
   assert.equal(deal.markupOutcome, 'accepted');
   assert.equal(hooks.state.factionPressure.hustlers, 1);
   assert.equal(hooks.state.factionPressure.tracksuits, 0);
-  assert.match(hooks.getTurnHistory()[0].lines.join('\n'), /completed moderate markup; faction hustlers; rule completed aggressive markup; pressure 0 -> 1 \(\+1\)/);
+  assert.match(hooks.getTurnHistory()[0].lines.join('\n'), /completed moderate markup; faction hustlers; rule completed buyer markup; pressure 0 -> 1 \(\+1\)/);
 });
 
 test('v0.1.32 counteroffer after aggressive hustler markup applies pressure once from original markup', () => {
@@ -871,7 +971,7 @@ test('v0.1.32 counteroffer after aggressive hustler markup applies pressure once
   assert.equal(hooks.state.factionPressure.tracksuits, 0);
   const history = hooks.getTurnHistory()[0].lines.join('\n');
   assert.equal((history.match(/Faction pressure source: hustlers/g) || []).length, 1);
-  assert.match(history, /completed moderate markup; faction hustlers; rule completed aggressive markup; pressure 0 -> 1 \(\+1\)/);
+  assert.match(history, /completed moderate markup; faction hustlers; rule completed buyer markup; pressure 0 -> 1 \(\+1\)/);
 });
 
 test('v0.1.32 normal asking-price faction transaction adds no pressure', () => {
@@ -896,10 +996,10 @@ test('v0.1.32 explicit hostile consequence pressure does not duplicate', () => {
 
   hooks.resolveChoice('lowball');
 
-  assert.equal(hooks.state.factionPressure.hustlers, 1);
+  assert.equal(hooks.state.factionPressure.hustlers, 2);
   const history = hooks.getTurnHistory()[0].lines.join('\n');
   assert.equal((history.match(/Faction pressure source: hustlers/g) || []).length, 1);
-  assert.match(history, /hostile moderate lowball; faction hustlers; rule hostile seller lowball; pressure 0 -> 1 \(\+1\)/);
+  assert.match(history, /hostile moderate lowball; faction hustlers; rule hostile seller lowball; pressure 0 -> 2 \(\+2\)/);
 });
 
 test('v0.1.32 accepted faction lowball queues matching thug at threshold and refreshes meter', () => {
@@ -970,8 +1070,8 @@ test('v0.1.32 admin panel starts with history controls before consequence meters
   assert.ok(clear > copy);
   assert.ok(meters > clear);
   assert.ok(historyList > meters);
-  assert.match(html, /gameData\.js\?v=0\.1\.34/);
-  assert.match(html, /main\.js\?v=0\.1\.34/);
+  assert.match(html, /gameData\.js\?v=0\.1\.37/);
+  assert.match(html, /main\.js\?v=0\.1\.37/);
 });
 
 test('v0.1.31 hustler pressure threshold queues hustler thug through shared scheduler', () => {
@@ -985,7 +1085,7 @@ test('v0.1.31 hustler pressure threshold queues hustler thug through shared sche
 
   hooks.resolveChoice('lowball');
 
-  assert.equal(hooks.state.factionPressure.hustlers, 4);
+  assert.equal(hooks.state.factionPressure.hustlers, 5);
   const queued = hooks.state.consequenceQueue.find(entry => entry.type === 'thug_robbery_consequence' && entry.factionId === 'hustlers' && !entry.resolved);
   assert.ok(queued);
   assert.equal(queued.metadata.thugCharacterId, 'hustler-thug-red');
@@ -1546,11 +1646,11 @@ test('v0.1.24 Tracksuit Legs accepted modest lowball completes purchase without 
   assert.equal(deal.lowballOutcome, 'accepted');
   assert.equal(hooks.state.money, before.money - deal.lowballPrice);
   assert.equal(hooks.state.inventory.length, before.inventory.length + 1);
-  assert.equal(hooks.state.factionPressure.tracksuits || 0, 0);
-  assert.doesNotMatch((deal.factionPressureHistoryLines || []).join('\n'), /Tracksuit Pressure:/);
+  assert.equal(hooks.state.factionPressure.tracksuits || 0, 0.5);
+  assert.match((deal.factionPressureHistoryLines || []).join('\n'), /Tracksuit Pressure: 0 -> 0\.5 \(\+0\.5\)/);
 });
 
-test('v0.1.25 Tracksuit Legs accepted severe lowball completes purchase and adds one Tracksuit pressure', () => {
+test('v0.1.37 Tracksuit Legs accepted severe lowball completes purchase and adds severe pressure', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   forceNegotiationOutcome(hooks, 'lowball', 'accepted');
@@ -1563,7 +1663,7 @@ test('v0.1.25 Tracksuit Legs accepted severe lowball completes purchase and adds
   assert.equal(deal.lowballOutcome, 'accepted');
   assert.equal(hooks.state.money, before.money - deal.lowballPrice);
   assert.equal(hooks.state.inventory.length, before.inventory.length + 1);
-  assert.equal(hooks.state.factionPressure.tracksuits, 1);
+  assert.equal(hooks.state.factionPressure.tracksuits, 1.5);
   assert.ok(hooks.state.copRisk >= before.copRisk);
   assert.equal(hooks.state.scamRisk, before.scamRisk + 1);
   assert.match((deal.factionPressureHistoryLines || []).join('\n'), /accepted a severe below-asking offer/i);
@@ -1649,7 +1749,7 @@ test('v0.1.25 future-dispute Tracksuit sale records pending incident before disp
   hooks.resolveSell('markup', deal);
   hooks.resolveSell('markup', deal);
 
-  assert.equal(hooks.state.factionPressure.tracksuits || 0, 0);
+  assert.equal(hooks.state.factionPressure.tracksuits || 0, 2);
   assert.equal(deal.tracksuitBadMerchandiseIncident.status, 'pending');
   assert.match((deal.factionPressureHistoryLines || []).join('\n'), /bad merchandise incident recorded as pending/i);
 });
@@ -1721,11 +1821,11 @@ test('v0.1.24 Tracksuit relationship pressure crossing threshold queues one thug
   hooks.resolveBuy('lowball', deal);
 
   const thugQueue = hooks.state.consequenceQueue.filter(entry => entry.type === 'thug_robbery_consequence');
-  assert.equal(hooks.state.factionPressure.tracksuits, 4);
+  assert.equal(hooks.state.factionPressure.tracksuits, 4.5);
   assert.equal(thugQueue.length, 1);
   assert.equal(thugQueue[0].metadata.threshold, 4);
-  assert.equal(thugQueue[0].metadata.factionPressureAtQueue, 4);
-  assert.match((deal.thugHistoryLines || []).join('\n'), /Tracksuit scheduling: pressure threshold reached 4\/4; checking queue arm\./);
+  assert.equal(thugQueue[0].metadata.factionPressureAtQueue, 4.5);
+  assert.match((deal.thugHistoryLines || []).join('\n'), /Tracksuit scheduling: pressure threshold reached 4\.5\/4; checking queue arm\./);
 });
 
 test('v0.1.25 accepted Tracksuit lowball and actionable refusal stay at one pressure each', () => {
@@ -1739,9 +1839,9 @@ test('v0.1.25 accepted Tracksuit lowball and actionable refusal stay at one pres
   const refusalDeal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_legs_locked_watch'));
   hooks.resolveBuy('refuse', refusalDeal);
 
-  assert.equal(hooks.state.factionPressure.tracksuits, 2);
-  assert.match((lowballDeal.factionPressureHistoryLines || []).join('\n'), /Tracksuit Pressure: 0 -> 1 \(\+1\)/);
-  assert.match((refusalDeal.factionPressureHistoryLines || []).join('\n'), /Tracksuit Pressure: 1 -> 2 \(\+1\)/);
+  assert.equal(hooks.state.factionPressure.tracksuits, 2.5);
+  assert.match((lowballDeal.factionPressureHistoryLines || []).join('\n'), /Tracksuit Pressure: 0 -> 1\.5 \(\+1\.5\)/);
+  assert.match((refusalDeal.factionPressureHistoryLines || []).join('\n'), /Tracksuit Pressure: 1\.5 -> 2\.5 \(\+1\)/);
 });
 
 test('v0.1.25 accepted Tracksuit markup adds bounded pressure without changing sale outcome', () => {
@@ -1757,7 +1857,7 @@ test('v0.1.25 accepted Tracksuit markup adds bounded pressure without changing s
 
   assert.equal(hooks.state.money, before.money + deal.markupPrice);
   assert.equal(hooks.state.inventory.length, before.inventory.length - 1);
-  assert.equal(hooks.state.factionPressure.tracksuits, hooks.constants.TRACKSUIT_RELATIONSHIP_PRESSURE.acceptedMarkup.meaningful);
+  assert.equal(hooks.state.factionPressure.tracksuits, 1);
   assert.match((deal.factionPressureHistoryLines || []).join('\n'), /completed a moderate marked-up sale/i);
 });
 
@@ -1771,7 +1871,7 @@ test('v0.1.25 accepted aggressive Tracksuit markup records bounded pressure', ()
 
   hooks.resolveSell('markup', deal);
 
-  assert.equal(hooks.state.factionPressure.tracksuits, hooks.constants.TRACKSUIT_RELATIONSHIP_PRESSURE.acceptedMarkup.meaningful);
+  assert.equal(hooks.state.factionPressure.tracksuits, 1.5);
   assert.ok(hooks.state.factionPressure.tracksuits <= 2);
   assert.match((deal.factionPressureHistoryLines || []).join('\n'), /completed a severe marked-up sale/i);
 });
@@ -1785,11 +1885,11 @@ test('v0.1.25 markup pressure and later dispute from same sale do not stack', ()
   deal.markupPrice = 110;
 
   hooks.resolveSell('markup', deal);
-  assert.equal(hooks.state.factionPressure.tracksuits || 0, hooks.constants.TRACKSUIT_RELATIONSHIP_PRESSURE.acceptedMarkup.meaningful);
+  assert.equal(hooks.state.factionPressure.tracksuits || 0, 2);
   hooks.state.currentDeal = deal;
   hooks.angryCustomer();
 
-  assert.equal(hooks.state.factionPressure.tracksuits, hooks.constants.TRACKSUIT_RELATIONSHIP_PRESSURE.acceptedMarkup.meaningful);
+  assert.equal(hooks.state.factionPressure.tracksuits, 2);
   assert.equal((deal.factionPressureHistoryLines || []).filter(line => /Tracksuit Pressure:/.test(line)).length, 1);
   assert.doesNotMatch((deal.factionPressureHistoryLines || []).join('\n'), /accepted a severe marked-up sale/i);
 });
@@ -1879,7 +1979,7 @@ test('v0.1.25 threshold pressure during settling defers thug queue and preserves
 
   hooks.resolveBuy('lowball', pressureDeal);
 
-  assert.equal(hooks.state.factionPressure.tracksuits, 4);
+  assert.equal(hooks.state.factionPressure.tracksuits, 4.5);
   assert.equal(hooks.state.consequenceQueue.filter(entry => entry.type === 'thug_robbery_consequence' && !entry.resolved).length, 0);
   assert.match((pressureDeal.thugHistoryLines || []).join('\n'), /retaliation settling period active/i);
   assert.match(hooks.state.factionPressureSources.tracksuits[0].reason, /accepted a severe below-asking offer/i);
@@ -3779,6 +3879,112 @@ test('hustler and tracksuit faction pressure policy has parity for equivalent ac
     }
   );
   assert.equal(hustlerRefusal.amount, 1);
+});
+
+test('v0.1.37 gang pressure resolver covers fractional and strongest-rule policy symmetrically', () => {
+  const hooks = loadGame(0);
+  const cases = [
+    {
+      label: 'mild accepted markup',
+      input: { dealType: 'buy_from_shop', actionType: 'markup', severity: 'mild', outcome: 'accepted', transactionCompleted: true },
+      amount: 0.5,
+      rule: 'completed buyer markup'
+    },
+    {
+      label: 'mild accepted lowball',
+      input: { dealType: 'sell_to_shop', actionType: 'lowball', severity: 'mild', outcome: 'accepted', transactionCompleted: true },
+      amount: 0.5,
+      rule: 'accepted seller lowball'
+    },
+    {
+      label: 'seller refusal',
+      input: { dealType: 'sell_to_shop', actionType: 'refuseItem', outcome: 'refused', transactionCompleted: false },
+      amount: 1,
+      rule: 'executable merchandise refusal'
+    },
+    {
+      label: 'matching buyer refusal',
+      input: { dealType: 'buy_from_shop', actionType: 'refuseSale', requestMatched: true, transactionCompleted: false },
+      amount: 1,
+      rule: 'matched sale refusal'
+    },
+    {
+      label: 'moderate rejected lowball',
+      input: { dealType: 'sell_to_shop', actionType: 'lowball', severity: 'moderate', outcome: 'rejectedOriginal', transactionCompleted: false },
+      amount: 1,
+      rule: 'rejected seller lowball'
+    },
+    {
+      label: 'severe customer walk',
+      input: { dealType: 'sell_to_shop', actionType: 'lowball', severity: 'severe', outcome: 'customerWalks', transactionCompleted: false },
+      amount: 1.5,
+      rule: 'seller lowball customer walk'
+    },
+    {
+      label: 'scam-like markup',
+      input: { dealType: 'buy_from_shop', actionType: 'markup', severity: 'moderate', outcome: 'acceptedFutureDispute', transactionCompleted: true },
+      amount: 2,
+      rule: 'scam-like completed markup'
+    }
+  ];
+
+  cases.forEach(testCase => {
+    const hustler = hooks.evaluateFactionPressure({ ...testCase.input, factionId: 'hustlers', encounterId: `h-${testCase.label}` });
+    const tracksuit = hooks.evaluateFactionPressure({ ...testCase.input, factionId: 'tracksuits', encounterId: `t-${testCase.label}` });
+    assert.equal(hustler.eligible, true, testCase.label);
+    assert.equal(tracksuit.eligible, true, testCase.label);
+    assert.equal(hustler.amount, testCase.amount, testCase.label);
+    assert.equal(tracksuit.amount, testCase.amount, testCase.label);
+    assert.equal(hustler.rule, testCase.rule, testCase.label);
+    assert.equal(tracksuit.rule, testCase.rule, testCase.label);
+  });
+});
+
+test('v0.1.37 mild accepted Tracksuit markup adds half pressure at runtime', () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  forceNegotiationOutcome(hooks, 'markup', 'accepted');
+  const { deal } = prepareSaleDeal(hooks, 'tracksuit_legs_buys_watch', 'suspicious_gold_watch');
+  deal.salePrice = 26;
+  deal.defaultSalePrice = 26;
+  deal.markupPrice = 30;
+
+  hooks.resolveSell('markup', deal);
+
+  assert.equal(deal.markupOutcome, 'accepted');
+  assert.equal(hooks.state.factionPressure.tracksuits, 0.5);
+  assert.match((deal.factionPressureHistoryLines || []).join('\n'), /completed mild markup; faction tracksuits; rule completed buyer markup; pressure 0 -> 0\.5 \(\+0\.5\)/);
+});
+
+test('v0.1.37 moderate rejected gang lowball applies one pressure while keeping deal open', () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  hooks.state.money = 500;
+  forceNegotiationOutcome(hooks, 'lowball', 'rejectedOriginal');
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_sista_locked_watch'));
+  deal.lowballPrice = Math.round(deal.askingPrice * 0.6);
+
+  const result = hooks.resolveBuy('lowball', deal);
+
+  assert.equal(result.keepEncounterOpen, true);
+  assert.equal(hooks.state.factionPressure.hustlers, 1);
+  assert.match((deal.factionPressureHistoryLines || []).join('\n'), /moderate lowball rejected; faction hustlers; rule rejected seller lowball; pressure 0 -> 1 \(\+1\)/);
+});
+
+test('v0.1.37 severe gang lowball walk uses strongest single pressure rule', () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  hooks.state.money = 500;
+  forceNegotiationOutcome(hooks, 'lowball', 'customerWalks');
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_legs_locked_watch'));
+  deal.lowballPrice = Math.round(deal.askingPrice * 0.3);
+
+  hooks.resolveBuy('lowball', deal);
+
+  assert.equal(hooks.state.factionPressure.tracksuits, 1.5);
+  const history = (deal.factionPressureHistoryLines || []).join('\n');
+  assert.equal((history.match(/Faction pressure source: tracksuits/g) || []).length, 1);
+  assert.match(history, /severe lowball caused customer walk; faction tracksuits; rule seller lowball customer walk; pressure 0 -> 1\.5 \(\+1\.5\)/);
 });
 
 test('hustlers and tracksuits gain identical runtime pressure from lowball, sale refusal, trade refusal, and cash demand', () => {

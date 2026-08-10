@@ -1,4 +1,4 @@
-const GAME_VERSION = '0.1.34';
+const GAME_VERSION = '0.1.37';
 const GAME_BUILD_LOADED_AT = new Date().toISOString();
 
 window.ONE_STAR_PAWN_VERSION = GAME_VERSION;
@@ -71,6 +71,7 @@ const COP_RISK_ADJUSTMENTS = {
 };
 const COP_RISK_INVESTIGATION_RESIDUAL_FLOOR = 1;
 const TRACKSUIT_CONSEQUENCE_MIN_PRESSURE = 4;
+const GANG_NORMAL_MEMBER_PRESSURE_BOOST_MULTIPLIER = 1.5;
 const TRACKSUIT_ROBBERY_MIN_TURN = 10;
 const THUG_CONSEQUENCE_MIN_FULL_TURNS = 1;
 const THUG_CASH_HANDOVER_RATE = 0.28;
@@ -129,6 +130,16 @@ const LOW_CASH_RECOVERY = {
   fallbackMaxAskMultiplier: 0.8,
   opportunisticBuyerIds: ['street-bum', 'street-crackhead', 'street-junkie', 'desperate_regular', 'bargain_hunter', 'hustler-shorty']
 };
+const STARTER_INVENTORY_SOURCE_ID = 'pre_game_inventory';
+const STARTER_INVENTORY = [
+  { name: 'Stack of DVDs Nobody Asked For', acquisitionCost: 5 },
+  { name: 'Cracked Tablet', acquisitionCost: 18 },
+  { name: 'Cordless Drill', acquisitionCost: 30 },
+  { name: 'Guitar Missing Two Strings', acquisitionCost: 33 },
+  { name: 'Box of Baseball Cards', acquisitionCost: 35 },
+  { name: 'Gold Ring With Weird Engraving', acquisitionCost: 85 },
+  { name: 'Old Gaming PC', acquisitionCost: 115 }
+];
 const ECONOMY_BALANCE = {
   // Profit is realized net economic performance: completed sale margins minus
   // realized consequence losses such as bribes, refunds, theft, and confiscation.
@@ -584,6 +595,11 @@ function moneyText(value) {
   return `$${Math.round(value)}`;
 }
 
+function formatPressureAmount(value) {
+  const amount = Math.round((Number(value) || 0) * 10) / 10;
+  return Number.isInteger(amount) ? String(amount) : amount.toFixed(1);
+}
+
 function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -611,6 +627,10 @@ function tagsOverlap(left = [], right = []) {
 
 function getItem(itemId) {
   return ITEMS.find(item => item.id === itemId);
+}
+
+function getItemByName(itemName) {
+  return ITEMS.find(item => item.name === itemName);
 }
 
 function getCharacter(characterId) {
@@ -641,7 +661,7 @@ function getFactionPressure(factionId) {
   const normalized = normalizeFactionId(factionId);
   if (!normalized) return 0;
   if (normalized === TRACKSUIT_CREW_FACTION_ID && Number(state.factionPressure?.tracksuit_crew || 0) > Number(state.factionPressure?.[normalized] || 0)) {
-    state.factionPressure[normalized] = Math.max(0, Math.floor(Number(state.factionPressure.tracksuit_crew) || 0));
+    state.factionPressure[normalized] = Math.max(0, Number(state.factionPressure.tracksuit_crew) || 0);
   }
   return Math.max(0, Number(state.factionPressure?.[normalized]) || 0);
 }
@@ -651,7 +671,7 @@ function setFactionPressure(factionId, amount) {
   if (!normalized) return { before: 0, after: 0, delta: 0 };
   if (!state.factionPressure || typeof state.factionPressure !== 'object') state.factionPressure = {};
   const before = getFactionPressure(normalized);
-  state.factionPressure[normalized] = Math.max(0, Math.floor(Number(amount) || 0));
+  state.factionPressure[normalized] = Math.max(0, Number(amount) || 0);
   if (normalized === TRACKSUIT_CREW_FACTION_ID) state.factionPressure.tracksuit_crew = state.factionPressure[normalized];
   return { before, after: state.factionPressure[normalized], delta: state.factionPressure[normalized] - before };
 }
@@ -686,7 +706,7 @@ function recordFactionPressureSource(factionId, amount, deal, reason) {
 
 function addFactionPressure(factionId, amount, deal = null, reason = 'faction pressure increased') {
   const normalized = normalizeFactionId(factionId);
-  const delta = Math.max(0, Math.ceil(Number(amount) || 0));
+  const delta = Math.max(0, Number(amount) || 0);
   if (!normalized || delta <= 0) return { before: getFactionPressure(normalized), after: getFactionPressure(normalized), delta: 0, factionId: normalized };
   const before = getFactionPressure(normalized);
   const pressure = setFactionPressure(normalized, before + delta);
@@ -782,7 +802,17 @@ function appendFactionPressureEvaluation(deal, line) {
   appendFactionPressureHistory(deal, `Faction pressure evaluation: ${line}`);
 }
 
-function isPressureSeverity(severity) {
+function getAntagonisticNegotiationPressureAmount(severity, outcome = '') {
+  if (outcome === 'consequence' || outcome === 'acceptedFutureDispute') return 2;
+  const severityAmount = String(severity || '') === 'severe'
+    ? 1.5
+    : String(severity || '') === 'moderate'
+      ? 1
+      : 0.5;
+  return outcome === 'customerWalks' ? Math.max(1, severityAmount) : severityAmount;
+}
+
+function isPressureBearingNegotiationSeverity(severity) {
   return ['moderate', 'severe'].includes(String(severity || ''));
 }
 
@@ -827,24 +857,38 @@ function evaluateFactionPressure({
 
   if (dealType === 'sell_to_shop' && actionType === 'lowball') {
     if (['accepted', 'acceptedHiddenProblem'].includes(outcome)) {
-      return isPressureSeverity(severity)
-        ? { ...base, eligible: true, amount: 1, rule: 'accepted seller lowball', reason: `accepted ${severity} lowball` }
-        : { ...base, rule: 'mild accepted seller lowball', reason: 'accepted mild lowball' };
+      return {
+        ...base,
+        eligible: true,
+        amount: getAntagonisticNegotiationPressureAmount(severity, outcome),
+        rule: 'accepted seller lowball',
+        reason: `accepted ${severity} lowball`
+      };
     }
     if (outcome === 'consequence') {
-      return { ...base, eligible: true, amount: 1, rule: 'hostile seller lowball', reason: `hostile ${severity} lowball` };
+      return { ...base, eligible: true, amount: getAntagonisticNegotiationPressureAmount(severity, outcome), rule: 'hostile seller lowball', reason: `hostile ${severity} lowball` };
     }
-    if (outcome === 'customerWalks' && isPressureSeverity(severity)) {
-      return { ...base, eligible: true, amount: 1, rule: 'seller lowball customer walk', reason: `${severity} lowball caused customer walk` };
+    if (outcome === 'customerWalks') {
+      return { ...base, eligible: true, amount: getAntagonisticNegotiationPressureAmount(severity, outcome), rule: 'seller lowball customer walk', reason: `${severity} lowball caused customer walk` };
+    }
+    if (['rejectedOriginal', 'priceWorsened'].includes(outcome) && isPressureBearingNegotiationSeverity(severity)) {
+      return { ...base, eligible: true, amount: getAntagonisticNegotiationPressureAmount(severity, outcome), rule: 'rejected seller lowball', reason: `${severity} lowball rejected` };
     }
     return { ...base, rule: 'neutral seller lowball result', reason: `${outcome || 'ordinary rejection'} is neutral` };
   }
 
   if (dealType === 'buy_from_shop' && actionType === 'markup') {
     if ((['accepted', 'acceptedFutureDispute', 'counterofferAccepted'].includes(outcome) && transactionCompleted) || outcome === 'customerWalks' || outcome === 'consequence') {
-      return isPressureSeverity(severity)
-        ? { ...base, eligible: true, amount: 1, rule: outcome === 'customerWalks' ? 'buyer markup customer walk' : outcome === 'consequence' ? 'hostile buyer markup' : 'completed aggressive markup', reason: outcome === 'customerWalks' ? `${severity} markup caused customer walk` : outcome === 'consequence' ? `hostile ${severity} markup` : `completed ${severity} markup` }
-        : { ...base, rule: 'mild markup result', reason: 'mild markup is neutral' };
+      return {
+        ...base,
+        eligible: true,
+        amount: getAntagonisticNegotiationPressureAmount(severity, outcome),
+        rule: outcome === 'customerWalks' ? 'buyer markup customer walk' : outcome === 'consequence' ? 'hostile buyer markup' : outcome === 'acceptedFutureDispute' ? 'scam-like completed markup' : 'completed buyer markup',
+        reason: outcome === 'customerWalks' ? `${severity} markup caused customer walk` : outcome === 'consequence' ? `hostile ${severity} markup` : outcome === 'acceptedFutureDispute' ? `scam-like ${severity} markup` : `completed ${severity} markup`
+      };
+    }
+    if (outcome === 'rejectedOriginal' && isPressureBearingNegotiationSeverity(severity)) {
+      return { ...base, eligible: true, amount: getAntagonisticNegotiationPressureAmount(severity, outcome), rule: 'rejected buyer markup', reason: `${severity} markup rejected` };
     }
     return { ...base, rule: 'neutral buyer markup result', reason: `${outcome || 'ordinary rejection'} is neutral` };
   }
@@ -902,10 +946,10 @@ function applyEvaluatedFactionPressure(deal, evaluation, options = {}) {
   rememberFactionPressureActionKey(deal, sourceKey);
   const after = getFactionPressure(evaluation.factionId);
   const delta = Math.max(0, after - before);
-  appendFactionPressureHistory(deal, `${getFactionPressureLabel(evaluation.factionId)}: ${before} -> ${after} (+${delta}). ${options.historyText || evaluation.reason}.`);
+  appendFactionPressureHistory(deal, `${getFactionPressureLabel(evaluation.factionId)}: ${formatPressureAmount(before)} -> ${formatPressureAmount(after)} (+${formatPressureAmount(delta)}). ${options.historyText || evaluation.reason}.`);
   appendFactionPressureEvaluation(
     deal,
-    `${evaluation.reason}; faction ${evaluation.factionId}; rule ${evaluation.rule}; pressure ${before} -> ${after} (+${delta}); encounter source ${encounterSource}; duplicate guard clear; queue ${getFactionThugBlockReason(evaluation.factionId) || 'armed or already queued'}.`
+    `${evaluation.reason}; faction ${evaluation.factionId}; rule ${evaluation.rule}; pressure ${formatPressureAmount(before)} -> ${formatPressureAmount(after)} (+${formatPressureAmount(delta)}); encounter source ${encounterSource}; duplicate guard clear; queue ${getFactionThugBlockReason(evaluation.factionId) || 'armed or already queued'}.`
   );
   if (delta > 0) renderConsequenceMeters();
   return { applied: delta > 0, duplicate: false, result, factionId: evaluation.factionId, reason: delta > 0 ? 'applied' : 'no visible pressure changed' };
@@ -935,7 +979,7 @@ function addNegotiationFactionPressure(deal, amount, reason, options = {}) {
     );
     return { applied: false, duplicate: true, result: null, factionId: implementedFactionId, reason: 'duplicate guard blocked' };
   }
-  const pressureAmount = Math.max(0, Math.round(Number(amount) || 0));
+  const pressureAmount = Math.max(0, Number(amount) || 0);
   if (pressureAmount <= 0) {
     appendFactionPressureEvaluation(
       deal,
@@ -949,10 +993,10 @@ function addNegotiationFactionPressure(deal, amount, reason, options = {}) {
   const after = getFactionPressure(implementedFactionId);
   const delta = Math.max(0, after - before);
   const label = getFactionPressureLabel(implementedFactionId);
-  appendFactionPressureHistory(deal, `${label}: ${before} -> ${after} (+${delta}). ${options.historyText || reason}.`);
+  appendFactionPressureHistory(deal, `${label}: ${formatPressureAmount(before)} -> ${formatPressureAmount(after)} (+${formatPressureAmount(delta)}). ${options.historyText || reason}.`);
   appendFactionPressureEvaluation(
     deal,
-    `${descriptor}; faction ${implementedFactionId}; pressure +${delta}; encounter source ${encounterSource}; duplicate guard clear; transaction completed ${options.transactionCompleted ? 'yes' : 'no'}.`
+    `${descriptor}; faction ${implementedFactionId}; pressure +${formatPressureAmount(delta)}; encounter source ${encounterSource}; duplicate guard clear; transaction completed ${options.transactionCompleted ? 'yes' : 'no'}.`
   );
   if (delta > 0) renderConsequenceMeters();
   return { applied: delta > 0, duplicate: false, result, factionId: implementedFactionId, reason: delta > 0 ? 'applied' : 'no visible pressure changed' };
@@ -1046,13 +1090,13 @@ function addTracksuitRelationshipPressure(deal, amount, sourceKey, reason, optio
     appendFactionPressureHistory(deal, `No Tracksuit pressure: existing explicit Tracksuit pressure already handled this encounter; relationship source did not stack (${reason}).`);
     return null;
   }
-  const boundedAmount = Math.max(1, Math.min(TRACKSUIT_RELATIONSHIP_PRESSURE.severeDisputeMax, Math.round(Number(amount) || 0)));
+  const boundedAmount = Math.max(1, Math.min(TRACKSUIT_RELATIONSHIP_PRESSURE.severeDisputeMax, Number(amount) || 0));
   const before = getFactionPressure(TRACKSUIT_CREW_FACTION_ID);
   const result = addDealFactionPressure(deal, boundedAmount, reason);
   const after = getFactionPressure(TRACKSUIT_CREW_FACTION_ID);
   rememberTracksuitPressureKey(deal, key);
   rememberFactionPressureActionKey(deal, sourceKey);
-  appendFactionPressureHistory(deal, `Tracksuit Pressure: ${before} -> ${after} (+${Math.max(0, after - before)}).`);
+  appendFactionPressureHistory(deal, `Tracksuit Pressure: ${formatPressureAmount(before)} -> ${formatPressureAmount(after)} (+${formatPressureAmount(Math.max(0, after - before))}).`);
   appendFactionPressureHistory(deal, `Pressure source: ${reason}; customer ${deal.customer?.displayName || 'customer'}; faction ${TRACKSUIT_CREW_FACTION_ID}; transaction completed ${options.transactionCompleted ? 'yes' : 'no'}.`);
   if (!result?.delta && before === after) appendFactionPressureHistory(deal, 'Pressure source noted, but no visible pressure changed.');
   return result;
@@ -3334,7 +3378,7 @@ function normalizeConsequenceState() {
   if (!Object.prototype.hasOwnProperty.call(state, 'activeConsequence')) state.activeConsequence = null;
   if (!state.factionPressure || typeof state.factionPressure !== 'object') state.factionPressure = {};
   if (TRACKSUIT_CREW_FACTION_ID !== 'tracksuit_crew' && Number.isFinite(Number(state.factionPressure.tracksuit_crew)) && Number(state.factionPressure.tracksuit_crew) > Number(state.factionPressure[TRACKSUIT_CREW_FACTION_ID] || 0)) {
-    state.factionPressure[TRACKSUIT_CREW_FACTION_ID] = Math.max(0, Math.floor(Number(state.factionPressure.tracksuit_crew)));
+    state.factionPressure[TRACKSUIT_CREW_FACTION_ID] = Math.max(0, Number(state.factionPressure.tracksuit_crew) || 0);
   }
   if (Number.isFinite(Number(state.thugRisk)) && Number(state.thugRisk) > 0 && !state.factionPressure[TRACKSUIT_CREW_FACTION_ID]) {
     state.factionPressure[TRACKSUIT_CREW_FACTION_ID] = Math.max(0, Math.floor(Number(state.thugRisk)));
@@ -3543,6 +3587,28 @@ function getFactionConfig(factionId) {
   return (GAME_DATA.factions || []).find(faction => normalizeFactionId(faction.id) === normalizeFactionId(factionId)) || null;
 }
 
+function getNormalMemberPressureBoostMultiplier(character) {
+  const factionId = normalizeFactionId(character?.factionId);
+  if (!isImplementedPressureFaction(factionId)) return 1;
+  const config = getFactionConfig(factionId);
+  const isOrdinaryMember = (config?.members || []).includes(character?.id);
+  if (!isOrdinaryMember) return 1;
+  return getFactionPressure(factionId) === TRACKSUIT_CONSEQUENCE_MIN_PRESSURE - 1
+    ? GANG_NORMAL_MEMBER_PRESSURE_BOOST_MULTIPLIER
+    : 1;
+}
+
+function getFactionNormalMemberBoostDiagnostic(factionId) {
+  const normalizedFaction = normalizeFactionId(factionId);
+  const multiplier = getFactionPressure(normalizedFaction) === TRACKSUIT_CONSEQUENCE_MIN_PRESSURE - 1
+    ? GANG_NORMAL_MEMBER_PRESSURE_BOOST_MULTIPLIER
+    : 1;
+  return {
+    active: multiplier > 1,
+    multiplier
+  };
+}
+
 function getFactionThugEvent(factionId, thugId) {
   const normalizedFaction = normalizeFactionId(factionId);
   return EVENT_BLUEPRINTS.find(event =>
@@ -3611,6 +3677,7 @@ function getThugConsequenceDiagnostic(factionId, label) {
   const pressure = getFactionPressure(normalizedFaction);
   const threshold = TRACKSUIT_CONSEQUENCE_MIN_PRESSURE;
   const blockReason = getFactionThugBlockReason(normalizedFaction, config, thugCharacter, thugEvent);
+  const normalMemberBoost = getFactionNormalMemberBoostDiagnostic(normalizedFaction);
   let status = 'Building pressure';
   if (active) status = 'Consequence currently active';
   else if (!config || !config.thug || !thugCharacter || !thugEvent) status = blockReason;
@@ -3646,6 +3713,7 @@ function getThugConsequenceDiagnostic(factionId, label) {
     active,
     normalSinceSpecial: scheduling.normalTurns,
     selectionChance: scheduling.selectionChance,
+    normalMemberBoost,
     status,
     thugId: config?.thug || '',
     eventId: thugEvent?.id || '',
@@ -3655,7 +3723,7 @@ function getThugConsequenceDiagnostic(factionId, label) {
       eventStatus,
       queueStatus
     },
-    detail: `Faction ${normalizedFaction} · Pressure ${pressure}/${threshold} · Cooldown ${scheduling.cooldownReady ? 'ready' : `${scheduling.normalTurns}/${scheduling.cooldownNeeded}`} · ${queued ? `Queued T${queued.earliestTurn}` : 'Not queued'} · Thug ${config?.thug || 'missing'} · Event ${thugEvent?.id || 'missing'}${queued?.metadata?.schedulingStatus ? ` · ${queued.metadata.schedulingStatus}` : ''}`,
+    detail: `Faction ${normalizedFaction} · Pressure ${pressure}/${threshold} · ${normalMemberBoost.active ? `Normal member boost: ${normalMemberBoost.multiplier}x · ` : ''}Cooldown ${scheduling.cooldownReady ? 'ready' : `${scheduling.normalTurns}/${scheduling.cooldownNeeded}`} · ${queued ? `Queued T${queued.earliestTurn}` : 'Not queued'} · Thug ${config?.thug || 'missing'} · Event ${thugEvent?.id || 'missing'}${queued?.metadata?.schedulingStatus ? ` · ${queued.metadata.schedulingStatus}` : ''}`,
     warning: !config || !config.thug || !thugCharacter || !thugEvent || (pressure >= threshold && Boolean(blockReason) && blockReason !== 'another consequence already queued')
   };
 }
@@ -3699,6 +3767,7 @@ function renderConsequenceMeters() {
     flags.append(`Active: ${meter.active ? 'yes' : 'no'}`);
     flags.append(`Normal: ${meter.normalSinceSpecial}`);
     flags.append(`Chance: ${meter.selectionChance === null ? 'n/a' : `${meter.selectionChance}%`}`);
+    if (meter.normalMemberBoost?.active) flags.append(`Normal member boost: ${meter.normalMemberBoost.multiplier}x`);
 
     const status = document.createElement('div');
     status.className = 'consequence-meter-status';
@@ -4039,6 +4108,7 @@ function formatConsequenceMeterCopySection(meter) {
     `Active: ${meter.active ? 'yes' : 'no'}`,
     `Normal encounters since special: ${meter.normalSinceSpecial}`,
     `Selection chance: ${meter.selectionChance === null ? 'n/a' : `${meter.selectionChance}%`}`,
+    meter.normalMemberBoost?.active ? `Normal member boost: ${meter.normalMemberBoost.multiplier}x` : null,
     `Status: ${meter.status}`,
     meter.id === 'cop' ? null : `Thug: ${formatMeterCopyValue(meter.thugId)}`,
     meter.id === 'cop' ? null : `Event: ${formatMeterCopyValue(meter.eventId)}`,
@@ -4163,6 +4233,33 @@ function createInventoryItem(item, acquisitionCost, sourceCustomerId, conditionO
   if (typeof item.count !== 'undefined') inventoryItem.count = item.count;
   if (typeof item.instanceData !== 'undefined') inventoryItem.instanceData = structuredClone(item.instanceData);
   return inventoryItem;
+}
+
+function initializeStarterInventory(options = {}) {
+  const replaceExisting = options.replaceExisting === true;
+  if (replaceExisting) {
+    state.inventory = state.inventory.filter(item => item.sourceCustomerId !== STARTER_INVENTORY_SOURCE_ID);
+  } else if (state.inventory.some(item => item.sourceCustomerId === STARTER_INVENTORY_SOURCE_ID)) {
+    return [];
+  }
+
+  const starterItems = STARTER_INVENTORY.map(entry => {
+    const item = getItemByName(entry.name);
+    if (!item) {
+      console.error(`[starter-inventory] Missing item named "${entry.name}".`);
+      return null;
+    }
+    return createInventoryItem(
+      item,
+      entry.acquisitionCost,
+      STARTER_INVENTORY_SOURCE_ID,
+      '',
+      'Pre-game starter inventory.'
+    );
+  }).filter(Boolean);
+
+  state.inventory.push(...starterItems);
+  return starterItems;
 }
 
 function getCustomerBuyRequestTags(pool = {}) {
@@ -5329,11 +5426,13 @@ function getWeightedNormalPoolEntriesForCategory(entries, selectedCategory) {
     const typeWeight = entry.pool.dealType === 'trade' && isLowCashRecoveryActive() && getPoolTradeCashDelta(entry.pool) > 0
       ? LOW_CASH_RECOVERY.tradeCashToPlayerPoolMultiplier
       : 1;
+    const normalMemberPressureBoostMultiplier = getNormalMemberPressureBoostMultiplier(entry.character);
     return {
       ...entry,
-      chanceWeight: Math.max(0.01, (Number(entry.pool.chanceWeight) || 1) * repeatMultiplier * lowTierGroupMultiplier * typeWeight),
+      chanceWeight: Math.max(0.01, (Number(entry.pool.chanceWeight) || 1) * repeatMultiplier * lowTierGroupMultiplier * typeWeight * normalMemberPressureBoostMultiplier),
       repeatMultiplier,
       lowTierGroupMultiplier,
+      normalMemberPressureBoostMultiplier,
       baseWeight: Number(entry.pool.chanceWeight) || 1
     };
   });
@@ -5424,11 +5523,13 @@ function buildNormalSelectionFromPoolEntries(entries, categorySelection) {
     const typeWeight = entry.pool.dealType === 'trade' && isLowCashRecoveryActive() && getPoolTradeCashDelta(entry.pool) > 0
       ? LOW_CASH_RECOVERY.tradeCashToPlayerPoolMultiplier
       : 1;
+    const normalMemberPressureBoostMultiplier = getNormalMemberPressureBoostMultiplier(entry.character);
     return {
       ...entry,
-      chanceWeight: Math.max(0.01, (Number(entry.pool.chanceWeight) || 1) * repeatMultiplier * lowTierGroupMultiplier * typeWeight),
+      chanceWeight: Math.max(0.01, (Number(entry.pool.chanceWeight) || 1) * repeatMultiplier * lowTierGroupMultiplier * typeWeight * normalMemberPressureBoostMultiplier),
       repeatMultiplier,
       lowTierGroupMultiplier,
+      normalMemberPressureBoostMultiplier,
       baseWeight: Number(entry.pool.chanceWeight) || 1
     };
   });
@@ -5458,6 +5559,7 @@ function buildNormalSelectionFromPoolEntries(entries, categorySelection) {
         baseWeight: Number(entry.baseWeight.toFixed(2)),
         repeatMultiplier: Number(entry.repeatMultiplier.toFixed(2)),
         lowTierGroupMultiplier: Number(entry.lowTierGroupMultiplier.toFixed(2)),
+        normalMemberPressureBoostMultiplier: Number(entry.normalMemberPressureBoostMultiplier.toFixed(2)),
         finalWeight: Number(entry.chanceWeight.toFixed(2)),
         eligiblePoolCount: 1
       }))
@@ -5788,14 +5890,16 @@ function chooseNextCustomerWithPools() {
     const baseWeight = getCharacterSelectionWeight(candidate.character, candidate.eligiblePools);
     const repeatMultiplier = getNormalCustomerRepeatMultiplier(candidate.character.id);
     const lowTierGroupMultiplier = getLowTierGroupMultiplier(candidate.character, selectionPool);
+    const normalMemberPressureBoostMultiplier = getNormalMemberPressureBoostMultiplier(candidate.character);
     return {
       ...candidate,
       baseWeight,
       repeatMultiplier,
       lowTierGroupMultiplier,
+      normalMemberPressureBoostMultiplier,
       recentCount: getRecentNormalCustomerCount(candidate.character.id),
       consecutiveCount: getConsecutiveNormalCustomerCount(candidate.character.id),
-      chanceWeight: Math.max(0.01, baseWeight * repeatMultiplier * lowTierGroupMultiplier)
+      chanceWeight: Math.max(0.01, baseWeight * repeatMultiplier * lowTierGroupMultiplier * normalMemberPressureBoostMultiplier)
     };
   });
   const selected = pickWeighted(weighted);
@@ -5812,6 +5916,7 @@ function chooseNextCustomerWithPools() {
       baseWeight: Number(candidate.baseWeight.toFixed(2)),
       repeatMultiplier: Number(candidate.repeatMultiplier.toFixed(2)),
       lowTierGroupMultiplier: Number(candidate.lowTierGroupMultiplier.toFixed(2)),
+      normalMemberPressureBoostMultiplier: Number(candidate.normalMemberPressureBoostMultiplier.toFixed(2)),
       finalWeight: Number(candidate.chanceWeight.toFixed(2)),
       eligiblePoolCount: candidate.eligiblePools.length
     }))
@@ -7143,7 +7248,7 @@ function resolveBuy(action, deal) {
       historyText: `${customer.displayName} accepted a ${outcome.severity} lowball and left the dispute for their crew.`
     });
     if (pressureResult.applied) {
-      changeSummary += `; ${pressureResult.factionId} pressure +1`;
+      changeSummary += `; ${pressureResult.factionId} pressure +${formatPressureAmount(pressureResult.result?.delta || 0)}`;
       text += getCompletedFactionPressureHint(deal, 'lowball');
     }
     appendNegotiationDiagnostics(deal, outcome, { originalPrice: ask, attemptedPrice: offer, dealOpen: false, changeSummary, pressureApplied: pressureResult.applied });
@@ -7151,6 +7256,23 @@ function resolveBuy(action, deal) {
   }
 
   if (outcome.selected === 'priceWorsened') {
+    const pressureResult = applyEvaluatedFactionPressure(
+      deal,
+      evaluateFactionPressure({
+        factionId: getDealPressureFactionId(deal),
+        dealType: deal.dealType,
+        actionType: 'lowball',
+        severity: outcome.severity,
+        outcome: outcome.selected,
+        transactionCompleted: false,
+        encounterId: deal.encounterId
+      }),
+      {
+        sourceKey: `lowball:${outcome.selected}`,
+        reason: `${customer.displayName} rejected a ${outcome.severity} below-asking offer`,
+        historyText: `${customer.displayName} rejected a ${outcome.severity} lowball.`
+      }
+    );
     const oldAsk = deal.askingPrice ?? deal.askPrice;
     const raisedAsk = Math.max(oldAsk + 1, Math.round(oldAsk * randomRange(NEGOTIATION_OUTCOMES.priceIncrease[outcome.severity])));
     deal.askPrice = raisedAsk;
@@ -7160,7 +7282,7 @@ function resolveBuy(action, deal) {
     deal.availableCash = Math.max(0, state.money);
     deal.priceWorsenedNotice = { oldAsk, newAsk: raisedAsk };
     appendNegotiationHistory(deal, `Lowball rejected. Asking price increased from ${moneyText(oldAsk)} to ${moneyText(raisedAsk)}.`);
-    appendNegotiationDiagnostics(deal, outcome, { originalPrice: ask, attemptedPrice: offer, newAskingPrice: raisedAsk, dealOpen: true, changeSummary: 'asking price worsened; no transaction mutation' });
+    appendNegotiationDiagnostics(deal, outcome, { originalPrice: ask, attemptedPrice: offer, newAskingPrice: raisedAsk, dealOpen: true, changeSummary: pressureResult.applied ? `asking price worsened; ${pressureResult.factionId} pressure +${formatPressureAmount(pressureResult.result?.delta || 0)}; no transaction mutation` : 'asking price worsened; no transaction mutation', pressureApplied: pressureResult.applied });
     return choiceResult(`You annoyed them. The price just went from ${moneyText(oldAsk)} to ${moneyText(raisedAsk)}.`, { runRiskCheck: false, keepEncounterOpen: true });
   }
 
@@ -7184,18 +7306,35 @@ function resolveBuy(action, deal) {
     );
     if (!beginDealResolution(deal, action)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
     appendNegotiationHistory(deal, 'Lowball insulted seller. Customer ended the deal.');
-    appendNegotiationDiagnostics(deal, outcome, { originalPrice: ask, attemptedPrice: offer, dealOpen: false, changeSummary: pressureResult.applied ? `${pressureResult.factionId} pressure +1; customer walked; no transaction mutation` : 'customer walked; no transaction mutation', pressureApplied: pressureResult.applied });
+    appendNegotiationDiagnostics(deal, outcome, { originalPrice: ask, attemptedPrice: offer, dealOpen: false, changeSummary: pressureResult.applied ? `${pressureResult.factionId} pressure +${formatPressureAmount(pressureResult.result?.delta || 0)}; customer walked; no transaction mutation` : 'customer walked; no transaction mutation', pressureApplied: pressureResult.applied });
     return choiceResult(`The below-asking ${moneyText(offer)} offer insults them clean out the door. No deal.`, { runRiskCheck: false });
   }
 
   if (outcome.selected === 'consequence') {
     const changeSummary = applyNegotiationPenalty(deal, outcome, 1);
-    appendNegotiationDiagnostics(deal, outcome, { originalPrice: ask, attemptedPrice: offer, dealOpen: true, changeSummary, pressureApplied: /(?:hustlers|tracksuits|faction) pressure \d+ -> \d+/i.test(changeSummary) });
+    appendNegotiationDiagnostics(deal, outcome, { originalPrice: ask, attemptedPrice: offer, dealOpen: true, changeSummary, pressureApplied: /(?:hustlers|tracksuits|faction) pressure \d+(?:\.\d+)? -> \d+(?:\.\d+)?/i.test(changeSummary) });
     return choiceResult(`The below-asking ${moneyText(offer)} offer gets remembered. The original ${moneyText(ask)} ask remains, but the room is less friendly.`, { runRiskCheck: false, keepEncounterOpen: true });
   }
 
+  const pressureResult = applyEvaluatedFactionPressure(
+    deal,
+    evaluateFactionPressure({
+      factionId: getDealPressureFactionId(deal),
+      dealType: deal.dealType,
+      actionType: 'lowball',
+      severity: outcome.severity,
+      outcome: outcome.selected,
+      transactionCompleted: false,
+      encounterId: deal.encounterId
+    }),
+    {
+      sourceKey: `lowball:${outcome.selected}`,
+      reason: `${customer.displayName} rejected a ${outcome.severity} below-asking offer`,
+      historyText: `${customer.displayName} rejected a ${outcome.severity} lowball.`
+    }
+  );
   appendNegotiationHistory(deal, `Lowball rejected. Asking price remains ${moneyText(ask)}.`);
-  appendNegotiationDiagnostics(deal, outcome, { originalPrice: ask, attemptedPrice: offer, dealOpen: true, changeSummary: 'original ask remains; no transaction mutation' });
+  appendNegotiationDiagnostics(deal, outcome, { originalPrice: ask, attemptedPrice: offer, dealOpen: true, changeSummary: pressureResult.applied ? `original ask remains; ${pressureResult.factionId} pressure +${formatPressureAmount(pressureResult.result?.delta || 0)}; no transaction mutation` : 'original ask remains; no transaction mutation', pressureApplied: pressureResult.applied });
   return choiceResult(`The below-asking ${moneyText(offer)} offer lands badly. Asking price stays ${moneyText(ask)}.`, { runRiskCheck: false, keepEncounterOpen: true });
 }
 
@@ -7345,7 +7484,7 @@ function resolveSell(action, deal) {
         reason: `${customer.displayName} completed a ${outcome.severity} marked-up sale from the shop`,
         historyText: `${customer.displayName} completed a ${outcome.severity} markup and left the dispute for their crew.`
       });
-      if (pressureResult.applied) changeSummary += `; ${pressureResult.factionId} pressure +1`;
+      if (pressureResult.applied) changeSummary += `; ${pressureResult.factionId} pressure +${formatPressureAmount(pressureResult.result?.delta || 0)}`;
       appendNegotiationDiagnostics(deal, outcome, { originalPrice, attemptedPrice: price, dealOpen: false, changeSummary, pressureApplied: pressureResult.applied });
       return outcome.selected === 'acceptedFutureDispute'
         ? `They pay ${moneyText(price)}, but they keep staring at the item like it might come back with paperwork.${pressureResult.applied ? getCompletedFactionPressureHint(deal, 'markup') : ''}`
@@ -7369,7 +7508,7 @@ function resolveSell(action, deal) {
 
     if (outcome.selected === 'consequence') {
       const changeSummary = applyNegotiationPenalty(deal, outcome, 1);
-      appendNegotiationDiagnostics(deal, outcome, { originalPrice, attemptedPrice: price, dealOpen: true, changeSummary, pressureApplied: /(?:hustlers|tracksuits|faction) pressure \d+ -> \d+/i.test(changeSummary) });
+      appendNegotiationDiagnostics(deal, outcome, { originalPrice, attemptedPrice: price, dealOpen: true, changeSummary, pressureApplied: /(?:hustlers|tracksuits|faction) pressure \d+(?:\.\d+)? -> \d+(?:\.\d+)?/i.test(changeSummary) });
       return choiceResult(`The markup gets ugly. The original ${moneyText(originalPrice)} sale is still possible, but the customer looks like they are pricing revenge.`, { runRiskCheck: false, keepEncounterOpen: true });
     }
 
@@ -7391,12 +7530,29 @@ function resolveSell(action, deal) {
           historyText: `${customer.displayName} walked after a ${outcome.severity} markup.`
         }
       );
-      appendNegotiationDiagnostics(deal, outcome, { originalPrice, attemptedPrice: price, dealOpen: false, changeSummary: pressureResult.applied ? `${pressureResult.factionId} pressure +1; customer walked; no transaction mutation` : 'customer walked; no transaction mutation', pressureApplied: pressureResult.applied });
+      appendNegotiationDiagnostics(deal, outcome, { originalPrice, attemptedPrice: price, dealOpen: false, changeSummary: pressureResult.applied ? `${pressureResult.factionId} pressure +${formatPressureAmount(pressureResult.result?.delta || 0)}; customer walked; no transaction mutation` : 'customer walked; no transaction mutation', pressureApplied: pressureResult.applied });
       if (!beginDealResolution(deal, action)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
       return choiceResult(`The markup kills the sale. They walk, cash and all.`, { runRiskCheck: false });
     }
 
-    appendNegotiationDiagnostics(deal, outcome, { originalPrice, attemptedPrice: price, dealOpen: true, changeSummary: 'original sale remains; no transaction mutation' });
+    const pressureResult = applyEvaluatedFactionPressure(
+      deal,
+      evaluateFactionPressure({
+        factionId: getDealPressureFactionId(deal),
+        dealType: deal.dealType,
+        actionType: 'markup',
+        severity: outcome.severity,
+        outcome: outcome.selected,
+        transactionCompleted: false,
+        encounterId: deal.encounterId
+      }),
+      {
+        sourceKey: `markup:${outcome.selected}`,
+        reason: `${customer.displayName} rejected a ${outcome.severity} markup`,
+        historyText: `${customer.displayName} rejected a ${outcome.severity} markup.`
+      }
+    );
+    appendNegotiationDiagnostics(deal, outcome, { originalPrice, attemptedPrice: price, dealOpen: true, changeSummary: pressureResult.applied ? `original sale remains; ${pressureResult.factionId} pressure +${formatPressureAmount(pressureResult.result?.delta || 0)}; no transaction mutation` : 'original sale remains; no transaction mutation', pressureApplied: pressureResult.applied });
     return choiceResult(`They reject the higher price. The original ${moneyText(originalPrice)} offer still stands.`, { runRiskCheck: false, keepEncounterOpen: true });
   }
 
@@ -7957,6 +8113,7 @@ if (els.clearHistory) {
 }
 
 setInventoryOpen(false);
+initializeStarterInventory();
 renderStats();
 renderConsequenceMeters();
 renderMoneyViceTendency();
@@ -7976,9 +8133,14 @@ window.ONE_STAR_PAWN_TEST_HOOKS = {
     activeCustomers = customers;
   },
   getItem,
+  getItemByName,
   getCharacter,
   getTraits,
   createInventoryItem,
+  initializeStarterInventory,
+  resetInventorySerial() {
+    inventorySerial = 0;
+  },
   removeInventoryInstance,
   getHeldNormalEncounters,
   getInventoryDetail,
