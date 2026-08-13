@@ -45,3 +45,22 @@ To add another NPC:
 Do not update a JavaScript customer whitelist; the runtime uses the complete validated active-customer collection. Do not create alias PNG files. Active customer sprites must use `_r.png` for artwork that faces right and `_l.png` for artwork that faces left. Right-facing sprites enter, idle, and exit from the left side; left-facing sprites enter, idle, and exit from the right side.
 
 The shared customer layout contract applies to all current and future NPC sprites by default: proportional width, 220px visual height, `left: -25px`, and `top: -140px` from the reusable customer element. Use `sprite_visual_height` in `Characters.csv` only for intentional source-art scale exceptions.
+
+## Developer NPC commerce editor
+
+`npc-editor.html` is a small local-only tool for tuning existing NPC commerce CSV data. It edits `Character_Commerce_Traits.csv` and `Character_Item_Pools.csv`; the CSVs remain the source of truth, and the player-facing game still uses generated `gameData.js`.
+
+Workflow:
+
+1. Start/open the project using the normal local static-server method.
+2. Open `npc-editor.html` in a browser that supports the File System Access API.
+3. Click `Open Data Folder`.
+4. Select the project `one_star_pawn_tables` directory.
+5. Choose an NPC.
+6. Set Buy / Sell / Trade to Yes or No.
+7. Check or uncheck the items that NPC can use for each enabled deal type.
+8. Save changes.
+9. Regenerate `gameData.js` with `.\scripts\generate-game-data.ps1`.
+10. Reload the game and test the NPC.
+
+Buy maps to `buy_from_shop`, Sell maps to `sell_to_shop`, and Trade maps to `trade`. Turning a deal type off sets that NPC's existing commerce weight to `0`; turning it on restores a simple positive weight while preserving the rest of the trait row. Existing item-pool rows are kept as-is unless that exact NPC/deal/item is unchecked.

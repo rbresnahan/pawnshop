@@ -1,4 +1,4 @@
-const GAME_VERSION = '0.1.37';
+const GAME_VERSION = '0.1.48';
 const GAME_BUILD_LOADED_AT = new Date().toISOString();
 
 window.ONE_STAR_PAWN_VERSION = GAME_VERSION;
@@ -21,6 +21,8 @@ const LOW_TIER_CUSTOMER_GROUP = {
   multiplierPerExtraHit: 0.55,
   minimumMultiplier: 0.22
 };
+const STREET_SELLER_CHARACTER_MULTIPLIER = 2;
+const STREET_REPEAT_PENALTY_STRENGTH = 0.5;
 const CONVERSATION_EXIT_DELAY_MS = 200;
 const AUTO_DIALOGUE_BASE_DELAY_MS = 2100;
 const AUTO_DIALOGUE_PER_CHAR_MS = 18;
@@ -128,7 +130,7 @@ const LOW_CASH_RECOVERY = {
   fallbackPoolWeight: 14,
   fallbackMinAskMultiplier: 0.55,
   fallbackMaxAskMultiplier: 0.8,
-  opportunisticBuyerIds: ['street-bum', 'street-crackhead', 'street-junkie', 'desperate_regular', 'bargain_hunter', 'hustler-shorty']
+  opportunisticBuyerIds: ['street-bum', 'street-crackhead', 'street-junkie', 'hustler-shorty']
 };
 const STARTER_INVENTORY_SOURCE_ID = 'pre_game_inventory';
 const STARTER_INVENTORY = [
@@ -305,6 +307,7 @@ const NPC_ENTRY_MS = window.matchMedia('(prefers-reduced-motion: reduce)').match
 const NPC_EXIT_MS = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 20 : 520;
 
 let activeCustomers = [];
+let customerValidationDiagnostics = [];
 const npcBoundsCache = new Map();
 const npcSizingLogCache = new Set();
 let npcTransitionToken = 0;
@@ -646,11 +649,7 @@ function getBlueprint(characterId, eventType) {
 }
 
 function getBlueprintForPool(pool) {
-  const blueprint = getBlueprint(pool.characterId, pool.dealType);
-  if (!blueprint) return null;
-  if (!isShopBuying(pool.dealType)) return blueprint;
-  const blueprintText = `${blueprint.id} ${blueprint.dialogue} ${blueprint.resultNotes}`.toLowerCase();
-  return blueprintText.includes(String(pool.id).toLowerCase()) ? blueprint : null;
+  return getBlueprint(pool.characterId, pool.dealType) || null;
 }
 
 function normalizeFactionId(factionId) {
@@ -1328,7 +1327,7 @@ function applyContextWeightModifiers(weights, deal, negotiationType, item) {
 
   if (negotiationType === 'lowball') {
     const desperation = Math.max(0, 0.65 - lowballTolerance) * 24 + (traits.prefersCash ? 4 : 0);
-    const desperateSeller = lowballTolerance <= 0.5 || ['street-bum', 'street-crackhead', 'street-junkie', 'desperate_regular'].includes(customer.id);
+    const desperateSeller = lowballTolerance <= 0.5 || ['street-bum', 'street-crackhead', 'street-junkie'].includes(customer.id);
     weights.accepted += desperation + reputationMod + (desperateSeller ? 16 : 0);
     weights.rejectedOriginal += Math.max(0, 8 - aggression);
     weights.customerWalks += Math.max(0, aggression - (desperateSeller ? 1 : 0)) * 1.5 + Math.max(0, riskTolerance - 3) * 1.5 - reputationMod * 0.35;
@@ -2131,6 +2130,47 @@ function duplicateIds(list, key) {
   return [...dupes];
 }
 
+const STREET_DEBUG_IDS = ['street-bum', 'street-crackhead', 'street-junkie'];
+
+function simpleHash(value) {
+  const text = String(value || '');
+  let hash = 2166136261;
+  for (let i = 0; i < text.length; i += 1) {
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0');
+}
+
+function getRuntimeDataFingerprint() {
+  const activeRows = CHARACTERS.filter(character => character.activeInRotation);
+  const streetIdsPresent = STREET_DEBUG_IDS.filter(id => CHARACTERS.some(character => character.id === id));
+  const streetIdsActive = STREET_DEBUG_IDS.filter(id => activeRows.some(character => character.id === id));
+  const streetIdsInActiveCustomers = STREET_DEBUG_IDS.filter(id => activeCustomers.some(character => character.id === id));
+  const source = [
+    GAME_VERSION,
+    CHARACTERS.length,
+    activeRows.length,
+    CHARACTER_ITEM_POOLS.length,
+    EVENT_BLUEPRINTS.length,
+    CHARACTERS.map(character => `${character.id}:${character.activeInRotation ? 1 : 0}`).join('|'),
+    CHARACTER_ITEM_POOLS.map(pool => `${pool.id}:${pool.characterId}:${pool.dealType}:${pool.itemId}:${pool.chanceWeight}`).join('|'),
+    EVENT_BLUEPRINTS.map(event => `${event.id}:${event.characterId}:${event.eventType}`).join('|')
+  ].join('::');
+  return {
+    gameVersion: GAME_VERSION,
+    dataHash: simpleHash(source),
+    characterCount: CHARACTERS.length,
+    activeCharacterRows: activeRows.length,
+    activeCustomerCount: activeCustomers.length,
+    itemPoolCount: CHARACTER_ITEM_POOLS.length,
+    eventBlueprintCount: EVENT_BLUEPRINTS.length,
+    streetIdsPresent,
+    streetIdsActive,
+    streetIdsInActiveCustomers
+  };
+}
+
 function validateGameData() {
   const characterIds = new Set(CHARACTERS.map(character => character.id));
   const factionIds = new Set(CHARACTERS.map(character => character.factionId).filter(Boolean));
@@ -2210,12 +2250,7 @@ function getCustomerDataRejectionReasons(character) {
   const traits = getTraits(character.id);
   const pools = CHARACTER_ITEM_POOLS.filter(pool => pool.characterId === character.id);
   const events = EVENT_BLUEPRINTS.filter(event => event.characterId === character.id);
-  const usablePools = pools.filter(pool => {
-    const itemExists = !pool.itemId || Boolean(getItem(pool.itemId));
-    const weighted = poolWeight(pool) > 0;
-    const hasStartingPath = pool.dealType === 'sell_to_shop' || poolMatchesInventory(pool);
-    return itemExists && weighted && hasStartingPath;
-  });
+  const executableEntries = getExecutableNormalPoolEntriesForCharacters([character]);
 
   if (!character.id) reasons.push('missing character id');
   if (!character.displayName) reasons.push('missing display name');
@@ -2226,14 +2261,55 @@ function getCustomerDataRejectionReasons(character) {
   if (!events.length) reasons.push('missing event blueprint rows');
   pools.forEach(pool => {
     if (pool.itemId && !getItem(pool.itemId)) reasons.push(`pool "${pool.id}" references missing item "${pool.itemId}"`);
-    if (poolWeight(pool) <= 0) reasons.push(`pool "${pool.id}" is blocked by commerce weight`);
   });
-  if (pools.length && !usablePools.length) reasons.push('no currently possible deal type');
+  if (pools.length && !executableEntries.length) reasons.push('no executable normal deal type');
   return reasons;
+}
+
+function getStreetRuntimeDiagnostics() {
+  const entries = getExecutableNormalPoolEntries();
+  const buckets = buildNormalEncounterCategoryBuckets(entries);
+  const sellerCandidates = getWeightedNormalCharacterCandidatesForCategory(entries, 'seller');
+  const eligibleCustomerIds = [...new Set(entries.map(entry => entry.character.id))];
+  return {
+    fingerprint: getRuntimeDataFingerprint(),
+    street: STREET_DEBUG_IDS.map(id => {
+      const character = getCharacter(id);
+      const traits = getTraits(id);
+      const pools = CHARACTER_ITEM_POOLS.filter(pool => pool.characterId === id);
+      const selectablePools = character ? getSelectablePoolsForCharacter(character) : [];
+      const executableSellerPools = selectablePools.filter(pool => pool.dealType === 'sell_to_shop' && isExecutableNormalPool(pool));
+      const sellerCandidate = sellerCandidates.find(entry => entry.character.id === id);
+      const validation = customerValidationDiagnostics.find(entry => entry.id === id) || null;
+      return {
+        id,
+        loaded: Boolean(character),
+        active: Boolean(character?.activeInRotation),
+        spritePath: character?.spritePath || '',
+        spriteValid: Boolean(validation?.accepted && validation?.spriteValid),
+        validationReasons: validation?.reasons || [],
+        traitsLoaded: Boolean(traits.characterId),
+        sellerWeight: traits.sellsToShopWeight ?? null,
+        buyerWeight: traits.buysFromShopWeight ?? null,
+        tradeWeight: traits.tradesWeight ?? null,
+        poolCount: pools.length,
+        sellerPoolIds: pools.filter(pool => pool.dealType === 'sell_to_shop').map(pool => pool.id),
+        sellerBlueprintValid: Boolean(getBlueprint(id, 'sell_to_shop')),
+        selectablePoolIds: selectablePools.map(pool => pool.id),
+        executableSellerPoolIds: executableSellerPools.map(pool => pool.id),
+        sellerCategoryGrouped: buckets.seller.some(entry => entry.character.id === id),
+        activeCustomers: activeCustomers.some(customer => customer.id === id),
+        finalSellerCandidate: Boolean(sellerCandidate),
+        finalSellerWeight: sellerCandidate ? Number(sellerCandidate.chanceWeight.toFixed(2)) : null,
+        finalEligible: eligibleCustomerIds.includes(id)
+      };
+    })
+  };
 }
 
 async function initializeNpcRotation() {
   validateGameData();
+  customerValidationDiagnostics = [];
   const activeRows = CHARACTERS.filter(character => character.activeInRotation);
   const loaded = await Promise.all(activeRows.map(async character => {
     const reasons = getCustomerDataRejectionReasons(character);
@@ -2248,6 +2324,14 @@ async function initializeNpcRotation() {
     }
 
     if (reasons.length) {
+      customerValidationDiagnostics.push({
+        id: character.id || '',
+        accepted: false,
+        active: Boolean(character.activeInRotation),
+        spritePath: character.spritePath || '',
+        spriteValid: Boolean(bounds),
+        reasons
+      });
       console.warn(`[customer-validation] ${character.id || '(missing id)'} rejected: ${reasons.join('; ')}`);
       return null;
     }
@@ -2258,11 +2342,21 @@ async function initializeNpcRotation() {
       stageSide: getNpcSide(character.facing),
       spriteBounds: bounds
     };
+    customerValidationDiagnostics.push({
+      id: character.id,
+      accepted: true,
+      active: Boolean(character.activeInRotation),
+      spritePath: character.spritePath,
+      spriteValid: Boolean(bounds),
+      reasons: []
+    });
     console.info(`[customer-validation] ${character.id} accepted: ${character.spritePath}`);
     return customer;
   }));
   activeCustomers = loaded.filter(Boolean);
   console.info(`[customer-validation] ${activeCustomers.length}/${activeRows.length} active customers valid`);
+  console.info('[runtime-fingerprint]', getRuntimeDataFingerprint());
+  console.info('[street-runtime]', getStreetRuntimeDiagnostics());
   if (!activeCustomers.length) console.error('No active NPC sprites could be loaded; rotation is empty.');
 }
 
@@ -5060,6 +5154,7 @@ function buildLowCashFallbackPool(basePool, customer) {
 
 function getLowCashFallbackPoolsForCharacter(character) {
   if (!shouldGuaranteeLowCashRecovery()) return [];
+  if ((getTraits(character.id).buysFromShopWeight ?? 0) <= 0) return [];
   return CHARACTER_ITEM_POOLS
     .filter(pool => pool.characterId === character.id && isNpcBuying(pool.dealType))
     .map(pool => buildLowCashFallbackPool(pool, character))
@@ -5068,6 +5163,7 @@ function getLowCashFallbackPoolsForCharacter(character) {
 
 function getBroadBuyerPoolsForCharacter(character) {
   if (!hasSellableInventory()) return [];
+  if ((getTraits(character.id).buysFromShopWeight ?? 0) <= 0) return [];
   return CHARACTER_ITEM_POOLS
     .filter(pool => pool.characterId === character.id && isNpcBuying(pool.dealType))
     .map(pool => buildBroadBuyerPool(pool, character, 'normal broad buyer'))
@@ -5295,7 +5391,7 @@ function getSelectablePoolsForCharacter(character) {
   const characterPools = CHARACTER_ITEM_POOLS.filter(pool => pool.characterId === character.id);
   const validPools = characterPools
     .map(pool => {
-      const requestSatisfiable = poolMatchesInventory(pool);
+      const requestSatisfiable = isShopBuying(pool.dealType) ? true : poolMatchesInventory(pool);
       const intentionalUnavailableDemand = Boolean(isNpcBuying(pool.dealType) && !requestSatisfiable && hasSellableInventory() && getUnavailableSellRequestWeightMultiplier() > 0);
       return {
         ...pool,
@@ -5326,7 +5422,7 @@ function getSelectablePoolsForCharacter(character) {
   ];
   if (combinedPools.length) return combinedPools;
   return characterPools
-    .filter(pool => !isNpcBuying(pool.dealType) && poolMatchesInventory(pool))
+    .filter(pool => !isNpcBuying(pool.dealType) && (isShopBuying(pool.dealType) || poolMatchesInventory(pool)))
     .map(pool => ({ ...pool, chanceWeight: poolWeight(pool) }))
     .filter(pool => pool.chanceWeight > 0);
 }
@@ -5335,11 +5431,58 @@ function characterHasCompatiblePool(character) {
   return getSelectablePoolsForCharacter(character).length > 0;
 }
 
-function getExecutableNormalPoolEntries() {
-  return activeCustomers.flatMap(character => {
+function hasExecutableNormalPoolIntent(pool) {
+  return Boolean(
+    pool &&
+    getItem(pool.itemId) &&
+    pool.chanceWeight > 0
+  );
+}
+
+function isExecutableNormalPool(pool) {
+  return hasExecutableNormalPoolIntent(pool) && Boolean(getBlueprintForPool(pool));
+}
+
+function getExecutableNormalPoolIntentEntries() {
+  return getExecutableNormalPoolIntentEntriesForCharacters(activeCustomers);
+}
+
+function getExecutableNormalPoolIntentEntriesForCharacters(characters) {
+  return characters.flatMap(character => {
     const selectablePools = getSelectablePoolsForCharacter(character);
-    return selectablePools.map(pool => ({ character, pool }));
+    return selectablePools
+      .filter(hasExecutableNormalPoolIntent)
+      .map(pool => ({ character, pool }));
   });
+}
+
+function getExecutableNormalPoolEntries() {
+  return getExecutableNormalPoolEntriesForCharacters(activeCustomers);
+}
+
+function getExecutableNormalPoolEntriesForCharacters(characters) {
+  return getExecutableNormalPoolIntentEntriesForCharacters(characters)
+    .filter(entry => isExecutableNormalPool(entry.pool));
+}
+
+function getMissingNormalDealBlueprintCoverage() {
+  const eventKeys = new Set(EVENT_BLUEPRINTS.map(event => `${event.characterId}:${event.eventType}`));
+  const missingKeys = new Set();
+  return getExecutableNormalPoolIntentEntries()
+    .filter(({ pool }) => !eventKeys.has(`${pool.characterId}:${pool.dealType}`))
+    .filter(({ pool }) => {
+      const key = `${pool.characterId}:${pool.dealType}`;
+      if (missingKeys.has(key)) return false;
+      missingKeys.add(key);
+      return true;
+    })
+    .map(({ character, pool }) => ({
+      characterId: character.id,
+      dealType: pool.dealType,
+      poolIds: getSelectablePoolsForCharacter(character)
+        .filter(candidate => candidate.dealType === pool.dealType && hasExecutableNormalPoolIntent(candidate))
+        .map(candidate => candidate.id)
+    }));
 }
 
 function getNormalPoolCategory(pool) {
@@ -5412,28 +5555,43 @@ function chooseNormalEncounterCategory(buckets) {
   };
 }
 
-function getWeightedNormalPoolEntriesForCategory(entries, selectedCategory) {
+function getNormalCharacterCandidatesForCategory(entries, selectedCategory) {
   const categoryEntries = entries.filter(entry => getNormalPoolCategory(entry.pool) === selectedCategory);
   const fallbackEntries = categoryEntries.length ? categoryEntries : entries;
-  let eligibleEntries = fallbackEntries;
-  if (fallbackEntries.length > 1) {
-    const unblocked = fallbackEntries.filter(entry => getConsecutiveNormalCustomerCount(entry.character.id) < NORMAL_CUSTOMER_MAX_CONSECUTIVE);
-    if (unblocked.length) eligibleEntries = unblocked;
+  const candidateMap = new Map();
+  fallbackEntries.forEach(entry => {
+    const existing = candidateMap.get(entry.character.id);
+    if (existing) existing.eligiblePools.push(entry.pool);
+    else candidateMap.set(entry.character.id, { character: entry.character, eligiblePools: [entry.pool] });
+  });
+  return {
+    candidates: [...candidateMap.values()],
+    fallbackEntries
+  };
+}
+
+function getWeightedNormalCharacterCandidatesForCategory(entries, selectedCategory) {
+  const { candidates, fallbackEntries } = getNormalCharacterCandidatesForCategory(entries, selectedCategory);
+  let eligibleCandidates = candidates;
+  if (candidates.length > 1) {
+    const unblocked = candidates.filter(candidate => getConsecutiveNormalCustomerCount(candidate.character.id) < NORMAL_CUSTOMER_MAX_CONSECUTIVE);
+    if (unblocked.length) eligibleCandidates = unblocked;
   }
-  return eligibleEntries.map(entry => {
-    const repeatMultiplier = getNormalCustomerRepeatMultiplier(entry.character.id);
-    const lowTierGroupMultiplier = getLowTierGroupMultiplier(entry.character, eligibleEntries);
-    const typeWeight = entry.pool.dealType === 'trade' && isLowCashRecoveryActive() && getPoolTradeCashDelta(entry.pool) > 0
-      ? LOW_CASH_RECOVERY.tradeCashToPlayerPoolMultiplier
-      : 1;
-    const normalMemberPressureBoostMultiplier = getNormalMemberPressureBoostMultiplier(entry.character);
+  return eligibleCandidates.map(candidate => {
+    const baseWeight = getCharacterSelectionWeight(candidate.character, candidate.eligiblePools);
+    const repeatMultiplier = getNormalCustomerRepeatMultiplier(candidate.character.id);
+    const lowTierGroupMultiplier = getLowTierGroupMultiplier(candidate.character, eligibleCandidates);
+    const normalMemberPressureBoostMultiplier = getNormalMemberPressureBoostMultiplier(candidate.character);
+    const streetSellerMultiplier = getStreetSellerSelectionMultiplier(candidate.character, selectedCategory);
     return {
-      ...entry,
-      chanceWeight: Math.max(0.01, (Number(entry.pool.chanceWeight) || 1) * repeatMultiplier * lowTierGroupMultiplier * typeWeight * normalMemberPressureBoostMultiplier),
+      ...candidate,
+      chanceWeight: Math.max(0.01, baseWeight * repeatMultiplier * lowTierGroupMultiplier * normalMemberPressureBoostMultiplier * streetSellerMultiplier),
       repeatMultiplier,
       lowTierGroupMultiplier,
       normalMemberPressureBoostMultiplier,
-      baseWeight: Number(entry.pool.chanceWeight) || 1
+      streetSellerMultiplier,
+      baseWeight,
+      fallbackEntries
     };
   });
 }
@@ -5460,7 +5618,7 @@ function getMoneyViceTendency() {
   categoryWeights.forEach(categoryEntry => {
     const categoryChanceWeight = Math.max(0, Number(categoryEntry.chanceWeight) || 0);
     if (!categoryChanceWeight || !categoryTotal) return;
-    const weightedEntries = getWeightedNormalPoolEntriesForCategory(entries, categoryEntry.category);
+    const weightedEntries = getWeightedNormalCharacterCandidatesForCategory(entries, categoryEntry.category);
     const entryTotal = weightedEntries.reduce((sum, entry) => sum + Math.max(0, Number(entry.chanceWeight) || 0), 0);
     if (!entryTotal) return;
     const categoryShare = categoryChanceWeight / categoryTotal;
@@ -5500,50 +5658,51 @@ function renderMoneyViceTendency() {
 }
 
 function buildNormalSelectionFromPoolEntries(entries, categorySelection) {
-  const categoryEntries = entries.filter(entry => getNormalPoolCategory(entry.pool) === categorySelection.selectedCategory);
-  const fallbackEntries = categoryEntries.length ? categoryEntries : entries;
+  const { candidates, fallbackEntries } = getNormalCharacterCandidatesForCategory(entries, categorySelection.selectedCategory);
   const blockReasons = {};
   const blockedCustomerIds = [];
-  let eligibleEntries = fallbackEntries;
-  if (fallbackEntries.length > 1) {
-    eligibleEntries = fallbackEntries.filter(entry => {
-      const consecutiveCount = getConsecutiveNormalCustomerCount(entry.character.id);
+  let eligibleCandidates = candidates;
+  if (candidates.length > 1) {
+    eligibleCandidates = candidates.filter(candidate => {
+      const consecutiveCount = getConsecutiveNormalCustomerCount(candidate.character.id);
       const blocked = consecutiveCount >= NORMAL_CUSTOMER_MAX_CONSECUTIVE;
       if (blocked) {
-        blockedCustomerIds.push(entry.character.id);
-        blockReasons[entry.character.id] = `${consecutiveCount} consecutive normal encounters`;
+        blockedCustomerIds.push(candidate.character.id);
+        blockReasons[candidate.character.id] = `${consecutiveCount} consecutive normal encounters`;
       }
       return !blocked;
     });
-    if (!eligibleEntries.length) eligibleEntries = fallbackEntries;
+    if (!eligibleCandidates.length) eligibleCandidates = candidates;
   }
-  const weighted = eligibleEntries.map(entry => {
-    const repeatMultiplier = getNormalCustomerRepeatMultiplier(entry.character.id);
-    const lowTierGroupMultiplier = getLowTierGroupMultiplier(entry.character, eligibleEntries);
-    const typeWeight = entry.pool.dealType === 'trade' && isLowCashRecoveryActive() && getPoolTradeCashDelta(entry.pool) > 0
-      ? LOW_CASH_RECOVERY.tradeCashToPlayerPoolMultiplier
-      : 1;
-    const normalMemberPressureBoostMultiplier = getNormalMemberPressureBoostMultiplier(entry.character);
+  const weighted = eligibleCandidates.map(candidate => {
+    const baseWeight = getCharacterSelectionWeight(candidate.character, candidate.eligiblePools);
+    const repeatMultiplier = getNormalCustomerRepeatMultiplier(candidate.character.id);
+    const lowTierGroupMultiplier = getLowTierGroupMultiplier(candidate.character, eligibleCandidates);
+    const normalMemberPressureBoostMultiplier = getNormalMemberPressureBoostMultiplier(candidate.character);
+    const streetSellerMultiplier = getStreetSellerSelectionMultiplier(candidate.character, categorySelection.selectedCategory);
     return {
-      ...entry,
-      chanceWeight: Math.max(0.01, (Number(entry.pool.chanceWeight) || 1) * repeatMultiplier * lowTierGroupMultiplier * typeWeight * normalMemberPressureBoostMultiplier),
+      ...candidate,
+      chanceWeight: Math.max(0.01, baseWeight * repeatMultiplier * lowTierGroupMultiplier * normalMemberPressureBoostMultiplier * streetSellerMultiplier),
       repeatMultiplier,
       lowTierGroupMultiplier,
       normalMemberPressureBoostMultiplier,
-      baseWeight: Number(entry.pool.chanceWeight) || 1
+      streetSellerMultiplier,
+      baseWeight
     };
   });
   const selected = pickWeighted(weighted);
+  const selectedPool = pickWeighted(selected.eligiblePools);
   const allBuyerEntries = entries.filter(entry => getNormalPoolCategory(entry.pool) === 'buyer');
   return {
     customer: selected.character,
-    eligiblePools: [selected.pool],
-    selectedPool: selected.pool,
+    eligiblePools: selected.eligiblePools,
+    selectedPool,
     diagnostics: {
+      runtimeFingerprint: getRuntimeDataFingerprint(),
       eligibleCustomerIds: [...new Set(entries.map(entry => entry.character.id))],
       selectionPoolCustomerIds: [...new Set(fallbackEntries.map(entry => entry.character.id))],
       selectedCustomerId: selected.character.id,
-      selectedPoolId: selected.pool.id,
+      selectedPoolId: selectedPool.id,
       selectedEncounterTypePool: categorySelection.selectedCategory,
       executableBuyerCount: allBuyerEntries.length,
       redistributionReasons: categorySelection.redistributedReasons,
@@ -5554,14 +5713,15 @@ function buildNormalSelectionFromPoolEntries(entries, categorySelection) {
       blockReasons,
       weights: weighted.map(entry => ({
         id: entry.character.id,
-        poolId: entry.pool.id,
-        category: getNormalPoolCategory(entry.pool),
+        poolIds: entry.eligiblePools.map(pool => pool.id),
+        category: categorySelection.selectedCategory,
         baseWeight: Number(entry.baseWeight.toFixed(2)),
         repeatMultiplier: Number(entry.repeatMultiplier.toFixed(2)),
         lowTierGroupMultiplier: Number(entry.lowTierGroupMultiplier.toFixed(2)),
         normalMemberPressureBoostMultiplier: Number(entry.normalMemberPressureBoostMultiplier.toFixed(2)),
+        streetSellerMultiplier: Number(entry.streetSellerMultiplier.toFixed(2)),
         finalWeight: Number(entry.chanceWeight.toFixed(2)),
-        eligiblePoolCount: 1
+        eligiblePoolCount: entry.eligiblePools.length
       }))
     }
   };
@@ -5710,6 +5870,12 @@ function isLowTierCustomer(characterOrId) {
   return normalizeFactionId(character?.factionId) === LOW_TIER_CUSTOMER_GROUP.factionId;
 }
 
+function getStreetSellerSelectionMultiplier(character, selectedCategory) {
+  return selectedCategory === 'seller' && isLowTierCustomer(character)
+    ? STREET_SELLER_CHARACTER_MULTIPLIER
+    : 1;
+}
+
 function getRecentLowTierCustomerCount() {
   return (state.normalCustomerHistory || [])
     .slice(0, LOW_TIER_CUSTOMER_GROUP.recentWindow)
@@ -5747,7 +5913,8 @@ function getNormalCustomerRepeatMultiplier(characterId) {
   if (history[1] === characterId) multiplier *= 0.6;
   const extraRecentHits = Math.max(0, history.slice(0, NORMAL_CUSTOMER_HISTORY_LIMIT).filter(id => id === characterId).length - 1);
   if (extraRecentHits) multiplier *= Math.pow(0.7, extraRecentHits);
-  return multiplier;
+  if (!isLowTierCustomer(characterId)) return multiplier;
+  return 1 - (1 - multiplier) * STREET_REPEAT_PENALTY_STRENGTH;
 }
 
 function getLowTierSaturationDiagnostics(weighted) {
@@ -5856,74 +6023,17 @@ function formatDemandDiagnostics(diagnostics) {
 }
 
 function chooseNextCustomerWithPools() {
-  const candidates = activeCustomers
-    .map(character => ({ character, eligiblePools: getSelectablePoolsForCharacter(character) }))
-    .filter(candidate => candidate.eligiblePools.length > 0);
-  if (!candidates.length) return null;
-
-  const blockReasons = {};
-  const blockedCustomerIds = [];
-  let eligibleCandidates = candidates;
-  if (candidates.length > 1) {
-    eligibleCandidates = candidates.filter(candidate => {
-      const consecutiveCount = getConsecutiveNormalCustomerCount(candidate.character.id);
-      const blocked = consecutiveCount >= NORMAL_CUSTOMER_MAX_CONSECUTIVE;
-      if (blocked) {
-        blockedCustomerIds.push(candidate.character.id);
-        blockReasons[candidate.character.id] = `${consecutiveCount} consecutive normal encounters`;
-      }
-      return !blocked;
-    });
-    if (!eligibleCandidates.length) eligibleCandidates = candidates;
-  }
-
-  const eligibleSellIds = new Set(getEligibleSellPools().map(pool => pool.characterId));
-  const forceSell = shouldForceSellOpportunity();
-  const sellBias = state.money <= 25 ? 70 : state.money <= 60 ? 55 : state.sellMissStreak >= 2 ? 75 : 38;
-  let selectionPool = eligibleCandidates;
-  const sellCandidates = eligibleCandidates.filter(candidate => eligibleSellIds.has(candidate.character.id));
-  const revenueCandidates = eligibleCandidates.filter(candidate => candidate.eligiblePools.some(isRevenueCapablePool));
-  if (shouldGuaranteeLowCashRecovery() && revenueCandidates.length) selectionPool = revenueCandidates;
-  else if (sellCandidates.length && (forceSell || chance(sellBias))) selectionPool = sellCandidates;
-
-  const weighted = selectionPool.map(candidate => {
-    const baseWeight = getCharacterSelectionWeight(candidate.character, candidate.eligiblePools);
-    const repeatMultiplier = getNormalCustomerRepeatMultiplier(candidate.character.id);
-    const lowTierGroupMultiplier = getLowTierGroupMultiplier(candidate.character, selectionPool);
-    const normalMemberPressureBoostMultiplier = getNormalMemberPressureBoostMultiplier(candidate.character);
-    return {
-      ...candidate,
-      baseWeight,
-      repeatMultiplier,
-      lowTierGroupMultiplier,
-      normalMemberPressureBoostMultiplier,
-      recentCount: getRecentNormalCustomerCount(candidate.character.id),
-      consecutiveCount: getConsecutiveNormalCustomerCount(candidate.character.id),
-      chanceWeight: Math.max(0.01, baseWeight * repeatMultiplier * lowTierGroupMultiplier * normalMemberPressureBoostMultiplier)
-    };
-  });
-  const selected = pickWeighted(weighted);
-  const diagnostics = {
-    eligibleCustomerIds: candidates.map(candidate => candidate.character.id),
-    selectionPoolCustomerIds: selectionPool.map(candidate => candidate.character.id),
-    selectedCustomerId: selected.character.id,
-    penalizedCustomerIds: weighted.filter(candidate => candidate.repeatMultiplier < 1).map(candidate => candidate.character.id),
-    lowTierSaturation: getLowTierSaturationDiagnostics(weighted),
-    blockedCustomerIds,
-    blockReasons,
-    weights: weighted.map(candidate => ({
-      id: candidate.character.id,
-      baseWeight: Number(candidate.baseWeight.toFixed(2)),
-      repeatMultiplier: Number(candidate.repeatMultiplier.toFixed(2)),
-      lowTierGroupMultiplier: Number(candidate.lowTierGroupMultiplier.toFixed(2)),
-      normalMemberPressureBoostMultiplier: Number(candidate.normalMemberPressureBoostMultiplier.toFixed(2)),
-      finalWeight: Number(candidate.chanceWeight.toFixed(2)),
-      eligiblePoolCount: candidate.eligiblePools.length
-    }))
+  const { normalSelection } = chooseNextNormalDeal();
+  if (!normalSelection) return null;
+  return {
+    customer: normalSelection.customer,
+    eligiblePools: normalSelection.eligiblePools,
+    selectedPool: normalSelection.selectedPool,
+    diagnostics: {
+      ...normalSelection.diagnostics,
+      legacySelectorDeprecated: true
+    }
   };
-  diagnostics.lowCashRecovery = getLowCashRecoveryDiagnostics(candidates, selectionPool);
-  console.info('[normal-selection]', diagnostics);
-  return { customer: selected.character, eligiblePools: selected.eligiblePools, diagnostics };
 }
 
 function generateDeal(customer, eligiblePools = getSelectablePoolsForCharacter(customer)) {
@@ -8153,13 +8263,24 @@ window.ONE_STAR_PAWN_TEST_HOOKS = {
   getEligibleDemandCandidatesForPool,
   getBuyPoolDemandMultiplier,
   getSelectablePoolsForCharacter,
+  hasExecutableNormalPoolIntent,
+  isExecutableNormalPool,
+  getExecutableNormalPoolIntentEntries,
+  getExecutableNormalPoolIntentEntriesForCharacters,
+  getMissingNormalDealBlueprintCoverage,
+  getRuntimeDataFingerprint,
+  getStreetRuntimeDiagnostics,
+  initializeNpcRotation,
   getMoneyViceTendency,
   renderMoneyViceTendency,
   buildDeal,
   generateDeal,
   chooseNextNormalDeal,
   getExecutableNormalPoolEntries,
+  getExecutableNormalPoolEntriesForCharacters,
   getNormalPoolCategory,
+  getStreetSellerSelectionMultiplier,
+  getNormalCustomerRepeatMultiplier,
   applySelectedInventoryItemToDeal,
   openTradeSelection,
   toggleTradeInventorySelection,
@@ -8272,6 +8393,8 @@ window.ONE_STAR_PAWN_TEST_HOOKS = {
   constants: {
     NORMAL_CUSTOMER_MAX_CONSECUTIVE,
     NORMAL_CUSTOMER_HISTORY_LIMIT,
+    STREET_SELLER_CHARACTER_MULTIPLIER,
+    STREET_REPEAT_PENALTY_STRENGTH,
     BUY_FROM_SHOP_ECONOMY,
     NORMAL_ENCOUNTER_MIX,
     LOW_CASH_RECOVERY,

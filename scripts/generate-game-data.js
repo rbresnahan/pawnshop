@@ -256,6 +256,34 @@ eventBlueprints.forEach(event => {
   }
 });
 
+const activeCharacterIds = new Set(characters.filter(character => character.activeInRotation).map(character => character.id));
+const commerceTraitsByCharacterId = new Map(characterCommerceTraits.map(traits => [traits.characterId, traits]));
+const eventBlueprintKeys = new Set(eventBlueprints.map(event => `${event.characterId}:${event.eventType}`));
+const dealTypeWeightKeys = {
+  sell_to_shop: 'sellsToShopWeight',
+  buy_from_shop: 'buysFromShopWeight',
+  trade: 'tradesWeight'
+};
+const missingNormalDealBlueprintKeys = new Set();
+const missingNormalDealBlueprints = [];
+characterItemPools.forEach(pool => {
+  if (!activeCharacterIds.has(pool.characterId)) return;
+  if (!seenItemIds.has(pool.itemId)) return;
+  if (pool.chanceWeight <= 0) return;
+  const weightKey = dealTypeWeightKeys[pool.dealType];
+  if (!weightKey) return;
+  const traits = commerceTraitsByCharacterId.get(pool.characterId);
+  if (!traits || Number(traits[weightKey]) <= 0) return;
+  const eventKey = `${pool.characterId}:${pool.dealType}`;
+  if (eventBlueprintKeys.has(eventKey) || missingNormalDealBlueprintKeys.has(eventKey)) return;
+  missingNormalDealBlueprintKeys.add(eventKey);
+  missingNormalDealBlueprints.push(`${pool.characterId} ${pool.dealType} has executable pool intent but no Event_Blueprint row`);
+});
+
+if (missingNormalDealBlueprints.length) {
+  throw new Error(`Normal deal blueprint coverage is incomplete:\n- ${missingNormalDealBlueprints.join('\n- ')}`);
+}
+
 if (factionErrors.length) {
   throw new Error(`Malformed faction references:\n- ${factionErrors.join('\n- ')}`);
 }

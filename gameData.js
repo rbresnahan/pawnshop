@@ -131,155 +131,6 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Offers items, trades, and explanations that all have missing screws."
     },
     {
-      "id": "desperate_regular",
-      "displayName": "Desperate Regular",
-      "archetype": "Desperate Regular",
-      "spriteType": "regular",
-      "factionId": "street_desperate",
-      "spritePath": "",
-      "facing": "",
-      "spriteClass": "",
-      "spriteVisualHeight": null,
-      "activeInRotation": false,
-      "cashMin": 0.0,
-      "cashMax": 40.0,
-      "trust": 38,
-      "trustLabel": "2 - sketchy",
-      "copRiskBias": 0.0,
-      "thugRiskBias": 1.0,
-      "scamRiskBias": 2.0,
-      "preferredItemTags": [
-        "junk",
-        "broken",
-        "suspicious"
-      ],
-      "notes": "Always needs cash today. Yesterday was also today somehow."
-    },
-    {
-      "id": "nervous_seller",
-      "displayName": "Nervous Seller",
-      "archetype": "Nervous Seller",
-      "spriteType": "seller",
-      "factionId": "independent",
-      "spritePath": "",
-      "facing": "",
-      "spriteClass": "",
-      "spriteVisualHeight": null,
-      "activeInRotation": false,
-      "cashMin": 10.0,
-      "cashMax": 120.0,
-      "trust": 38,
-      "trustLabel": "2 - sketchy",
-      "copRiskBias": 2.0,
-      "thugRiskBias": 0.0,
-      "scamRiskBias": 1.0,
-      "preferredItemTags": [
-        "electronics",
-        "hot",
-        "suspicious"
-      ],
-      "notes": "Sweats through a denim jacket; often has items with stories that do not survive follow-up questions."
-    },
-    {
-      "id": "collector",
-      "displayName": "Collector",
-      "archetype": "Collector",
-      "spriteType": "collector",
-      "factionId": "independent",
-      "spritePath": "",
-      "facing": "",
-      "spriteClass": "",
-      "spriteVisualHeight": null,
-      "activeInRotation": false,
-      "cashMin": 80.0,
-      "cashMax": 500.0,
-      "trust": 62,
-      "trustLabel": "4 - mostly honest",
-      "copRiskBias": 0.0,
-      "thugRiskBias": 0.0,
-      "scamRiskBias": 1.0,
-      "preferredItemTags": [
-        "rare",
-        "collectible"
-      ],
-      "notes": "Knows value. Will absolutely judge your display case."
-    },
-    {
-      "id": "mechanic",
-      "displayName": "Mechanic",
-      "archetype": "Mechanic",
-      "spriteType": "seller",
-      "factionId": "independent",
-      "spritePath": "",
-      "facing": "",
-      "spriteClass": "",
-      "spriteVisualHeight": null,
-      "activeInRotation": false,
-      "cashMin": 20.0,
-      "cashMax": 180.0,
-      "trust": 50,
-      "trustLabel": "3 - mixed",
-      "copRiskBias": 0.0,
-      "thugRiskBias": 1.0,
-      "scamRiskBias": 1.0,
-      "preferredItemTags": [
-        "tool",
-        "repairable",
-        "broken"
-      ],
-      "notes": "Sells tools, parts, and objects that smell like a garage fire."
-    },
-    {
-      "id": "street_fence",
-      "displayName": "Street Fence",
-      "archetype": "Fence",
-      "spriteType": "seller",
-      "factionId": "independent",
-      "spritePath": "",
-      "facing": "",
-      "spriteClass": "",
-      "spriteVisualHeight": null,
-      "activeInRotation": false,
-      "cashMin": 50.0,
-      "cashMax": 300.0,
-      "trust": 26,
-      "trustLabel": "1 - liar",
-      "copRiskBias": 3.0,
-      "thugRiskBias": 2.0,
-      "scamRiskBias": 2.0,
-      "preferredItemTags": [
-        "stolen",
-        "hot",
-        "luxury"
-      ],
-      "notes": "Everything is definitely from his cousin. Cousins have been busy."
-    },
-    {
-      "id": "bargain_hunter",
-      "displayName": "Bargain Hunter",
-      "archetype": "Bargain Hunter",
-      "spriteType": "buyer",
-      "factionId": "independent",
-      "spritePath": "",
-      "facing": "",
-      "spriteClass": "",
-      "spriteVisualHeight": null,
-      "activeInRotation": false,
-      "cashMin": 15.0,
-      "cashMax": 160.0,
-      "trust": 50,
-      "trustLabel": "3 - mixed",
-      "copRiskBias": 0.0,
-      "thugRiskBias": 0.0,
-      "scamRiskBias": 2.0,
-      "preferredItemTags": [
-        "junk",
-        "collectible",
-        "electronics"
-      ],
-      "notes": "Wants a discount because Mercury is in retrograde, probably on Facebook Marketplace."
-    },
-    {
       "id": "tracksuit-thug-vincent",
       "displayName": "Vincent",
       "archetype": "Thug",
@@ -303,103 +154,6 @@ window.ONE_STAR_PAWN_DATA = {
         "hot"
       ],
       "notes": "Negotiates with eye contact and visible neck tattoos."
-    },
-    {
-      "id": "undercover_cop",
-      "displayName": "Suspiciously Normal Guy",
-      "archetype": "Cop Bait",
-      "spriteType": "cop",
-      "factionId": "law_enforcement",
-      "spritePath": "",
-      "facing": "",
-      "spriteClass": "",
-      "spriteVisualHeight": null,
-      "activeInRotation": false,
-      "cashMin": 40.0,
-      "cashMax": 200.0,
-      "trust": 74,
-      "trustLabel": "5 - reliable",
-      "copRiskBias": 5.0,
-      "thugRiskBias": 0.0,
-      "scamRiskBias": 0.0,
-      "preferredItemTags": [
-        "stolen",
-        "weapon",
-        "hot"
-      ],
-      "notes": "Asks if the serial number being scratched off is 'normal pawn shop stuff'."
-    },
-    {
-      "id": "angry_returner",
-      "displayName": "Angry Returner",
-      "archetype": "Angry Customer",
-      "spriteType": "regular",
-      "factionId": "independent",
-      "spritePath": "",
-      "facing": "",
-      "spriteClass": "",
-      "spriteVisualHeight": null,
-      "activeInRotation": false,
-      "cashMin": 0.0,
-      "cashMax": 80.0,
-      "trust": 38,
-      "trustLabel": "2 - sketchy",
-      "copRiskBias": 0.0,
-      "thugRiskBias": 1.0,
-      "scamRiskBias": 4.0,
-      "preferredItemTags": [
-        "broken",
-        "fake"
-      ],
-      "notes": "Comes back holding your receipt like evidence in a municipal trial."
-    },
-    {
-      "id": "mystery_weirdo",
-      "displayName": "Mystery Weirdo",
-      "archetype": "Mystery Weirdo",
-      "spriteType": "weirdo",
-      "factionId": "independent",
-      "spritePath": "",
-      "facing": "",
-      "spriteClass": "",
-      "spriteVisualHeight": null,
-      "activeInRotation": false,
-      "cashMin": 0.0,
-      "cashMax": 999.0,
-      "trust": 50,
-      "trustLabel": "3 - mixed",
-      "copRiskBias": 1.0,
-      "thugRiskBias": 1.0,
-      "scamRiskBias": 3.0,
-      "preferredItemTags": [
-        "cursed",
-        "mystery",
-        "rare"
-      ],
-      "notes": "May sell treasure. May sell a box of wet teeth. Budget accordingly."
-    },
-    {
-      "id": "purple_customer",
-      "displayName": "Purple Customer",
-      "archetype": "Prototype Placeholder",
-      "spriteType": "regular",
-      "factionId": "independent",
-      "spritePath": "",
-      "facing": "",
-      "spriteClass": "",
-      "spriteVisualHeight": null,
-      "activeInRotation": false,
-      "cashMin": 0.0,
-      "cashMax": 100.0,
-      "trust": 50,
-      "trustLabel": "3 - mixed",
-      "copRiskBias": 0.0,
-      "thugRiskBias": 0.0,
-      "scamRiskBias": 0.0,
-      "preferredItemTags": [
-        "prototype"
-      ],
-      "notes": "Original prototype row. Kept inactive for reference only; not used in gameplay rotation."
     },
     {
       "id": "regular-mr-seventies",
@@ -1154,8 +908,8 @@ window.ONE_STAR_PAWN_DATA = {
     {
       "characterId": "street-crackhead",
       "sellsToShopWeight": 6.0,
-      "buysFromShopWeight": 1.0,
-      "tradesWeight": 4.0,
+      "buysFromShopWeight": 0.0,
+      "tradesWeight": 0.0,
       "buyInterestTags": [
         "junk",
         "electronics",
@@ -1190,8 +944,8 @@ window.ONE_STAR_PAWN_DATA = {
     {
       "characterId": "street-bum",
       "sellsToShopWeight": 5.0,
-      "buysFromShopWeight": 1.0,
-      "tradesWeight": 3.0,
+      "buysFromShopWeight": 0.0,
+      "tradesWeight": 0.0,
       "buyInterestTags": [
         "junk",
         "appliance",
@@ -1225,7 +979,7 @@ window.ONE_STAR_PAWN_DATA = {
       "characterId": "service-hitman",
       "sellsToShopWeight": 2.0,
       "buysFromShopWeight": 5.0,
-      "tradesWeight": 5.0,
+      "tradesWeight": 0.0,
       "buyInterestTags": [
         "weapon",
         "luxury",
@@ -1260,8 +1014,8 @@ window.ONE_STAR_PAWN_DATA = {
     {
       "characterId": "street-junkie",
       "sellsToShopWeight": 5.0,
-      "buysFromShopWeight": 2.0,
-      "tradesWeight": 5.0,
+      "buysFromShopWeight": 0.0,
+      "tradesWeight": 0.0,
       "buyInterestTags": [
         "mystery",
         "electronics",
@@ -1292,205 +1046,10 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Trade-focused customer with worse math. Great for risk and weird inventory."
     },
     {
-      "characterId": "desperate_regular",
-      "sellsToShopWeight": 5.0,
-      "buysFromShopWeight": 1.0,
-      "tradesWeight": 2.0,
-      "buyInterestTags": [
-        "junk",
-        "electronics"
-      ],
-      "sellOfferTags": [
-        "junk",
-        "broken",
-        "suspicious"
-      ],
-      "tradeInterestTags": [
-        "junk",
-        "electronics"
-      ],
-      "avoidTags": [
-        "luxury"
-      ],
-      "maxMarkupTolerance": 1.05,
-      "lowballTolerance": 0.45,
-      "haggleAggression": 1.0,
-      "tradeFairness": 0.7,
-      "riskTolerance": 2.0,
-      "prefersCash": true,
-      "acceptsTrades": true,
-      "acceptsJunkBundles": true,
-      "notes": "Cash-starved seller. Accepts humiliating lowballs with impressive speed."
-    },
-    {
-      "characterId": "nervous_seller",
-      "sellsToShopWeight": 5.0,
-      "buysFromShopWeight": 1.0,
-      "tradesWeight": 2.0,
-      "buyInterestTags": [
-        "electronics",
-        "junk"
-      ],
-      "sellOfferTags": [
-        "electronics",
-        "hot",
-        "suspicious"
-      ],
-      "tradeInterestTags": [
-        "electronics",
-        "mystery"
-      ],
-      "avoidTags": [
-        "weapon",
-        "luxury"
-      ],
-      "maxMarkupTolerance": 1.1,
-      "lowballTolerance": 0.6,
-      "haggleAggression": 2.0,
-      "tradeFairness": 0.75,
-      "riskTolerance": 3.0,
-      "prefersCash": true,
-      "acceptsTrades": true,
-      "acceptsJunkBundles": true,
-      "notes": "Mostly sells sketchy electronics. Panics when asked follow-up questions."
-    },
-    {
-      "characterId": "collector",
-      "sellsToShopWeight": 1.0,
-      "buysFromShopWeight": 5.0,
-      "tradesWeight": 3.0,
-      "buyInterestTags": [
-        "collectible",
-        "rare",
-        "mystery"
-      ],
-      "sellOfferTags": [
-        "collectible",
-        "rare"
-      ],
-      "tradeInterestTags": [
-        "collectible",
-        "rare"
-      ],
-      "avoidTags": [
-        "weapon",
-        "hot",
-        "stolen"
-      ],
-      "maxMarkupTolerance": 1.35,
-      "lowballTolerance": 0.9,
-      "haggleAggression": 3.0,
-      "tradeFairness": 1.2,
-      "riskTolerance": 1.0,
-      "prefersCash": false,
-      "acceptsTrades": true,
-      "acceptsJunkBundles": false,
-      "notes": "Good buyer for collectible inventory. Harder to fool, sadly literate."
-    },
-    {
-      "characterId": "mechanic",
-      "sellsToShopWeight": 4.0,
-      "buysFromShopWeight": 3.0,
-      "tradesWeight": 3.0,
-      "buyInterestTags": [
-        "tool",
-        "repairable",
-        "electronics"
-      ],
-      "sellOfferTags": [
-        "tool",
-        "repairable",
-        "broken"
-      ],
-      "tradeInterestTags": [
-        "tool",
-        "electronics"
-      ],
-      "avoidTags": [
-        "cursed",
-        "possibly_fake"
-      ],
-      "maxMarkupTolerance": 1.2,
-      "lowballTolerance": 0.7,
-      "haggleAggression": 2.0,
-      "tradeFairness": 1.0,
-      "riskTolerance": 2.0,
-      "prefersCash": true,
-      "acceptsTrades": true,
-      "acceptsJunkBundles": false,
-      "notes": "Trades around tools and repairables. Suspicious of cursed appliances, which is unfair but correct."
-    },
-    {
-      "characterId": "street_fence",
-      "sellsToShopWeight": 5.0,
-      "buysFromShopWeight": 2.0,
-      "tradesWeight": 4.0,
-      "buyInterestTags": [
-        "luxury",
-        "weapon",
-        "hot",
-        "suspicious"
-      ],
-      "sellOfferTags": [
-        "stolen",
-        "hot",
-        "luxury",
-        "suspicious"
-      ],
-      "tradeInterestTags": [
-        "luxury",
-        "weapon",
-        "electronics"
-      ],
-      "avoidTags": [
-        "junk"
-      ],
-      "maxMarkupTolerance": 1.15,
-      "lowballTolerance": 0.55,
-      "haggleAggression": 4.0,
-      "tradeFairness": 0.65,
-      "riskTolerance": 5.0,
-      "prefersCash": true,
-      "acceptsTrades": true,
-      "acceptsJunkBundles": false,
-      "notes": "High-risk source of hot goods. Makes the cops itchy."
-    },
-    {
-      "characterId": "bargain_hunter",
-      "sellsToShopWeight": 1.0,
-      "buysFromShopWeight": 5.0,
-      "tradesWeight": 2.0,
-      "buyInterestTags": [
-        "junk",
-        "collectible",
-        "electronics"
-      ],
-      "sellOfferTags": [
-        "junk"
-      ],
-      "tradeInterestTags": [
-        "junk",
-        "collectible"
-      ],
-      "avoidTags": [
-        "weapon",
-        "hot"
-      ],
-      "maxMarkupTolerance": 1.05,
-      "lowballTolerance": 0.8,
-      "haggleAggression": 3.0,
-      "tradeFairness": 0.9,
-      "riskTolerance": 1.0,
-      "prefersCash": true,
-      "acceptsTrades": true,
-      "acceptsJunkBundles": true,
-      "notes": "Buys cheap inventory and argues like every dollar has a lawyer."
-    },
-    {
       "characterId": "tracksuit-thug-vincent",
-      "sellsToShopWeight": 3.0,
-      "buysFromShopWeight": 3.0,
-      "tradesWeight": 5.0,
+      "sellsToShopWeight": 0.0,
+      "buysFromShopWeight": 0.0,
+      "tradesWeight": 0.0,
       "buyInterestTags": [
         "weapon",
         "luxury",
@@ -1518,95 +1077,6 @@ window.ONE_STAR_PAWN_DATA = {
       "acceptsTrades": true,
       "acceptsJunkBundles": false,
       "notes": "Dangerous trade-heavy NPC. Refusing him badly should wake up thug risk."
-    },
-    {
-      "characterId": "undercover_cop",
-      "sellsToShopWeight": 0.0,
-      "buysFromShopWeight": 5.0,
-      "tradesWeight": 2.0,
-      "buyInterestTags": [
-        "stolen",
-        "weapon",
-        "hot",
-        "suspicious"
-      ],
-      "sellOfferTags": [],
-      "tradeInterestTags": [
-        "weapon",
-        "hot",
-        "stolen"
-      ],
-      "avoidTags": [
-        "junk",
-        "cursed"
-      ],
-      "maxMarkupTolerance": 1.0,
-      "lowballTolerance": 1.0,
-      "haggleAggression": 4.0,
-      "tradeFairness": 1.0,
-      "riskTolerance": 5.0,
-      "prefersCash": false,
-      "acceptsTrades": true,
-      "acceptsJunkBundles": false,
-      "notes": "Bait buyer. Selling hot goods to this guy should be extremely stupid."
-    },
-    {
-      "characterId": "angry_returner",
-      "sellsToShopWeight": 0.0,
-      "buysFromShopWeight": 2.0,
-      "tradesWeight": 0.0,
-      "buyInterestTags": [
-        "broken",
-        "fake"
-      ],
-      "sellOfferTags": [],
-      "tradeInterestTags": [],
-      "avoidTags": [
-        "weapon",
-        "hot",
-        "luxury"
-      ],
-      "maxMarkupTolerance": 1.0,
-      "lowballTolerance": 0.7,
-      "haggleAggression": 4.0,
-      "tradeFairness": 0.8,
-      "riskTolerance": 1.0,
-      "prefersCash": true,
-      "acceptsTrades": false,
-      "acceptsJunkBundles": false,
-      "notes": "Dispute/return customer. Useful for scam-risk consequences more than normal deals."
-    },
-    {
-      "characterId": "mystery_weirdo",
-      "sellsToShopWeight": 4.0,
-      "buysFromShopWeight": 2.0,
-      "tradesWeight": 5.0,
-      "buyInterestTags": [
-        "cursed",
-        "mystery",
-        "rare"
-      ],
-      "sellOfferTags": [
-        "cursed",
-        "mystery",
-        "rare"
-      ],
-      "tradeInterestTags": [
-        "mystery",
-        "cursed",
-        "rare",
-        "junk"
-      ],
-      "avoidTags": [],
-      "maxMarkupTolerance": 1.4,
-      "lowballTolerance": 0.5,
-      "haggleAggression": 2.0,
-      "tradeFairness": 0.5,
-      "riskTolerance": 4.0,
-      "prefersCash": false,
-      "acceptsTrades": true,
-      "acceptsJunkBundles": true,
-      "notes": "Trade goblin. May produce profit or a box that sounds wet."
     },
     {
       "characterId": "regular-mr-seventies",
@@ -1649,8 +1119,8 @@ window.ONE_STAR_PAWN_DATA = {
     {
       "characterId": "regular-business-drunk",
       "sellsToShopWeight": 2.0,
-      "buysFromShopWeight": 5.0,
-      "tradesWeight": 2.0,
+      "buysFromShopWeight": 0.0,
+      "tradesWeight": 0.0,
       "buyInterestTags": [
         "electronics",
         "luxury",
@@ -1764,7 +1234,7 @@ window.ONE_STAR_PAWN_DATA = {
       "characterId": "regular-mr-tourist",
       "sellsToShopWeight": 3.0,
       "buysFromShopWeight": 5.0,
-      "tradesWeight": 3.0,
+      "tradesWeight": 0.0,
       "buyInterestTags": [
         "camera",
         "electronics",
@@ -1807,7 +1277,7 @@ window.ONE_STAR_PAWN_DATA = {
       "characterId": "regular-mrs-tourist",
       "sellsToShopWeight": 3.0,
       "buysFromShopWeight": 5.0,
-      "tradesWeight": 3.0,
+      "tradesWeight": 0.0,
       "buyInterestTags": [
         "jewelry",
         "watch",
@@ -3730,25 +3200,6 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Trades a bad box for something easier to fence."
     },
     {
-      "id": "crackhead_buys_junk",
-      "characterId": "street-crackhead",
-      "itemId": "dvd_stack",
-      "dealType": "buy_from_shop",
-      "itemRole": "npc_requests",
-      "requestedItemTags": [
-        "junk",
-        "collectible"
-      ],
-      "offeredItemTags": null,
-      "chanceWeight": 4.0,
-      "askPriceMultiplier": 0.8,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Low risk",
-      "notes": "Will buy junk if the price is pathetic."
-    },
-    {
       "id": "bum_microwave",
       "characterId": "street-bum",
       "itemId": "microwave_haunted",
@@ -3849,26 +3300,6 @@ window.ONE_STAR_PAWN_DATA = {
       "conditionOverride": "",
       "riskNote": "Cop/thug risk if suspicious",
       "notes": "He does not ask whether it works. That is worse."
-    },
-    {
-      "id": "hitman_buys_luxury",
-      "characterId": "service-hitman",
-      "itemId": "suspicious_gold_watch",
-      "dealType": "buy_from_shop",
-      "itemRole": "npc_requests",
-      "requestedItemTags": [
-        "luxury",
-        "suspicious",
-        "hot"
-      ],
-      "offeredItemTags": null,
-      "chanceWeight": 5.0,
-      "askPriceMultiplier": 1.15,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Thug risk if insulted",
-      "notes": "Buys flashy inventory without haggling like a normal human."
     },
     {
       "id": "hitman_knife_trade",
@@ -3994,432 +3425,6 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Trades broken electronics for anything that looks easier to carry."
     },
     {
-      "id": "desperate_regular_microwave",
-      "characterId": "desperate_regular",
-      "itemId": "microwave_haunted",
-      "dealType": "sell_to_shop",
-      "itemRole": "npc_offers",
-      "requestedItemTags": null,
-      "offeredItemTags": [
-        "junk",
-        "broken",
-        "cursed"
-      ],
-      "chanceWeight": 8.0,
-      "askPriceMultiplier": 0.6,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Low scam risk",
-      "notes": "Cheap junk filler."
-    },
-    {
-      "id": "desperate_regular_dvds",
-      "characterId": "desperate_regular",
-      "itemId": "dvd_stack",
-      "dealType": "sell_to_shop",
-      "itemRole": "npc_offers",
-      "requestedItemTags": null,
-      "offeredItemTags": [
-        "junk",
-        "collectible"
-      ],
-      "chanceWeight": 10.0,
-      "askPriceMultiplier": 0.5,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Low risk",
-      "notes": "Common bad inventory."
-    },
-    {
-      "id": "desperate_regular_buys_dvds",
-      "characterId": "desperate_regular",
-      "itemId": "dvd_stack",
-      "dealType": "buy_from_shop",
-      "itemRole": "npc_requests",
-      "requestedItemTags": [
-        "junk",
-        "collectible"
-      ],
-      "offeredItemTags": null,
-      "chanceWeight": 5.0,
-      "askPriceMultiplier": 0.85,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Low risk",
-      "notes": "Will buy garbage if priced like garbage."
-    },
-    {
-      "id": "desperate_regular_junk_trade",
-      "characterId": "desperate_regular",
-      "itemId": "fake_gold_chain",
-      "dealType": "trade",
-      "itemRole": "npc_offers",
-      "requestedItemTags": [
-        "junk",
-        "electronics"
-      ],
-      "offeredItemTags": [
-        "fake",
-        "suspicious"
-      ],
-      "chanceWeight": 4.0,
-      "askPriceMultiplier": 0.8,
-      "cashAdjustmentMin": -10.0,
-      "cashAdjustmentMax": 8.0,
-      "conditionOverride": "",
-      "riskNote": "Scam risk +1",
-      "notes": "May trade fake jewelry for shop junk."
-    },
-    {
-      "id": "nervous_seller_vcr",
-      "characterId": "nervous_seller",
-      "itemId": "hospital_vcr",
-      "dealType": "sell_to_shop",
-      "itemRole": "npc_offers",
-      "requestedItemTags": null,
-      "offeredItemTags": [
-        "electronics",
-        "hot",
-        "suspicious"
-      ],
-      "chanceWeight": 7.0,
-      "askPriceMultiplier": 0.7,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Cop risk +1",
-      "notes": "Good early shady deal."
-    },
-    {
-      "id": "nervous_seller_watch",
-      "characterId": "nervous_seller",
-      "itemId": "smart_watch_locked",
-      "dealType": "sell_to_shop",
-      "itemRole": "npc_offers",
-      "requestedItemTags": null,
-      "offeredItemTags": [
-        "electronics",
-        "suspicious"
-      ],
-      "chanceWeight": 5.0,
-      "askPriceMultiplier": 0.65,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Cop risk +1",
-      "notes": "Locked device problem."
-    },
-    {
-      "id": "nervous_seller_tablet_trade",
-      "characterId": "nervous_seller",
-      "itemId": "cracked_tablet",
-      "dealType": "trade",
-      "itemRole": "npc_offers",
-      "requestedItemTags": [
-        "electronics",
-        "junk"
-      ],
-      "offeredItemTags": [
-        "broken",
-        "electronics"
-      ],
-      "chanceWeight": 4.0,
-      "askPriceMultiplier": 0.75,
-      "cashAdjustmentMin": -5.0,
-      "cashAdjustmentMax": 15.0,
-      "conditionOverride": "",
-      "riskNote": "Scam risk +1",
-      "notes": "Offers broken electronics for almost anything that looks safer."
-    },
-    {
-      "id": "collector_cards_buy",
-      "characterId": "collector",
-      "itemId": "baseball_card_box",
-      "dealType": "buy_from_shop",
-      "itemRole": "npc_requests",
-      "requestedItemTags": [
-        "collectible",
-        "mystery"
-      ],
-      "offeredItemTags": null,
-      "chanceWeight": 6.0,
-      "askPriceMultiplier": 1.2,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Scam risk if lied to",
-      "notes": "Collector may buy mystery collectibles."
-    },
-    {
-      "id": "collector_action_figure_buy",
-      "characterId": "collector",
-      "itemId": "rare_action_figure",
-      "dealType": "buy_from_shop",
-      "itemRole": "npc_requests",
-      "requestedItemTags": [
-        "collectible",
-        "rare",
-        "broken"
-      ],
-      "offeredItemTags": null,
-      "chanceWeight": 4.0,
-      "askPriceMultiplier": 1.1,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Reputation hit if fake pitch",
-      "notes": "Good haggling target."
-    },
-    {
-      "id": "collector_figure_trade",
-      "characterId": "collector",
-      "itemId": "rare_action_figure",
-      "dealType": "trade",
-      "itemRole": "npc_offers",
-      "requestedItemTags": [
-        "collectible",
-        "rare"
-      ],
-      "offeredItemTags": [
-        "collectible",
-        "rare",
-        "broken"
-      ],
-      "chanceWeight": 3.0,
-      "askPriceMultiplier": 1.0,
-      "cashAdjustmentMin": -20.0,
-      "cashAdjustmentMax": 30.0,
-      "conditionOverride": "",
-      "riskNote": "Low risk",
-      "notes": "Collector offers one collectible for another, then acts morally superior."
-    },
-    {
-      "id": "mechanic_drill",
-      "characterId": "mechanic",
-      "itemId": "cordless_drill",
-      "dealType": "sell_to_shop",
-      "itemRole": "npc_offers",
-      "requestedItemTags": null,
-      "offeredItemTags": [
-        "tool",
-        "repairable"
-      ],
-      "chanceWeight": 8.0,
-      "askPriceMultiplier": 0.75,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Low risk",
-      "notes": "Useful tool offer."
-    },
-    {
-      "id": "mechanic_bolt_cutters",
-      "characterId": "mechanic",
-      "itemId": "bolt_cutters",
-      "dealType": "sell_to_shop",
-      "itemRole": "npc_offers",
-      "requestedItemTags": null,
-      "offeredItemTags": [
-        "tool",
-        "suspicious"
-      ],
-      "chanceWeight": 4.0,
-      "askPriceMultiplier": 0.7,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Thug/cop flavor risk",
-      "notes": "Looks sketchy on shelf."
-    },
-    {
-      "id": "mechanic_buys_tools",
-      "characterId": "mechanic",
-      "itemId": "cordless_drill",
-      "dealType": "buy_from_shop",
-      "itemRole": "npc_requests",
-      "requestedItemTags": [
-        "tool",
-        "repairable"
-      ],
-      "offeredItemTags": null,
-      "chanceWeight": 5.0,
-      "askPriceMultiplier": 1.05,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Low risk",
-      "notes": "Good buyer for tool inventory."
-    },
-    {
-      "id": "mechanic_tool_trade",
-      "characterId": "mechanic",
-      "itemId": "bolt_cutters",
-      "dealType": "trade",
-      "itemRole": "npc_offers",
-      "requestedItemTags": [
-        "tool",
-        "electronics"
-      ],
-      "offeredItemTags": [
-        "tool",
-        "suspicious"
-      ],
-      "chanceWeight": 5.0,
-      "askPriceMultiplier": 0.9,
-      "cashAdjustmentMin": -10.0,
-      "cashAdjustmentMax": 25.0,
-      "conditionOverride": "",
-      "riskNote": "Cop risk +1 if hot",
-      "notes": "Trades tools for tools like a garage raccoon."
-    },
-    {
-      "id": "street_fence_ring",
-      "characterId": "street_fence",
-      "itemId": "gold_ring_engravings",
-      "dealType": "sell_to_shop",
-      "itemRole": "npc_offers",
-      "requestedItemTags": null,
-      "offeredItemTags": [
-        "jewelry",
-        "luxury",
-        "suspicious"
-      ],
-      "chanceWeight": 5.0,
-      "askPriceMultiplier": 0.55,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Cop risk +2",
-      "notes": "High profit, hot smell."
-    },
-    {
-      "id": "street_fence_wheel",
-      "characterId": "street_fence",
-      "itemId": "stolen_bike_wheel",
-      "dealType": "sell_to_shop",
-      "itemRole": "npc_offers",
-      "requestedItemTags": null,
-      "offeredItemTags": [
-        "stolen",
-        "hot",
-        "suspicious"
-      ],
-      "chanceWeight": 7.0,
-      "askPriceMultiplier": 0.45,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Cop risk +2",
-      "notes": "Obviously hot."
-    },
-    {
-      "id": "street_fence_buys_luxury",
-      "characterId": "street_fence",
-      "itemId": "suspicious_gold_watch",
-      "dealType": "buy_from_shop",
-      "itemRole": "npc_requests",
-      "requestedItemTags": [
-        "luxury",
-        "suspicious",
-        "hot"
-      ],
-      "offeredItemTags": null,
-      "chanceWeight": 3.0,
-      "askPriceMultiplier": 0.95,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Cop risk +1",
-      "notes": "Fence may buy risky luxury goods."
-    },
-    {
-      "id": "street_fence_hot_trade",
-      "characterId": "street_fence",
-      "itemId": "luxury_handbag_fake",
-      "dealType": "trade",
-      "itemRole": "npc_offers",
-      "requestedItemTags": [
-        "luxury",
-        "weapon",
-        "electronics"
-      ],
-      "offeredItemTags": [
-        "luxury",
-        "possibly_fake"
-      ],
-      "chanceWeight": 5.0,
-      "askPriceMultiplier": 0.75,
-      "cashAdjustmentMin": -15.0,
-      "cashAdjustmentMax": 40.0,
-      "conditionOverride": "",
-      "riskNote": "Cop risk +2; scam risk +1",
-      "notes": "Bad trade offer wearing fake designer leather."
-    },
-    {
-      "id": "bargain_hunter_buys_dvds",
-      "characterId": "bargain_hunter",
-      "itemId": "dvd_stack",
-      "dealType": "buy_from_shop",
-      "itemRole": "npc_requests",
-      "requestedItemTags": [
-        "junk",
-        "collectible"
-      ],
-      "offeredItemTags": null,
-      "chanceWeight": 8.0,
-      "askPriceMultiplier": 0.9,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Low risk",
-      "notes": "Perfect sucker for low-value clutter, but not at sane prices."
-    },
-    {
-      "id": "bargain_hunter_buys_tablet",
-      "characterId": "bargain_hunter",
-      "itemId": "cracked_tablet",
-      "dealType": "buy_from_shop",
-      "itemRole": "npc_requests",
-      "requestedItemTags": [
-        "electronics",
-        "broken"
-      ],
-      "offeredItemTags": null,
-      "chanceWeight": 5.0,
-      "askPriceMultiplier": 0.9,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Scam risk if lied to",
-      "notes": "Will buy busted electronics if called 'lightly loved'."
-    },
-    {
-      "id": "bargain_hunter_junk_trade",
-      "characterId": "bargain_hunter",
-      "itemId": "dvd_stack",
-      "dealType": "trade",
-      "itemRole": "npc_offers",
-      "requestedItemTags": [
-        "junk",
-        "collectible",
-        "electronics"
-      ],
-      "offeredItemTags": [
-        "junk",
-        "collectible"
-      ],
-      "chanceWeight": 4.0,
-      "askPriceMultiplier": 0.8,
-      "cashAdjustmentMin": -5.0,
-      "cashAdjustmentMax": 12.0,
-      "conditionOverride": "",
-      "riskNote": "Low risk",
-      "notes": "Junk-for-junk trade. Everybody loses with dignity."
-    },
-    {
       "id": "tracksuit_knife",
       "characterId": "tracksuit-thug-vincent",
       "itemId": "pocket_knife",
@@ -4480,173 +3485,6 @@ window.ONE_STAR_PAWN_DATA = {
       "conditionOverride": "",
       "riskNote": "Thug risk if insulted",
       "notes": "Buys dangerous or flashy stuff."
-    },
-    {
-      "id": "undercover_watch",
-      "characterId": "undercover_cop",
-      "itemId": "suspicious_gold_watch",
-      "dealType": "buy_from_shop",
-      "itemRole": "npc_requests",
-      "requestedItemTags": [
-        "stolen",
-        "suspicious",
-        "hot",
-        "luxury"
-      ],
-      "offeredItemTags": null,
-      "chanceWeight": 3.0,
-      "askPriceMultiplier": 1.3,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Selling hot item to cop is bad",
-      "notes": "Bait transaction."
-    },
-    {
-      "id": "undercover_weapon",
-      "characterId": "undercover_cop",
-      "itemId": "rusty_revolver_prop",
-      "dealType": "buy_from_shop",
-      "itemRole": "npc_requests",
-      "requestedItemTags": [
-        "weapon",
-        "hot",
-        "suspicious"
-      ],
-      "offeredItemTags": null,
-      "chanceWeight": 2.0,
-      "askPriceMultiplier": 1.3,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Cop consequence trigger candidate",
-      "notes": "Do not be the idiot. Player will be the idiot."
-    },
-    {
-      "id": "angry_returner_broken_buy",
-      "characterId": "angry_returner",
-      "itemId": "cracked_tablet",
-      "dealType": "buy_from_shop",
-      "itemRole": "npc_requests",
-      "requestedItemTags": [
-        "broken",
-        "fake",
-        "electronics"
-      ],
-      "offeredItemTags": null,
-      "chanceWeight": 3.0,
-      "askPriceMultiplier": 0.8,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Scam-risk callback",
-      "notes": "Good source for refund/dispute events."
-    },
-    {
-      "id": "mystery_box",
-      "characterId": "mystery_weirdo",
-      "itemId": "sealed_mystery_box",
-      "dealType": "sell_to_shop",
-      "itemRole": "npc_offers",
-      "requestedItemTags": null,
-      "offeredItemTags": [
-        "mystery",
-        "suspicious"
-      ],
-      "chanceWeight": 9.0,
-      "askPriceMultiplier": 0.75,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Random scam/cop risk",
-      "notes": "Good weird event seed."
-    },
-    {
-      "id": "mystery_weirdo_box_trade",
-      "characterId": "mystery_weirdo",
-      "itemId": "sealed_mystery_box",
-      "dealType": "trade",
-      "itemRole": "npc_offers",
-      "requestedItemTags": [
-        "mystery",
-        "cursed",
-        "rare",
-        "junk"
-      ],
-      "offeredItemTags": [
-        "mystery",
-        "suspicious"
-      ],
-      "chanceWeight": 7.0,
-      "askPriceMultiplier": 0.85,
-      "cashAdjustmentMin": -25.0,
-      "cashAdjustmentMax": 50.0,
-      "conditionOverride": "unknown",
-      "riskNote": "Random risk",
-      "notes": "Offers a box for something equally regrettable."
-    },
-    {
-      "id": "mystery_weirdo_buys_cursed",
-      "characterId": "mystery_weirdo",
-      "itemId": "microwave_haunted",
-      "dealType": "buy_from_shop",
-      "itemRole": "npc_requests",
-      "requestedItemTags": [
-        "cursed",
-        "mystery",
-        "rare"
-      ],
-      "offeredItemTags": null,
-      "chanceWeight": 3.0,
-      "askPriceMultiplier": 1.15,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Scam risk if broken",
-      "notes": "May buy cursed trash. Do not question blessings from the dumpster."
-    },
-    {
-      "id": "regular_mr_seventies_gold_watch",
-      "characterId": "regular-mr-seventies",
-      "itemId": "suspicious_gold_watch",
-      "dealType": "sell_to_shop",
-      "itemRole": "npc_offers",
-      "requestedItemTags": null,
-      "offeredItemTags": [
-        "luxury",
-        "suspicious",
-        "hot"
-      ],
-      "chanceWeight": 7.0,
-      "askPriceMultiplier": 0.7,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "used",
-      "riskNote": "Cop risk +1; scam risk +1",
-      "notes": "Claims it belonged to a nightclub owner. Does not clarify which owner."
-    },
-    {
-      "id": "regular_mr_seventies_cards_trade",
-      "characterId": "regular-mr-seventies",
-      "itemId": "baseball_card_box",
-      "dealType": "trade",
-      "itemRole": "npc_offers",
-      "requestedItemTags": [
-        "luxury",
-        "collectible",
-        "electronics"
-      ],
-      "offeredItemTags": [
-        "collectible",
-        "mystery"
-      ],
-      "chanceWeight": 5.0,
-      "askPriceMultiplier": 0.9,
-      "cashAdjustmentMin": -20.0,
-      "cashAdjustmentMax": 35.0,
-      "conditionOverride": "used",
-      "riskNote": "Scam risk +1",
-      "notes": "Vintage cards in a box that has survived several bad decades."
     },
     {
       "id": "regular_mr_seventies_buys_luxury",
@@ -4731,174 +3569,6 @@ window.ONE_STAR_PAWN_DATA = {
       "notes": "Calls sunglasses a business accessory."
     },
     {
-      "id": "regular_lady_divorce_gold_bracelet",
-      "characterId": "regular-lady-divorce",
-      "itemId": "gold_bracelet",
-      "dealType": "sell_to_shop",
-      "itemRole": "npc_offers",
-      "requestedItemTags": null,
-      "offeredItemTags": [
-        "jewelry",
-        "luxury"
-      ],
-      "chanceWeight": 6.0,
-      "askPriceMultiplier": 0.7,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "good",
-      "riskNote": "Low risk; reputation penalty for cruelty",
-      "notes": "Removing one more shared asset from the ledger."
-    },
-    {
-      "id": "regular_lady_divorce_handbag_trade",
-      "characterId": "regular-lady-divorce",
-      "itemId": "luxury_handbag_fake",
-      "dealType": "trade",
-      "itemRole": "npc_offers",
-      "requestedItemTags": [
-        "jewelry",
-        "luxury",
-        "collectible"
-      ],
-      "offeredItemTags": [
-        "luxury",
-        "possibly_fake"
-      ],
-      "chanceWeight": 3.0,
-      "askPriceMultiplier": 0.85,
-      "cashAdjustmentMin": -15.0,
-      "cashAdjustmentMax": 25.0,
-      "conditionOverride": "questionable",
-      "riskNote": "Scam risk +1 if oversold",
-      "notes": "The bag is either designer or personally offensive to designers."
-    },
-    {
-      "id": "regular_jan_lee_blender",
-      "characterId": "money-jan-takai",
-      "itemId": "countertop_blender",
-      "dealType": "sell_to_shop",
-      "itemRole": "npc_offers",
-      "requestedItemTags": null,
-      "offeredItemTags": [
-        "appliance",
-        "practical"
-      ],
-      "chanceWeight": 5.0,
-      "askPriceMultiplier": 0.72,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "used",
-      "riskNote": "Low risk",
-      "notes": "One-speed blender for people who enjoy loud smoothies and poor choices."
-    },
-    {
-      "id": "regular_jan_lee_buys_tv",
-      "characterId": "money-jan-takai",
-      "itemId": "flat_screen_tv",
-      "dealType": "buy_from_shop",
-      "itemRole": "npc_requests",
-      "requestedItemTags": [
-        "electronics",
-        "practical"
-      ],
-      "offeredItemTags": null,
-      "chanceWeight": 5.0,
-      "askPriceMultiplier": 1.02,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Low risk",
-      "notes": "Wants a useful screen without retail asking personal questions."
-    },
-    {
-      "id": "regular_jan_lee_socket_trade",
-      "characterId": "money-jan-takai",
-      "itemId": "socket_set",
-      "dealType": "trade",
-      "itemRole": "npc_offers",
-      "requestedItemTags": [
-        "electronics",
-        "tool",
-        "appliance",
-        "practical"
-      ],
-      "offeredItemTags": [
-        "tool",
-        "practical"
-      ],
-      "chanceWeight": 4.0,
-      "askPriceMultiplier": 0.88,
-      "cashAdjustmentMin": -10.0,
-      "cashAdjustmentMax": 18.0,
-      "conditionOverride": "used",
-      "riskNote": "Low risk",
-      "notes": "A mostly complete socket set for something else that mostly works."
-    },
-    {
-      "id": "regular_mr_tourist_camera",
-      "characterId": "regular-mr-tourist",
-      "itemId": "mirrorless_camera",
-      "dealType": "sell_to_shop",
-      "itemRole": "npc_offers",
-      "requestedItemTags": null,
-      "offeredItemTags": [
-        "electronics",
-        "luxury"
-      ],
-      "chanceWeight": 4.0,
-      "askPriceMultiplier": 0.68,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "good",
-      "riskNote": "Low risk; scam risk if oversold",
-      "notes": "Says it captured authentic local flavor and one parking dispute."
-    },
-    {
-      "id": "regular_mr_tourist_buys_watch",
-      "characterId": "regular-mr-tourist",
-      "itemId": "automatic_watch",
-      "dealType": "buy_from_shop",
-      "itemRole": "npc_requests",
-      "requestedItemTags": [
-        "watch",
-        "luxury",
-        "collectible"
-      ],
-      "offeredItemTags": null,
-      "chanceWeight": 4.0,
-      "askPriceMultiplier": 1.08,
-      "cashAdjustmentMin": 0.0,
-      "cashAdjustmentMax": 0.0,
-      "conditionOverride": "",
-      "riskNote": "Scam risk if misrepresented",
-      "notes": "Wants a keepsake that looks expensive in airport lighting."
-    },
-    {
-      "id": "regular_mr_tourist_cards_trade",
-      "characterId": "regular-mr-tourist",
-      "itemId": "baseball_card_box",
-      "dealType": "trade",
-      "itemRole": "npc_offers",
-      "requestedItemTags": [
-        "camera",
-        "electronics",
-        "watch",
-        "collectible",
-        "luxury"
-      ],
-      "offeredItemTags": [
-        "collectible",
-        "mystery"
-      ],
-      "chanceWeight": 4.0,
-      "askPriceMultiplier": 0.9,
-      "cashAdjustmentMin": -15.0,
-      "cashAdjustmentMax": 30.0,
-      "conditionOverride": "used",
-      "riskNote": "Scam risk +1",
-      "notes": "Trades local nostalgia he bought ninety minutes ago."
-    },
-    {
       "id": "regular_mrs_tourist_bracelet",
       "characterId": "regular-mrs-tourist",
       "itemId": "gold_bracelet",
@@ -4935,32 +3605,6 @@ window.ONE_STAR_PAWN_DATA = {
       "conditionOverride": "",
       "riskNote": "Low risk",
       "notes": "Wants designer shade for sightseeing and financial denial."
-    },
-    {
-      "id": "regular_mrs_tourist_silverware_trade",
-      "characterId": "regular-mrs-tourist",
-      "itemId": "silverware_bundle",
-      "dealType": "trade",
-      "itemRole": "npc_offers",
-      "requestedItemTags": [
-        "jewelry",
-        "watch",
-        "luxury",
-        "collectible",
-        "household"
-      ],
-      "offeredItemTags": [
-        "possibly_fake",
-        "household",
-        "suspicious"
-      ],
-      "chanceWeight": 3.0,
-      "askPriceMultiplier": 0.82,
-      "cashAdjustmentMin": -12.0,
-      "cashAdjustmentMax": 20.0,
-      "conditionOverride": "questionable",
-      "riskNote": "Scam risk +1",
-      "notes": "A souvenir table setting with a very flexible origin story."
     },
     {
       "id": "regular_tim_lee_laptop",
@@ -6024,6 +4668,6421 @@ window.ONE_STAR_PAWN_DATA = {
       "conditionOverride": "used",
       "riskNote": "Low risk",
       "notes": "Trades handheld gaming gear for something with more bass or buttons."
+    },
+    {
+      "id": "street_crackhead_sells_microwave_haunted",
+      "characterId": "street-crackhead",
+      "itemId": "microwave_haunted",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "appliance",
+        "junk",
+        "broken",
+        "cursed"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_suspicious_gold_watch",
+      "characterId": "street-crackhead",
+      "itemId": "suspicious_gold_watch",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "watch",
+        "possibly_fake",
+        "luxury",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_old_gaming_pc",
+      "characterId": "street-crackhead",
+      "itemId": "old_gaming_pc",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "computer",
+        "electronics",
+        "repairable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_hospital_vcr",
+      "characterId": "street-crackhead",
+      "itemId": "hospital_vcr",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "hot",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_cracked_tablet",
+      "characterId": "street-crackhead",
+      "itemId": "cracked_tablet",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "broken"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_cordless_drill",
+      "characterId": "street-crackhead",
+      "itemId": "cordless_drill",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "repairable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_bolt_cutters",
+      "characterId": "street-crackhead",
+      "itemId": "bolt_cutters",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_pawn_shop_guitar",
+      "characterId": "street-crackhead",
+      "itemId": "pawn_shop_guitar",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "instrument",
+        "repairable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_gold_ring_engravings",
+      "characterId": "street-crackhead",
+      "itemId": "gold_ring_engravings",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_baseball_card_box",
+      "characterId": "street-crackhead",
+      "itemId": "baseball_card_box",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "collectible",
+        "mystery"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_rare_action_figure",
+      "characterId": "street-crackhead",
+      "itemId": "rare_action_figure",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "collectible",
+        "rare",
+        "broken"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_pocket_knife",
+      "characterId": "street-crackhead",
+      "itemId": "pocket_knife",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "weapon"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_rusty_revolver_prop",
+      "characterId": "street-crackhead",
+      "itemId": "rusty_revolver_prop",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "weapon",
+        "suspicious",
+        "hot"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_luxury_handbag_fake",
+      "characterId": "street-crackhead",
+      "itemId": "luxury_handbag_fake",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "luxury",
+        "possibly_fake"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_sealed_mystery_box",
+      "characterId": "street-crackhead",
+      "itemId": "sealed_mystery_box",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "mystery",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_stolen_bike_wheel",
+      "characterId": "street-crackhead",
+      "itemId": "stolen_bike_wheel",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "stolen",
+        "hot",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_dvd_stack",
+      "characterId": "street-crackhead",
+      "itemId": "dvd_stack",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "collectible",
+        "junk"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_silverware_bundle",
+      "characterId": "street-crackhead",
+      "itemId": "silverware_bundle",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "possibly_fake",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_countertop_blender",
+      "characterId": "street-crackhead",
+      "itemId": "countertop_blender",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "appliance",
+        "practical"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_air_fryer",
+      "characterId": "street-crackhead",
+      "itemId": "air_fryer",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "appliance",
+        "practical"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_shop_vac",
+      "characterId": "street-crackhead",
+      "itemId": "shop_vac",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "appliance",
+        "practical",
+        "repairable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_bluetooth_speaker",
+      "characterId": "street-crackhead",
+      "itemId": "bluetooth_speaker",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "portable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_game_console",
+      "characterId": "street-crackhead",
+      "itemId": "game_console",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "console",
+        "electronics",
+        "popular"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_handheld_console",
+      "characterId": "street-crackhead",
+      "itemId": "handheld_console",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "console",
+        "electronics",
+        "portable",
+        "collectible"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_used_smartphone",
+      "characterId": "street-crackhead",
+      "itemId": "used_smartphone",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "portable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_budget_laptop",
+      "characterId": "street-crackhead",
+      "itemId": "budget_laptop",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "computer",
+        "electronics",
+        "practical"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_mirrorless_camera",
+      "characterId": "street-crackhead",
+      "itemId": "mirrorless_camera",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "luxury"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_circular_saw",
+      "characterId": "street-crackhead",
+      "itemId": "circular_saw",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "repairable",
+        "practical"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_socket_set",
+      "characterId": "street-crackhead",
+      "itemId": "socket_set",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "practical"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_pressure_washer",
+      "characterId": "street-crackhead",
+      "itemId": "pressure_washer",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "practical",
+        "repairable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_electric_guitar",
+      "characterId": "street-crackhead",
+      "itemId": "electric_guitar",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "instrument",
+        "collectible"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_student_saxophone",
+      "characterId": "street-crackhead",
+      "itemId": "student_saxophone",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "instrument",
+        "collectible",
+        "repairable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_dj_turntable",
+      "characterId": "street-crackhead",
+      "itemId": "dj_turntable",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "collectible"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_diamond_stud_earrings",
+      "characterId": "street-crackhead",
+      "itemId": "diamond_stud_earrings",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_gold_bracelet",
+      "characterId": "street-crackhead",
+      "itemId": "gold_bracelet",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_designer_sunglasses",
+      "characterId": "street-crackhead",
+      "itemId": "designer_sunglasses",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "luxury",
+        "portable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_sells_automatic_watch",
+      "characterId": "street-crackhead",
+      "itemId": "automatic_watch",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "watch",
+        "luxury",
+        "collectible"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_bum_sells_fake_gold_chain",
+      "characterId": "street-bum",
+      "itemId": "fake_gold_chain",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "fake",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_suspicious_gold_watch",
+      "characterId": "street-bum",
+      "itemId": "suspicious_gold_watch",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "watch",
+        "possibly_fake",
+        "luxury",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_old_gaming_pc",
+      "characterId": "street-bum",
+      "itemId": "old_gaming_pc",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "computer",
+        "electronics",
+        "repairable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_hospital_vcr",
+      "characterId": "street-bum",
+      "itemId": "hospital_vcr",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "hot",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_cracked_tablet",
+      "characterId": "street-bum",
+      "itemId": "cracked_tablet",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "broken"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_cordless_drill",
+      "characterId": "street-bum",
+      "itemId": "cordless_drill",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "repairable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_bolt_cutters",
+      "characterId": "street-bum",
+      "itemId": "bolt_cutters",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_pawn_shop_guitar",
+      "characterId": "street-bum",
+      "itemId": "pawn_shop_guitar",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "instrument",
+        "repairable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_gold_ring_engravings",
+      "characterId": "street-bum",
+      "itemId": "gold_ring_engravings",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_baseball_card_box",
+      "characterId": "street-bum",
+      "itemId": "baseball_card_box",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "collectible",
+        "mystery"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_rare_action_figure",
+      "characterId": "street-bum",
+      "itemId": "rare_action_figure",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "collectible",
+        "rare",
+        "broken"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_pocket_knife",
+      "characterId": "street-bum",
+      "itemId": "pocket_knife",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "weapon"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_rusty_revolver_prop",
+      "characterId": "street-bum",
+      "itemId": "rusty_revolver_prop",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "weapon",
+        "suspicious",
+        "hot"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_luxury_handbag_fake",
+      "characterId": "street-bum",
+      "itemId": "luxury_handbag_fake",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "luxury",
+        "possibly_fake"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_sealed_mystery_box",
+      "characterId": "street-bum",
+      "itemId": "sealed_mystery_box",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "mystery",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_stolen_bike_wheel",
+      "characterId": "street-bum",
+      "itemId": "stolen_bike_wheel",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "stolen",
+        "hot",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_smart_watch_locked",
+      "characterId": "street-bum",
+      "itemId": "smart_watch_locked",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "watch",
+        "electronics",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_silverware_bundle",
+      "characterId": "street-bum",
+      "itemId": "silverware_bundle",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "possibly_fake",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_countertop_blender",
+      "characterId": "street-bum",
+      "itemId": "countertop_blender",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "appliance",
+        "practical"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_air_fryer",
+      "characterId": "street-bum",
+      "itemId": "air_fryer",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "appliance",
+        "practical"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_shop_vac",
+      "characterId": "street-bum",
+      "itemId": "shop_vac",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "appliance",
+        "practical",
+        "repairable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_flat_screen_tv",
+      "characterId": "street-bum",
+      "itemId": "flat_screen_tv",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "practical"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_bluetooth_speaker",
+      "characterId": "street-bum",
+      "itemId": "bluetooth_speaker",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "portable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_game_console",
+      "characterId": "street-bum",
+      "itemId": "game_console",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "console",
+        "electronics",
+        "popular"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_handheld_console",
+      "characterId": "street-bum",
+      "itemId": "handheld_console",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "console",
+        "electronics",
+        "portable",
+        "collectible"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_used_smartphone",
+      "characterId": "street-bum",
+      "itemId": "used_smartphone",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "portable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_budget_laptop",
+      "characterId": "street-bum",
+      "itemId": "budget_laptop",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "computer",
+        "electronics",
+        "practical"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_mirrorless_camera",
+      "characterId": "street-bum",
+      "itemId": "mirrorless_camera",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "luxury"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_circular_saw",
+      "characterId": "street-bum",
+      "itemId": "circular_saw",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "repairable",
+        "practical"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_socket_set",
+      "characterId": "street-bum",
+      "itemId": "socket_set",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "practical"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_pressure_washer",
+      "characterId": "street-bum",
+      "itemId": "pressure_washer",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "practical",
+        "repairable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_electric_guitar",
+      "characterId": "street-bum",
+      "itemId": "electric_guitar",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "instrument",
+        "collectible"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_student_saxophone",
+      "characterId": "street-bum",
+      "itemId": "student_saxophone",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "instrument",
+        "collectible",
+        "repairable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_dj_turntable",
+      "characterId": "street-bum",
+      "itemId": "dj_turntable",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "collectible"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_diamond_stud_earrings",
+      "characterId": "street-bum",
+      "itemId": "diamond_stud_earrings",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_gold_bracelet",
+      "characterId": "street-bum",
+      "itemId": "gold_bracelet",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_designer_sunglasses",
+      "characterId": "street-bum",
+      "itemId": "designer_sunglasses",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "luxury",
+        "portable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "street_bum_sells_automatic_watch",
+      "characterId": "street-bum",
+      "itemId": "automatic_watch",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "watch",
+        "luxury",
+        "collectible"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.45,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "poor",
+      "riskNote": "Low scam risk",
+      "notes": "It hums because something in it gave up."
+    },
+    {
+      "id": "service_hitman_buys_pocket_knife",
+      "characterId": "service-hitman",
+      "itemId": "pocket_knife",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "weapon"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 1.2,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Cop/thug risk if suspicious",
+      "notes": "He does not ask whether it works. That is worse."
+    },
+    {
+      "id": "service_hitman_sells_automatic_watch",
+      "characterId": "service-hitman",
+      "itemId": "automatic_watch",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "watch",
+        "luxury",
+        "collectible"
+      ],
+      "chanceWeight": 3.0,
+      "askPriceMultiplier": 0.65,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +3; thug risk +1",
+      "notes": "Probably a prop. Probably is not a business plan."
+    },
+    {
+      "id": "service_hitman_sells_circular_saw",
+      "characterId": "service-hitman",
+      "itemId": "circular_saw",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "repairable",
+        "practical"
+      ],
+      "chanceWeight": 3.0,
+      "askPriceMultiplier": 0.65,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +3; thug risk +1",
+      "notes": "Probably a prop. Probably is not a business plan."
+    },
+    {
+      "id": "service_hitman_sells_pocket_knife",
+      "characterId": "service-hitman",
+      "itemId": "pocket_knife",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "weapon"
+      ],
+      "chanceWeight": 3.0,
+      "askPriceMultiplier": 0.65,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +3; thug risk +1",
+      "notes": "Probably a prop. Probably is not a business plan."
+    },
+    {
+      "id": "service_hitman_sells_bolt_cutters",
+      "characterId": "service-hitman",
+      "itemId": "bolt_cutters",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "suspicious"
+      ],
+      "chanceWeight": 3.0,
+      "askPriceMultiplier": 0.65,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +3; thug risk +1",
+      "notes": "Probably a prop. Probably is not a business plan."
+    },
+    {
+      "id": "service_hitman_sells_cordless_drill",
+      "characterId": "service-hitman",
+      "itemId": "cordless_drill",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "repairable"
+      ],
+      "chanceWeight": 3.0,
+      "askPriceMultiplier": 0.65,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +3; thug risk +1",
+      "notes": "Probably a prop. Probably is not a business plan."
+    },
+    {
+      "id": "street_junkie_sells_microwave_haunted",
+      "characterId": "street-junkie",
+      "itemId": "microwave_haunted",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "appliance",
+        "junk",
+        "broken",
+        "cursed"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_fake_gold_chain",
+      "characterId": "street-junkie",
+      "itemId": "fake_gold_chain",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "fake",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_suspicious_gold_watch",
+      "characterId": "street-junkie",
+      "itemId": "suspicious_gold_watch",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "watch",
+        "possibly_fake",
+        "luxury",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_old_gaming_pc",
+      "characterId": "street-junkie",
+      "itemId": "old_gaming_pc",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "computer",
+        "electronics",
+        "repairable"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_cracked_tablet",
+      "characterId": "street-junkie",
+      "itemId": "cracked_tablet",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "broken"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_cordless_drill",
+      "characterId": "street-junkie",
+      "itemId": "cordless_drill",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "repairable"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_bolt_cutters",
+      "characterId": "street-junkie",
+      "itemId": "bolt_cutters",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_pawn_shop_guitar",
+      "characterId": "street-junkie",
+      "itemId": "pawn_shop_guitar",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "instrument",
+        "repairable"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_gold_ring_engravings",
+      "characterId": "street-junkie",
+      "itemId": "gold_ring_engravings",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_baseball_card_box",
+      "characterId": "street-junkie",
+      "itemId": "baseball_card_box",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "collectible",
+        "mystery"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_rare_action_figure",
+      "characterId": "street-junkie",
+      "itemId": "rare_action_figure",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "collectible",
+        "rare",
+        "broken"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_pocket_knife",
+      "characterId": "street-junkie",
+      "itemId": "pocket_knife",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "weapon"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_rusty_revolver_prop",
+      "characterId": "street-junkie",
+      "itemId": "rusty_revolver_prop",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "weapon",
+        "suspicious",
+        "hot"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_luxury_handbag_fake",
+      "characterId": "street-junkie",
+      "itemId": "luxury_handbag_fake",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "luxury",
+        "possibly_fake"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_stolen_bike_wheel",
+      "characterId": "street-junkie",
+      "itemId": "stolen_bike_wheel",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "stolen",
+        "hot",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_dvd_stack",
+      "characterId": "street-junkie",
+      "itemId": "dvd_stack",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "collectible",
+        "junk"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_smart_watch_locked",
+      "characterId": "street-junkie",
+      "itemId": "smart_watch_locked",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "watch",
+        "electronics",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_silverware_bundle",
+      "characterId": "street-junkie",
+      "itemId": "silverware_bundle",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "possibly_fake",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_countertop_blender",
+      "characterId": "street-junkie",
+      "itemId": "countertop_blender",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "appliance",
+        "practical"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_air_fryer",
+      "characterId": "street-junkie",
+      "itemId": "air_fryer",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "appliance",
+        "practical"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_shop_vac",
+      "characterId": "street-junkie",
+      "itemId": "shop_vac",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "appliance",
+        "practical",
+        "repairable"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_flat_screen_tv",
+      "characterId": "street-junkie",
+      "itemId": "flat_screen_tv",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "practical"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_bluetooth_speaker",
+      "characterId": "street-junkie",
+      "itemId": "bluetooth_speaker",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "portable"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_game_console",
+      "characterId": "street-junkie",
+      "itemId": "game_console",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "console",
+        "electronics",
+        "popular"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_handheld_console",
+      "characterId": "street-junkie",
+      "itemId": "handheld_console",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "console",
+        "electronics",
+        "portable",
+        "collectible"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_used_smartphone",
+      "characterId": "street-junkie",
+      "itemId": "used_smartphone",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "portable"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_budget_laptop",
+      "characterId": "street-junkie",
+      "itemId": "budget_laptop",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "computer",
+        "electronics",
+        "practical"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_mirrorless_camera",
+      "characterId": "street-junkie",
+      "itemId": "mirrorless_camera",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "luxury"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_circular_saw",
+      "characterId": "street-junkie",
+      "itemId": "circular_saw",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "repairable",
+        "practical"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_socket_set",
+      "characterId": "street-junkie",
+      "itemId": "socket_set",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "practical"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_pressure_washer",
+      "characterId": "street-junkie",
+      "itemId": "pressure_washer",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "practical",
+        "repairable"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_electric_guitar",
+      "characterId": "street-junkie",
+      "itemId": "electric_guitar",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "instrument",
+        "collectible"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_student_saxophone",
+      "characterId": "street-junkie",
+      "itemId": "student_saxophone",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "instrument",
+        "collectible",
+        "repairable"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_dj_turntable",
+      "characterId": "street-junkie",
+      "itemId": "dj_turntable",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "collectible"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_diamond_stud_earrings",
+      "characterId": "street-junkie",
+      "itemId": "diamond_stud_earrings",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_gold_bracelet",
+      "characterId": "street-junkie",
+      "itemId": "gold_bracelet",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_designer_sunglasses",
+      "characterId": "street-junkie",
+      "itemId": "designer_sunglasses",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "luxury",
+        "portable"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "street_junkie_sells_automatic_watch",
+      "characterId": "street-junkie",
+      "itemId": "automatic_watch",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "watch",
+        "luxury",
+        "collectible"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.55,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Still has hospital tape. The hospital would like that back."
+    },
+    {
+      "id": "regular_mr_seventies_buys_automatic_watch",
+      "characterId": "regular-mr-seventies",
+      "itemId": "automatic_watch",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "watch",
+        "luxury",
+        "collectible"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 1.05,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low cop risk; scam risk if misrepresented",
+      "notes": "Pays for visible status and questionable history."
+    },
+    {
+      "id": "regular_mr_seventies_buys_designer_sunglasses",
+      "characterId": "regular-mr-seventies",
+      "itemId": "designer_sunglasses",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "luxury",
+        "portable"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 1.05,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low cop risk; scam risk if misrepresented",
+      "notes": "Pays for visible status and questionable history."
+    },
+    {
+      "id": "regular_mr_seventies_buys_gold_bracelet",
+      "characterId": "regular-mr-seventies",
+      "itemId": "gold_bracelet",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 1.05,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low cop risk; scam risk if misrepresented",
+      "notes": "Pays for visible status and questionable history."
+    },
+    {
+      "id": "regular_mr_seventies_buys_diamond_stud_earrings",
+      "characterId": "regular-mr-seventies",
+      "itemId": "diamond_stud_earrings",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 1.05,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low cop risk; scam risk if misrepresented",
+      "notes": "Pays for visible status and questionable history."
+    },
+    {
+      "id": "regular_mr_seventies_buys_dj_turntable",
+      "characterId": "regular-mr-seventies",
+      "itemId": "dj_turntable",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "electronics",
+        "collectible"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 1.05,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low cop risk; scam risk if misrepresented",
+      "notes": "Pays for visible status and questionable history."
+    },
+    {
+      "id": "regular_mr_seventies_buys_student_saxophone",
+      "characterId": "regular-mr-seventies",
+      "itemId": "student_saxophone",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "instrument",
+        "collectible",
+        "repairable"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 1.05,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low cop risk; scam risk if misrepresented",
+      "notes": "Pays for visible status and questionable history."
+    },
+    {
+      "id": "regular_mr_seventies_buys_electric_guitar",
+      "characterId": "regular-mr-seventies",
+      "itemId": "electric_guitar",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "instrument",
+        "collectible"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 1.05,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low cop risk; scam risk if misrepresented",
+      "notes": "Pays for visible status and questionable history."
+    },
+    {
+      "id": "regular_mr_seventies_buys_mirrorless_camera",
+      "characterId": "regular-mr-seventies",
+      "itemId": "mirrorless_camera",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "electronics",
+        "luxury"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 1.05,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low cop risk; scam risk if misrepresented",
+      "notes": "Pays for visible status and questionable history."
+    },
+    {
+      "id": "regular_mr_seventies_buys_rusty_revolver_prop",
+      "characterId": "regular-mr-seventies",
+      "itemId": "rusty_revolver_prop",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "weapon",
+        "suspicious",
+        "hot"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 1.05,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low cop risk; scam risk if misrepresented",
+      "notes": "Pays for visible status and questionable history."
+    },
+    {
+      "id": "regular_mr_seventies_buys_pocket_knife",
+      "characterId": "regular-mr-seventies",
+      "itemId": "pocket_knife",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "weapon"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 1.05,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low cop risk; scam risk if misrepresented",
+      "notes": "Pays for visible status and questionable history."
+    },
+    {
+      "id": "regular_mr_seventies_buys_pawn_shop_guitar",
+      "characterId": "regular-mr-seventies",
+      "itemId": "pawn_shop_guitar",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "instrument",
+        "repairable"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 1.05,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low cop risk; scam risk if misrepresented",
+      "notes": "Pays for visible status and questionable history."
+    },
+    {
+      "id": "regular_mr_seventies_buys_suspicious_gold_watch",
+      "characterId": "regular-mr-seventies",
+      "itemId": "suspicious_gold_watch",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "watch",
+        "possibly_fake",
+        "luxury",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 1.05,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low cop risk; scam risk if misrepresented",
+      "notes": "Pays for visible status and questionable history."
+    },
+    {
+      "id": "regular_mr_seventies_buys_fake_gold_chain",
+      "characterId": "regular-mr-seventies",
+      "itemId": "fake_gold_chain",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "jewelry",
+        "fake",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 1.05,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low cop risk; scam risk if misrepresented",
+      "notes": "Pays for visible status and questionable history."
+    },
+    {
+      "id": "regular_mr_seventies_sells_microwave_haunted",
+      "characterId": "regular-mr-seventies",
+      "itemId": "microwave_haunted",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "appliance",
+        "junk",
+        "broken",
+        "cursed"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "regular_mr_seventies_sells_fake_gold_chain",
+      "characterId": "regular-mr-seventies",
+      "itemId": "fake_gold_chain",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "fake",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "regular_mr_seventies_sells_suspicious_gold_watch",
+      "characterId": "regular-mr-seventies",
+      "itemId": "suspicious_gold_watch",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "watch",
+        "possibly_fake",
+        "luxury",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "regular_mr_seventies_sells_pawn_shop_guitar",
+      "characterId": "regular-mr-seventies",
+      "itemId": "pawn_shop_guitar",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "instrument",
+        "repairable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "regular_mr_seventies_sells_gold_ring_engravings",
+      "characterId": "regular-mr-seventies",
+      "itemId": "gold_ring_engravings",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "regular_mr_seventies_sells_pocket_knife",
+      "characterId": "regular-mr-seventies",
+      "itemId": "pocket_knife",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "weapon"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "regular_mr_seventies_sells_rusty_revolver_prop",
+      "characterId": "regular-mr-seventies",
+      "itemId": "rusty_revolver_prop",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "weapon",
+        "suspicious",
+        "hot"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "regular_mr_seventies_sells_luxury_handbag_fake",
+      "characterId": "regular-mr-seventies",
+      "itemId": "luxury_handbag_fake",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "luxury",
+        "possibly_fake"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "regular_mr_seventies_sells_smart_watch_locked",
+      "characterId": "regular-mr-seventies",
+      "itemId": "smart_watch_locked",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "watch",
+        "electronics",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "regular_mr_seventies_sells_silverware_bundle",
+      "characterId": "regular-mr-seventies",
+      "itemId": "silverware_bundle",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "possibly_fake",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "regular_mr_seventies_sells_used_smartphone",
+      "characterId": "regular-mr-seventies",
+      "itemId": "used_smartphone",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "portable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "regular_mr_seventies_sells_mirrorless_camera",
+      "characterId": "regular-mr-seventies",
+      "itemId": "mirrorless_camera",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "luxury"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "regular_mr_seventies_sells_electric_guitar",
+      "characterId": "regular-mr-seventies",
+      "itemId": "electric_guitar",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "instrument",
+        "collectible"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "regular_mr_seventies_sells_student_saxophone",
+      "characterId": "regular-mr-seventies",
+      "itemId": "student_saxophone",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "instrument",
+        "collectible",
+        "repairable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "regular_mr_seventies_sells_dj_turntable",
+      "characterId": "regular-mr-seventies",
+      "itemId": "dj_turntable",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "collectible"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "regular_mr_seventies_sells_diamond_stud_earrings",
+      "characterId": "regular-mr-seventies",
+      "itemId": "diamond_stud_earrings",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "regular_mr_seventies_sells_gold_bracelet",
+      "characterId": "regular-mr-seventies",
+      "itemId": "gold_bracelet",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "regular_mr_seventies_sells_designer_sunglasses",
+      "characterId": "regular-mr-seventies",
+      "itemId": "designer_sunglasses",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "luxury",
+        "portable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "regular_mr_seventies_sells_automatic_watch",
+      "characterId": "regular-mr-seventies",
+      "itemId": "automatic_watch",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "watch",
+        "luxury",
+        "collectible"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "regular_mr_seventies_sells_sealed_mystery_box",
+      "characterId": "regular-mr-seventies",
+      "itemId": "sealed_mystery_box",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "mystery",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "regular_mr_seventies_trades_automatic_watch",
+      "characterId": "regular-mr-seventies",
+      "itemId": "automatic_watch",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "luxury",
+        "collectible",
+        "electronics"
+      ],
+      "offeredItemTags": [
+        "watch",
+        "luxury",
+        "collectible"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.9,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 35.0,
+      "conditionOverride": "used",
+      "riskNote": "Scam risk +1",
+      "notes": "Vintage cards in a box that has survived several bad decades."
+    },
+    {
+      "id": "regular_mr_seventies_trades_designer_sunglasses",
+      "characterId": "regular-mr-seventies",
+      "itemId": "designer_sunglasses",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "luxury",
+        "collectible",
+        "electronics"
+      ],
+      "offeredItemTags": [
+        "luxury",
+        "portable"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.9,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 35.0,
+      "conditionOverride": "used",
+      "riskNote": "Scam risk +1",
+      "notes": "Vintage cards in a box that has survived several bad decades."
+    },
+    {
+      "id": "regular_mr_seventies_trades_gold_bracelet",
+      "characterId": "regular-mr-seventies",
+      "itemId": "gold_bracelet",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "luxury",
+        "collectible",
+        "electronics"
+      ],
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.9,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 35.0,
+      "conditionOverride": "used",
+      "riskNote": "Scam risk +1",
+      "notes": "Vintage cards in a box that has survived several bad decades."
+    },
+    {
+      "id": "regular_mr_seventies_trades_diamond_stud_earrings",
+      "characterId": "regular-mr-seventies",
+      "itemId": "diamond_stud_earrings",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "luxury",
+        "collectible",
+        "electronics"
+      ],
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.9,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 35.0,
+      "conditionOverride": "used",
+      "riskNote": "Scam risk +1",
+      "notes": "Vintage cards in a box that has survived several bad decades."
+    },
+    {
+      "id": "regular_mr_seventies_trades_dj_turntable",
+      "characterId": "regular-mr-seventies",
+      "itemId": "dj_turntable",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "luxury",
+        "collectible",
+        "electronics"
+      ],
+      "offeredItemTags": [
+        "electronics",
+        "collectible"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.9,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 35.0,
+      "conditionOverride": "used",
+      "riskNote": "Scam risk +1",
+      "notes": "Vintage cards in a box that has survived several bad decades."
+    },
+    {
+      "id": "regular_mr_seventies_trades_student_saxophone",
+      "characterId": "regular-mr-seventies",
+      "itemId": "student_saxophone",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "luxury",
+        "collectible",
+        "electronics"
+      ],
+      "offeredItemTags": [
+        "instrument",
+        "collectible",
+        "repairable"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.9,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 35.0,
+      "conditionOverride": "used",
+      "riskNote": "Scam risk +1",
+      "notes": "Vintage cards in a box that has survived several bad decades."
+    },
+    {
+      "id": "regular_mr_seventies_trades_electric_guitar",
+      "characterId": "regular-mr-seventies",
+      "itemId": "electric_guitar",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "luxury",
+        "collectible",
+        "electronics"
+      ],
+      "offeredItemTags": [
+        "instrument",
+        "collectible"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.9,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 35.0,
+      "conditionOverride": "used",
+      "riskNote": "Scam risk +1",
+      "notes": "Vintage cards in a box that has survived several bad decades."
+    },
+    {
+      "id": "regular_mr_seventies_trades_mirrorless_camera",
+      "characterId": "regular-mr-seventies",
+      "itemId": "mirrorless_camera",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "luxury",
+        "collectible",
+        "electronics"
+      ],
+      "offeredItemTags": [
+        "electronics",
+        "luxury"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.9,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 35.0,
+      "conditionOverride": "used",
+      "riskNote": "Scam risk +1",
+      "notes": "Vintage cards in a box that has survived several bad decades."
+    },
+    {
+      "id": "regular_mr_seventies_trades_used_smartphone",
+      "characterId": "regular-mr-seventies",
+      "itemId": "used_smartphone",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "luxury",
+        "collectible",
+        "electronics"
+      ],
+      "offeredItemTags": [
+        "electronics",
+        "portable"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.9,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 35.0,
+      "conditionOverride": "used",
+      "riskNote": "Scam risk +1",
+      "notes": "Vintage cards in a box that has survived several bad decades."
+    },
+    {
+      "id": "regular_mr_seventies_trades_silverware_bundle",
+      "characterId": "regular-mr-seventies",
+      "itemId": "silverware_bundle",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "luxury",
+        "collectible",
+        "electronics"
+      ],
+      "offeredItemTags": [
+        "jewelry",
+        "possibly_fake",
+        "suspicious"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.9,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 35.0,
+      "conditionOverride": "used",
+      "riskNote": "Scam risk +1",
+      "notes": "Vintage cards in a box that has survived several bad decades."
+    },
+    {
+      "id": "regular_mr_seventies_trades_smart_watch_locked",
+      "characterId": "regular-mr-seventies",
+      "itemId": "smart_watch_locked",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "luxury",
+        "collectible",
+        "electronics"
+      ],
+      "offeredItemTags": [
+        "watch",
+        "electronics",
+        "suspicious"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.9,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 35.0,
+      "conditionOverride": "used",
+      "riskNote": "Scam risk +1",
+      "notes": "Vintage cards in a box that has survived several bad decades."
+    },
+    {
+      "id": "regular_mr_seventies_trades_sealed_mystery_box",
+      "characterId": "regular-mr-seventies",
+      "itemId": "sealed_mystery_box",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "luxury",
+        "collectible",
+        "electronics"
+      ],
+      "offeredItemTags": [
+        "mystery",
+        "suspicious"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.9,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 35.0,
+      "conditionOverride": "used",
+      "riskNote": "Scam risk +1",
+      "notes": "Vintage cards in a box that has survived several bad decades."
+    },
+    {
+      "id": "regular_mr_seventies_trades_luxury_handbag_fake",
+      "characterId": "regular-mr-seventies",
+      "itemId": "luxury_handbag_fake",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "luxury",
+        "collectible",
+        "electronics"
+      ],
+      "offeredItemTags": [
+        "luxury",
+        "possibly_fake"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.9,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 35.0,
+      "conditionOverride": "used",
+      "riskNote": "Scam risk +1",
+      "notes": "Vintage cards in a box that has survived several bad decades."
+    },
+    {
+      "id": "regular_mr_seventies_trades_gold_ring_engravings",
+      "characterId": "regular-mr-seventies",
+      "itemId": "gold_ring_engravings",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "luxury",
+        "collectible",
+        "electronics"
+      ],
+      "offeredItemTags": [
+        "jewelry",
+        "luxury",
+        "suspicious"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.9,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 35.0,
+      "conditionOverride": "used",
+      "riskNote": "Scam risk +1",
+      "notes": "Vintage cards in a box that has survived several bad decades."
+    },
+    {
+      "id": "regular_mr_seventies_trades_pawn_shop_guitar",
+      "characterId": "regular-mr-seventies",
+      "itemId": "pawn_shop_guitar",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "luxury",
+        "collectible",
+        "electronics"
+      ],
+      "offeredItemTags": [
+        "instrument",
+        "repairable"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.9,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 35.0,
+      "conditionOverride": "used",
+      "riskNote": "Scam risk +1",
+      "notes": "Vintage cards in a box that has survived several bad decades."
+    },
+    {
+      "id": "regular_mr_seventies_trades_suspicious_gold_watch",
+      "characterId": "regular-mr-seventies",
+      "itemId": "suspicious_gold_watch",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "luxury",
+        "collectible",
+        "electronics"
+      ],
+      "offeredItemTags": [
+        "watch",
+        "possibly_fake",
+        "luxury",
+        "suspicious"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.9,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 35.0,
+      "conditionOverride": "used",
+      "riskNote": "Scam risk +1",
+      "notes": "Vintage cards in a box that has survived several bad decades."
+    },
+    {
+      "id": "regular_mr_seventies_trades_fake_gold_chain",
+      "characterId": "regular-mr-seventies",
+      "itemId": "fake_gold_chain",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "luxury",
+        "collectible",
+        "electronics"
+      ],
+      "offeredItemTags": [
+        "jewelry",
+        "fake",
+        "suspicious"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.9,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 35.0,
+      "conditionOverride": "used",
+      "riskNote": "Scam risk +1",
+      "notes": "Vintage cards in a box that has survived several bad decades."
+    },
+    {
+      "id": "regular_mr_seventies_trades_microwave_haunted",
+      "characterId": "regular-mr-seventies",
+      "itemId": "microwave_haunted",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "luxury",
+        "collectible",
+        "electronics"
+      ],
+      "offeredItemTags": [
+        "appliance",
+        "junk",
+        "broken",
+        "cursed"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.9,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 35.0,
+      "conditionOverride": "used",
+      "riskNote": "Scam risk +1",
+      "notes": "Vintage cards in a box that has survived several bad decades."
+    },
+    {
+      "id": "regular_business_drunk_sells_fake_gold_chain",
+      "characterId": "regular-business-drunk",
+      "itemId": "fake_gold_chain",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "fake",
+        "suspicious"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_suspicious_gold_watch",
+      "characterId": "regular-business-drunk",
+      "itemId": "suspicious_gold_watch",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "watch",
+        "possibly_fake",
+        "luxury",
+        "suspicious"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_old_gaming_pc",
+      "characterId": "regular-business-drunk",
+      "itemId": "old_gaming_pc",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "computer",
+        "electronics",
+        "repairable"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_cordless_drill",
+      "characterId": "regular-business-drunk",
+      "itemId": "cordless_drill",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "repairable"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_bolt_cutters",
+      "characterId": "regular-business-drunk",
+      "itemId": "bolt_cutters",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "suspicious"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_pawn_shop_guitar",
+      "characterId": "regular-business-drunk",
+      "itemId": "pawn_shop_guitar",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "instrument",
+        "repairable"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_gold_ring_engravings",
+      "characterId": "regular-business-drunk",
+      "itemId": "gold_ring_engravings",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury",
+        "suspicious"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_baseball_card_box",
+      "characterId": "regular-business-drunk",
+      "itemId": "baseball_card_box",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "collectible",
+        "mystery"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_rare_action_figure",
+      "characterId": "regular-business-drunk",
+      "itemId": "rare_action_figure",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "collectible",
+        "rare",
+        "broken"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_luxury_handbag_fake",
+      "characterId": "regular-business-drunk",
+      "itemId": "luxury_handbag_fake",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "luxury",
+        "possibly_fake"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_dvd_stack",
+      "characterId": "regular-business-drunk",
+      "itemId": "dvd_stack",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "collectible",
+        "junk"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_smart_watch_locked",
+      "characterId": "regular-business-drunk",
+      "itemId": "smart_watch_locked",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "watch",
+        "electronics",
+        "suspicious"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_silverware_bundle",
+      "characterId": "regular-business-drunk",
+      "itemId": "silverware_bundle",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "possibly_fake",
+        "suspicious"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_countertop_blender",
+      "characterId": "regular-business-drunk",
+      "itemId": "countertop_blender",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "appliance",
+        "practical"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_air_fryer",
+      "characterId": "regular-business-drunk",
+      "itemId": "air_fryer",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "appliance",
+        "practical"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_shop_vac",
+      "characterId": "regular-business-drunk",
+      "itemId": "shop_vac",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "appliance",
+        "practical",
+        "repairable"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_flat_screen_tv",
+      "characterId": "regular-business-drunk",
+      "itemId": "flat_screen_tv",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "practical"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_bluetooth_speaker",
+      "characterId": "regular-business-drunk",
+      "itemId": "bluetooth_speaker",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "portable"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_game_console",
+      "characterId": "regular-business-drunk",
+      "itemId": "game_console",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "console",
+        "electronics",
+        "popular"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_handheld_console",
+      "characterId": "regular-business-drunk",
+      "itemId": "handheld_console",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "console",
+        "electronics",
+        "portable",
+        "collectible"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_used_smartphone",
+      "characterId": "regular-business-drunk",
+      "itemId": "used_smartphone",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "portable"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_budget_laptop",
+      "characterId": "regular-business-drunk",
+      "itemId": "budget_laptop",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "computer",
+        "electronics",
+        "practical"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_mirrorless_camera",
+      "characterId": "regular-business-drunk",
+      "itemId": "mirrorless_camera",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "luxury"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_circular_saw",
+      "characterId": "regular-business-drunk",
+      "itemId": "circular_saw",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "repairable",
+        "practical"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_socket_set",
+      "characterId": "regular-business-drunk",
+      "itemId": "socket_set",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "practical"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_pressure_washer",
+      "characterId": "regular-business-drunk",
+      "itemId": "pressure_washer",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "practical",
+        "repairable"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_electric_guitar",
+      "characterId": "regular-business-drunk",
+      "itemId": "electric_guitar",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "instrument",
+        "collectible"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_student_saxophone",
+      "characterId": "regular-business-drunk",
+      "itemId": "student_saxophone",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "instrument",
+        "collectible",
+        "repairable"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_dj_turntable",
+      "characterId": "regular-business-drunk",
+      "itemId": "dj_turntable",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "collectible"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_diamond_stud_earrings",
+      "characterId": "regular-business-drunk",
+      "itemId": "diamond_stud_earrings",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_gold_bracelet",
+      "characterId": "regular-business-drunk",
+      "itemId": "gold_bracelet",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_automatic_watch",
+      "characterId": "regular-business-drunk",
+      "itemId": "automatic_watch",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "watch",
+        "luxury",
+        "collectible"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_business_drunk_sells_sealed_mystery_box",
+      "characterId": "regular-business-drunk",
+      "itemId": "sealed_mystery_box",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "mystery",
+        "suspicious"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Insists they were for client meetings."
+    },
+    {
+      "id": "regular_lady_divorce_buys_fake_gold_chain",
+      "characterId": "regular-lady-divorce",
+      "itemId": "fake_gold_chain",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "jewelry",
+        "fake",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_lady_divorce_buys_suspicious_gold_watch",
+      "characterId": "regular-lady-divorce",
+      "itemId": "suspicious_gold_watch",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "watch",
+        "possibly_fake",
+        "luxury",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_lady_divorce_buys_gold_ring_engravings",
+      "characterId": "regular-lady-divorce",
+      "itemId": "gold_ring_engravings",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "jewelry",
+        "luxury",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_lady_divorce_buys_luxury_handbag_fake",
+      "characterId": "regular-lady-divorce",
+      "itemId": "luxury_handbag_fake",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "luxury",
+        "possibly_fake"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_lady_divorce_buys_silverware_bundle",
+      "characterId": "regular-lady-divorce",
+      "itemId": "silverware_bundle",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "jewelry",
+        "possibly_fake",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_lady_divorce_buys_countertop_blender",
+      "characterId": "regular-lady-divorce",
+      "itemId": "countertop_blender",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "appliance",
+        "practical"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_lady_divorce_buys_diamond_stud_earrings",
+      "characterId": "regular-lady-divorce",
+      "itemId": "diamond_stud_earrings",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_lady_divorce_buys_gold_bracelet",
+      "characterId": "regular-lady-divorce",
+      "itemId": "gold_bracelet",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_lady_divorce_buys_designer_sunglasses",
+      "characterId": "regular-lady-divorce",
+      "itemId": "designer_sunglasses",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "luxury",
+        "portable"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_lady_divorce_buys_automatic_watch",
+      "characterId": "regular-lady-divorce",
+      "itemId": "automatic_watch",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "watch",
+        "luxury",
+        "collectible"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_lady_divorce_sells_suspicious_gold_watch",
+      "characterId": "regular-lady-divorce",
+      "itemId": "suspicious_gold_watch",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "watch",
+        "possibly_fake",
+        "luxury",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_old_gaming_pc",
+      "characterId": "regular-lady-divorce",
+      "itemId": "old_gaming_pc",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "computer",
+        "electronics",
+        "repairable"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_hospital_vcr",
+      "characterId": "regular-lady-divorce",
+      "itemId": "hospital_vcr",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "hot",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_cracked_tablet",
+      "characterId": "regular-lady-divorce",
+      "itemId": "cracked_tablet",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "broken"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_cordless_drill",
+      "characterId": "regular-lady-divorce",
+      "itemId": "cordless_drill",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "repairable"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_bolt_cutters",
+      "characterId": "regular-lady-divorce",
+      "itemId": "bolt_cutters",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_pawn_shop_guitar",
+      "characterId": "regular-lady-divorce",
+      "itemId": "pawn_shop_guitar",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "instrument",
+        "repairable"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_baseball_card_box",
+      "characterId": "regular-lady-divorce",
+      "itemId": "baseball_card_box",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "collectible",
+        "mystery"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_rare_action_figure",
+      "characterId": "regular-lady-divorce",
+      "itemId": "rare_action_figure",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "collectible",
+        "rare",
+        "broken"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_pocket_knife",
+      "characterId": "regular-lady-divorce",
+      "itemId": "pocket_knife",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "weapon"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_rusty_revolver_prop",
+      "characterId": "regular-lady-divorce",
+      "itemId": "rusty_revolver_prop",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "weapon",
+        "suspicious",
+        "hot"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_sealed_mystery_box",
+      "characterId": "regular-lady-divorce",
+      "itemId": "sealed_mystery_box",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "mystery",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_stolen_bike_wheel",
+      "characterId": "regular-lady-divorce",
+      "itemId": "stolen_bike_wheel",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "stolen",
+        "hot",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_dvd_stack",
+      "characterId": "regular-lady-divorce",
+      "itemId": "dvd_stack",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "collectible",
+        "junk"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_smart_watch_locked",
+      "characterId": "regular-lady-divorce",
+      "itemId": "smart_watch_locked",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "watch",
+        "electronics",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_bluetooth_speaker",
+      "characterId": "regular-lady-divorce",
+      "itemId": "bluetooth_speaker",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "portable"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_game_console",
+      "characterId": "regular-lady-divorce",
+      "itemId": "game_console",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "console",
+        "electronics",
+        "popular"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_handheld_console",
+      "characterId": "regular-lady-divorce",
+      "itemId": "handheld_console",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "console",
+        "electronics",
+        "portable",
+        "collectible"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_used_smartphone",
+      "characterId": "regular-lady-divorce",
+      "itemId": "used_smartphone",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "portable"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_budget_laptop",
+      "characterId": "regular-lady-divorce",
+      "itemId": "budget_laptop",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "computer",
+        "electronics",
+        "practical"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_circular_saw",
+      "characterId": "regular-lady-divorce",
+      "itemId": "circular_saw",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "repairable",
+        "practical"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_socket_set",
+      "characterId": "regular-lady-divorce",
+      "itemId": "socket_set",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "practical"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_pressure_washer",
+      "characterId": "regular-lady-divorce",
+      "itemId": "pressure_washer",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "tool",
+        "practical",
+        "repairable"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_electric_guitar",
+      "characterId": "regular-lady-divorce",
+      "itemId": "electric_guitar",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "instrument",
+        "collectible"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_student_saxophone",
+      "characterId": "regular-lady-divorce",
+      "itemId": "student_saxophone",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "instrument",
+        "collectible",
+        "repairable"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_sells_dj_turntable",
+      "characterId": "regular-lady-divorce",
+      "itemId": "dj_turntable",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "collectible"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_buys_mirrorless_camera",
+      "characterId": "regular-lady-divorce",
+      "itemId": "mirrorless_camera",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "electronics",
+        "luxury"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_lady_divorce_buys_shop_vac",
+      "characterId": "regular-lady-divorce",
+      "itemId": "shop_vac",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "appliance",
+        "practical",
+        "repairable"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_lady_divorce_buys_air_fryer",
+      "characterId": "regular-lady-divorce",
+      "itemId": "air_fryer",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "appliance",
+        "practical"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_lady_divorce_sells_flat_screen_tv",
+      "characterId": "regular-lady-divorce",
+      "itemId": "flat_screen_tv",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "practical"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk; reputation penalty for cruelty",
+      "notes": "Removing one more shared asset from the ledger."
+    },
+    {
+      "id": "regular_lady_divorce_buys_microwave_haunted",
+      "characterId": "regular-lady-divorce",
+      "itemId": "microwave_haunted",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "appliance",
+        "junk",
+        "broken",
+        "cursed"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_lady_divorce_trades_fake_gold_chain",
+      "characterId": "regular-lady-divorce",
+      "itemId": "fake_gold_chain",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "jewelry",
+        "fake",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "regular_lady_divorce_trades_suspicious_gold_watch",
+      "characterId": "regular-lady-divorce",
+      "itemId": "suspicious_gold_watch",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "watch",
+        "possibly_fake",
+        "luxury",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "regular_lady_divorce_trades_luxury_handbag_fake",
+      "characterId": "regular-lady-divorce",
+      "itemId": "luxury_handbag_fake",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "luxury",
+        "possibly_fake"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "regular_lady_divorce_trades_smart_watch_locked",
+      "characterId": "regular-lady-divorce",
+      "itemId": "smart_watch_locked",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "watch",
+        "electronics",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "regular_lady_divorce_trades_silverware_bundle",
+      "characterId": "regular-lady-divorce",
+      "itemId": "silverware_bundle",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "jewelry",
+        "possibly_fake",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "regular_lady_divorce_trades_shop_vac",
+      "characterId": "regular-lady-divorce",
+      "itemId": "shop_vac",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "appliance",
+        "practical",
+        "repairable"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "regular_lady_divorce_trades_air_fryer",
+      "characterId": "regular-lady-divorce",
+      "itemId": "air_fryer",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "appliance",
+        "practical"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "regular_lady_divorce_trades_countertop_blender",
+      "characterId": "regular-lady-divorce",
+      "itemId": "countertop_blender",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "appliance",
+        "practical"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "regular_lady_divorce_trades_flat_screen_tv",
+      "characterId": "regular-lady-divorce",
+      "itemId": "flat_screen_tv",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "electronics",
+        "practical"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "regular_lady_divorce_trades_bluetooth_speaker",
+      "characterId": "regular-lady-divorce",
+      "itemId": "bluetooth_speaker",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "electronics",
+        "portable"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "regular_lady_divorce_trades_used_smartphone",
+      "characterId": "regular-lady-divorce",
+      "itemId": "used_smartphone",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "electronics",
+        "portable"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "regular_lady_divorce_trades_budget_laptop",
+      "characterId": "regular-lady-divorce",
+      "itemId": "budget_laptop",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "computer",
+        "electronics",
+        "practical"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "regular_lady_divorce_trades_mirrorless_camera",
+      "characterId": "regular-lady-divorce",
+      "itemId": "mirrorless_camera",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "electronics",
+        "luxury"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "regular_lady_divorce_trades_diamond_stud_earrings",
+      "characterId": "regular-lady-divorce",
+      "itemId": "diamond_stud_earrings",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "regular_lady_divorce_trades_gold_bracelet",
+      "characterId": "regular-lady-divorce",
+      "itemId": "gold_bracelet",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "regular_lady_divorce_trades_designer_sunglasses",
+      "characterId": "regular-lady-divorce",
+      "itemId": "designer_sunglasses",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "luxury",
+        "portable"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "regular_lady_divorce_trades_automatic_watch",
+      "characterId": "regular-lady-divorce",
+      "itemId": "automatic_watch",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "watch",
+        "luxury",
+        "collectible"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "regular_lady_divorce_trades_microwave_haunted",
+      "characterId": "regular-lady-divorce",
+      "itemId": "microwave_haunted",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "appliance",
+        "junk",
+        "broken",
+        "cursed"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "regular_lady_divorce_trades_gold_ring_engravings",
+      "characterId": "regular-lady-divorce",
+      "itemId": "gold_ring_engravings",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "jewelry",
+        "luxury",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "money_jan_takai_buys_automatic_watch",
+      "characterId": "money-jan-takai",
+      "itemId": "automatic_watch",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "watch",
+        "luxury",
+        "collectible"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "money_jan_takai_buys_designer_sunglasses",
+      "characterId": "money-jan-takai",
+      "itemId": "designer_sunglasses",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "luxury",
+        "portable"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "money_jan_takai_buys_gold_bracelet",
+      "characterId": "money-jan-takai",
+      "itemId": "gold_bracelet",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "money_jan_takai_buys_mirrorless_camera",
+      "characterId": "money-jan-takai",
+      "itemId": "mirrorless_camera",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "electronics",
+        "luxury"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "money_jan_takai_buys_luxury_handbag_fake",
+      "characterId": "money-jan-takai",
+      "itemId": "luxury_handbag_fake",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "luxury",
+        "possibly_fake"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "money_jan_takai_buys_gold_ring_engravings",
+      "characterId": "money-jan-takai",
+      "itemId": "gold_ring_engravings",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "jewelry",
+        "luxury",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "money_jan_takai_buys_suspicious_gold_watch",
+      "characterId": "money-jan-takai",
+      "itemId": "suspicious_gold_watch",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "watch",
+        "possibly_fake",
+        "luxury",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "money_jan_takai_sells_automatic_watch",
+      "characterId": "money-jan-takai",
+      "itemId": "automatic_watch",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "watch",
+        "luxury",
+        "collectible"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "money_jan_takai_sells_designer_sunglasses",
+      "characterId": "money-jan-takai",
+      "itemId": "designer_sunglasses",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "luxury",
+        "portable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "money_jan_takai_sells_gold_bracelet",
+      "characterId": "money-jan-takai",
+      "itemId": "gold_bracelet",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "money_jan_takai_sells_diamond_stud_earrings",
+      "characterId": "money-jan-takai",
+      "itemId": "diamond_stud_earrings",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "money_jan_takai_sells_used_smartphone",
+      "characterId": "money-jan-takai",
+      "itemId": "used_smartphone",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "portable"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "money_jan_takai_sells_smart_watch_locked",
+      "characterId": "money-jan-takai",
+      "itemId": "smart_watch_locked",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "watch",
+        "electronics",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "money_jan_takai_sells_luxury_handbag_fake",
+      "characterId": "money-jan-takai",
+      "itemId": "luxury_handbag_fake",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "luxury",
+        "possibly_fake"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "money_jan_takai_sells_gold_ring_engravings",
+      "characterId": "money-jan-takai",
+      "itemId": "gold_ring_engravings",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "money_jan_takai_sells_suspicious_gold_watch",
+      "characterId": "money-jan-takai",
+      "itemId": "suspicious_gold_watch",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "watch",
+        "possibly_fake",
+        "luxury",
+        "suspicious"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "money_jan_takai_trades_fake_gold_chain",
+      "characterId": "money-jan-takai",
+      "itemId": "fake_gold_chain",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "jewelry",
+        "fake",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "money_jan_takai_trades_suspicious_gold_watch",
+      "characterId": "money-jan-takai",
+      "itemId": "suspicious_gold_watch",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "watch",
+        "possibly_fake",
+        "luxury",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "money_jan_takai_trades_gold_ring_engravings",
+      "characterId": "money-jan-takai",
+      "itemId": "gold_ring_engravings",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "jewelry",
+        "luxury",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "money_jan_takai_trades_luxury_handbag_fake",
+      "characterId": "money-jan-takai",
+      "itemId": "luxury_handbag_fake",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "luxury",
+        "possibly_fake"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "money_jan_takai_trades_smart_watch_locked",
+      "characterId": "money-jan-takai",
+      "itemId": "smart_watch_locked",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "watch",
+        "electronics",
+        "suspicious"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "money_jan_takai_trades_mirrorless_camera",
+      "characterId": "money-jan-takai",
+      "itemId": "mirrorless_camera",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "electronics",
+        "luxury"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "money_jan_takai_trades_gold_bracelet",
+      "characterId": "money-jan-takai",
+      "itemId": "gold_bracelet",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "money_jan_takai_trades_diamond_stud_earrings",
+      "characterId": "money-jan-takai",
+      "itemId": "diamond_stud_earrings",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "money_jan_takai_trades_designer_sunglasses",
+      "characterId": "money-jan-takai",
+      "itemId": "designer_sunglasses",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "luxury",
+        "portable"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "money_jan_takai_trades_automatic_watch",
+      "characterId": "money-jan-takai",
+      "itemId": "automatic_watch",
+      "dealType": "trade",
+      "itemRole": "npc_offers",
+      "requestedItemTags": [
+        "electronics",
+        "junk",
+        "mystery"
+      ],
+      "offeredItemTags": [
+        "watch",
+        "luxury",
+        "collectible"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": -20.0,
+      "cashAdjustmentMax": 20.0,
+      "conditionOverride": "unknown",
+      "riskNote": "Random scam/cop risk",
+      "notes": "Trades a bad box for something easier to fence."
+    },
+    {
+      "id": "regular_mr_tourist_buys_fake_gold_chain",
+      "characterId": "regular-mr-tourist",
+      "itemId": "fake_gold_chain",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "jewelry",
+        "fake",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_mr_tourist_buys_suspicious_gold_watch",
+      "characterId": "regular-mr-tourist",
+      "itemId": "suspicious_gold_watch",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "watch",
+        "possibly_fake",
+        "luxury",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_mr_tourist_buys_baseball_card_box",
+      "characterId": "regular-mr-tourist",
+      "itemId": "baseball_card_box",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "collectible",
+        "mystery"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_mr_tourist_buys_rare_action_figure",
+      "characterId": "regular-mr-tourist",
+      "itemId": "rare_action_figure",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "collectible",
+        "rare",
+        "broken"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_mr_tourist_buys_pocket_knife",
+      "characterId": "regular-mr-tourist",
+      "itemId": "pocket_knife",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "weapon"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_mr_tourist_buys_luxury_handbag_fake",
+      "characterId": "regular-mr-tourist",
+      "itemId": "luxury_handbag_fake",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "luxury",
+        "possibly_fake"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_mr_tourist_buys_sealed_mystery_box",
+      "characterId": "regular-mr-tourist",
+      "itemId": "sealed_mystery_box",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "mystery",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_mr_tourist_buys_smart_watch_locked",
+      "characterId": "regular-mr-tourist",
+      "itemId": "smart_watch_locked",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "watch",
+        "electronics",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_mr_tourist_buys_bluetooth_speaker",
+      "characterId": "regular-mr-tourist",
+      "itemId": "bluetooth_speaker",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "electronics",
+        "portable"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_mr_tourist_buys_used_smartphone",
+      "characterId": "regular-mr-tourist",
+      "itemId": "used_smartphone",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "electronics",
+        "portable"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_mr_tourist_buys_budget_laptop",
+      "characterId": "regular-mr-tourist",
+      "itemId": "budget_laptop",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "computer",
+        "electronics",
+        "practical"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_mr_tourist_buys_mirrorless_camera",
+      "characterId": "regular-mr-tourist",
+      "itemId": "mirrorless_camera",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "electronics",
+        "luxury"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_mr_tourist_sells_gold_bracelet",
+      "characterId": "regular-mr-tourist",
+      "itemId": "gold_bracelet",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "regular_mr_tourist_sells_diamond_stud_earrings",
+      "characterId": "regular-mr-tourist",
+      "itemId": "diamond_stud_earrings",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "regular_mr_tourist_buys_designer_sunglasses",
+      "characterId": "regular-mr-tourist",
+      "itemId": "designer_sunglasses",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "luxury",
+        "portable"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_mr_tourist_buys_automatic_watch",
+      "characterId": "regular-mr-tourist",
+      "itemId": "automatic_watch",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "watch",
+        "luxury",
+        "collectible"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Will buy junk if the price is pathetic."
+    },
+    {
+      "id": "regular_mrs_tourist_sells_fake_gold_chain",
+      "characterId": "regular-mrs-tourist",
+      "itemId": "fake_gold_chain",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "fake",
+        "suspicious"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.74,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk",
+      "notes": "Says it no longer matches the vacation mood or the credit-card statement."
+    },
+    {
+      "id": "regular_mrs_tourist_sells_suspicious_gold_watch",
+      "characterId": "regular-mrs-tourist",
+      "itemId": "suspicious_gold_watch",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "watch",
+        "possibly_fake",
+        "luxury",
+        "suspicious"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.74,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk",
+      "notes": "Says it no longer matches the vacation mood or the credit-card statement."
+    },
+    {
+      "id": "regular_mrs_tourist_buys_automatic_watch",
+      "characterId": "regular-mrs-tourist",
+      "itemId": "automatic_watch",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "watch",
+        "luxury",
+        "collectible"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 1.06,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Wants designer shade for sightseeing and financial denial."
+    },
+    {
+      "id": "regular_mrs_tourist_buys_mirrorless_camera",
+      "characterId": "regular-mrs-tourist",
+      "itemId": "mirrorless_camera",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "electronics",
+        "luxury"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 1.06,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Wants designer shade for sightseeing and financial denial."
+    },
+    {
+      "id": "regular_mrs_tourist_sells_diamond_stud_earrings",
+      "characterId": "regular-mrs-tourist",
+      "itemId": "diamond_stud_earrings",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.74,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk",
+      "notes": "Says it no longer matches the vacation mood or the credit-card statement."
+    },
+    {
+      "id": "regular_mrs_tourist_sells_luxury_handbag_fake",
+      "characterId": "regular-mrs-tourist",
+      "itemId": "luxury_handbag_fake",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "luxury",
+        "possibly_fake"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.74,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk",
+      "notes": "Says it no longer matches the vacation mood or the credit-card statement."
+    },
+    {
+      "id": "regular_mrs_tourist_sells_gold_ring_engravings",
+      "characterId": "regular-mrs-tourist",
+      "itemId": "gold_ring_engravings",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "jewelry",
+        "luxury",
+        "suspicious"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.74,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk",
+      "notes": "Says it no longer matches the vacation mood or the credit-card statement."
+    },
+    {
+      "id": "regular_mrs_tourist_sells_budget_laptop",
+      "characterId": "regular-mrs-tourist",
+      "itemId": "budget_laptop",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "computer",
+        "electronics",
+        "practical"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.74,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "good",
+      "riskNote": "Low risk",
+      "notes": "Says it no longer matches the vacation mood or the credit-card statement."
+    },
+    {
+      "id": "street_crackhead_buys_pocket_knife",
+      "characterId": "street-crackhead",
+      "itemId": "pocket_knife",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "weapon"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 3.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk if oversold",
+      "notes": "May buy cursed junk because rent is already cursed."
+    },
+    {
+      "id": "street_crackhead_buys_rusty_revolver_prop",
+      "characterId": "street-crackhead",
+      "itemId": "rusty_revolver_prop",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "weapon",
+        "suspicious",
+        "hot"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 3.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk if oversold",
+      "notes": "May buy cursed junk because rent is already cursed."
+    },
+    {
+      "id": "street_crackhead_buys_bolt_cutters",
+      "characterId": "street-crackhead",
+      "itemId": "bolt_cutters",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "tool",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 3.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk if oversold",
+      "notes": "May buy cursed junk because rent is already cursed."
+    },
+    {
+      "id": "street_crackhead_buys_cordless_drill",
+      "characterId": "street-crackhead",
+      "itemId": "cordless_drill",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "tool",
+        "repairable"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 3.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk if oversold",
+      "notes": "May buy cursed junk because rent is already cursed."
+    },
+    {
+      "id": "street_crackhead_sells_flat_screen_tv",
+      "characterId": "street-crackhead",
+      "itemId": "flat_screen_tv",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "electronics",
+        "practical"
+      ],
+      "chanceWeight": 8.0,
+      "askPriceMultiplier": 0.4,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk +1",
+      "notes": "Cheap fake jewelry with confidence problems."
+    },
+    {
+      "id": "street_crackhead_buys_circular_saw",
+      "characterId": "street-crackhead",
+      "itemId": "circular_saw",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "tool",
+        "repairable",
+        "practical"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 3.0,
+      "askPriceMultiplier": 0.75,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk if oversold",
+      "notes": "May buy cursed junk because rent is already cursed."
     }
   ],
   "eventBlueprints": [
@@ -6060,6 +11119,14 @@ window.ONE_STAR_PAWN_DATA = {
       "resultNotes": "Dangerous trade test."
     },
     {
+      "id": "hitman_suspicious_offer",
+      "characterId": "service-hitman",
+      "eventType": "sell_to_shop",
+      "pressureFactionId": "",
+      "dialogue": "I picked this up where people stop asking follow-up questions.",
+      "resultNotes": "Use service-hitman sell_to_shop pools."
+    },
+    {
       "id": "junkie_mystery_box_trade",
       "characterId": "street-junkie",
       "eventType": "trade",
@@ -6068,20 +11135,12 @@ window.ONE_STAR_PAWN_DATA = {
       "resultNotes": "Good weird-risk event."
     },
     {
-      "id": "nervous_vcr_offer",
-      "characterId": "nervous_seller",
+      "id": "junkie_vcr_offer",
+      "characterId": "street-junkie",
       "eventType": "sell_to_shop",
       "pressureFactionId": "",
-      "dialogue": "Got a vintage VCR. Works great. Don’t ask why there’s hospital tape on it.",
-      "resultNotes": "Use Character_Item_Pools for exact item/price."
-    },
-    {
-      "id": "collector_cards_buy",
-      "characterId": "collector",
-      "eventType": "buy_from_shop",
-      "pressureFactionId": "",
-      "dialogue": "I heard you have baseball cards. I collect terrible financial decisions.",
-      "resultNotes": "Requires matching collectible inventory."
+      "dialogue": "Hospital VCR. Vintage. Medical. Maybe haunted by billing codes.",
+      "resultNotes": "Use junkie_vcr or compatible junkie sell pool for item/price."
     },
     {
       "id": "tracksuit_bad_trade",
@@ -6092,44 +11151,28 @@ window.ONE_STAR_PAWN_DATA = {
       "resultNotes": "Potential thug consequence."
     },
     {
-      "id": "mechanic_tool_sale",
-      "characterId": "mechanic",
-      "eventType": "buy_from_shop",
-      "pressureFactionId": "",
-      "dialogue": "You got tools back there, or just decorative tetanus?",
-      "resultNotes": "Good clean selling event."
-    },
-    {
-      "id": "street_fence_hot_offer",
-      "characterId": "street_fence",
-      "eventType": "sell_to_shop",
-      "pressureFactionId": "",
-      "dialogue": "It’s not stolen. It’s aggressively pre-owned.",
-      "resultNotes": "High-risk high-profit source."
-    },
-    {
-      "id": "undercover_bait_buy",
-      "characterId": "undercover_cop",
-      "eventType": "buy_from_shop",
-      "pressureFactionId": "",
-      "dialogue": "This serial number being scratched off, is that normal pawn shop stuff?",
-      "resultNotes": "Bait event for hot inventory."
-    },
-    {
-      "id": "mystery_weirdo_trade",
-      "characterId": "mystery_weirdo",
-      "eventType": "trade",
-      "pressureFactionId": "",
-      "dialogue": "I brought a box. It brought itself, spiritually and maybe legally.",
-      "resultNotes": "Weird trade event; keep effects simple."
-    },
-    {
       "id": "regular_mr_seventies_watch_offer",
       "characterId": "regular-mr-seventies",
       "eventType": "sell_to_shop",
       "pressureFactionId": "",
       "dialogue": "Vintage gold. Vintage means the questions expired.",
       "resultNotes": "Use regular_mr_seventies_gold_watch pool."
+    },
+    {
+      "id": "regular_mr_seventies_luxury_buy",
+      "characterId": "regular-mr-seventies",
+      "eventType": "buy_from_shop",
+      "pressureFactionId": "",
+      "dialogue": "I am shopping for something with shine and a better memory than mine.",
+      "resultNotes": "Use regular-mr-seventies buy_from_shop pools."
+    },
+    {
+      "id": "regular_mr_seventies_trade",
+      "characterId": "regular-mr-seventies",
+      "eventType": "trade",
+      "pressureFactionId": "",
+      "dialogue": "I brought vintage taste and negotiable confidence.",
+      "resultNotes": "Use regular-mr-seventies trade pools."
     },
     {
       "id": "regular_business_drunk_sunglasses_offer",
@@ -6162,6 +11205,14 @@ window.ONE_STAR_PAWN_DATA = {
       "pressureFactionId": "",
       "dialogue": "Fourteen karat closure. I am keeping the dog and selling the bracelet.",
       "resultNotes": "Use regular_lady_divorce_gold_bracelet pool."
+    },
+    {
+      "id": "regular_lady_divorce_jewelry_buy",
+      "characterId": "regular-lady-divorce",
+      "eventType": "buy_from_shop",
+      "pressureFactionId": "",
+      "dialogue": "I am rebuilding the good parts of a household one receipt at a time.",
+      "resultNotes": "Use regular-lady-divorce buy_from_shop pools."
     },
     {
       "id": "regular_lady_divorce_trade",
@@ -6394,6 +11445,14 @@ window.ONE_STAR_PAWN_DATA = {
       "pressureFactionId": "",
       "dialogue": "It was my anniversary ring. The machine is due, sweetheart.",
       "resultNotes": "Use old_grandma_slots_gold_ring pool. Keep tone darkly funny, not cruel."
+    },
+    {
+      "id": "old_grandma_slots_cards_trade",
+      "characterId": "regular-grandma-slots",
+      "eventType": "trade",
+      "pressureFactionId": "",
+      "dialogue": "I have cards and hope. One of them might still be worth something.",
+      "resultNotes": "Use old_grandma_slots_cards_trade pool."
     },
     {
       "id": "senior_grandpa_catfish_tool_offer",

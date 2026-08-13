@@ -207,6 +207,37 @@ $EventBlueprints | ForEach-Object {
   }
 }
 
+$ActiveCharacterIds = [System.Collections.Generic.HashSet[string]]::new()
+$Characters | Where-Object { $_.activeInRotation } | ForEach-Object { [void]$ActiveCharacterIds.Add($_.id) }
+$CommerceTraitsByCharacterId = @{}
+$CharacterCommerceTraits | ForEach-Object { $CommerceTraitsByCharacterId[$_.characterId] = $_ }
+$EventBlueprintKeys = [System.Collections.Generic.HashSet[string]]::new()
+$EventBlueprints | ForEach-Object { [void]$EventBlueprintKeys.Add("$($_.characterId):$($_.eventType)") }
+$DealTypeWeightKeys = @{
+  sell_to_shop = 'sellsToShopWeight'
+  buy_from_shop = 'buysFromShopWeight'
+  trade = 'tradesWeight'
+}
+$MissingNormalDealBlueprintKeys = [System.Collections.Generic.HashSet[string]]::new()
+$MissingNormalDealBlueprints = [System.Collections.Generic.List[string]]::new()
+$CharacterItemPools | ForEach-Object {
+  if (!$ActiveCharacterIds.Contains($_.characterId)) { return }
+  if (!$SeenItemIds.Contains($_.itemId)) { return }
+  if ($_.chanceWeight -le 0) { return }
+  $WeightKey = $DealTypeWeightKeys[$_.dealType]
+  if (!$WeightKey) { return }
+  $Traits = $CommerceTraitsByCharacterId[$_.characterId]
+  if (!$Traits -or $Traits.$WeightKey -le 0) { return }
+  $EventKey = "$($_.characterId):$($_.dealType)"
+  if ($EventBlueprintKeys.Contains($EventKey) -or $MissingNormalDealBlueprintKeys.Contains($EventKey)) { return }
+  [void]$MissingNormalDealBlueprintKeys.Add($EventKey)
+  $MissingNormalDealBlueprints.Add("$($_.characterId) $($_.dealType) has executable pool intent but no Event_Blueprint row")
+}
+
+if ($MissingNormalDealBlueprints.Count) {
+  throw "Normal deal blueprint coverage is incomplete:`n- $($MissingNormalDealBlueprints -join "`n- ")"
+}
+
 if ($FactionErrors.Count) {
   throw "Malformed faction references:`n- $($FactionErrors -join "`n- ")"
 }
