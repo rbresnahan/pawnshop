@@ -1,4 +1,4 @@
-const GAME_VERSION = '0.1.48';
+const GAME_VERSION = '0.1.49';
 const GAME_BUILD_LOADED_AT = new Date().toISOString();
 
 window.ONE_STAR_PAWN_VERSION = GAME_VERSION;
@@ -564,6 +564,7 @@ const CUSTOMER_BUY_REQUEST_LABELS = {
   game_console: 'console',
   luxury: 'luxury item',
   weapon: 'weapon',
+  vice: 'vice item',
   appliance: 'appliance'
 };
 
@@ -583,6 +584,7 @@ const CUSTOMER_BUY_REQUEST_PRIORITY = [
   'instrument',
   'luxury',
   'weapon',
+  'vice',
   'appliance'
 ];
 const BROAD_BUY_TAGS = new Set(['electronics', 'junk', 'collectible', 'collectibles', 'luxury', 'practical', 'portable']);
@@ -5106,6 +5108,8 @@ function canFallbackBuyerConsiderItem(pool, customer, item) {
   const riskInterest = tagsOverlap(tags, getCustomerBuyRequestTags(pool)) || Number(traits.riskTolerance) >= 3;
   if (risky && !riskInterest) return false;
   const explicitTypeTags = getCustomerBuyRequestTags(pool).filter(tag => CUSTOMER_BUY_REQUEST_LABELS[tag]);
+  const strictExplicitTypeTags = explicitTypeTags.filter(tag => ['vice', 'weapon'].includes(tag));
+  if (strictExplicitTypeTags.length && !tagsOverlap(tags, strictExplicitTypeTags)) return false;
   if (explicitTypeTags.length && !tagsOverlap(tags, explicitTypeTags) && !LOW_CASH_RECOVERY.opportunisticBuyerIds.includes(customer.id)) return false;
   return true;
 }

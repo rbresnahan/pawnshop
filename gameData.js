@@ -908,9 +908,12 @@ window.ONE_STAR_PAWN_DATA = {
     {
       "characterId": "street-crackhead",
       "sellsToShopWeight": 6.0,
-      "buysFromShopWeight": 0.0,
+      "buysFromShopWeight": 1.0,
       "tradesWeight": 0.0,
       "buyInterestTags": [
+        "vice",
+        "weapon",
+        "suspicious",
         "junk",
         "electronics",
         "mystery"
@@ -920,7 +923,8 @@ window.ONE_STAR_PAWN_DATA = {
         "broken",
         "suspicious",
         "hot",
-        "electronics"
+        "electronics",
+        "vice"
       ],
       "tradeInterestTags": [
         "electronics",
@@ -944,17 +948,20 @@ window.ONE_STAR_PAWN_DATA = {
     {
       "characterId": "street-bum",
       "sellsToShopWeight": 5.0,
-      "buysFromShopWeight": 0.0,
+      "buysFromShopWeight": 1.0,
       "tradesWeight": 0.0,
       "buyInterestTags": [
+        "vice",
         "junk",
         "appliance",
-        "cursed"
+        "cursed",
+        "weapon"
       ],
       "sellOfferTags": [
         "junk",
         "broken",
-        "cursed"
+        "cursed",
+        "vice"
       ],
       "tradeInterestTags": [
         "junk",
@@ -962,8 +969,7 @@ window.ONE_STAR_PAWN_DATA = {
         "appliance"
       ],
       "avoidTags": [
-        "luxury",
-        "weapon"
+        "luxury"
       ],
       "maxMarkupTolerance": 1.0,
       "lowballTolerance": 0.4,
@@ -1014,9 +1020,11 @@ window.ONE_STAR_PAWN_DATA = {
     {
       "characterId": "street-junkie",
       "sellsToShopWeight": 5.0,
-      "buysFromShopWeight": 0.0,
+      "buysFromShopWeight": 1.0,
       "tradesWeight": 0.0,
       "buyInterestTags": [
+        "vice",
+        "consumable",
         "mystery",
         "electronics",
         "cursed"
@@ -1025,7 +1033,8 @@ window.ONE_STAR_PAWN_DATA = {
         "mystery",
         "suspicious",
         "broken",
-        "electronics"
+        "electronics",
+        "vice"
       ],
       "tradeInterestTags": [
         "mystery",
@@ -1787,6 +1796,8 @@ window.ONE_STAR_PAWN_DATA = {
       "buysFromShopWeight": 2.0,
       "tradesWeight": 4.0,
       "buyInterestTags": [
+        "vice",
+        "consumable",
         "electronics",
         "broken",
         "junk",
@@ -1796,12 +1807,14 @@ window.ONE_STAR_PAWN_DATA = {
         "electronics",
         "mystery",
         "suspicious",
-        "broken"
+        "broken",
+        "vice"
       ],
       "tradeInterestTags": [
         "electronics",
         "junk",
-        "mystery"
+        "mystery",
+        "vice"
       ],
       "avoidTags": [
         "luxury",
@@ -1823,6 +1836,7 @@ window.ONE_STAR_PAWN_DATA = {
       "buysFromShopWeight": 3.0,
       "tradesWeight": 4.0,
       "buyInterestTags": [
+        "weapon",
         "electronics",
         "portable",
         "hot",
@@ -1832,12 +1846,14 @@ window.ONE_STAR_PAWN_DATA = {
         "stolen",
         "hot",
         "suspicious",
-        "electronics"
+        "electronics",
+        "weapon"
       ],
       "tradeInterestTags": [
         "electronics",
         "portable",
-        "jewelry"
+        "jewelry",
+        "weapon"
       ],
       "avoidTags": [
         "cursed",
@@ -1859,6 +1875,7 @@ window.ONE_STAR_PAWN_DATA = {
       "buysFromShopWeight": 4.0,
       "tradesWeight": 4.0,
       "buyInterestTags": [
+        "vice",
         "weapon",
         "hot",
         "suspicious",
@@ -1869,12 +1886,14 @@ window.ONE_STAR_PAWN_DATA = {
         "hot",
         "suspicious",
         "electronics",
-        "weapon"
+        "weapon",
+        "vice"
       ],
       "tradeInterestTags": [
         "weapon",
         "electronics",
-        "luxury"
+        "luxury",
+        "vice"
       ],
       "avoidTags": [
         "junk",
@@ -1934,6 +1953,8 @@ window.ONE_STAR_PAWN_DATA = {
       "buysFromShopWeight": 4.0,
       "tradesWeight": 4.0,
       "buyInterestTags": [
+        "vice",
+        "consumable",
         "electronics",
         "portable",
         "collectible",
@@ -1943,13 +1964,15 @@ window.ONE_STAR_PAWN_DATA = {
         "electronics",
         "portable",
         "collectible",
-        "suspicious"
+        "suspicious",
+        "vice"
       ],
       "tradeInterestTags": [
         "electronics",
         "portable",
         "instrument",
-        "collectible"
+        "collectible",
+        "vice"
       ],
       "avoidTags": [
         "weapon",
@@ -3134,6 +3157,277 @@ window.ONE_STAR_PAWN_DATA = {
         "collectible"
       ],
       "description": "Keeps accurate time, which makes it the most responsible thing here."
+    },
+    {
+      "item_id": "bottle_of_booze",
+      "id": "bottle_of_booze",
+      "name": "Bottle of Booze",
+      "category": "vice",
+      "default_condition": "used",
+      "condition": "used",
+      "base_value": 22.0,
+      "baseValue": 22.0,
+      "shop_buy_min": 5.0,
+      "shopBuyMin": 5.0,
+      "shop_buy_max": 12.0,
+      "shopBuyMax": 12.0,
+      "target_sell_price": 30.0,
+      "targetSellPrice": 30.0,
+      "heat": 1.0,
+      "availability_tier": "common",
+      "availabilityTier": "common",
+      "demand_level": "normal",
+      "demandLevel": "normal",
+      "liquidity": "medium",
+      "price_variance": "medium",
+      "priceVariance": "medium",
+      "tags": [
+        "vice",
+        "consumable"
+      ],
+      "description": "Enough label left to imply a brand. Enough bottle left to imply a problem."
+    },
+    {
+      "item_id": "pistol",
+      "id": "pistol",
+      "name": "Pistol",
+      "category": "weapon",
+      "default_condition": "questionable",
+      "condition": "questionable",
+      "base_value": 240.0,
+      "baseValue": 240.0,
+      "shop_buy_min": 75.0,
+      "shopBuyMin": 75.0,
+      "shop_buy_max": 145.0,
+      "shopBuyMax": 145.0,
+      "target_sell_price": 310.0,
+      "targetSellPrice": 310.0,
+      "heat": 5.0,
+      "availability_tier": "rare",
+      "availabilityTier": "rare",
+      "demand_level": "normal",
+      "demandLevel": "normal",
+      "liquidity": "low",
+      "price_variance": "high",
+      "priceVariance": "high",
+      "tags": [
+        "weapon",
+        "suspicious",
+        "hot"
+      ],
+      "description": "Small case. Big legal weather system."
+    },
+    {
+      "item_id": "brass_knuckles",
+      "id": "brass_knuckles",
+      "name": "Brass Knuckles",
+      "category": "weapon",
+      "default_condition": "used",
+      "condition": "used",
+      "base_value": 55.0,
+      "baseValue": 55.0,
+      "shop_buy_min": 14.0,
+      "shopBuyMin": 14.0,
+      "shop_buy_max": 32.0,
+      "shopBuyMax": 32.0,
+      "target_sell_price": 78.0,
+      "targetSellPrice": 78.0,
+      "heat": 3.0,
+      "availability_tier": "uncommon",
+      "availabilityTier": "uncommon",
+      "demand_level": "normal",
+      "demandLevel": "normal",
+      "liquidity": "medium",
+      "price_variance": "medium",
+      "priceVariance": "medium",
+      "tags": [
+        "weapon",
+        "suspicious",
+        "vice",
+        "portable"
+      ],
+      "description": "Pocket-sized bad judgment with finger holes."
+    },
+    {
+      "item_id": "baton",
+      "id": "baton",
+      "name": "Baton",
+      "category": "weapon",
+      "default_condition": "used",
+      "condition": "used",
+      "base_value": 70.0,
+      "baseValue": 70.0,
+      "shop_buy_min": 18.0,
+      "shopBuyMin": 18.0,
+      "shop_buy_max": 40.0,
+      "shopBuyMax": 40.0,
+      "target_sell_price": 95.0,
+      "targetSellPrice": 95.0,
+      "heat": 3.0,
+      "availability_tier": "uncommon",
+      "availabilityTier": "uncommon",
+      "demand_level": "normal",
+      "demandLevel": "normal",
+      "liquidity": "medium",
+      "price_variance": "medium",
+      "priceVariance": "medium",
+      "tags": [
+        "weapon",
+        "suspicious",
+        "practical"
+      ],
+      "description": "For crowd control, if the crowd is one terrible decision."
+    },
+    {
+      "item_id": "cigarettes",
+      "id": "cigarettes",
+      "name": "Cigarettes",
+      "category": "vice",
+      "default_condition": "used",
+      "condition": "used",
+      "base_value": 14.0,
+      "baseValue": 14.0,
+      "shop_buy_min": 2.0,
+      "shopBuyMin": 2.0,
+      "shop_buy_max": 7.0,
+      "shopBuyMax": 7.0,
+      "target_sell_price": 18.0,
+      "targetSellPrice": 18.0,
+      "heat": 0.0,
+      "availability_tier": "common",
+      "availabilityTier": "common",
+      "demand_level": "normal",
+      "demandLevel": "normal",
+      "liquidity": "high",
+      "price_variance": "low",
+      "priceVariance": "low",
+      "tags": [
+        "vice",
+        "consumable",
+        "junk",
+        "portable"
+      ],
+      "description": "A soft pack with hard opinions about resale value."
+    },
+    {
+      "item_id": "gas_station_speed",
+      "id": "gas_station_speed",
+      "name": "Gas Station Speed",
+      "category": "vice",
+      "default_condition": "questionable",
+      "condition": "questionable",
+      "base_value": 45.0,
+      "baseValue": 45.0,
+      "shop_buy_min": 10.0,
+      "shopBuyMin": 10.0,
+      "shop_buy_max": 24.0,
+      "shopBuyMax": 24.0,
+      "target_sell_price": 62.0,
+      "targetSellPrice": 62.0,
+      "heat": 3.0,
+      "availability_tier": "common",
+      "availabilityTier": "common",
+      "demand_level": "normal",
+      "demandLevel": "normal",
+      "liquidity": "medium",
+      "price_variance": "high",
+      "priceVariance": "high",
+      "tags": [
+        "vice",
+        "consumable",
+        "suspicious"
+      ],
+      "description": "Countertop energy with a receipt nobody kept."
+    },
+    {
+      "item_id": "nitrous_oxide_whippet_canisters",
+      "id": "nitrous_oxide_whippet_canisters",
+      "name": "Nitrous Oxide Whippet Canisters",
+      "category": "vice",
+      "default_condition": "used",
+      "condition": "used",
+      "base_value": 38.0,
+      "baseValue": 38.0,
+      "shop_buy_min": 8.0,
+      "shopBuyMin": 8.0,
+      "shop_buy_max": 20.0,
+      "shopBuyMax": 20.0,
+      "target_sell_price": 55.0,
+      "targetSellPrice": 55.0,
+      "heat": 2.0,
+      "availability_tier": "common",
+      "availabilityTier": "common",
+      "demand_level": "normal",
+      "demandLevel": "normal",
+      "liquidity": "medium",
+      "price_variance": "medium",
+      "priceVariance": "medium",
+      "tags": [
+        "vice",
+        "consumable",
+        "suspicious"
+      ],
+      "description": "Little silver canisters with party logic and pawn-shop math."
+    },
+    {
+      "item_id": "forty_oz_malt_liquor",
+      "id": "forty_oz_malt_liquor",
+      "name": "40oz Malt Liquor",
+      "category": "vice",
+      "default_condition": "used",
+      "condition": "used",
+      "base_value": 10.0,
+      "baseValue": 10.0,
+      "shop_buy_min": 1.0,
+      "shopBuyMin": 1.0,
+      "shop_buy_max": 5.0,
+      "shopBuyMax": 5.0,
+      "target_sell_price": 14.0,
+      "targetSellPrice": 14.0,
+      "heat": 0.0,
+      "availability_tier": "common",
+      "availabilityTier": "common",
+      "demand_level": "low",
+      "demandLevel": "low",
+      "liquidity": "medium",
+      "price_variance": "low",
+      "priceVariance": "low",
+      "tags": [
+        "vice",
+        "consumable",
+        "junk"
+      ],
+      "description": "Big bottle. Tiny margin. Zero romance."
+    },
+    {
+      "item_id": "mace",
+      "id": "mace",
+      "name": "Mace",
+      "category": "weapon",
+      "default_condition": "used",
+      "condition": "used",
+      "base_value": 48.0,
+      "baseValue": 48.0,
+      "shop_buy_min": 12.0,
+      "shopBuyMin": 12.0,
+      "shop_buy_max": 28.0,
+      "shopBuyMax": 28.0,
+      "target_sell_price": 68.0,
+      "targetSellPrice": 68.0,
+      "heat": 2.0,
+      "availability_tier": "common",
+      "availabilityTier": "common",
+      "demand_level": "normal",
+      "demandLevel": "normal",
+      "liquidity": "medium",
+      "price_variance": "medium",
+      "priceVariance": "medium",
+      "tags": [
+        "weapon",
+        "suspicious",
+        "portable"
+      ],
+      "description": "Defensive until the story gets offensive."
     }
   ],
   "characterItemPools": [
@@ -11083,6 +11377,869 @@ window.ONE_STAR_PAWN_DATA = {
       "conditionOverride": "",
       "riskNote": "Scam risk if oversold",
       "notes": "May buy cursed junk because rent is already cursed."
+    },
+    {
+      "id": "street_crackhead_buys_gas_station_speed",
+      "characterId": "street-crackhead",
+      "itemId": "gas_station_speed",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "vice",
+        "consumable",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 2.6,
+      "askPriceMultiplier": 0.78,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk if oversold",
+      "notes": "Narrow vice request that should stay away from normal merchandise."
+    },
+    {
+      "id": "street_crackhead_buys_cigarettes",
+      "characterId": "street-crackhead",
+      "itemId": "cigarettes",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "vice",
+        "consumable",
+        "junk"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 2.2,
+      "askPriceMultiplier": 0.72,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Narrow cheap vice request."
+    },
+    {
+      "id": "street_crackhead_buys_pistol",
+      "characterId": "street-crackhead",
+      "itemId": "pistol",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "weapon",
+        "suspicious",
+        "hot"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 0.7,
+      "askPriceMultiplier": 0.86,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Cop/thug risk if suspicious",
+      "notes": "Narrow high-risk street weapon request."
+    },
+    {
+      "id": "street_crackhead_buys_mace",
+      "characterId": "street-crackhead",
+      "itemId": "mace",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "weapon",
+        "suspicious",
+        "portable"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 1.2,
+      "askPriceMultiplier": 0.78,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Cop risk if suspicious",
+      "notes": "Narrow defensive street weapon request."
+    },
+    {
+      "id": "street_junkie_buys_gas_station_speed",
+      "characterId": "street-junkie",
+      "itemId": "gas_station_speed",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "vice",
+        "consumable",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 2.6,
+      "askPriceMultiplier": 0.8,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk if oversold",
+      "notes": "Narrow vice request."
+    },
+    {
+      "id": "street_junkie_buys_whippets",
+      "characterId": "street-junkie",
+      "itemId": "nitrous_oxide_whippet_canisters",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "vice",
+        "consumable",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 2.4,
+      "askPriceMultiplier": 0.82,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Cop risk if suspicious",
+      "notes": "Narrow party vice request."
+    },
+    {
+      "id": "street_junkie_buys_cigarettes",
+      "characterId": "street-junkie",
+      "itemId": "cigarettes",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "vice",
+        "consumable",
+        "junk"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 2.0,
+      "askPriceMultiplier": 0.74,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Narrow cheap vice request."
+    },
+    {
+      "id": "street_junkie_buys_booze",
+      "characterId": "street-junkie",
+      "itemId": "bottle_of_booze",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "vice",
+        "consumable"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 1.8,
+      "askPriceMultiplier": 0.76,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Narrow alcohol request."
+    },
+    {
+      "id": "street_junkie_buys_malt_liquor",
+      "characterId": "street-junkie",
+      "itemId": "forty_oz_malt_liquor",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "vice",
+        "consumable",
+        "junk"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 1.8,
+      "askPriceMultiplier": 0.72,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Narrow very cheap alcohol request."
+    },
+    {
+      "id": "street_bum_buys_booze",
+      "characterId": "street-bum",
+      "itemId": "bottle_of_booze",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "vice",
+        "consumable"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 2.0,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Narrow alcohol request."
+    },
+    {
+      "id": "street_bum_buys_malt_liquor",
+      "characterId": "street-bum",
+      "itemId": "forty_oz_malt_liquor",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "vice",
+        "consumable",
+        "junk"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 2.2,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Narrow very cheap alcohol request."
+    },
+    {
+      "id": "street_bum_buys_cigarettes",
+      "characterId": "street-bum",
+      "itemId": "cigarettes",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "vice",
+        "consumable",
+        "junk"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 1.8,
+      "askPriceMultiplier": 0.68,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Narrow cheap vice request."
+    },
+    {
+      "id": "street_bum_buys_mace",
+      "characterId": "street-bum",
+      "itemId": "mace",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "weapon",
+        "suspicious",
+        "portable"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 0.8,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Cop risk if suspicious",
+      "notes": "Narrow defensive item request."
+    },
+    {
+      "id": "street_bum_buys_baton",
+      "characterId": "street-bum",
+      "itemId": "baton",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "weapon",
+        "suspicious",
+        "practical"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 0.7,
+      "askPriceMultiplier": 0.7,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Cop risk if suspicious",
+      "notes": "Narrow street weapon request."
+    },
+    {
+      "id": "street_crackhead_sells_cigarettes",
+      "characterId": "street-crackhead",
+      "itemId": "cigarettes",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "vice",
+        "consumable",
+        "junk",
+        "portable"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.35,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Cheap pack with fast cash energy."
+    },
+    {
+      "id": "street_crackhead_sells_gas_station_speed",
+      "characterId": "street-crackhead",
+      "itemId": "gas_station_speed",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "vice",
+        "consumable",
+        "suspicious"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.42,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Countertop energy with no receipt."
+    },
+    {
+      "id": "street_crackhead_sells_mace",
+      "characterId": "street-crackhead",
+      "itemId": "mace",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "weapon",
+        "suspicious",
+        "portable"
+      ],
+      "chanceWeight": 2.0,
+      "askPriceMultiplier": 0.48,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Cop risk +1",
+      "notes": "Street defensive gear with a jumpy story."
+    },
+    {
+      "id": "street_junkie_sells_whippets",
+      "characterId": "street-junkie",
+      "itemId": "nitrous_oxide_whippet_canisters",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "vice",
+        "consumable",
+        "suspicious"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.52,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Cop risk +1",
+      "notes": "Party leftovers trying to become pawn inventory."
+    },
+    {
+      "id": "street_junkie_sells_booze",
+      "characterId": "street-junkie",
+      "itemId": "bottle_of_booze",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "vice",
+        "consumable"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.46,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "A bottle and a story both half full."
+    },
+    {
+      "id": "street_junkie_sells_gas_station_speed",
+      "characterId": "street-junkie",
+      "itemId": "gas_station_speed",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "vice",
+        "consumable",
+        "suspicious"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.52,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Cheap suspicious vice with worse math."
+    },
+    {
+      "id": "street_bum_sells_malt_liquor",
+      "characterId": "street-bum",
+      "itemId": "forty_oz_malt_liquor",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "vice",
+        "consumable",
+        "junk"
+      ],
+      "chanceWeight": 6.0,
+      "askPriceMultiplier": 0.3,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Tiny margin sidewalk economy."
+    },
+    {
+      "id": "street_bum_sells_cigarettes",
+      "characterId": "street-bum",
+      "itemId": "cigarettes",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "vice",
+        "consumable",
+        "junk",
+        "portable"
+      ],
+      "chanceWeight": 5.0,
+      "askPriceMultiplier": 0.32,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Practical vice pocket clutter."
+    },
+    {
+      "id": "street_bum_sells_baton",
+      "characterId": "street-bum",
+      "itemId": "baton",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "weapon",
+        "suspicious",
+        "practical"
+      ],
+      "chanceWeight": 1.5,
+      "askPriceMultiplier": 0.42,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Cop risk +1",
+      "notes": "An old baton with no clean explanation."
+    },
+    {
+      "id": "vice_arty_buys_gas_station_speed",
+      "characterId": "vice-addict-arty",
+      "itemId": "gas_station_speed",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "vice",
+        "consumable",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 2.4,
+      "askPriceMultiplier": 0.82,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Scam risk if oversold",
+      "notes": "Arty wants cheap vice that looks injured."
+    },
+    {
+      "id": "vice_arty_buys_cigarettes",
+      "characterId": "vice-addict-arty",
+      "itemId": "cigarettes",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "vice",
+        "consumable",
+        "junk"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 2.0,
+      "askPriceMultiplier": 0.76,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Cheap vice request."
+    },
+    {
+      "id": "vice_arty_buys_malt_liquor",
+      "characterId": "vice-addict-arty",
+      "itemId": "forty_oz_malt_liquor",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "vice",
+        "consumable",
+        "junk"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 1.6,
+      "askPriceMultiplier": 0.74,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Very cheap vice request."
+    },
+    {
+      "id": "vice_arty_sells_gas_station_speed",
+      "characterId": "vice-addict-arty",
+      "itemId": "gas_station_speed",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "vice",
+        "consumable",
+        "suspicious"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.5,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +1",
+      "notes": "Arty sells the kind of inventory that should not have a loyalty card."
+    },
+    {
+      "id": "vice_arty_sells_cigarettes",
+      "characterId": "vice-addict-arty",
+      "itemId": "cigarettes",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "vice",
+        "consumable",
+        "junk",
+        "portable"
+      ],
+      "chanceWeight": 4.0,
+      "askPriceMultiplier": 0.42,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Low risk",
+      "notes": "Cheap vice filler."
+    },
+    {
+      "id": "vice_carlo_buys_brass_knuckles",
+      "characterId": "vice-clepto-carlo",
+      "itemId": "brass_knuckles",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "weapon",
+        "suspicious",
+        "vice",
+        "portable"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 1.8,
+      "askPriceMultiplier": 0.92,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Cop risk if suspicious",
+      "notes": "Carlo wants small street weapons."
+    },
+    {
+      "id": "vice_carlo_buys_mace",
+      "characterId": "vice-clepto-carlo",
+      "itemId": "mace",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "weapon",
+        "suspicious",
+        "portable"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 1.5,
+      "askPriceMultiplier": 0.88,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Cop risk if suspicious",
+      "notes": "Defensive gear with flexible ownership."
+    },
+    {
+      "id": "vice_carlo_sells_brass_knuckles",
+      "characterId": "vice-clepto-carlo",
+      "itemId": "brass_knuckles",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "weapon",
+        "suspicious",
+        "vice",
+        "portable"
+      ],
+      "chanceWeight": 2.0,
+      "askPriceMultiplier": 0.54,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Cop risk +1",
+      "notes": "Street metal with a borrowed timeline."
+    },
+    {
+      "id": "vice_danny_buys_pistol",
+      "characterId": "vice-dealer-danny",
+      "itemId": "pistol",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "weapon",
+        "suspicious",
+        "hot"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 1.4,
+      "askPriceMultiplier": 1.05,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Cop/thug risk if suspicious",
+      "notes": "Danny wants serious risk and pays like it."
+    },
+    {
+      "id": "vice_danny_buys_brass_knuckles",
+      "characterId": "vice-dealer-danny",
+      "itemId": "brass_knuckles",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "weapon",
+        "suspicious",
+        "vice",
+        "portable"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 1.8,
+      "askPriceMultiplier": 0.96,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Cop/thug risk if suspicious",
+      "notes": "Danny buys deniable street weapons."
+    },
+    {
+      "id": "vice_danny_buys_gas_station_speed",
+      "characterId": "vice-dealer-danny",
+      "itemId": "gas_station_speed",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "vice",
+        "consumable",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 1.8,
+      "askPriceMultiplier": 0.94,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Cop risk if suspicious",
+      "notes": "Danny buys vice inventory with a salesman smile."
+    },
+    {
+      "id": "vice_danny_sells_pistol",
+      "characterId": "vice-dealer-danny",
+      "itemId": "pistol",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "weapon",
+        "suspicious",
+        "hot"
+      ],
+      "chanceWeight": 0.8,
+      "askPriceMultiplier": 0.58,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "questionable",
+      "riskNote": "Cop risk +3; thug risk +1",
+      "notes": "High-risk weapon with too little paperwork."
+    },
+    {
+      "id": "vice_danny_sells_whippets",
+      "characterId": "vice-dealer-danny",
+      "itemId": "nitrous_oxide_whippet_canisters",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "vice",
+        "consumable",
+        "suspicious"
+      ],
+      "chanceWeight": 3.0,
+      "askPriceMultiplier": 0.58,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Cop risk +1",
+      "notes": "Party goods through a dealer filter."
+    },
+    {
+      "id": "vice_remy_buys_whippets",
+      "characterId": "vice-raver-remy",
+      "itemId": "nitrous_oxide_whippet_canisters",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "vice",
+        "consumable",
+        "suspicious"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 2.4,
+      "askPriceMultiplier": 0.98,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Cop risk if suspicious",
+      "notes": "Remy wants party inventory."
+    },
+    {
+      "id": "vice_remy_buys_booze",
+      "characterId": "vice-raver-remy",
+      "itemId": "bottle_of_booze",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "vice",
+        "consumable"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 1.3,
+      "askPriceMultiplier": 0.88,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Low risk",
+      "notes": "Nightlife alcohol request."
+    },
+    {
+      "id": "vice_remy_sells_whippets",
+      "characterId": "vice-raver-remy",
+      "itemId": "nitrous_oxide_whippet_canisters",
+      "dealType": "sell_to_shop",
+      "itemRole": "npc_offers",
+      "requestedItemTags": null,
+      "offeredItemTags": [
+        "vice",
+        "consumable",
+        "suspicious"
+      ],
+      "chanceWeight": 3.2,
+      "askPriceMultiplier": 0.58,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "used",
+      "riskNote": "Cop risk +1",
+      "notes": "Party leftovers with bass still ringing."
+    },
+    {
+      "id": "hustler_shorty_buys_pistol",
+      "characterId": "hustler-shorty",
+      "itemId": "pistol",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "weapon",
+        "suspicious",
+        "hot"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 0.8,
+      "askPriceMultiplier": 1.02,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Thug risk if insulted",
+      "notes": "Shorty wants dangerous status only rarely."
+    },
+    {
+      "id": "hustler_shorty_buys_brass_knuckles",
+      "characterId": "hustler-shorty",
+      "itemId": "brass_knuckles",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "weapon",
+        "suspicious",
+        "vice",
+        "portable"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 1.0,
+      "askPriceMultiplier": 0.95,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Thug risk if insulted",
+      "notes": "Small street weapon demand."
+    },
+    {
+      "id": "tracksuit_legs_buys_pistol",
+      "characterId": "tracksuit-legs",
+      "itemId": "pistol",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "weapon",
+        "suspicious",
+        "hot"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 0.8,
+      "askPriceMultiplier": 1.02,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Thug risk if insulted",
+      "notes": "Tracksuit demand for serious risky goods."
+    },
+    {
+      "id": "tracksuit_slim_buys_baton",
+      "characterId": "tracksuit-slim",
+      "itemId": "baton",
+      "dealType": "buy_from_shop",
+      "itemRole": "npc_requests",
+      "requestedItemTags": [
+        "weapon",
+        "suspicious",
+        "practical"
+      ],
+      "offeredItemTags": null,
+      "chanceWeight": 1.0,
+      "askPriceMultiplier": 0.92,
+      "cashAdjustmentMin": 0.0,
+      "cashAdjustmentMax": 0.0,
+      "conditionOverride": "",
+      "riskNote": "Thug risk if insulted",
+      "notes": "Tracksuit demand for practical street weapons."
     }
   ],
   "eventBlueprints": [
@@ -11095,12 +12252,28 @@ window.ONE_STAR_PAWN_DATA = {
       "resultNotes": "Use crackhead_locked_watch pool for item/price."
     },
     {
+      "id": "crackhead_street_buy",
+      "characterId": "street-crackhead",
+      "eventType": "buy_from_shop",
+      "pressureFactionId": "",
+      "dialogue": "You got anything small enough to disappear and bad enough to matter?",
+      "resultNotes": "Use narrow street-crackhead vice/weapon buy pools only."
+    },
+    {
       "id": "bum_microwave_offer",
       "characterId": "street-bum",
       "eventType": "sell_to_shop",
       "pressureFactionId": "",
       "dialogue": "Microwave works. Sometimes it starts before you touch it. Saves time.",
       "resultNotes": "Low-risk junk filler."
+    },
+    {
+      "id": "bum_vice_buy",
+      "characterId": "street-bum",
+      "eventType": "buy_from_shop",
+      "pressureFactionId": "",
+      "dialogue": "Got anything cheap that still feels useful after sundown?",
+      "resultNotes": "Use narrow street-bum vice/defensive buy pools only."
     },
     {
       "id": "hitman_luxury_buy",
@@ -11141,6 +12314,14 @@ window.ONE_STAR_PAWN_DATA = {
       "pressureFactionId": "",
       "dialogue": "Hospital VCR. Vintage. Medical. Maybe haunted by billing codes.",
       "resultNotes": "Use junkie_vcr or compatible junkie sell pool for item/price."
+    },
+    {
+      "id": "junkie_vice_buy",
+      "characterId": "street-junkie",
+      "eventType": "buy_from_shop",
+      "pressureFactionId": "",
+      "dialogue": "I am shopping cheap. Like legally cheap would be nice but not required.",
+      "resultNotes": "Use narrow street-junkie vice buy pools only."
     },
     {
       "id": "tracksuit_bad_trade",

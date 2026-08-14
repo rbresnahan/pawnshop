@@ -39,3 +39,12 @@ diamond_stud_earrings,Small Diamond Stud Earrings,jewelry,good,650,300,440,780,0
 gold_bracelet,14K Gold Bracelet,jewelry,good,520,245,360,640,0,rare,high,medium,high,luxury,"Real gold, normal clasp, disappointingly little criminal intrigue."
 designer_sunglasses,Designer Sunglasses With Case,luxury,good,210,75,130,280,0,uncommon,normal,medium,medium,portable,Makes anyone look expensive from a safe distance.
 automatic_watch,Swiss Automatic Watch,watch,excellent,950,430,650,1150,0,rare,normal,high,medium,"luxury, collectible","Keeps accurate time, which makes it the most responsible thing here."
+bottle_of_booze,Bottle of Booze,vice,used,22,5,12,30,1,common,normal,medium,medium,"vice, consumable",Enough label left to imply a brand. Enough bottle left to imply a problem.
+pistol,Pistol,weapon,questionable,240,75,145,310,5,rare,normal,high,low,"weapon, suspicious, hot",Small case. Big legal weather system.
+brass_knuckles,Brass Knuckles,weapon,used,55,14,32,78,3,uncommon,normal,medium,medium,"weapon, suspicious, vice, portable",Pocket-sized bad judgment with finger holes.
+baton,Baton,weapon,used,70,18,40,95,3,uncommon,normal,medium,medium,"weapon, suspicious, practical","For crowd control, if the crowd is one terrible decision."
+cigarettes,Cigarettes,vice,used,14,2,7,18,0,common,normal,low,high,"vice, consumable, junk, portable",A soft pack with hard opinions about resale value.
+gas_station_speed,Gas Station Speed,vice,questionable,45,10,24,62,3,common,normal,high,medium,"vice, consumable, suspicious",Countertop energy with a receipt nobody kept.
+nitrous_oxide_whippet_canisters,Nitrous Oxide Whippet Canisters,vice,used,38,8,20,55,2,common,normal,medium,medium,"vice, consumable, suspicious",Little silver canisters with party logic and pawn-shop math.
+forty_oz_malt_liquor,40oz Malt Liquor,vice,used,10,1,5,14,0,common,low,low,medium,"vice, consumable, junk",Big bottle. Tiny margin. Zero romance.
+mace,Mace,weapon,used,48,12,28,68,2,common,normal,medium,medium,"weapon, suspicious, portable",Defensive until the story gets offensive.

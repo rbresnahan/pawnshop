@@ -819,7 +819,7 @@ test('v0.1.42 copy consequence meters includes build and all meter diagnostics',
 
   assert.equal(result.copied, true);
   assert.equal(hooks.getClipboardText(), hooks.getConsequenceMetersCopyText());
-  assert.match(result.text, /Build: v0\.1\.48/);
+  assert.match(result.text, /Build: v0\.1\.49/);
   assert.match(result.text, /Cop\nRisk: 20\/25/);
   assert.match(result.text, /Hustler Thug\nFaction: hustlers\nPressure: 1\/4/);
   assert.match(result.text, /Thug: hustler-thug-red/);
@@ -1225,9 +1225,14 @@ test('v0.1.45 production normal seller selection keeps all Street NPCs in the fi
   hooks.setActiveCustomers(activeRosterIds.map(id => activeTestCustomer(hooks, id)));
   const buyerResult = hooks.chooseNextNormalDeal();
   assert.equal(buyerResult.normalSelection.diagnostics.selectedEncounterTypePool, 'buyer');
-  streetIds.forEach(id => {
-    assert.equal(buyerResult.normalSelection.diagnostics.weights.some(entry => entry.id === id), false, `${id} excluded from buyer turn`);
-  });
+  assert.equal(
+    buyerResult.normalSelection.diagnostics.weights.some(entry => streetIds.includes(entry.id)),
+    true,
+    'matching vice/weapon inventory can include Street buyers'
+  );
+  buyerResult.normalSelection.diagnostics.weights
+    .filter(entry => streetIds.includes(entry.id))
+    .forEach(entry => assert.equal(entry.streetSellerMultiplier, 1, `${entry.id} buyer turn does not receive seller boost`));
 
   hooks = loadGame([0.85, 0]);
   resetState(hooks);
@@ -1240,7 +1245,7 @@ test('v0.1.45 production normal seller selection keeps all Street NPCs in the fi
   });
 });
 
-test('v0.1.48 browser-loaded runtime keeps Street sellers through sprite validation and production selection', async () => {
+test('v0.1.49 browser-loaded runtime keeps Street sellers through sprite validation and production selection', async () => {
   const streetIds = ['street-bum', 'street-crackhead', 'street-junkie'];
 
   let hooks = await loadGameFromIndexWithSpriteValidation([0, 0]);
@@ -1248,7 +1253,7 @@ test('v0.1.48 browser-loaded runtime keeps Street sellers through sprite validat
   hooks.state.inventory = [];
   const sellerDiagnostics = hooks.getStreetRuntimeDiagnostics();
 
-  assert.equal(sellerDiagnostics.fingerprint.gameVersion, '0.1.48');
+  assert.equal(sellerDiagnostics.fingerprint.gameVersion, '0.1.49');
   assert.equal(sellerDiagnostics.fingerprint.streetIdsPresent.join(','), streetIds.join(','));
   assert.equal(sellerDiagnostics.fingerprint.streetIdsActive.join(','), streetIds.join(','));
   assert.equal(sellerDiagnostics.fingerprint.streetIdsInActiveCustomers.join(','), streetIds.join(','));
@@ -1259,7 +1264,7 @@ test('v0.1.48 browser-loaded runtime keeps Street sellers through sprite validat
     assert.equal(entry.spriteValid, true, `${entry.id} sprite-valid`);
     assert.equal(entry.traitsLoaded, true, `${entry.id} traits`);
     assert.ok(entry.sellerWeight > 0, `${entry.id} seller weight`);
-    assert.equal(entry.buyerWeight, 0, `${entry.id} buyer disabled`);
+    assert.ok(entry.buyerWeight > 0, `${entry.id} buyer trait enabled for narrow vice/weapon demand`);
     assert.equal(entry.tradeWeight, 0, `${entry.id} trade disabled`);
     assert.ok(entry.poolCount > 0, `${entry.id} pools`);
     assert.ok(entry.sellerPoolIds.length > 0, `${entry.id} seller pools`);
@@ -1287,9 +1292,14 @@ test('v0.1.48 browser-loaded runtime keeps Street sellers through sprite validat
   stockAllItems(hooks);
   const buyerTurn = hooks.chooseNextNormalDeal();
   assert.equal(buyerTurn.normalSelection.diagnostics.selectedEncounterTypePool, 'buyer');
-  streetIds.forEach(id => {
-    assert.equal(buyerTurn.normalSelection.diagnostics.weights.some(entry => entry.id === id), false, `${id} excluded from browser buyer turn`);
-  });
+  assert.equal(
+    buyerTurn.normalSelection.diagnostics.weights.some(entry => streetIds.includes(entry.id)),
+    true,
+    'browser buyer turn can include Street when matching vice/weapon inventory exists'
+  );
+  buyerTurn.normalSelection.diagnostics.weights
+    .filter(entry => streetIds.includes(entry.id))
+    .forEach(entry => assert.equal(entry.streetSellerMultiplier, 1, `${entry.id} browser buyer turn does not receive seller boost`));
 
   hooks = await loadGameFromIndexWithSpriteValidation([0.85, 0]);
   resetState(hooks);
@@ -1372,7 +1382,7 @@ test('v0.1.48 browser-loaded runtime keeps Street sellers through sprite validat
   assert.equal(hooks.getRuntimeDataFingerprint().activeCustomerCount, 27);
 });
 
-test('v0.1.48 startup validation uses production executable-pool truth', async () => {
+test('v0.1.49 startup validation uses production executable-pool truth', async () => {
   const hooks = await loadGameFromIndexWithSpriteValidation(0);
   resetState(hooks);
   hooks.state.inventory = [];
@@ -1380,7 +1390,7 @@ test('v0.1.48 startup validation uses production executable-pool truth', async (
   const bumTraits = hooks.getTraits('street-bum');
 
   assert.equal(bumTraits.sellsToShopWeight > 0, true);
-  assert.equal(bumTraits.buysFromShopWeight, 0);
+  assert.equal(bumTraits.buysFromShopWeight > 0, true);
   assert.equal(bumTraits.tradesWeight, 0);
   assert.ok(hooks.activeCustomers.some(character => character.id === 'street-bum'));
 
@@ -1404,7 +1414,7 @@ test('v0.1.48 startup validation uses production executable-pool truth', async (
   assert.equal(hooks.getExecutableNormalPoolEntriesForCharacters([hooks.getCharacter('street-bum')]).length > 0, true);
 });
 
-test('v0.1.48 startup validation allows one executable deal type with other types disabled', async () => {
+test('v0.1.49 startup validation allows one executable deal type with other types disabled', async () => {
   const hooks = await loadGameFromIndexWithSpriteValidation(0);
   resetState(hooks);
   hooks.state.inventory = [];
@@ -1501,7 +1511,7 @@ test('v0.1.48 startup validation allows one executable deal type with other type
   assert.equal(entries[0].pool.dealType, 'sell_to_shop');
 });
 
-test('v0.1.48 Street seller multiplier composes once at character stage only', () => {
+test('v0.1.49 Street seller multiplier composes once at character stage only', () => {
   const hooks = loadGame(0.5);
   resetState(hooks);
   hooks.state.inventory = [];
@@ -1533,7 +1543,7 @@ test('v0.1.48 Street seller multiplier composes once at character stage only', (
     assert.equal(hooks.getStreetSellerSelectionMultiplier(hooks.getCharacter('street-bum'), 'trade'), 1);
     streetIds.forEach(id => {
       const traits = hooks.getTraits(id);
-      assert.equal(traits.buysFromShopWeight, 0, `${id} buyer disabled`);
+      assert.equal(traits.buysFromShopWeight > 0, true, `${id} narrow buyer enabled`);
       assert.equal(traits.tradesWeight, 0, `${id} trade disabled`);
     });
   } finally {
@@ -1542,7 +1552,7 @@ test('v0.1.48 Street seller multiplier composes once at character stage only', (
   }
 });
 
-test('v0.1.48 Street repeat penalty is weaker while consecutive hard block still wins', () => {
+test('v0.1.49 Street repeat penalty is weaker while consecutive hard block still wins', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   hooks.state.inventory = [];
@@ -1564,7 +1574,7 @@ test('v0.1.48 Street repeat penalty is weaker while consecutive hard block still
   assert.equal(selection.diagnostics.weights.some(entry => entry.id === 'street-bum'), false);
 });
 
-test('v0.1.48 Street saturation and other modifiers compose without changing category inputs', () => {
+test('v0.1.49 Street saturation and other modifiers compose without changing category inputs', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   hooks.state.inventory = [];
@@ -1589,7 +1599,7 @@ test('v0.1.48 Street saturation and other modifiers compose without changing cat
   assert.equal(hustler.normalMemberPressureBoostMultiplier, 1.5);
 });
 
-test('v0.1.48 Street boost leaves buyer/trade selection and Money/Vice-only tendency untouched', () => {
+test('v0.1.49 Street boost leaves buyer/trade selection and Money/Vice-only tendency untouched', () => {
   let hooks = loadGame([0.55, 0]);
   resetState(hooks);
   stockAllItems(hooks);
@@ -1602,7 +1612,10 @@ test('v0.1.48 Street boost leaves buyer/trade selection and Money/Vice-only tend
 
   const buyerTurn = hooks.chooseNextNormalDeal();
   assert.equal(buyerTurn.normalSelection.diagnostics.selectedEncounterTypePool, 'buyer');
-  assert.equal(buyerTurn.normalSelection.diagnostics.weights.some(entry => entry.id.startsWith('street-')), false);
+  assert.equal(buyerTurn.normalSelection.diagnostics.weights.some(entry => entry.id.startsWith('street-')), true);
+  buyerTurn.normalSelection.diagnostics.weights
+    .filter(entry => entry.id.startsWith('street-'))
+    .forEach(entry => assert.equal(entry.streetSellerMultiplier, 1));
 
   hooks = loadGame([0.85, 0]);
   resetState(hooks);
@@ -1633,7 +1646,7 @@ test('v0.1.48 Street boost leaves buyer/trade selection and Money/Vice-only tend
   assert.equal(normalSelection.diagnostics.weights.every(entry => entry.streetSellerMultiplier === 1), true);
 });
 
-test('v0.1.48 seeded seller smoke increases Street visits without dominance', () => {
+test('v0.1.49 seeded seller smoke increases Street visits without dominance', () => {
   const randomValues = Array.from({ length: 900 }, (_, index) => ((index * 37) % 100) / 100);
   const hooks = loadGame(randomValues);
   resetState(hooks);
@@ -1984,8 +1997,8 @@ test('v0.1.32 admin panel starts with history controls before consequence meters
   assert.ok(clear > copy);
   assert.ok(meters > clear);
   assert.ok(historyList > meters);
-  assert.match(html, /gameData\.js\?v=0\.1\.48/);
-  assert.match(html, /main\.js\?v=0\.1\.48/);
+  assert.match(html, /gameData\.js\?v=0\.1\.49/);
+  assert.match(html, /main\.js\?v=0\.1\.49/);
 });
 
 test('v0.1.31 hustler pressure threshold queues hustler thug through shared scheduler', () => {
@@ -2460,8 +2473,10 @@ test('Hustler and Tracksuit normal pool weights get a modest parity boost withou
 
   boostedCustomers.forEach(characterId => {
     const pools = hooks.data.characterItemPools.filter(pool => pool.characterId === characterId);
-    assert.equal(pools.length, 3, `${characterId} should keep lightweight normal pool coverage`);
-    pools.forEach(pool => {
+    assert.ok(pools.length >= 3, `${characterId} should keep lightweight normal pool coverage`);
+    const legacyPools = pools.filter(pool => ['smart_watch_locked', 'suspicious_gold_watch', 'rare_action_figure'].includes(pool.itemId));
+    assert.equal(legacyPools.length, 3, `${characterId} should keep original gang pool trio`);
+    legacyPools.forEach(pool => {
       assert.equal(pool.chanceWeight, expectedRawWeights[pool.dealType], `${pool.id} raw weight`);
       assert.equal(Number(effectiveWeight(pool).toFixed(1)), expectedEffectiveWeights[pool.dealType], `${pool.id} effective weight`);
     });
@@ -2469,9 +2484,11 @@ test('Hustler and Tracksuit normal pool weights get a modest parity boost withou
 
   const hustlerWeights = hooks.data.characterItemPools
     .filter(pool => pool.characterId === 'hustler-shorty')
+    .filter(pool => ['smart_watch_locked', 'suspicious_gold_watch', 'rare_action_figure'].includes(pool.itemId))
     .map(pool => [pool.dealType, pool.chanceWeight]);
   const tracksuitWeights = hooks.data.characterItemPools
     .filter(pool => pool.characterId === 'tracksuit-legs')
+    .filter(pool => ['smart_watch_locked', 'suspicious_gold_watch', 'rare_action_figure'].includes(pool.itemId))
     .map(pool => [pool.dealType, pool.chanceWeight]);
   assert.deepEqual(tracksuitWeights, hustlerWeights);
 
@@ -5600,6 +5617,166 @@ test('Money and Vice roster is active with executable commerce data', () => {
   assert.equal(hooks.getCharacter('hustler-shorty').factionId, 'hustlers');
   assert.equal(hooks.getCharacter('tracksuit-legs').factionId, 'tracksuits');
   assert.equal(hooks.getCharacter('cop_consequence').activeInRotation, false);
+});
+
+test('vice and street-economy items are reachable through executable live pools', () => {
+  const hooks = loadGame(0.5);
+  resetState(hooks);
+  hooks.setActiveCustomers(hooks.data.characters.filter(character => character.activeInRotation));
+  const newItemIds = [
+    'bottle_of_booze',
+    'pistol',
+    'brass_knuckles',
+    'baton',
+    'cigarettes',
+    'gas_station_speed',
+    'nitrous_oxide_whippet_canisters',
+    'forty_oz_malt_liquor',
+    'mace'
+  ];
+  const activeIds = new Set(hooks.activeCustomers.map(character => character.id));
+  const blueprintKeys = new Set(hooks.data.eventBlueprints.map(event => `${event.characterId}:${event.eventType}`));
+
+  hooks.state.inventory.push(...newItemIds.map((id, index) => item(hooks, id, 3 + index)));
+
+  newItemIds.forEach(itemId => {
+    const pools = hooks.data.characterItemPools.filter(pool => pool.itemId === itemId && activeIds.has(pool.characterId));
+    assert.ok(pools.length > 0, `${itemId} should appear in at least one active pool`);
+    assert.ok(pools.some(pool => {
+      assert.ok(blueprintKeys.has(`${pool.characterId}:${pool.dealType}`), `${pool.id} should have blueprint coverage`);
+      const selectable = hooks.getSelectablePoolsForCharacter(hooks.getCharacter(pool.characterId));
+      return selectable.some(candidate => candidate.id === pool.id && hooks.isExecutableNormalPool(candidate));
+    }), `${itemId} should be selectable through an executable live pool`);
+  });
+
+  const viceDeal = hooks.buildDeal(hooks.data.characterItemPools.find(pool => pool.id === 'street_junkie_buys_gas_station_speed'));
+  assert.equal(viceDeal.requestSatisfiable, true);
+  assert.equal(viceDeal.item.id, 'gas_station_speed');
+
+  const weaponDeal = hooks.buildDeal(hooks.data.characterItemPools.find(pool => pool.id === 'vice_danny_buys_pistol'));
+  assert.equal(weaponDeal.requestSatisfiable, true);
+  assert.equal(weaponDeal.item.id, 'pistol');
+});
+
+test('Street vice and weapon buyer pools stay narrow and activate only on matching inventory', () => {
+  const hooks = loadGame(0.5);
+  resetState(hooks);
+  const junkie = hooks.getCharacter('street-junkie');
+  const bum = hooks.getCharacter('street-bum');
+  const gasPool = hooks.data.characterItemPools.find(pool => pool.id === 'street_junkie_buys_gas_station_speed');
+  const macePool = hooks.data.characterItemPools.find(pool => pool.id === 'street_bum_buys_mace');
+  const laptop = item(hooks, 'budget_laptop', 80);
+  const ring = item(hooks, 'gold_ring_engravings', 85);
+
+  hooks.state.inventory.push(laptop, ring);
+  assert.equal(hooks.getEligibleInventoryItemsForPool(gasPool).length, 0);
+  assert.equal(hooks.getEligibleInventoryItemsForPool(macePool).length, 0);
+  assert.equal(hooks.evaluateSaleCompatibility(hooks.buildDeal(gasPool), laptop).valid, false);
+  assert.equal(hooks.evaluateSaleCompatibility(hooks.buildDeal(macePool), ring).valid, false);
+  assert.equal(hooks.getSelectablePoolsForCharacter(junkie).some(pool => pool.id === gasPool.id && pool.requestSatisfiable), false);
+  assert.equal(hooks.getSelectablePoolsForCharacter(bum).some(pool => pool.id === macePool.id && pool.requestSatisfiable), false);
+
+  hooks.state.inventory.push(item(hooks, 'gas_station_speed', 14), item(hooks, 'mace', 18));
+  assert.equal(hooks.getEligibleInventoryItemsForPool(gasPool).map(entry => entry.itemId).includes('gas_station_speed'), true);
+  assert.equal(hooks.getEligibleInventoryItemsForPool(macePool).map(entry => entry.itemId).includes('mace'), true);
+  assert.equal(hooks.getSelectablePoolsForCharacter(junkie).some(pool => pool.id === gasPool.id), true);
+  assert.equal(hooks.getSelectablePoolsForCharacter(bum).some(pool => pool.id === macePool.id), true);
+});
+
+test('Street seller eligibility and weighting stay intact around new buyer pools', () => {
+  const hooks = loadGame(0.5);
+  resetState(hooks);
+  const streetCharacters = ['street-crackhead', 'street-bum', 'street-junkie'].map(id => hooks.getCharacter(id));
+
+  let entries = hooks.getExecutableNormalPoolEntriesForCharacters(streetCharacters);
+  assert.ok(entries.some(entry => entry.pool.dealType === 'sell_to_shop'), 'Street seller entries should exist without inventory');
+  assert.equal(entries.some(entry => entry.pool.dealType === 'buy_from_shop'), false, 'Street buyers should not execute without inventory');
+
+  hooks.state.inventory.push(item(hooks, 'budget_laptop', 80), item(hooks, 'gold_ring_engravings', 85));
+  entries = hooks.getExecutableNormalPoolEntriesForCharacters(streetCharacters);
+  assert.ok(entries.some(entry => entry.pool.dealType === 'sell_to_shop'), 'Street sellers should survive unrelated stocked inventory');
+  const narrowStreetBuyerPoolIds = new Set([
+    'street_crackhead_buys_gas_station_speed',
+    'street_crackhead_buys_cigarettes',
+    'street_crackhead_buys_pistol',
+    'street_crackhead_buys_mace',
+    'street_junkie_buys_gas_station_speed',
+    'street_junkie_buys_whippets',
+    'street_junkie_buys_cigarettes',
+    'street_junkie_buys_booze',
+    'street_junkie_buys_malt_liquor',
+    'street_bum_buys_booze',
+    'street_bum_buys_malt_liquor',
+    'street_bum_buys_cigarettes',
+    'street_bum_buys_mace',
+    'street_bum_buys_baton'
+  ]);
+  assert.equal(
+    entries.some(entry => hooks.getNormalPoolCategory(entry.pool) === 'buyer' && narrowStreetBuyerPoolIds.has(entry.pool.id)),
+    false,
+    'Unrelated inventory should not enable narrow Street vice/weapon buyers'
+  );
+
+  hooks.state.inventory.push(item(hooks, 'cigarettes', 3), item(hooks, 'gas_station_speed', 14), item(hooks, 'mace', 18));
+  entries = hooks.getExecutableNormalPoolEntriesForCharacters(streetCharacters);
+  assert.ok(entries.some(entry => entry.pool.dealType === 'buy_from_shop'), 'Matching vice/weapon inventory should enable Street buyers');
+
+  hooks.setActiveCustomers(streetCharacters);
+  const selected = hooks.chooseNextNormalDeal().normalSelection;
+  const streetWeight = selected.diagnostics.weights.find(entry => entry.id === selected.diagnostics.selectedCustomerId);
+  if (selected.diagnostics.selectedEncounterTypePool === 'seller') {
+    assert.equal(streetWeight.streetSellerMultiplier, hooks.constants.STREET_SELLER_CHARACTER_MULTIPLIER);
+  } else {
+    assert.equal(streetWeight.streetSellerMultiplier, 1);
+  }
+  assert.ok(streetWeight.eligiblePoolCount >= 1);
+});
+
+test('new vice/street pools preserve existing broad buyer and roster behavior', () => {
+  const hooks = loadGame(0.5);
+  resetState(hooks);
+  const blueprintGaps = hooks.getMissingNormalDealBlueprintCoverage();
+  assert.equal(blueprintGaps.length, 0);
+
+  hooks.state.inventory.push(item(hooks, 'dvd_stack', 4), item(hooks, 'budget_laptop', 80));
+  const streetBroadIds = hooks.getSelectablePoolsForCharacter(hooks.getCharacter('street-junkie'))
+    .map(pool => pool.id)
+    .filter(id => id.includes('normal_broad_buyer_street_junkie_buys_gas_station_speed'));
+  assert.equal(streetBroadIds.length, 0);
+
+  const regularDeal = hooks.buildDeal(hooks.data.characterItemPools.find(pool => pool.id === 'regular_tim_lee_laptop'));
+  assert.equal(regularDeal.customer.id, 'regular-tim-lee');
+  const viceDeal = hooks.buildDeal(hooks.data.characterItemPools.find(pool => pool.id === 'vice_remy_buys_whippets'));
+  assert.equal(viceDeal.customer.id, 'vice-raver-remy');
+  const gangDeal = hooks.buildDeal(hooks.data.characterItemPools.find(pool => pool.id === 'hustler_shorty_buys_brass_knuckles'));
+  assert.equal(gangDeal.customer.id, 'hustler-shorty');
+});
+
+test('seeded Street vice inventory smoke changes buyer participation without changing seller boost', () => {
+  const hooks = loadGame(0.42);
+  const streetIds = new Set(['street-crackhead', 'street-bum', 'street-junkie']);
+  const summarize = inventoryIds => {
+    resetState(hooks);
+    hooks.setActiveCustomers(['street-crackhead', 'street-bum', 'street-junkie', 'regular-business-drunk', 'vice-pervert-pete'].map(id => hooks.getCharacter(id)));
+    hooks.state.inventory.push(...inventoryIds.map((id, index) => item(hooks, id, 4 + index)));
+    const entries = hooks.getExecutableNormalPoolEntries().filter(entry => streetIds.has(entry.character.id));
+    const buyers = entries.filter(entry => hooks.getNormalPoolCategory(entry.pool) === 'buyer').length;
+    const sellers = entries.filter(entry => hooks.getNormalPoolCategory(entry.pool) === 'seller').length;
+    const selected = hooks.chooseNextNormalDeal().normalSelection;
+    return { buyers, sellers, categoryWeights: selected?.diagnostics?.categoryWeights || [] };
+  };
+
+  const none = summarize([]);
+  const small = summarize(['cigarettes', 'gas_station_speed']);
+  const rich = summarize(['cigarettes', 'gas_station_speed', 'nitrous_oxide_whippet_canisters', 'forty_oz_malt_liquor', 'mace', 'baton', 'pistol']);
+
+  assert.equal(none.buyers, 0);
+  assert.ok(none.sellers > 0);
+  assert.ok(small.buyers > none.buyers);
+  assert.ok(rich.buyers >= small.buyers);
+  assert.ok(rich.sellers >= none.sellers);
+  assert.ok(rich.categoryWeights.some(entry => entry.category === 'buyer'));
+  assert.ok(rich.categoryWeights.some(entry => entry.category === 'seller'));
 });
 
 test('Money Vice tendency meter maps existing normal selection weights without mutation', () => {
