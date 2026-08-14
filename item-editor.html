@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>One Star Pawn - Item Editor</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f2ec;
+      --panel: #fffdf8;
+      --ink: #1d1b18;
+      --muted: #6b6359;
+      --line: #d8cec0;
+      --accent: #176b87;
+      --accent-dark: #104b5f;
+      --danger: #9f2f28;
+      --ok: #2f6f3e;
+      --warn-bg: #fff6dd;
+      --warn-line: #d6a93c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.4;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 24px auto 40px;
+    }
+
+    header,
+    .toolbar,
+    .editor-panel,
+    .list-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    header {
+      padding: 18px 20px;
+      margin-bottom: 14px;
+    }
+
+    h1,
+    h2,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    .title-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: baseline;
+    }
+
+    .editor-version,
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .editor-version {
+      font-weight: 700;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    button,
+    select,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--accent-dark);
+      border-radius: 6px;
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+      padding: 8px 12px;
+    }
+
+    button.secondary {
+      background: #fff;
+      color: var(--accent-dark);
+    }
+
+    button:disabled,
+    input:disabled,
+    select:disabled,
+    textarea:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .status {
+      margin-left: auto;
+      color: var(--muted);
+      min-height: 20px;
+    }
+
+    .status.dirty {
+      color: #8a5a00;
+    }
+
+    .status.error {
+      color: var(--danger);
+    }
+
+    .status.saved {
+      color: var(--ok);
+    }
+
+    .generation-warning {
+      border: 1px solid var(--warn-line);
+      border-radius: 6px;
+      background: var(--warn-bg);
+      color: #4f3900;
+      padding: 9px 12px;
+      margin: 0 0 14px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(260px, 360px) 1fr;
+      gap: 14px;
+    }
+
+    .list-panel,
+    .editor-panel {
+      padding: 16px;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+      padding: 8px 10px;
+    }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    .item-list {
+      display: grid;
+      gap: 6px;
+      max-height: 620px;
+      overflow: auto;
+      padding-right: 4px;
+      margin-top: 10px;
+    }
+
+    .item-row {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+      display: block;
+      padding: 8px;
+      text-align: left;
+      width: 100%;
+    }
+
+    .item-row[aria-current="true"] {
+      border-color: var(--accent-dark);
+      outline: 2px solid rgba(23, 107, 135, 0.2);
+    }
+
+    .item-name {
+      display: block;
+      font-weight: 700;
+    }
+
+    .item-id {
+      color: var(--muted);
+      display: block;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .tag-option {
+      align-items: center;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      display: inline-flex;
+      gap: 6px;
+      padding: 6px 8px;
+      font-weight: 400;
+    }
+
+    .tag-option input {
+      width: auto;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 14px;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-style: italic;
+      padding: 10px 0;
+    }
+
+    @media (max-width: 840px) {
+      .layout,
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .status {
+        flex-basis: 100%;
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="title-row">
+        <h1>Item Editor</h1>
+        <span id="editor-version" class="editor-version">v0.1.51</span>
+      </div>
+      <p class="muted">Developer-only CSV editor for One Star Pawn item catalog rows.</p>
+    </header>
+
+    <p class="generation-warning">CSV edits are source-only. Regenerate gameData.js before testing or shipping gameplay.</p>
+
+    <section class="toolbar" aria-label="File actions">
+      <button type="button" id="openFolder">Open Data Folder</button>
+      <button type="button" id="save" disabled>Save CSV</button>
+      <button type="button" id="reload" class="secondary" disabled>Reload From Folder</button>
+      <span id="status" class="status">Open the CSV data folder to begin.</span>
+    </section>
+
+    <section class="layout">
+      <section class="list-panel" aria-label="Items">
+        <label for="itemSearch">Items</label>
+        <input type="search" id="itemSearch" placeholder="Search items" disabled />
+        <div class="form-actions">
+          <button type="button" id="newItem" class="secondary" disabled>New Item</button>
+        </div>
+        <div id="itemList" class="item-list"></div>
+      </section>
+
+      <section class="editor-panel" aria-label="Item form">
+        <h2 id="formTitle">No item loaded</h2>
+        <form id="itemForm">
+          <div class="form-grid">
+            <div>
+              <label for="itemId">item_id</label>
+              <input id="itemId" name="item_id" readonly disabled />
+            </div>
+            <div>
+              <label for="name">name</label>
+              <input id="name" name="name" disabled />
+            </div>
+            <div>
+              <label for="category">category</label>
+              <select id="category" name="category" disabled></select>
+            </div>
+            <div>
+              <label for="defaultCondition">default_condition</label>
+              <select id="defaultCondition" name="default_condition" disabled></select>
+            </div>
+            <div>
+              <label for="baseValue">base_value</label>
+              <input id="baseValue" name="base_value" inputmode="numeric" disabled />
+            </div>
+            <div>
+              <label for="shopBuyMin">shop_buy_min</label>
+              <input id="shopBuyMin" name="shop_buy_min" inputmode="numeric" disabled />
+            </div>
+            <div>
+              <label for="shopBuyMax">shop_buy_max</label>
+              <input id="shopBuyMax" name="shop_buy_max" inputmode="numeric" disabled />
+            </div>
+            <div>
+              <label for="targetSellPrice">target_sell_price</label>
+              <input id="targetSellPrice" name="target_sell_price" inputmode="numeric" disabled />
+            </div>
+            <div>
+              <label for="heat">heat</label>
+              <input id="heat" name="heat" inputmode="numeric" disabled />
+            </div>
+            <div class="full">
+              <label>tags</label>
+              <div id="tagChoices" class="tag-list"></div>
+              <input id="tags" name="tags" placeholder="comma-separated tags" disabled />
+            </div>
+            <div class="full">
+              <label for="description">description</label>
+              <textarea id="description" name="description" disabled></textarea>
+            </div>
+          </div>
+        </form>
+      </section>
+    </section>
+  </main>
+
+  <script src="item-editor.js?v=0.1.51"></script>
+</body>
+</html>

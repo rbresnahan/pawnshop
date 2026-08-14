@@ -1253,7 +1253,7 @@ test('v0.1.49 browser-loaded runtime keeps Street sellers through sprite validat
   hooks.state.inventory = [];
   const sellerDiagnostics = hooks.getStreetRuntimeDiagnostics();
 
-  assert.equal(sellerDiagnostics.fingerprint.gameVersion, '0.1.49');
+  assert.equal(sellerDiagnostics.fingerprint.gameVersion, '0.1.51');
   assert.equal(sellerDiagnostics.fingerprint.streetIdsPresent.join(','), streetIds.join(','));
   assert.equal(sellerDiagnostics.fingerprint.streetIdsActive.join(','), streetIds.join(','));
   assert.equal(sellerDiagnostics.fingerprint.streetIdsInActiveCustomers.join(','), streetIds.join(','));
@@ -1997,8 +1997,8 @@ test('v0.1.32 admin panel starts with history controls before consequence meters
   assert.ok(clear > copy);
   assert.ok(meters > clear);
   assert.ok(historyList > meters);
-  assert.match(html, /gameData\.js\?v=0\.1\.49/);
-  assert.match(html, /main\.js\?v=0\.1\.49/);
+  assert.match(html, /gameData\.js\?v=0\.1\.51/);
+  assert.match(html, /main\.js\?v=0\.1\.51/);
 });
 
 test('v0.1.31 hustler pressure threshold queues hustler thug through shared scheduler', () => {

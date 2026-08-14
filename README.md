@@ -64,3 +64,18 @@ Workflow:
 10. Reload the game and test the NPC.
 
 Buy maps to `buy_from_shop`, Sell maps to `sell_to_shop`, and Trade maps to `trade`. Turning a deal type off sets that NPC's existing commerce weight to `0`; turning it on restores a simple positive weight while preserving the rest of the trait row. Existing item-pool rows are kept as-is unless that exact NPC/deal/item is unchecked.
+
+## Developer item editor
+
+`item-editor.html` is a small local-only tool for editing `Items.csv`. It can rename existing items without changing their `item_id`, create new item rows with unique lowercase IDs, and choose category, condition, and tag values from the current CSV reference data.
+
+Workflow:
+
+1. Start/open the project using the normal local static-server method.
+2. Open `item-editor.html` in a browser that supports the File System Access API.
+3. Click `Open Data Folder`.
+4. Select the project `one_star_pawn_tables` directory.
+5. Choose an existing item or click `New Item`.
+6. Edit the item fields and save changes.
+7. Regenerate `gameData.js` with `.\scripts\generate-game-data.ps1`.
+8. Reload the game and smoke-test the catalog change.
