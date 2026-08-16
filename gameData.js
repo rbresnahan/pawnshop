@@ -907,14 +907,14 @@ window.ONE_STAR_PAWN_DATA = {
   "characterCommerceTraits": [
     {
       "characterId": "street-crackhead",
-      "sellsToShopWeight": 6.0,
-      "buysFromShopWeight": 1.0,
+      "sellsToShopWeight": 7.0,
+      "buysFromShopWeight": 2.0,
       "tradesWeight": 0.0,
       "buyInterestTags": [
         "vice",
         "weapon",
         "suspicious",
-        "junk",
+        "hot",
         "electronics",
         "mystery"
       ],
@@ -935,15 +935,15 @@ window.ONE_STAR_PAWN_DATA = {
         "luxury",
         "collectible"
       ],
-      "maxMarkupTolerance": 1.05,
-      "lowballTolerance": 0.35,
-      "haggleAggression": 3.0,
-      "tradeFairness": 0.45,
+      "maxMarkupTolerance": 1.02,
+      "lowballTolerance": 0.32,
+      "haggleAggression": 4.0,
+      "tradeFairness": 0.42,
       "riskTolerance": 5.0,
       "prefersCash": true,
       "acceptsTrades": true,
       "acceptsJunkBundles": true,
-      "notes": "High-chaos seller/trader. Good source of cheap bad decisions."
+      "notes": "High-chaos seller and opportunistic risk buyer. Good source of cheap bad decisions."
     },
     {
       "characterId": "street-bum",
@@ -969,12 +969,13 @@ window.ONE_STAR_PAWN_DATA = {
         "appliance"
       ],
       "avoidTags": [
-        "luxury"
+        "luxury",
+        "hot"
       ],
-      "maxMarkupTolerance": 1.0,
-      "lowballTolerance": 0.4,
+      "maxMarkupTolerance": 1.02,
+      "lowballTolerance": 0.38,
       "haggleAggression": 1.0,
-      "tradeFairness": 0.6,
+      "tradeFairness": 0.62,
       "riskTolerance": 2.0,
       "prefersCash": true,
       "acceptsTrades": true,
@@ -983,9 +984,9 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "characterId": "service-hitman",
-      "sellsToShopWeight": 2.0,
-      "buysFromShopWeight": 5.0,
-      "tradesWeight": 0.0,
+      "sellsToShopWeight": 1.0,
+      "buysFromShopWeight": 6.0,
+      "tradesWeight": 2.0,
       "buyInterestTags": [
         "weapon",
         "luxury",
@@ -1007,27 +1008,28 @@ window.ONE_STAR_PAWN_DATA = {
         "junk",
         "cursed"
       ],
-      "maxMarkupTolerance": 1.25,
-      "lowballTolerance": 0.8,
+      "maxMarkupTolerance": 1.28,
+      "lowballTolerance": 0.82,
       "haggleAggression": 5.0,
-      "tradeFairness": 0.75,
+      "tradeFairness": 0.7,
       "riskTolerance": 5.0,
       "prefersCash": true,
       "acceptsTrades": true,
       "acceptsJunkBundles": false,
-      "notes": "Dangerous buyer/trader. Refusing or insulting him should wake up thug risk."
+      "notes": "Dangerous buyer first"
     },
     {
       "characterId": "street-junkie",
       "sellsToShopWeight": 5.0,
-      "buysFromShopWeight": 1.0,
+      "buysFromShopWeight": 2.0,
       "tradesWeight": 0.0,
       "buyInterestTags": [
         "vice",
         "consumable",
         "mystery",
         "electronics",
-        "cursed"
+        "cursed",
+        "weapon"
       ],
       "sellOfferTags": [
         "mystery",
@@ -1044,15 +1046,15 @@ window.ONE_STAR_PAWN_DATA = {
       "avoidTags": [
         "luxury"
       ],
-      "maxMarkupTolerance": 1.1,
-      "lowballTolerance": 0.45,
+      "maxMarkupTolerance": 1.08,
+      "lowballTolerance": 0.43,
       "haggleAggression": 4.0,
-      "tradeFairness": 0.4,
+      "tradeFairness": 0.38,
       "riskTolerance": 5.0,
       "prefersCash": true,
       "acceptsTrades": true,
       "acceptsJunkBundles": true,
-      "notes": "Trade-focused customer with worse math. Great for risk and weird inventory."
+      "notes": "Weird-risk seller and narrow vice buyer with worse math."
     },
     {
       "characterId": "tracksuit-thug-vincent",
@@ -1127,9 +1129,9 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "characterId": "regular-business-drunk",
-      "sellsToShopWeight": 2.0,
-      "buysFromShopWeight": 0.0,
-      "tradesWeight": 0.0,
+      "sellsToShopWeight": 1.0,
+      "buysFromShopWeight": 5.0,
+      "tradesWeight": 1.0,
       "buyInterestTags": [
         "electronics",
         "luxury",
@@ -1151,25 +1153,26 @@ window.ONE_STAR_PAWN_DATA = {
         "junk",
         "broken"
       ],
-      "maxMarkupTolerance": 1.12,
-      "lowballTolerance": 0.7,
+      "maxMarkupTolerance": 1.16,
+      "lowballTolerance": 0.66,
       "haggleAggression": 3.0,
-      "tradeFairness": 0.8,
+      "tradeFairness": 0.76,
       "riskTolerance": 2.0,
       "prefersCash": true,
       "acceptsTrades": true,
       "acceptsJunkBundles": false,
-      "notes": "Normal buyer with a loose expense-account energy."
+      "notes": "Loose expense-account buyer. Sells rarely and trades only if the buttons look useful."
     },
     {
       "characterId": "regular-lady-divorce",
       "sellsToShopWeight": 5.0,
       "buysFromShopWeight": 2.0,
-      "tradesWeight": 2.0,
+      "tradesWeight": 1.0,
       "buyInterestTags": [
         "jewelry",
         "luxury",
-        "collectible"
+        "collectible",
+        "household"
       ],
       "sellOfferTags": [
         "jewelry",
@@ -1187,20 +1190,20 @@ window.ONE_STAR_PAWN_DATA = {
         "stolen"
       ],
       "maxMarkupTolerance": 1.08,
-      "lowballTolerance": 0.62,
+      "lowballTolerance": 0.64,
       "haggleAggression": 2.0,
-      "tradeFairness": 0.85,
+      "tradeFairness": 0.88,
       "riskTolerance": 1.0,
       "prefersCash": true,
       "acceptsTrades": true,
       "acceptsJunkBundles": false,
-      "notes": "Mostly sells valuables and accepts sober-enough offers."
+      "notes": "Mostly sells clean valuables and accepts sober-enough offers."
     },
     {
       "characterId": "money-jan-takai",
       "sellsToShopWeight": 4.0,
       "buysFromShopWeight": 4.0,
-      "tradesWeight": 3.0,
+      "tradesWeight": 2.0,
       "buyInterestTags": [
         "household",
         "appliance",
@@ -1227,13 +1230,14 @@ window.ONE_STAR_PAWN_DATA = {
       "avoidTags": [
         "weapon",
         "hot",
-        "stolen"
+        "stolen",
+        "cursed"
       ],
       "maxMarkupTolerance": 1.1,
-      "lowballTolerance": 0.65,
+      "lowballTolerance": 0.68,
       "haggleAggression": 2.0,
-      "tradeFairness": 0.9,
-      "riskTolerance": 2.0,
+      "tradeFairness": 0.92,
+      "riskTolerance": 1.0,
       "prefersCash": true,
       "acceptsTrades": true,
       "acceptsJunkBundles": true,
@@ -1251,7 +1255,8 @@ window.ONE_STAR_PAWN_DATA = {
         "jewelry",
         "souvenir",
         "collectible",
-        "luxury"
+        "luxury",
+        "suspicious"
       ],
       "sellOfferTags": [
         "camera",
@@ -1272,15 +1277,15 @@ window.ONE_STAR_PAWN_DATA = {
         "cursed",
         "weapon"
       ],
-      "maxMarkupTolerance": 1.18,
-      "lowballTolerance": 0.62,
+      "maxMarkupTolerance": 1.2,
+      "lowballTolerance": 0.6,
       "haggleAggression": 3.0,
       "tradeFairness": 0.8,
       "riskTolerance": 3.0,
       "prefersCash": true,
       "acceptsTrades": true,
       "acceptsJunkBundles": false,
-      "notes": "Tourist commerce with souvenir logic and luxury curiosity."
+      "notes": "Tourist buyer with souvenir logic and a little risky authenticity hunger."
     },
     {
       "characterId": "regular-mrs-tourist",
@@ -1293,6 +1298,7 @@ window.ONE_STAR_PAWN_DATA = {
         "luxury",
         "souvenir",
         "collectible",
+        "decorative",
         "household"
       ],
       "sellOfferTags": [
@@ -1311,17 +1317,18 @@ window.ONE_STAR_PAWN_DATA = {
       "avoidTags": [
         "weapon",
         "hot",
-        "stolen"
+        "stolen",
+        "broken"
       ],
-      "maxMarkupTolerance": 1.16,
-      "lowballTolerance": 0.66,
+      "maxMarkupTolerance": 1.14,
+      "lowballTolerance": 0.68,
       "haggleAggression": 2.0,
-      "tradeFairness": 0.88,
-      "riskTolerance": 2.0,
+      "tradeFairness": 0.9,
+      "riskTolerance": 1.0,
       "prefersCash": true,
       "acceptsTrades": true,
       "acceptsJunkBundles": false,
-      "notes": "Tourist buyer and seller with a sharp eye for wearable status."
+      "notes": "Tourist buyer and seller with a sharper eye for clean wearable status."
     },
     {
       "characterId": "regular-tim-lee",
@@ -1370,9 +1377,9 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "characterId": "hustler-shorty",
-      "sellsToShopWeight": 3.0,
-      "buysFromShopWeight": 5.0,
-      "tradesWeight": 4.0,
+      "sellsToShopWeight": 1.0,
+      "buysFromShopWeight": 7.0,
+      "tradesWeight": 2.0,
       "buyInterestTags": [
         "luxury",
         "electronics",
@@ -1395,21 +1402,21 @@ window.ONE_STAR_PAWN_DATA = {
         "appliance",
         "junk"
       ],
-      "maxMarkupTolerance": 1.15,
-      "lowballTolerance": 0.6,
+      "maxMarkupTolerance": 1.2,
+      "lowballTolerance": 0.54,
       "haggleAggression": 5.0,
-      "tradeFairness": 0.6,
+      "tradeFairness": 0.56,
       "riskTolerance": 4.0,
       "prefersCash": true,
       "acceptsTrades": true,
       "acceptsJunkBundles": false,
-      "notes": "Aggressive buyer and trader. Insults should raise thug risk."
+      "notes": "Flash-first buyer who pushes price and only trades when the upside looks loud."
     },
     {
       "characterId": "hustler-cool-j",
-      "sellsToShopWeight": 3.0,
-      "buysFromShopWeight": 5.0,
-      "tradesWeight": 4.0,
+      "sellsToShopWeight": 2.0,
+      "buysFromShopWeight": 4.0,
+      "tradesWeight": 6.0,
       "buyInterestTags": [
         "luxury",
         "electronics",
@@ -1432,21 +1439,21 @@ window.ONE_STAR_PAWN_DATA = {
         "appliance",
         "junk"
       ],
-      "maxMarkupTolerance": 1.15,
-      "lowballTolerance": 0.6,
-      "haggleAggression": 5.0,
-      "tradeFairness": 0.6,
+      "maxMarkupTolerance": 1.18,
+      "lowballTolerance": 0.64,
+      "haggleAggression": 3.0,
+      "tradeFairness": 0.74,
       "riskTolerance": 4.0,
       "prefersCash": true,
       "acceptsTrades": true,
       "acceptsJunkBundles": false,
-      "notes": "Aggressive buyer and trader."
+      "notes": "Trade-friendlier hustler with flashy taste and cooler negotiation math."
     },
     {
       "characterId": "hustler-kangol",
-      "sellsToShopWeight": 3.0,
-      "buysFromShopWeight": 5.0,
-      "tradesWeight": 4.0,
+      "sellsToShopWeight": 5.0,
+      "buysFromShopWeight": 3.0,
+      "tradesWeight": 3.0,
       "buyInterestTags": [
         "luxury",
         "electronics",
@@ -1469,26 +1476,27 @@ window.ONE_STAR_PAWN_DATA = {
         "appliance",
         "junk"
       ],
-      "maxMarkupTolerance": 1.15,
-      "lowballTolerance": 0.6,
-      "haggleAggression": 5.0,
-      "tradeFairness": 0.6,
-      "riskTolerance": 4.0,
+      "maxMarkupTolerance": 1.1,
+      "lowballTolerance": 0.52,
+      "haggleAggression": 4.0,
+      "tradeFairness": 0.62,
+      "riskTolerance": 3.0,
       "prefersCash": true,
       "acceptsTrades": true,
       "acceptsJunkBundles": false,
-      "notes": "Aggressive buyer and trader."
+      "notes": "Seller-leaning hustler who brings sketchy goods more often than he shops for status."
     },
     {
       "characterId": "tracksuit-legs",
-      "sellsToShopWeight": 3.0,
-      "buysFromShopWeight": 5.0,
-      "tradesWeight": 4.0,
+      "sellsToShopWeight": 1.0,
+      "buysFromShopWeight": 7.0,
+      "tradesWeight": 2.0,
       "buyInterestTags": [
         "luxury",
         "electronics",
         "collectible",
-        "hot"
+        "hot",
+        "weapon"
       ],
       "sellOfferTags": [
         "electronics",
@@ -1506,21 +1514,21 @@ window.ONE_STAR_PAWN_DATA = {
         "appliance",
         "junk"
       ],
-      "maxMarkupTolerance": 1.15,
-      "lowballTolerance": 0.6,
+      "maxMarkupTolerance": 1.08,
+      "lowballTolerance": 0.52,
       "haggleAggression": 5.0,
-      "tradeFairness": 0.6,
-      "riskTolerance": 4.0,
+      "tradeFairness": 0.52,
+      "riskTolerance": 5.0,
       "prefersCash": true,
       "acceptsTrades": true,
       "acceptsJunkBundles": false,
-      "notes": "Aggressive buyer and trader."
+      "notes": "Hard buyer with low patience and high risk appetite."
     },
     {
       "characterId": "tracksuit-slim",
       "sellsToShopWeight": 3.0,
-      "buysFromShopWeight": 5.0,
-      "tradesWeight": 4.0,
+      "buysFromShopWeight": 4.0,
+      "tradesWeight": 6.0,
       "buyInterestTags": [
         "luxury",
         "electronics",
@@ -1543,24 +1551,25 @@ window.ONE_STAR_PAWN_DATA = {
         "appliance",
         "junk"
       ],
-      "maxMarkupTolerance": 1.15,
+      "maxMarkupTolerance": 1.16,
       "lowballTolerance": 0.6,
-      "haggleAggression": 5.0,
-      "tradeFairness": 0.6,
+      "haggleAggression": 4.0,
+      "tradeFairness": 0.66,
       "riskTolerance": 4.0,
       "prefersCash": true,
       "acceptsTrades": true,
       "acceptsJunkBundles": false,
-      "notes": "Aggressive buyer and trader."
+      "notes": "Trade-leaning tracksuit with sharper markup tolerance than Legs."
     },
     {
       "characterId": "regular-grandma-slots",
       "sellsToShopWeight": 7.0,
       "buysFromShopWeight": 1.0,
-      "tradesWeight": 2.0,
+      "tradesWeight": 1.0,
       "buyInterestTags": [
         "collectible",
-        "jewelry"
+        "jewelry",
+        "household"
       ],
       "sellOfferTags": [
         "jewelry",
@@ -1578,9 +1587,9 @@ window.ONE_STAR_PAWN_DATA = {
         "stolen"
       ],
       "maxMarkupTolerance": 1.05,
-      "lowballTolerance": 0.5,
+      "lowballTolerance": 0.48,
       "haggleAggression": 2.0,
-      "tradeFairness": 0.85,
+      "tradeFairness": 0.88,
       "riskTolerance": 1.0,
       "prefersCash": true,
       "acceptsTrades": true,
@@ -1590,8 +1599,8 @@ window.ONE_STAR_PAWN_DATA = {
     {
       "characterId": "regular-grandpa-catfish",
       "sellsToShopWeight": 5.0,
-      "buysFromShopWeight": 2.0,
-      "tradesWeight": 3.0,
+      "buysFromShopWeight": 0.0,
+      "tradesWeight": 4.0,
       "buyInterestTags": [
         "tool",
         "electronics",
@@ -1608,7 +1617,8 @@ window.ONE_STAR_PAWN_DATA = {
       "tradeInterestTags": [
         "tool",
         "electronics",
-        "appliance"
+        "appliance",
+        "practical"
       ],
       "avoidTags": [
         "luxury",
@@ -1616,18 +1626,18 @@ window.ONE_STAR_PAWN_DATA = {
         "hot"
       ],
       "maxMarkupTolerance": 1.08,
-      "lowballTolerance": 0.58,
+      "lowballTolerance": 0.56,
       "haggleAggression": 2.0,
-      "tradeFairness": 0.75,
+      "tradeFairness": 0.76,
       "riskTolerance": 2.0,
       "prefersCash": true,
       "acceptsTrades": true,
       "acceptsJunkBundles": true,
-      "notes": "Senior seller and trader with practical goods and dubious explanations."
+      "notes": "Senior seller and practical trader with useful goods and dubious explanations; no current buy pools."
     },
     {
       "characterId": "money-salaryman",
-      "sellsToShopWeight": 3.0,
+      "sellsToShopWeight": 2.0,
       "buysFromShopWeight": 5.0,
       "tradesWeight": 3.0,
       "buyInterestTags": [
@@ -1660,7 +1670,8 @@ window.ONE_STAR_PAWN_DATA = {
       "avoidTags": [
         "cursed",
         "stolen",
-        "junk"
+        "junk",
+        "suspicious"
       ],
       "maxMarkupTolerance": 1.15,
       "lowballTolerance": 0.64,
@@ -1670,13 +1681,13 @@ window.ONE_STAR_PAWN_DATA = {
       "prefersCash": true,
       "acceptsTrades": true,
       "acceptsJunkBundles": false,
-      "notes": "Office regular with decent cash and tired standards."
+      "notes": "Office buyer with decent cash and tired standards."
     },
     {
       "characterId": "money-devon-dollars",
       "sellsToShopWeight": 2.0,
-      "buysFromShopWeight": 6.0,
-      "tradesWeight": 3.0,
+      "buysFromShopWeight": 7.0,
+      "tradesWeight": 2.0,
       "buyInterestTags": [
         "watch",
         "jewelry",
@@ -1702,27 +1713,28 @@ window.ONE_STAR_PAWN_DATA = {
         "cursed",
         "broken"
       ],
-      "maxMarkupTolerance": 1.22,
-      "lowballTolerance": 0.72,
+      "maxMarkupTolerance": 1.24,
+      "lowballTolerance": 0.74,
       "haggleAggression": 3.0,
-      "tradeFairness": 0.92,
+      "tradeFairness": 0.95,
       "riskTolerance": 2.0,
       "prefersCash": true,
       "acceptsTrades": true,
       "acceptsJunkBundles": false,
-      "notes": "High-cash regular who likes clean status goods and quality electronics."
+      "notes": "High-cash buyer who likes clean status goods and quality electronics."
     },
     {
       "characterId": "money-douche-brad",
-      "sellsToShopWeight": 3.0,
-      "buysFromShopWeight": 5.0,
-      "tradesWeight": 3.0,
+      "sellsToShopWeight": 4.0,
+      "buysFromShopWeight": 4.0,
+      "tradesWeight": 4.0,
       "buyInterestTags": [
         "luxury",
         "watch",
         "electronics",
         "portable",
-        "collectible"
+        "collectible",
+        "possibly_fake"
       ],
       "sellOfferTags": [
         "luxury",
@@ -1740,20 +1752,20 @@ window.ONE_STAR_PAWN_DATA = {
         "cursed",
         "broken"
       ],
-      "maxMarkupTolerance": 1.18,
-      "lowballTolerance": 0.58,
+      "maxMarkupTolerance": 1.16,
+      "lowballTolerance": 0.54,
       "haggleAggression": 4.0,
-      "tradeFairness": 0.72,
-      "riskTolerance": 3.0,
+      "tradeFairness": 0.68,
+      "riskTolerance": 4.0,
       "prefersCash": true,
       "acceptsTrades": true,
       "acceptsJunkBundles": false,
-      "notes": "Flashy money customer with sketchier taste and weaker provenance."
+      "notes": "Flashy money customer with sketchier taste"
     },
     {
       "characterId": "money-penny",
-      "sellsToShopWeight": 3.0,
-      "buysFromShopWeight": 5.0,
+      "sellsToShopWeight": 2.0,
+      "buysFromShopWeight": 7.0,
       "tradesWeight": 0.0,
       "buyInterestTags": [
         "jewelry",
@@ -1778,22 +1790,23 @@ window.ONE_STAR_PAWN_DATA = {
       "avoidTags": [
         "weapon",
         "hot",
-        "stolen"
+        "stolen",
+        "suspicious"
       ],
-      "maxMarkupTolerance": 1.2,
-      "lowballTolerance": 0.7,
+      "maxMarkupTolerance": 1.24,
+      "lowballTolerance": 0.8,
       "haggleAggression": 2.0,
-      "tradeFairness": 0.95,
+      "tradeFairness": 0.98,
       "riskTolerance": 1.0,
       "prefersCash": true,
       "acceptsTrades": true,
       "acceptsJunkBundles": false,
-      "notes": "Discerning money customer for legitimate jewelry and premium keepsakes."
+      "notes": "Discerning buyer for legitimate jewelry and premium keepsakes; avoids trade without current trade pools."
     },
     {
       "characterId": "vice-addict-arty",
-      "sellsToShopWeight": 5.0,
-      "buysFromShopWeight": 2.0,
+      "sellsToShopWeight": 7.0,
+      "buysFromShopWeight": 1.0,
       "tradesWeight": 4.0,
       "buyInterestTags": [
         "vice",
@@ -1820,27 +1833,28 @@ window.ONE_STAR_PAWN_DATA = {
         "luxury",
         "weapon"
       ],
-      "maxMarkupTolerance": 1.06,
-      "lowballTolerance": 0.44,
+      "maxMarkupTolerance": 1.02,
+      "lowballTolerance": 0.38,
       "haggleAggression": 4.0,
-      "tradeFairness": 0.42,
+      "tradeFairness": 0.36,
       "riskTolerance": 5.0,
       "prefersCash": true,
       "acceptsTrades": true,
       "acceptsJunkBundles": true,
-      "notes": "Low-cash vice regular who sells weird goods and takes rough trades."
+      "notes": "Low-cash vice seller who dumps weird goods and takes rough trades."
     },
     {
       "characterId": "vice-clepto-carlo",
-      "sellsToShopWeight": 5.0,
-      "buysFromShopWeight": 3.0,
-      "tradesWeight": 4.0,
+      "sellsToShopWeight": 6.0,
+      "buysFromShopWeight": 2.0,
+      "tradesWeight": 3.0,
       "buyInterestTags": [
         "weapon",
         "electronics",
         "portable",
         "hot",
-        "suspicious"
+        "suspicious",
+        "stolen"
       ],
       "sellOfferTags": [
         "stolen",
@@ -1859,10 +1873,10 @@ window.ONE_STAR_PAWN_DATA = {
         "cursed",
         "appliance"
       ],
-      "maxMarkupTolerance": 1.1,
-      "lowballTolerance": 0.48,
+      "maxMarkupTolerance": 1.08,
+      "lowballTolerance": 0.44,
       "haggleAggression": 4.0,
-      "tradeFairness": 0.55,
+      "tradeFairness": 0.52,
       "riskTolerance": 5.0,
       "prefersCash": true,
       "acceptsTrades": true,
@@ -1871,9 +1885,9 @@ window.ONE_STAR_PAWN_DATA = {
     },
     {
       "characterId": "vice-dealer-danny",
-      "sellsToShopWeight": 4.0,
-      "buysFromShopWeight": 4.0,
-      "tradesWeight": 4.0,
+      "sellsToShopWeight": 2.0,
+      "buysFromShopWeight": 6.0,
+      "tradesWeight": 3.0,
       "buyInterestTags": [
         "vice",
         "weapon",
@@ -1899,21 +1913,21 @@ window.ONE_STAR_PAWN_DATA = {
         "junk",
         "cursed"
       ],
-      "maxMarkupTolerance": 1.12,
-      "lowballTolerance": 0.52,
+      "maxMarkupTolerance": 1.16,
+      "lowballTolerance": 0.54,
       "haggleAggression": 5.0,
       "tradeFairness": 0.58,
       "riskTolerance": 5.0,
       "prefersCash": true,
       "acceptsTrades": true,
       "acceptsJunkBundles": false,
-      "notes": "Risk-tolerant vice regular for dangerous or suspicious merchandise."
+      "notes": "Risk-tolerant vice buyer for dangerous or suspicious merchandise."
     },
     {
       "characterId": "vice-pervert-pete",
       "sellsToShopWeight": 3.0,
-      "buysFromShopWeight": 4.0,
-      "tradesWeight": 3.0,
+      "buysFromShopWeight": 5.0,
+      "tradesWeight": 1.0,
       "buyInterestTags": [
         "junk",
         "collectible",
@@ -1937,21 +1951,21 @@ window.ONE_STAR_PAWN_DATA = {
         "stolen",
         "cursed"
       ],
-      "maxMarkupTolerance": 1.08,
-      "lowballTolerance": 0.5,
+      "maxMarkupTolerance": 1.04,
+      "lowballTolerance": 0.46,
       "haggleAggression": 3.0,
-      "tradeFairness": 0.6,
-      "riskTolerance": 4.0,
+      "tradeFairness": 0.58,
+      "riskTolerance": 3.0,
       "prefersCash": true,
       "acceptsTrades": true,
       "acceptsJunkBundles": true,
-      "notes": "Sleazy bargain layer for fake luxury and low-value collectibles."
+      "notes": "Sleazy bargain buyer for fake luxury and low-value collectibles."
     },
     {
       "characterId": "vice-raver-remy",
-      "sellsToShopWeight": 4.0,
+      "sellsToShopWeight": 3.0,
       "buysFromShopWeight": 4.0,
-      "tradesWeight": 4.0,
+      "tradesWeight": 6.0,
       "buyInterestTags": [
         "vice",
         "consumable",
@@ -1981,12 +1995,12 @@ window.ONE_STAR_PAWN_DATA = {
       "maxMarkupTolerance": 1.12,
       "lowballTolerance": 0.56,
       "haggleAggression": 3.0,
-      "tradeFairness": 0.7,
+      "tradeFairness": 0.75,
       "riskTolerance": 3.0,
       "prefersCash": true,
       "acceptsTrades": true,
       "acceptsJunkBundles": false,
-      "notes": "Nightlife electronics trader with medium risk tolerance."
+      "notes": "Nightlife electronics trader with medium risk tolerance and stronger trade pull."
     },
     {
       "characterId": "cop_consequence",

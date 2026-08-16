@@ -162,7 +162,7 @@ test('npc editor displays the synchronized game build version', () => {
   const html = fs.readFileSync(path.join(ROOT, 'npc-editor.html'), 'utf8');
   const mainJs = fs.readFileSync(path.join(ROOT, 'main.js'), 'utf8');
   const version = mainJs.match(/const GAME_VERSION = '([^']+)'/)?.[1];
-  assert.equal(version, '0.1.51');
+  assert.equal(version, '0.1.53');
   assert.match(html, new RegExp(`id="editor-version"[^>]*>v${version}<`));
   assert.match(html, new RegExp(`npc-editor\\.js\\?v=${version.replace(/\./g, '\\.')}`));
   assert.match(html, /CSV edits are source-only\. Regenerate gameData\.js before testing or shipping gameplay\./);
@@ -250,6 +250,47 @@ test('npc editor save syncs current deal toggles before seller-only validation',
   assert.equal(savedTraits[0].sells_to_shop_weight, '5');
   assert.equal(savedTraits[0].trades_weight, '0');
   assert.match(harness.writes['Character_Item_Pools.csv'], /fixture_seller_vcr,fixture_seller,hospital_vcr,sell_to_shop/);
+});
+
+test('npc editor exposes and saves individual commerce trait fields', async () => {
+  const files = {
+    'Characters.csv': [
+      'character_id,display_name',
+      'fixture_buyer,Fixture Buyer'
+    ].join('\n'),
+    'Character_Commerce_Traits.csv': [
+      'character_id,sells_to_shop_weight,buys_from_shop_weight,trades_weight,buy_interest_tags,sell_offer_tags,trade_interest_tags,avoid_tags,max_markup_tolerance,lowball_tolerance,haggle_aggression,trade_fairness,risk_tolerance,prefers_cash,accepts_trades,accepts_junk_bundles,notes',
+      'fixture_buyer,1,4,2,electronics,jewelry,tool,junk,1.1,0.6,2,0.8,3,True,True,False,original'
+    ].join('\n'),
+    'Character_Item_Pools.csv': [
+      'pool_id,character_id,item_id,deal_type,item_role,requested_item_tags,offered_item_tags,chance_weight,ask_price_multiplier,cash_adjustment_min,cash_adjustment_max,condition_override,risk_note,notes',
+      'fixture_buy,fixture_buyer,cracked_tablet,buy_from_shop,npc_requests,electronics,,4,1,0,0,,low,buy',
+      'fixture_sell,fixture_buyer,hospital_vcr,sell_to_shop,npc_offers,,electronics,4,1,0,0,,low,sell',
+      'fixture_trade,fixture_buyer,game_console,trade,npc_offers,electronics,console,4,1,0,0,,low,trade'
+    ].join('\n'),
+    'Items.csv': [
+      'item_id,name,category,tags',
+      'hospital_vcr,Hospital VCR,electronics,suspicious',
+      'cracked_tablet,Cracked Tablet,electronics,broken',
+      'game_console,Game Console,console,electronics'
+    ].join('\n')
+  };
+  const harness = makeEditorHarness(files);
+
+  await harness.click('openFolder');
+  assert.equal(harness.getElementById('traitBuyWeight').value, '4');
+  await harness.input('traitBuyWeight', '6');
+  await harness.input('traitBuyTags', 'electronics, portable');
+  await harness.input('traitMaxMarkupTolerance', '1.25');
+  harness.getElementById('traitAcceptsJunkBundles').checked = true;
+  await harness.getElementById('traitAcceptsJunkBundles').dispatch('change');
+  await harness.click('save');
+
+  const savedTraits = readCsvRows(harness.writes['Character_Commerce_Traits.csv']);
+  assert.equal(savedTraits[0].buys_from_shop_weight, '6');
+  assert.equal(savedTraits[0].buy_interest_tags, 'electronics, portable');
+  assert.equal(savedTraits[0].max_markup_tolerance, '1.25');
+  assert.equal(savedTraits[0].accepts_junk_bundles, 'True');
 });
 
 test('npc editor validates the authoritative pending rows after switching NPCs', async () => {

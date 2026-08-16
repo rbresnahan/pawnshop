@@ -57,8 +57,43 @@
     status: document.getElementById('status'),
     npcSelect: document.getElementById('npcSelect'),
     npcName: document.getElementById('npcName'),
-    npcId: document.getElementById('npcId')
+    npcId: document.getElementById('npcId'),
+    traitSellWeight: document.getElementById('traitSellWeight'),
+    traitBuyWeight: document.getElementById('traitBuyWeight'),
+    traitTradeWeight: document.getElementById('traitTradeWeight'),
+    traitMaxMarkupTolerance: document.getElementById('traitMaxMarkupTolerance'),
+    traitLowballTolerance: document.getElementById('traitLowballTolerance'),
+    traitHaggleAggression: document.getElementById('traitHaggleAggression'),
+    traitTradeFairness: document.getElementById('traitTradeFairness'),
+    traitRiskTolerance: document.getElementById('traitRiskTolerance'),
+    traitPrefersCash: document.getElementById('traitPrefersCash'),
+    traitAcceptsTrades: document.getElementById('traitAcceptsTrades'),
+    traitAcceptsJunkBundles: document.getElementById('traitAcceptsJunkBundles'),
+    traitBuyTags: document.getElementById('traitBuyTags'),
+    traitSellTags: document.getElementById('traitSellTags'),
+    traitTradeTags: document.getElementById('traitTradeTags'),
+    traitAvoidTags: document.getElementById('traitAvoidTags'),
+    traitNotes: document.getElementById('traitNotes')
   };
+
+  const TRAIT_FIELDS = [
+    { element: els.traitSellWeight, column: 'sells_to_shop_weight', number: true },
+    { element: els.traitBuyWeight, column: 'buys_from_shop_weight', number: true },
+    { element: els.traitTradeWeight, column: 'trades_weight', number: true },
+    { element: els.traitMaxMarkupTolerance, column: 'max_markup_tolerance', number: true },
+    { element: els.traitLowballTolerance, column: 'lowball_tolerance', number: true },
+    { element: els.traitHaggleAggression, column: 'haggle_aggression', number: true },
+    { element: els.traitTradeFairness, column: 'trade_fairness', number: true },
+    { element: els.traitRiskTolerance, column: 'risk_tolerance', number: true },
+    { element: els.traitPrefersCash, column: 'prefers_cash', boolean: true },
+    { element: els.traitAcceptsTrades, column: 'accepts_trades', boolean: true },
+    { element: els.traitAcceptsJunkBundles, column: 'accepts_junk_bundles', boolean: true },
+    { element: els.traitBuyTags, column: 'buy_interest_tags' },
+    { element: els.traitSellTags, column: 'sell_offer_tags' },
+    { element: els.traitTradeTags, column: 'trade_interest_tags' },
+    { element: els.traitAvoidTags, column: 'avoid_tags' },
+    { element: els.traitNotes, column: 'notes' }
+  ];
 
   Object.values(DEALS).forEach(deal => {
     deal.panel = document.getElementById(deal.panelId);
@@ -95,6 +130,10 @@
 
   function markCharacterEdited(characterId = state.selectedCharacterId) {
     if (characterId) state.editedCharacterIds.add(characterId);
+  }
+
+  function csvBoolean(value) {
+    return value ? 'True' : 'False';
   }
 
   function parseCsv(text) {
@@ -384,6 +423,23 @@
     els.npcId.textContent = character ? `ID: ${character.character_id}` : '';
   }
 
+  function renderTraitFields() {
+    const traitsRow = getTraitsRow();
+    TRAIT_FIELDS.forEach(field => {
+      field.element.disabled = !traitsRow;
+      if (!traitsRow) {
+        if (field.boolean) field.element.checked = false;
+        else field.element.value = '';
+        return;
+      }
+      if (field.boolean) {
+        field.element.checked = String(traitsRow[field.column]).toLowerCase() === 'true';
+      } else {
+        field.element.value = traitsRow[field.column] || '';
+      }
+    });
+  }
+
   function itemMatchesFilter(item, filterText) {
     if (!filterText) return true;
     const haystack = `${item.name} ${item.item_id} ${item.category} ${item.tags}`.toLowerCase();
@@ -448,6 +504,7 @@
       deal.toggle.disabled = !traitsRow;
       deal.toggle.checked = isEnabled(traitsRow, deal);
     });
+    renderTraitFields();
     renderLists();
   }
 
@@ -458,7 +515,25 @@
 
   function validateLoadedTables() {
     validateRequiredColumns(state.files.get('Characters.csv'), ['character_id', 'display_name']);
-    validateRequiredColumns(state.files.get('Character_Commerce_Traits.csv'), ['character_id', 'sells_to_shop_weight', 'buys_from_shop_weight', 'trades_weight']);
+    validateRequiredColumns(state.files.get('Character_Commerce_Traits.csv'), [
+      'character_id',
+      'sells_to_shop_weight',
+      'buys_from_shop_weight',
+      'trades_weight',
+      'buy_interest_tags',
+      'sell_offer_tags',
+      'trade_interest_tags',
+      'avoid_tags',
+      'max_markup_tolerance',
+      'lowball_tolerance',
+      'haggle_aggression',
+      'trade_fairness',
+      'risk_tolerance',
+      'prefers_cash',
+      'accepts_trades',
+      'accepts_junk_bundles',
+      'notes'
+    ]);
     validateRequiredColumns(state.files.get('Character_Item_Pools.csv'), ['pool_id', 'character_id', 'item_id', 'deal_type', 'item_role']);
     validateRequiredColumns(state.files.get('Items.csv'), ['item_id', 'name', 'category', 'tags']);
   }
@@ -473,6 +548,11 @@
 
     state.traits.forEach(row => {
       if (!characterIds.has(row.character_id)) errors.push(`Traits reference missing character_id ${row.character_id}`);
+      TRAIT_FIELDS.filter(field => field.number).forEach(field => {
+        if (String(row[field.column] ?? '').trim() && !Number.isFinite(Number(row[field.column]))) {
+          errors.push(`${row.character_id} has invalid ${field.column}: ${row[field.column]}`);
+        }
+      });
     });
 
     state.pools.forEach(row => {
@@ -579,6 +659,20 @@
     applyCurrentDealToggleState();
     state.selectedCharacterId = els.npcSelect.value;
     render();
+  });
+
+  TRAIT_FIELDS.forEach(field => {
+    field.element.addEventListener(field.boolean ? 'change' : 'input', () => {
+      const traitsRow = getTraitsRow();
+      if (!traitsRow) return;
+      traitsRow[field.column] = field.boolean ? csvBoolean(field.element.checked) : field.element.value.trim();
+      markCharacterEdited();
+      markDirty();
+      Object.values(DEALS).forEach(deal => {
+        deal.toggle.checked = isEnabled(traitsRow, deal);
+      });
+      renderLists();
+    });
   });
 
   Object.values(DEALS).forEach(deal => {

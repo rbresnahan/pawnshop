@@ -103,7 +103,8 @@
 
     button,
     select,
-    input[type="search"] {
+    input,
+    textarea {
       font: inherit;
     }
 
@@ -174,13 +175,23 @@
     }
 
     select,
-    input[type="search"] {
+    input,
+    textarea {
       width: 100%;
       border: 1px solid var(--line);
       border-radius: 6px;
       background: #fff;
       color: var(--ink);
       padding: 8px 10px;
+    }
+
+    textarea {
+      min-height: 68px;
+      resize: vertical;
+    }
+
+    input[type="checkbox"] {
+      width: auto;
     }
 
     .npc-meta {
@@ -203,6 +214,41 @@
       padding: 8px 10px;
       background: #fff;
       font-weight: 700;
+    }
+
+    .trait-grid {
+      border-top: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+      padding-top: 16px;
+    }
+
+    .trait-grid .wide {
+      grid-column: 1 / -1;
+    }
+
+    .trait-checks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .trait-checks label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      padding: 7px 9px;
+      font-weight: 700;
+    }
+
+    .trait-checks input {
+      width: auto;
     }
 
     .lists {
@@ -286,6 +332,7 @@
 
     @media (max-width: 840px) {
       .npc-row,
+      .trait-grid,
       .lists {
         grid-template-columns: 1fr;
       }
@@ -302,7 +349,7 @@
     <header>
       <div class="title-row">
         <h1>NPC Commerce Editor</h1>
-        <span id="editor-version" class="editor-version">v0.1.51</span>
+        <span id="editor-version" class="editor-version">v0.1.53</span>
       </div>
       <p class="muted">Developer-only CSV editor for One Star Pawn NPC buy, sell, and trade tuning.</p>
     </header>
@@ -342,6 +389,66 @@
           Trade
         </label>
       </div>
+
+      <div class="trait-grid" aria-label="Commerce trait fields">
+        <div>
+          <label for="traitSellWeight">Sell weight</label>
+          <input id="traitSellWeight" inputmode="decimal" disabled />
+        </div>
+        <div>
+          <label for="traitBuyWeight">Buy weight</label>
+          <input id="traitBuyWeight" inputmode="decimal" disabled />
+        </div>
+        <div>
+          <label for="traitTradeWeight">Trade weight</label>
+          <input id="traitTradeWeight" inputmode="decimal" disabled />
+        </div>
+        <div>
+          <label for="traitMaxMarkupTolerance">Max markup tolerance</label>
+          <input id="traitMaxMarkupTolerance" inputmode="decimal" disabled />
+        </div>
+        <div>
+          <label for="traitLowballTolerance">Lowball tolerance</label>
+          <input id="traitLowballTolerance" inputmode="decimal" disabled />
+        </div>
+        <div>
+          <label for="traitHaggleAggression">Haggle aggression</label>
+          <input id="traitHaggleAggression" inputmode="decimal" disabled />
+        </div>
+        <div>
+          <label for="traitTradeFairness">Trade fairness</label>
+          <input id="traitTradeFairness" inputmode="decimal" disabled />
+        </div>
+        <div>
+          <label for="traitRiskTolerance">Risk tolerance</label>
+          <input id="traitRiskTolerance" inputmode="decimal" disabled />
+        </div>
+        <div class="trait-checks" aria-label="Commerce flags">
+          <label><input type="checkbox" id="traitPrefersCash" disabled /> Prefers cash</label>
+          <label><input type="checkbox" id="traitAcceptsTrades" disabled /> Accepts trades</label>
+          <label><input type="checkbox" id="traitAcceptsJunkBundles" disabled /> Junk bundles</label>
+        </div>
+        <div class="wide">
+          <label for="traitBuyTags">Buy interest tags</label>
+          <input id="traitBuyTags" disabled />
+        </div>
+        <div class="wide">
+          <label for="traitSellTags">Sell offer tags</label>
+          <input id="traitSellTags" disabled />
+        </div>
+        <div class="wide">
+          <label for="traitTradeTags">Trade interest tags</label>
+          <input id="traitTradeTags" disabled />
+        </div>
+        <div class="wide">
+          <label for="traitAvoidTags">Avoid tags</label>
+          <input id="traitAvoidTags" disabled />
+        </div>
+        <div class="wide">
+          <label for="traitNotes">Trait notes</label>
+          <textarea id="traitNotes" disabled></textarea>
+        </div>
+      </div>
     </section>
 
     <section class="lists" aria-label="Item pool lists">
@@ -378,6 +485,6 @@
     </section>
   </main>
 
-  <script src="npc-editor.js?v=0.1.51"></script>
+  <script src="npc-editor.js?v=0.1.53"></script>
 </body>
 </html>

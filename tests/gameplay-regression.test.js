@@ -889,7 +889,7 @@ test('v0.1.30 restored normal NPC data chains resolve from generated data', () =
     ['regular-mrs-tourist', 'regular_mrs_tourist_bracelet', 'regular_mrs_tourist_bracelet_offer', 'assets/sprites/regular-mrs-tourist-idle_r.png'],
     ['regular-tim-lee', 'regular_tim_lee_laptop', 'regular_tim_lee_laptop_offer', 'assets/sprites/regular-tim-lee-idle_r.png'],
     ['money-salaryman', 'regular_salaryman_watch', 'regular_salaryman_watch_offer', 'assets/sprites/money-salaryman-idle_r.png'],
-    ['regular-grandma-slots', 'old_grandma_slots_gold_ring', 'old_grandma_slots_ring_offer', 'assets/sprites/regular-grandma-slots-idle_l.png'],
+    ['regular-grandma-slots', 'regular_grandma_slots_sells_gold_ring_engravings', 'old_grandma_slots_ring_offer', 'assets/sprites/regular-grandma-slots-idle_l.png'],
     ['regular-grandpa-catfish', 'senior_grandpa_catfish_drill', 'senior_grandpa_catfish_tool_offer', 'assets/sprites/regular-grandpa-catfish-idle_l.png']
   ];
 
@@ -1253,7 +1253,7 @@ test('v0.1.49 browser-loaded runtime keeps Street sellers through sprite validat
   hooks.state.inventory = [];
   const sellerDiagnostics = hooks.getStreetRuntimeDiagnostics();
 
-  assert.equal(sellerDiagnostics.fingerprint.gameVersion, '0.1.51');
+  assert.equal(sellerDiagnostics.fingerprint.gameVersion, '0.1.53');
   assert.equal(sellerDiagnostics.fingerprint.streetIdsPresent.join(','), streetIds.join(','));
   assert.equal(sellerDiagnostics.fingerprint.streetIdsActive.join(','), streetIds.join(','));
   assert.equal(sellerDiagnostics.fingerprint.streetIdsInActiveCustomers.join(','), streetIds.join(','));
@@ -1997,8 +1997,8 @@ test('v0.1.32 admin panel starts with history controls before consequence meters
   assert.ok(clear > copy);
   assert.ok(meters > clear);
   assert.ok(historyList > meters);
-  assert.match(html, /gameData\.js\?v=0\.1\.51/);
-  assert.match(html, /main\.js\?v=0\.1\.51/);
+  assert.match(html, /gameData\.js\?v=0\.1\.53/);
+  assert.match(html, /main\.js\?v=0\.1\.53/);
 });
 
 test('v0.1.31 hustler pressure threshold queues hustler thug through shared scheduler', () => {
