@@ -328,17 +328,14 @@ function resetState(hooks) {
   state.factionPressureSources = { hustlers: [], tracksuits: [] };
   state.consequenceQueue = [];
   state.consequenceSerial = 0;
-  state.copConsequenceCooldownUntil = 0;
-  state.thugConsequenceCooldownUntil = 0;
-  state.tracksuitRetaliationSettlingNormalEncountersRemaining = 0;
   state.copWarnings = 0;
   state.copStrikes = 0;
   state.nextCopInvestigationRisk = 25;
   state.copInvestigationArmed = true;
   state.activeConsequence = null;
-  state.normalEncountersSinceSpecial = 6;
   state.normalEncounterCount = 6;
   state.normalCustomerHistory = [];
+  state.normalGangFactionHistory = [];
   state.normalEncounterTypeHistory = [];
   state.sellMissStreak = 0;
   state.unavailableSellRequestStreak = 0;
@@ -781,31 +778,30 @@ test('v0.1.29 consequence meters read distinct cop, hustler, and tracksuit state
   assert.match(tracksuit.detail, /Event tracksuit_thug_robbery/);
 });
 
-test('v0.1.29 consequence meters show queued eligibility, chance, active, and cooldown state', () => {
+test('v0.1.54 consequence meters show queue state, eligibility, and active state', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   hooks.state.factionPressure = { tracksuits: 4 };
-  hooks.state.normalEncountersSinceSpecial = 6;
   const queued = hooks.queueThugConsequence('diagnostic test', { debug: true });
-  queued.earliestTurn = hooks.state.turn;
 
   let tracksuit = hooks.getConsequenceDiagnostics().find(meter => meter.id === 'tracksuits');
   assert.equal(tracksuit.queued, true);
   assert.equal(tracksuit.active, false);
-  assert.equal(tracksuit.selectionChance, 25);
-  assert.match(tracksuit.status, /Eligible: 25% chance/);
+  assert.equal(tracksuit.queueState, 'pending delay');
+  assert.equal(tracksuit.eligibleTurn, hooks.state.turn + 1);
+  assert.match(tracksuit.status, /Waiting for retaliation delay/);
+
+  hooks.state.turn = queued.earliestTurn;
+  tracksuit = hooks.getConsequenceDiagnostics().find(meter => meter.id === 'tracksuits');
+  assert.equal(tracksuit.queueState, 'ready');
+  assert.equal(tracksuit.readyRank, 1);
+  assert.match(tracksuit.status, /Ready: next consequence debt/);
 
   hooks.state.activeConsequence = queued;
   tracksuit = hooks.getConsequenceDiagnostics().find(meter => meter.id === 'tracksuits');
   assert.equal(tracksuit.active, true);
+  assert.equal(tracksuit.queueState, 'active');
   assert.match(tracksuit.status, /currently active/);
-
-  hooks.state.activeConsequence = null;
-  hooks.state.normalEncountersSinceSpecial = 2;
-  tracksuit = hooks.getConsequenceDiagnostics().find(meter => meter.id === 'tracksuits');
-  assert.equal(tracksuit.selectionChance, null);
-  assert.match(tracksuit.status, /Waiting for shared cooldown/);
-  assert.match(tracksuit.detail, /Cooldown 2\/6/);
 });
 
 test('v0.1.42 copy consequence meters includes build and all meter diagnostics', async () => {
@@ -819,19 +815,125 @@ test('v0.1.42 copy consequence meters includes build and all meter diagnostics',
 
   assert.equal(result.copied, true);
   assert.equal(hooks.getClipboardText(), hooks.getConsequenceMetersCopyText());
-  assert.match(result.text, /Build: v0\.1\.49/);
+  assert.match(result.text, /Build: v0\.1\.57/);
   assert.match(result.text, /Cop\nRisk: 20\/25/);
+  assert.match(result.text, /Queue state: not queued/);
   assert.match(result.text, /Hustler Thug\nFaction: hustlers\nPressure: 1\/4/);
   assert.match(result.text, /Thug: hustler-thug-red/);
   assert.match(result.text, /Event: hustler_thug_robbery/);
   assert.match(result.text, /Tracksuit Thug\nFaction: tracksuits\nPressure: 3\/4/);
-  assert.match(result.text, /Normal member boost: 1\.5x/);
+  assert.match(result.text, /Normal member boost: 2\.0x/);
   assert.match(result.text, /Thug: tracksuit-thug-vincent/);
   assert.match(result.text, /Event: tracksuit_thug_robbery/);
   assert.equal(hooks.getCopyConsequenceMetersLabel(), 'COPIED');
 });
 
-test('v0.1.42 gang pressure at one below retaliation boosts only that faction normal selection weight', () => {
+test('v0.1.56 Cop sale risk uses 0.65x while preserving purchase, trade, exposure, and checkpoints', () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+
+  const saleRisk = (itemId, price) => hooks.calculateCopRisk(hooks.getItem(itemId), {
+    price,
+    multiplier: hooks.constants.COP_RISK_SALE_MULTIPLIER,
+    source: 'sale'
+  });
+  const purchaseRisk = (itemId, price, multiplier = 1) => hooks.calculateCopRisk(hooks.getItem(itemId), {
+    price,
+    multiplier,
+    source: 'purchase'
+  });
+  const tradeRisk = (itemId, price) => hooks.calculateCopRisk(hooks.getItem(itemId), {
+    price,
+    multiplier: 1.15,
+    source: 'trade'
+  });
+  const oldSaleRounded = risk => Math.max(0, Math.round(risk.diagnostics.normalizedRisk * 0.4));
+
+  assert.equal(hooks.constants.COP_RISK_SALE_MULTIPLIER, 0.65);
+  assert.equal(hooks.constants.COP_INVESTIGATION_CHECKPOINTS.join(','), '25,45,70,100');
+  assert.equal(hooks.getNextCopInvestigationCheckpoint(25), 45);
+  assert.equal(hooks.getNextCopInvestigationCheckpoint(45), 70);
+  assert.equal(hooks.getNextCopInvestigationCheckpoint(70), 100);
+  assert.equal(hooks.getNextCopInvestigationCheckpoint(100), 135);
+  assert.equal(hooks.deriveCopInvestigationCheckpoint(134), 135);
+
+  const cleanSale = saleRisk('dvd_stack', 30);
+  assert.equal(cleanSale.addedRisk, 0);
+  assert.equal(cleanSale.diagnostics.multiplier, 0.65);
+
+  const luxurySale = saleRisk('automatic_watch', 1150);
+  assert.equal(luxurySale.diagnostics.priceRisk, 1);
+  assert.equal(luxurySale.diagnostics.normalizedRisk, 1);
+  assert.equal(oldSaleRounded(luxurySale), 0);
+  assert.equal(luxurySale.addedRisk, 1);
+
+  const suspiciousWatchSale = saleRisk('smart_watch_locked', 130);
+  assert.equal(suspiciousWatchSale.diagnostics.baseRisk, 2);
+  assert.equal(suspiciousWatchSale.diagnostics.tagRisk, 2);
+  assert.equal(oldSaleRounded(suspiciousWatchSale), 2);
+  assert.equal(suspiciousWatchSale.addedRisk, 3);
+
+  const suspiciousLuxurySale = saleRisk('gold_ring_engravings', 650);
+  assert.equal(suspiciousLuxurySale.diagnostics.baseRisk, 2);
+  assert.equal(suspiciousLuxurySale.diagnostics.tagRisk, 2);
+  assert.equal(suspiciousLuxurySale.diagnostics.priceRisk, 1);
+  assert.equal(suspiciousLuxurySale.diagnostics.normalizedRisk, 5);
+  assert.equal(oldSaleRounded(suspiciousLuxurySale), 2);
+  assert.equal(suspiciousLuxurySale.addedRisk, 3);
+
+  const weaponSale = saleRisk('pistol', 310);
+  assert.equal(weaponSale.diagnostics.baseRisk, 5);
+  assert.equal(weaponSale.diagnostics.tagRisk, 2);
+  assert.equal(weaponSale.addedRisk, 5);
+
+  assert.equal(purchaseRisk('smart_watch_locked', 95).addedRisk, 4);
+  assert.equal(purchaseRisk('smart_watch_locked', 95, 0.9).addedRisk, 4);
+  assert.equal(tradeRisk('pistol', 310).addedRisk, 8);
+  assert.equal(tradeRisk('old_gaming_pc', 330).addedRisk, 0);
+});
+
+test('v0.1.56 Cop sale diagnostics show 0.65x and exposure remains additive after multiplier', () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  const shelfItem = item(hooks, 'smart_watch_locked', 18);
+  hooks.state.inventory.push(shelfItem);
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_buys_watch'));
+  hooks.applySelectedInventoryItemToDeal(deal, shelfItem);
+
+  hooks.resolveSell('sellTag', deal);
+
+  assert.equal(hooks.state.copRisk, 4);
+  assert.match((deal.investigationHistoryLines || []).join('\n'), /multiplier 0\.65x/);
+  assert.match((deal.investigationHistoryLines || []).join('\n'), /exposure \+1/);
+  assert.equal(deal.transaction.type, 'sale');
+});
+
+test('v0.1.56 Cop checkpoint crossing queues one investigation and preserves evidence delay', () => {
+  const hooks = loadGame([0, 0]);
+  resetState(hooks);
+  hooks.state.money = 500;
+  hooks.state.copRisk = 24;
+  hooks.state.nextCopInvestigationRisk = 25;
+
+  const firstDeal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_locked_watch'));
+  hooks.resolveBuy('buyAsk', firstDeal);
+
+  const queued = hooks.state.consequenceQueue.filter(entry => entry.type === 'cop_consequence' && entry.resolved !== true);
+  assert.equal(queued.length, 1);
+  assert.equal(queued[0].metadata.investigationCheckpoint, 25);
+  assert.equal(queued[0].metadata.fullInterveningTurns, hooks.constants.COP_INVESTIGATION_MIN_FULL_TURNS);
+  assert.equal(queued[0].earliestTurn, queued[0].sourceTurn + hooks.constants.COP_INVESTIGATION_MIN_FULL_TURNS + 1);
+  assert.equal(hooks.state.nextCopInvestigationRisk, 45);
+  assert.equal(hooks.state.copInvestigationArmed, false);
+
+  const secondDeal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_legs_locked_watch'));
+  hooks.resolveBuy('buyAsk', secondDeal);
+
+  assert.equal(hooks.state.consequenceQueue.filter(entry => entry.type === 'cop_consequence' && entry.resolved !== true).length, 1);
+  assert.match((secondDeal.investigationHistoryLines || []).join('\n'), /already pending or active/);
+});
+
+test('v0.1.57 gang pressure boosts same-faction normal selection weight at 3/4 only', () => {
   const hooks = loadGame(0);
   const roster = ['hustler-shorty', 'tracksuit-legs', 'regular-grandma-slots'];
   const configure = (hustlerPressure, tracksuitPressure) => {
@@ -841,41 +943,47 @@ test('v0.1.42 gang pressure at one below retaliation boosts only that faction no
     return hooks.chooseNextNormalDeal().normalSelection.diagnostics.weights;
   };
   const byId = (weights, id) => weights.find(entry => entry.id === id);
+  let weights;
 
-  let weights = configure(3, 2);
-  assert.equal(byId(weights, 'hustler-shorty').normalMemberPressureBoostMultiplier, 1.5);
-  assert.equal(byId(weights, 'tracksuit-legs').normalMemberPressureBoostMultiplier, 1);
-  assert.equal(byId(weights, 'regular-grandma-slots').normalMemberPressureBoostMultiplier, 1);
-  assert.equal(byId(weights, 'hustler-shorty').finalWeight, Number((byId(weights, 'hustler-shorty').baseWeight * 1.5).toFixed(2)));
+  [
+    [0, 1],
+    [1.49, 1],
+    [2, 1],
+    [2.99, 1],
+    [3, 2],
+    [3.5, 2],
+    [4, 2]
+  ].forEach(([pressure, expected]) => {
+    weights = configure(pressure, 0);
+    assert.equal(byId(weights, 'hustler-shorty').normalMemberPressureBoostMultiplier, expected, `hustler pressure ${pressure}`);
+    assert.equal(byId(weights, 'tracksuit-legs').normalMemberPressureBoostMultiplier, 1, `tracksuit isolated from hustler pressure ${pressure}`);
+    assert.equal(byId(weights, 'hustler-shorty').finalWeight, Number((byId(weights, 'hustler-shorty').baseWeight * expected).toFixed(2)));
 
-  weights = configure(2, 3);
-  assert.equal(byId(weights, 'hustler-shorty').normalMemberPressureBoostMultiplier, 1);
-  assert.equal(byId(weights, 'tracksuit-legs').normalMemberPressureBoostMultiplier, 1.5);
+    weights = configure(0, pressure);
+    assert.equal(byId(weights, 'tracksuit-legs').normalMemberPressureBoostMultiplier, expected, `tracksuit pressure ${pressure}`);
+    assert.equal(byId(weights, 'hustler-shorty').normalMemberPressureBoostMultiplier, 1, `hustler isolated from tracksuit pressure ${pressure}`);
+    assert.equal(byId(weights, 'tracksuit-legs').finalWeight, Number((byId(weights, 'tracksuit-legs').baseWeight * expected).toFixed(2)));
+  });
 
-  weights = configure(3, 3);
-  assert.equal(byId(weights, 'hustler-shorty').normalMemberPressureBoostMultiplier, 1.5);
-  assert.equal(byId(weights, 'tracksuit-legs').normalMemberPressureBoostMultiplier, 1.5);
+  resetState(hooks);
+  hooks.setFactionPressure('hustlers', 3);
+  assert.equal(hooks.maybeQueueFactionThugConsequence('hustlers', null, 'test near threshold does not queue'), null);
 
-  weights = configure(2, 1);
-  assert.equal(byId(weights, 'hustler-shorty').normalMemberPressureBoostMultiplier, 1);
-  assert.equal(byId(weights, 'tracksuit-legs').normalMemberPressureBoostMultiplier, 1);
-
-  weights = configure(4, 4);
-  assert.equal(byId(weights, 'hustler-shorty').normalMemberPressureBoostMultiplier, 1);
-  assert.equal(byId(weights, 'tracksuit-legs').normalMemberPressureBoostMultiplier, 1);
+  hooks.setFactionPressure('hustlers', 4);
   const queued = hooks.maybeQueueFactionThugConsequence('hustlers', null, 'test threshold remains four');
   assert.ok(queued);
   assert.equal(queued.metadata.threshold, 4);
 
   resetState(hooks);
   hooks.setActiveCustomers(roster.map(id => hooks.getCharacter(id)));
-  hooks.state.factionPressure = { hustlers: 3, tracksuits: 0 };
+  hooks.state.factionPressure = { hustlers: 3.5, tracksuits: 0 };
   hooks.state.normalCustomerHistory = ['hustler-shorty'];
   weights = hooks.chooseNextNormalDeal().normalSelection.diagnostics.weights;
   const hustler = byId(weights, 'hustler-shorty');
   assert.equal(hustler.repeatMultiplier, 0.35);
-  assert.equal(hustler.normalMemberPressureBoostMultiplier, 1.5);
-  assert.equal(hustler.finalWeight, Number((hustler.baseWeight * 0.35 * 1.5).toFixed(2)));
+  assert.equal(hustler.normalMemberPressureBoostMultiplier, 2);
+  assert.equal(hustler.gangParityMultiplier, 1);
+  assert.equal(hustler.finalWeight, Number((hustler.baseWeight * 0.35 * 2).toFixed(2)));
 });
 
 test('v0.1.30 restored normal NPC data chains resolve from generated data', () => {
@@ -1253,7 +1361,7 @@ test('v0.1.49 browser-loaded runtime keeps Street sellers through sprite validat
   hooks.state.inventory = [];
   const sellerDiagnostics = hooks.getStreetRuntimeDiagnostics();
 
-  assert.equal(sellerDiagnostics.fingerprint.gameVersion, '0.1.53');
+  assert.equal(sellerDiagnostics.fingerprint.gameVersion, '0.1.57');
   assert.equal(sellerDiagnostics.fingerprint.streetIdsPresent.join(','), streetIds.join(','));
   assert.equal(sellerDiagnostics.fingerprint.streetIdsActive.join(','), streetIds.join(','));
   assert.equal(sellerDiagnostics.fingerprint.streetIdsInActiveCustomers.join(','), streetIds.join(','));
@@ -1596,7 +1704,7 @@ test('v0.1.49 Street saturation and other modifiers compose without changing cat
   assert.equal(street.lowTierGroupMultiplier, 0.55);
   assert.equal(street.finalWeight, Number((street.baseWeight * hooks.getNormalCustomerRepeatMultiplier('street-bum') * street.lowTierGroupMultiplier * street.streetSellerMultiplier).toFixed(2)));
   assert.equal(hustler.streetSellerMultiplier, 1);
-  assert.equal(hustler.normalMemberPressureBoostMultiplier, 1.5);
+  assert.equal(hustler.normalMemberPressureBoostMultiplier, 2);
 });
 
 test('v0.1.49 Street boost leaves buyer/trade selection and Money/Vice-only tendency untouched', () => {
@@ -1997,8 +2105,8 @@ test('v0.1.32 admin panel starts with history controls before consequence meters
   assert.ok(clear > copy);
   assert.ok(meters > clear);
   assert.ok(historyList > meters);
-  assert.match(html, /gameData\.js\?v=0\.1\.53/);
-  assert.match(html, /main\.js\?v=0\.1\.53/);
+  assert.match(html, /gameData\.js\?v=0\.1\.55/);
+  assert.match(html, /main\.js\?v=0\.1\.55/);
 });
 
 test('v0.1.31 hustler pressure threshold queues hustler thug through shared scheduler', () => {
@@ -2402,7 +2510,6 @@ test('special consequence does not clear a normal Bum streak', () => {
   resetState(hooks);
   hooks.setActiveCustomers([hooks.getCharacter('street-bum'), hooks.getCharacter('regular-grandma-slots')]);
   hooks.state.normalCustomerHistory = ['street-bum', 'street-bum'];
-  hooks.state.normalEncountersSinceSpecial = 0;
 
   const selection = hooks.chooseNextCustomerWithPools();
 
@@ -2449,19 +2556,41 @@ test('non-Bum customers follow the same consecutive-repeat block', () => {
   assert.deepEqual(Array.from(selection.diagnostics.blockedCustomerIds), ['hustler-shorty']);
 });
 
-test('Hustler and Tracksuit normal pool weights get a modest parity boost without bypassing repeat blocks', () => {
+test('v0.1.55 gang data uses differentiated traits and runtime parity without bypassing repeat blocks', () => {
   const hooks = loadGame(0);
   resetState(hooks);
-  const boostedCustomers = ['hustler-shorty', 'hustler-cool-j', 'hustler-kangol', 'tracksuit-legs', 'tracksuit-slim'];
-  const expectedEffectiveWeights = {
-    sell_to_shop: 20.7,
-    buy_from_shop: 34.5,
-    trade: 18.4
-  };
+  const legacyGangPools = ['smart_watch_locked', 'suspicious_gold_watch', 'rare_action_figure'];
   const expectedRawWeights = {
     sell_to_shop: 6.9,
     buy_from_shop: 6.9,
     trade: 4.6
+  };
+  const expectedEffectiveWeightsByCharacter = {
+    'hustler-shorty': {
+      sell_to_shop: 6.9,
+      buy_from_shop: 48.3,
+      trade: 9.2
+    },
+    'hustler-cool-j': {
+      sell_to_shop: 13.8,
+      buy_from_shop: 27.6,
+      trade: 27.6
+    },
+    'hustler-kangol': {
+      sell_to_shop: 34.5,
+      buy_from_shop: 20.7,
+      trade: 13.8
+    },
+    'tracksuit-legs': {
+      sell_to_shop: 6.9,
+      buy_from_shop: 48.3,
+      trade: 9.2
+    },
+    'tracksuit-slim': {
+      sell_to_shop: 20.7,
+      buy_from_shop: 27.6,
+      trade: 27.6
+    }
   };
   const effectiveWeight = pool => {
     const traits = hooks.getTraits(pool.characterId);
@@ -2471,14 +2600,14 @@ test('Hustler and Tracksuit normal pool weights get a modest parity boost withou
     return pool.chanceWeight;
   };
 
-  boostedCustomers.forEach(characterId => {
+  Object.keys(expectedEffectiveWeightsByCharacter).forEach(characterId => {
     const pools = hooks.data.characterItemPools.filter(pool => pool.characterId === characterId);
     assert.ok(pools.length >= 3, `${characterId} should keep lightweight normal pool coverage`);
-    const legacyPools = pools.filter(pool => ['smart_watch_locked', 'suspicious_gold_watch', 'rare_action_figure'].includes(pool.itemId));
+    const legacyPools = pools.filter(pool => legacyGangPools.includes(pool.itemId));
     assert.equal(legacyPools.length, 3, `${characterId} should keep original gang pool trio`);
     legacyPools.forEach(pool => {
       assert.equal(pool.chanceWeight, expectedRawWeights[pool.dealType], `${pool.id} raw weight`);
-      assert.equal(Number(effectiveWeight(pool).toFixed(1)), expectedEffectiveWeights[pool.dealType], `${pool.id} effective weight`);
+      assert.equal(Number(effectiveWeight(pool).toFixed(1)), expectedEffectiveWeightsByCharacter[characterId][pool.dealType], `${pool.id} current differentiated effective weight`);
     });
   });
 
@@ -2499,14 +2628,75 @@ test('Hustler and Tracksuit normal pool weights get a modest parity boost withou
     'tracksuit_buys_hot:3'
   ]);
 
-  hooks.setActiveCustomers([hooks.getCharacter('hustler-shorty'), hooks.getCharacter('regular-grandma-slots')]);
+  hooks.setActiveCustomers([
+    hooks.getCharacter('hustler-shorty'),
+    hooks.getCharacter('tracksuit-legs'),
+    hooks.getCharacter('regular-grandma-slots')
+  ]);
   hooks.state.inventory.push(item(hooks, 'gold_ring_engravings', 64));
+  hooks.state.normalGangFactionHistory = ['hustlers', 'hustlers', 'hustlers', 'tracksuits'];
+
+  let selection = hooks.chooseNextNormalDeal().normalSelection;
+  let hustler = selection.diagnostics.weights.find(entry => entry.id === 'hustler-shorty');
+  let tracksuit = selection.diagnostics.weights.find(entry => entry.id === 'tracksuit-legs');
+  assert.equal(selection.diagnostics.gangParity.activeFactionId, 'tracksuits');
+  assert.equal(hustler.gangParityMultiplier, 1);
+  assert.equal(tracksuit.gangParityMultiplier, 1.5);
+  assert.equal(tracksuit.finalWeight, Number((tracksuit.baseWeight * 1.5).toFixed(2)));
+  assert.equal(hooks.state.factionPressure.hustlers, 0);
+  assert.equal(hooks.state.factionPressure.tracksuits, 0);
+
+  hooks.state.normalGangFactionHistory = ['hustlers', 'hustlers', 'tracksuits'];
+  selection = hooks.chooseNextNormalDeal().normalSelection;
+  tracksuit = selection.diagnostics.weights.find(entry => entry.id === 'tracksuit-legs');
+  assert.equal(selection.diagnostics.gangParity.activeFactionId, '');
+  assert.equal(tracksuit.gangParityMultiplier, 1);
+
+  hooks.state.normalGangFactionHistory = [
+    'hustlers', 'tracksuits',
+    'hustlers', 'tracksuits',
+    'hustlers', 'tracksuits',
+    'hustlers', 'tracksuits',
+    'hustlers', 'tracksuits',
+    'hustlers', 'tracksuits',
+    'hustlers', 'hustlers'
+  ];
+  const agedCounts = hooks.getNormalGangFactionAppearanceCounts();
+  assert.equal(agedCounts.hustlers, 6);
+  assert.equal(agedCounts.tracksuits, 6);
+  selection = hooks.chooseNextNormalDeal().normalSelection;
+  assert.equal(selection.diagnostics.gangParity.activeFactionId, '');
+
+  hooks.setActiveCustomers([
+    hooks.getCharacter('hustler-shorty'),
+    hooks.getCharacter('regular-grandma-slots')
+  ]);
+  hooks.state.normalGangFactionHistory = ['hustlers', 'hustlers', 'hustlers', 'tracksuits'];
+  selection = hooks.chooseNextNormalDeal().normalSelection;
+  assert.equal(selection.diagnostics.gangParity.underrepresentedFactionId, 'tracksuits');
+  assert.equal(selection.diagnostics.gangParity.activeFactionId, '');
+
+  hooks.setActiveCustomers([
+    hooks.getCharacter('hustler-shorty'),
+    hooks.getCharacter('tracksuit-legs'),
+    hooks.getCharacter('regular-grandma-slots')
+  ]);
+  hooks.state.normalGangFactionHistory = ['hustlers', 'hustlers', 'hustlers', 'tracksuits'];
+  hooks.state.factionPressure.tracksuits = 3;
+  selection = hooks.chooseNextNormalDeal().normalSelection;
+  tracksuit = selection.diagnostics.weights.find(entry => entry.id === 'tracksuit-legs');
+  assert.equal(tracksuit.normalMemberPressureBoostMultiplier, 2);
+  assert.equal(tracksuit.gangParityMultiplier, 1.5);
+  assert.equal(tracksuit.finalWeight, Number((tracksuit.baseWeight * 2 * 1.5).toFixed(2)));
+
   hooks.state.normalCustomerHistory = ['hustler-shorty', 'hustler-shorty'];
+  hooks.state.normalGangFactionHistory = ['tracksuits', 'tracksuits', 'tracksuits', 'hustlers'];
 
-  const selection = hooks.chooseNextCustomerWithPools();
+  selection = hooks.chooseNextCustomerWithPools();
 
-  assert.equal(selection.customer.id, 'regular-grandma-slots');
+  assert.notEqual(selection.customer.id, 'hustler-shorty');
   assert.deepEqual(Array.from(selection.diagnostics.blockedCustomerIds), ['hustler-shorty']);
+  assert.equal(selection.diagnostics.weights.some(entry => entry.id === 'hustler-shorty'), false);
 });
 
 test('v0.1.23 alternating low-tier customers receive group saturation penalty', () => {
@@ -2856,7 +3046,6 @@ test('v0.1.25 early Tracksuit consequence uses source customer warning and has n
   assert.equal(consequence.resolved, true);
   assert.equal(hooks.state.factionPressure.tracksuit_crew, 0);
   assert.equal(hooks.state.consequenceQueue.filter(entry => entry.type === 'thug_robbery_consequence' && !entry.resolved).length, 0);
-  assert.equal(hooks.state.tracksuitRetaliationSettlingNormalEncountersRemaining, hooks.constants.TRACKSUIT_RETALIATION_SETTLING_NORMAL_ENCOUNTERS);
   assert.match((deal.thugHistoryLines || []).join('\n'), /Early Tracksuits warning/i);
   assert.match((deal.thugHistoryLines || []).join('\n'), /Warning resolution: no money, inventory, Profit, reputation, cop risk, or scam risk changed/i);
 });
@@ -2882,27 +3071,28 @@ test('v0.1.25 T10 Tracksuit consequence keeps normal robbery presentation', () =
   assert.doesNotMatch((deal.thugHistoryLines || []).join('\n'), /Early Tracksuit warning/i);
 });
 
-test('v0.1.25 thug resolution resets pressure and starts settling period', () => {
+test('v0.1.54 thug resolution resets only the resolved faction pressure', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   hooks.state.money = 0;
-  hooks.state.factionPressure.tracksuit_crew = 5;
-  hooks.state.factionPressureSources.tracksuit_crew = [{ turn: 1, customerName: 'Old Source', reason: 'old pressure', amount: 5 }];
+  hooks.setFactionPressure('tracksuits', 5);
+  hooks.setFactionPressure('hustlers', 4);
+  hooks.state.factionPressureSources.tracksuits = [{ turn: 1, customerName: 'Old Source', reason: 'old pressure', amount: 5 }];
+  hooks.state.factionPressureSources.hustlers = [{ turn: 2, customerName: 'Hustler Source', reason: 'other pressure', amount: 4 }];
   const consequence = hooks.queueThugConsequence('old tracksuit debt', { debug: true });
   const deal = hooks.buildThugConsequenceDeal(consequence, hooks.getCharacter('tracksuit-thug-vincent'));
 
   hooks.resolveConsequenceChoice('thugRefuse', deal);
 
-  assert.equal(hooks.state.factionPressure.tracksuit_crew, 0);
-  assert.equal(hooks.state.tracksuitRetaliationSettlingNormalEncountersRemaining, hooks.constants.TRACKSUIT_RETALIATION_SETTLING_NORMAL_ENCOUNTERS);
-  assert.equal(hooks.state.factionPressureSources.tracksuit_crew.length, 0);
-  assert.match((deal.thugHistoryLines || []).join('\n'), /retaliation settled/i);
+  assert.equal(hooks.state.factionPressure.tracksuits, 0);
+  assert.equal(hooks.state.factionPressure.hustlers, 4);
+  assert.equal(hooks.state.factionPressureSources.tracksuits.length, 0);
+  assert.equal(hooks.state.factionPressureSources.hustlers.length, 1);
 });
 
-test('v0.1.25 threshold pressure during settling defers thug queue and preserves new source', () => {
+test('v0.1.54 tracksuit pressure queues immediately after prior resolution once pressure rebuilds', () => {
   const hooks = loadGame(0);
   resetState(hooks);
-  hooks.state.tracksuitRetaliationSettlingNormalEncountersRemaining = hooks.constants.TRACKSUIT_RETALIATION_SETTLING_NORMAL_ENCOUNTERS;
   hooks.setFactionPressure('tracksuits', 3);
   forceNegotiationOutcome(hooks, 'lowball', 'accepted');
   const pressureDeal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_legs_locked_watch'));
@@ -2911,49 +3101,64 @@ test('v0.1.25 threshold pressure during settling defers thug queue and preserves
   hooks.resolveBuy('lowball', pressureDeal);
 
   assert.equal(hooks.state.factionPressure.tracksuits, 4.5);
-  assert.equal(hooks.state.consequenceQueue.filter(entry => entry.type === 'thug_robbery_consequence' && !entry.resolved).length, 0);
-  assert.match((pressureDeal.thugHistoryLines || []).join('\n'), /retaliation settling period active/i);
+  const queued = hooks.state.consequenceQueue.find(entry => entry.type === 'thug_robbery_consequence' && entry.factionId === 'tracksuits' && !entry.resolved);
+  assert.ok(queued);
+  assert.equal(queued.earliestTurn, hooks.state.turn + 1);
   assert.match(hooks.state.factionPressureSources.tracksuits[0].reason, /accepted a severe below-asking offer/i);
 });
 
-test('v0.1.25 settling completion queues one thug with earliest post-retaliation source', () => {
+test('v0.1.54 resolving tracksuit does not delete queued hustler, tracksuit, or cop debt', () => {
   const hooks = loadGame(0);
   resetState(hooks);
-  hooks.state.tracksuitRetaliationSettlingNormalEncountersRemaining = 2;
-  hooks.setFactionPressure('tracksuits', 4);
-  hooks.state.factionPressureSources.tracksuits = [
-    { turn: 21, customerName: 'Tracksuit Legs', reason: 'post-retaliation short payment', amount: 1 },
-    { turn: 22, customerName: 'Tracksuit Slim', reason: 'post-retaliation refusal', amount: 1 }
-  ];
-  const firstNormalDeal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'bum_dvd_stack'));
-  const secondNormalDeal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'junkie_vcr'));
+  hooks.state.money = 0;
+  hooks.setFactionPressure('tracksuits', 5);
+  const activeTracksuit = hooks.queueThugConsequence('active tracksuit', { debug: true });
+  const tracksuitDeal = hooks.buildThugConsequenceDeal(activeTracksuit, hooks.getCharacter('tracksuit-thug-vincent'));
+  hooks.setFactionPressure('tracksuits', 0);
+  hooks.setFactionPressure('hustlers', 5);
+  const hustler = hooks.maybeQueueFactionThugConsequence('hustlers', null, 'queued hustler');
+  const cop = hooks.queueConsequence({
+    type: 'cop_consequence',
+    sourceTurn: hooks.state.turn,
+    triggeringCharacterId: 'cop_consequence',
+    triggeringDealId: 'cop cleanup source',
+    triggeringItemId: 'smart_watch_locked',
+    earliestTurn: hooks.state.turn,
+    metadata: { debug: true }
+  });
 
-  hooks.advanceTracksuitRetaliationSettlingAfterNormal(firstNormalDeal);
-  assert.equal(hooks.state.consequenceQueue.filter(entry => entry.type === 'thug_robbery_consequence').length, 0);
-  hooks.advanceTracksuitRetaliationSettlingAfterNormal(secondNormalDeal);
+  hooks.resolveConsequenceChoice('thugRefuse', tracksuitDeal);
 
-  const thugQueue = hooks.state.consequenceQueue.filter(entry => entry.type === 'thug_robbery_consequence' && !entry.resolved);
-  assert.equal(thugQueue.length, 1);
-  assert.match(thugQueue[0].metadata.pressureSourceSummary, /^T21 Tracksuit Legs/);
-  assert.doesNotMatch(thugQueue[0].metadata.pressureSourceSummary, /Old Source/i);
-  assert.match((secondNormalDeal.thugHistoryLines || []).join('\n'), /queued after settling period/i);
+  assert.equal(activeTracksuit.resolved, true);
+  assert.equal(hooks.state.consequenceQueue.some(entry => entry.id === hustler.id && !entry.resolved), true);
+  assert.equal(hooks.state.consequenceQueue.some(entry => entry.id === cop.id && !entry.resolved), true);
 });
 
-test('v0.1.25 cop investigation can queue while Tracksuit settling defers thug', () => {
+test('v0.1.54 resolving hustler does not delete queued tracksuit or cop debt', () => {
   const hooks = loadGame(0);
   resetState(hooks);
-  hooks.state.tracksuitRetaliationSettlingNormalEncountersRemaining = 4;
-  hooks.setFactionPressure('tracksuits', 4);
-  hooks.state.copRisk = 24;
-  hooks.state.nextCopInvestigationRisk = 25;
-  const { deal } = prepareSaleDeal(hooks, 'tracksuit_legs_buys_watch', 'suspicious_gold_watch');
+  hooks.state.money = 0;
+  hooks.setFactionPressure('hustlers', 5);
+  const activeHustler = hooks.queueThugConsequence('active hustler', { debug: true, factionId: 'hustlers' }, null, 'hustlers');
+  const hustlerDeal = hooks.buildThugConsequenceDeal(activeHustler, hooks.getCharacter('hustler-thug-red'));
+  hooks.setFactionPressure('hustlers', 0);
+  hooks.setFactionPressure('tracksuits', 5);
+  const tracksuit = hooks.maybeQueueFactionThugConsequence('tracksuits', null, 'queued tracksuit');
+  const cop = hooks.queueConsequence({
+    type: 'cop_consequence',
+    sourceTurn: hooks.state.turn,
+    triggeringCharacterId: 'cop_consequence',
+    triggeringDealId: 'cop cleanup source',
+    triggeringItemId: 'smart_watch_locked',
+    earliestTurn: hooks.state.turn,
+    metadata: { debug: true }
+  });
 
-  hooks.resolveSell('sellTag', deal);
-  hooks.maybeQueueThugConsequence(deal, 'test threshold during settling');
+  hooks.resolveConsequenceChoice('thugRefuse', hustlerDeal);
 
-  assert.equal(hooks.state.consequenceQueue.filter(entry => entry.type === 'cop_consequence').length, 1);
-  assert.equal(hooks.state.consequenceQueue.filter(entry => entry.type === 'thug_robbery_consequence' && !entry.resolved).length, 0);
-  assert.match((deal.thugHistoryLines || []).join('\n'), /retaliation settling period active/i);
+  assert.equal(activeHustler.resolved, true);
+  assert.equal(hooks.state.consequenceQueue.some(entry => entry.id === tracksuit.id && !entry.resolved), true);
+  assert.equal(hooks.state.consequenceQueue.some(entry => entry.id === cop.id && !entry.resolved), true);
 });
 
 test('generated catalog includes liquidity for every item', () => {
@@ -4967,7 +5172,7 @@ test('hustlers and tracksuits gain identical runtime pressure from lowball, sale
   });
 });
 
-test('tracksuit pressure crossing threshold queues and selects thug within bounded eligible window', () => {
+test('v0.1.54 tracksuit pressure crossing threshold queues ready debt for next encounter', () => {
   const hooks = loadGame(0.99);
   resetState(hooks);
   const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_knife'));
@@ -4978,27 +5183,20 @@ test('tracksuit pressure crossing threshold queues and selects thug within bound
   hooks.state.factionPressure.tracksuit_crew = 5;
   const consequence = hooks.maybeQueueThugConsequence(deal, 'threshold test');
   assert.ok(consequence);
+  assert.equal(consequence.earliestTurn, hooks.state.turn + 1);
+
   hooks.state.turn = consequence.earliestTurn;
-  hooks.state.normalEncountersSinceSpecial = 6;
-
-  let selected = null;
-  for (let i = 0; i < hooks.constants.THUG_CONSEQUENCE_MAX_ELIGIBLE_CHECKS; i += 1) {
-    selected = hooks.getEligibleQueuedConsequence();
-    if (selected) break;
-  }
-
+  const selected = hooks.getEligibleQueuedConsequence();
   assert.ok(selected);
   assert.equal(selected.type, 'thug_robbery_consequence');
-  assert.match(selected.metadata.schedulingStatus, /guarantee reached|actual selection chance/);
+  assert.match(selected.metadata.schedulingStatus, /ready debt selected/);
 });
 
-test('v0.1.21 tracksuit pressure arms thug queue during shared special cooldown', () => {
+test('v0.1.54 tracksuit pressure arms thug queue without shared special cooldown', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   forceNegotiationOutcome(hooks, 'lowball', 'consequence');
   hooks.setFactionPressure('tracksuits', 3);
-  hooks.state.normalEncountersSinceSpecial = 0;
-  hooks.state.thugConsequenceCooldownUntil = hooks.state.turn + 6;
   const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_prop_revolver'));
   deal.askingPrice = 80;
   deal.askPrice = 80;
@@ -5015,29 +5213,26 @@ test('v0.1.21 tracksuit pressure arms thug queue during shared special cooldown'
   assert.ok(thugQueue[0].metadata.factionPressureAtQueue >= hooks.constants.TRACKSUIT_CONSEQUENCE_MIN_PRESSURE);
   assert.match((deal.thugHistoryLines || []).join('\n'), /pressure threshold reached/);
   assert.match((deal.thugHistoryLines || []).join('\n'), /Tracksuit scheduling queued: source T/);
+  assert.match((deal.thugHistoryLines || []).join('\n'), /retaliation eligible T/);
 });
 
-test('v0.1.21 queued thug waits for shared cooldown and existing eligibility ramp', () => {
+test('v0.1.54 queued thug is selected immediately when eligible', () => {
   const hooks = loadGame(0.99);
   resetState(hooks);
-  hooks.state.normalEncountersSinceSpecial = 0;
   hooks.state.factionPressure.tracksuit_crew = 5;
   const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_knife'));
-  const consequence = hooks.maybeQueueThugConsequence(deal, 'cooldown wait test');
+  const consequence = hooks.maybeQueueThugConsequence(deal, 'ready debt test');
   assert.ok(consequence);
 
-  hooks.state.turn = consequence.earliestTurn;
-  hooks.state.normalEncountersSinceSpecial = 5;
+  hooks.state.turn = consequence.earliestTurn - 1;
   assert.equal(hooks.getEligibleQueuedConsequence(), null);
-  assert.equal(consequence.resolved, false);
 
-  hooks.state.normalEncountersSinceSpecial = 6;
-  assert.equal(hooks.getEligibleQueuedConsequence(), null);
-  assert.equal(consequence.resolved, false);
-  assert.match(consequence.metadata.schedulingStatus, /not selected on eligible check/);
+  hooks.state.turn = consequence.earliestTurn;
+  assert.equal(hooks.getEligibleQueuedConsequence()?.id, consequence.id);
+  assert.match(consequence.metadata.schedulingStatus, /ready debt selected/);
 });
 
-test('v0.1.21 additional tracksuit pressure does not duplicate queue or replace original source', () => {
+test('v0.1.54 additional tracksuit pressure does not duplicate queue or replace original source', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   hooks.state.factionPressure.tracksuit_crew = 5;
@@ -5054,10 +5249,10 @@ test('v0.1.21 additional tracksuit pressure does not duplicate queue or replace 
   assert.equal(thugQueue[0].id, original.id);
   assert.equal(thugQueue[0].reason, 'original source test');
   assert.equal(thugQueue[0].triggeringDealId, originalDeal.pool.id);
-  assert.match((laterDeal.thugHistoryLines || []).join('\n'), /another consequence already queued; original source remains tracked/);
+  assert.match((laterDeal.thugHistoryLines || []).join('\n'), /same faction consequence already queued; original source remains tracked/);
 });
 
-test('v0.1.21 pending cop and thug consequences coexist without overwriting each other', () => {
+test('v0.1.54 pending cop and thug consequences coexist without overwriting each other', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   const cop = hooks.queueConsequence({
@@ -5079,7 +5274,7 @@ test('v0.1.21 pending cop and thug consequences coexist without overwriting each
   assert.equal(hooks.state.consequenceQueue.filter(entry => entry.type === 'thug_robbery_consequence' && entry.resolved !== true).length, 1);
 });
 
-test('v0.1.21 one selected special delays but does not remove the other pending special', () => {
+test('v0.1.54 cop then hustler ready debts play FIFO without normal gap', () => {
   const hooks = loadGame(0);
   resetState(hooks);
   const cop = hooks.queueConsequence({
@@ -5088,26 +5283,161 @@ test('v0.1.21 one selected special delays but does not remove the other pending 
     triggeringCharacterId: 'cop_consequence',
     triggeringDealId: 'cop pacing source',
     triggeringItemId: 'smart_watch_locked',
-    earliestTurn: hooks.state.turn,
+    earliestTurn: hooks.state.turn + 1,
     metadata: { debug: true }
   });
-  hooks.state.factionPressure.tracksuit_crew = 5;
-  const thugDeal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'tracksuit_knife'));
-  const thug = hooks.maybeQueueThugConsequence(thugDeal, 'thug pacing source');
-  thug.earliestTurn = hooks.state.turn;
-  hooks.state.normalEncountersSinceSpecial = 6;
+  hooks.setFactionPressure('hustlers', 5);
+  const thug = hooks.maybeQueueFactionThugConsequence('hustlers', null, 'hustler pacing source');
 
+  hooks.state.turn = cop.earliestTurn;
   const selected = hooks.getEligibleQueuedConsequence();
   assert.equal(selected.id, cop.id);
   selected.resolved = true;
-  hooks.state.normalEncountersSinceSpecial = 0;
 
-  assert.equal(hooks.getEligibleQueuedConsequence(), null);
+  hooks.state.turn += 1;
+  assert.equal(hooks.getEligibleQueuedConsequence()?.id, thug.id);
   assert.equal(thug.resolved, false);
   assert.equal(hooks.state.consequenceQueue.some(entry => entry.id === thug.id), true);
+});
 
-  hooks.state.normalEncountersSinceSpecial = 6;
-  assert.equal(hooks.getEligibleQueuedConsequence()?.id, thug.id);
+test('v0.1.54 hustler and tracksuit queue independently and play FIFO', () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  hooks.setFactionPressure('hustlers', 5);
+  const hustler = hooks.maybeQueueFactionThugConsequence('hustlers', null, 'hustler first');
+  hooks.setFactionPressure('tracksuits', 5);
+  const tracksuit = hooks.maybeQueueFactionThugConsequence('tracksuits', null, 'tracksuit second');
+
+  assert.ok(hustler);
+  assert.ok(tracksuit);
+  assert.equal(hustler.earliestTurn, tracksuit.earliestTurn);
+
+  hooks.state.turn = hustler.earliestTurn;
+  assert.equal(hooks.getEligibleQueuedConsequence()?.id, hustler.id);
+  hustler.resolved = true;
+  assert.equal(hooks.state.factionPressure.tracksuits, 5);
+  assert.equal(hooks.state.consequenceQueue.some(entry => entry.id === tracksuit.id && !entry.resolved), true);
+
+  hooks.state.turn += 1;
+  assert.equal(hooks.getEligibleQueuedConsequence()?.id, tracksuit.id);
+});
+
+test('v0.1.54 tracksuit can queue while hustler is pending and vice versa', () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  hooks.setFactionPressure('hustlers', 5);
+  const hustler = hooks.maybeQueueFactionThugConsequence('hustlers', null, 'hustler pending');
+  hooks.setFactionPressure('tracksuits', 5);
+  const tracksuit = hooks.maybeQueueFactionThugConsequence('tracksuits', null, 'tracksuit independent');
+
+  assert.ok(hustler);
+  assert.ok(tracksuit);
+
+  resetState(hooks);
+  hooks.setFactionPressure('tracksuits', 5);
+  const tracksuitFirst = hooks.maybeQueueFactionThugConsequence('tracksuits', null, 'tracksuit pending');
+  hooks.setFactionPressure('hustlers', 5);
+  const hustlerSecond = hooks.maybeQueueFactionThugConsequence('hustlers', null, 'hustler independent');
+
+  assert.ok(tracksuitFirst);
+  assert.ok(hustlerSecond);
+});
+
+test('v0.1.54 cop, hustler, and tracksuit ready debts play consecutively before normal fallback', () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  hooks.setActiveCustomers([hooks.getCharacter('street-bum'), hooks.getCharacter('regular-grandma-slots')]);
+  const cop = hooks.queueConsequence({
+    type: 'cop_consequence',
+    sourceTurn: hooks.state.turn,
+    triggeringCharacterId: 'cop_consequence',
+    triggeringDealId: 'cop fifo source',
+    triggeringItemId: 'smart_watch_locked',
+    earliestTurn: hooks.state.turn + 1,
+    metadata: { debug: true }
+  });
+  hooks.setFactionPressure('hustlers', 5);
+  const hustler = hooks.maybeQueueFactionThugConsequence('hustlers', null, 'hustler fifo source');
+  hooks.setFactionPressure('tracksuits', 5);
+  const tracksuit = hooks.maybeQueueFactionThugConsequence('tracksuits', null, 'tracksuit fifo source');
+
+  hooks.state.turn = cop.earliestTurn;
+  assert.equal(hooks.getEligibleQueuedConsequence()?.id, cop.id);
+  cop.resolved = true;
+  hooks.state.turn += 1;
+  assert.equal(hooks.getEligibleQueuedConsequence()?.id, hustler.id);
+  hustler.resolved = true;
+  hooks.state.turn += 1;
+  assert.equal(hooks.getEligibleQueuedConsequence()?.id, tracksuit.id);
+  tracksuit.resolved = true;
+  hooks.state.turn += 1;
+  assert.equal(hooks.getEligibleQueuedConsequence(), null);
+  assert.ok(hooks.chooseNextNormalDeal().deal);
+});
+
+test('v0.1.54 evidence-delayed cop does not block ready hustler and keeps original eligible turn', () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  const cop = hooks.queueConsequence({
+    type: 'cop_consequence',
+    sourceTurn: hooks.state.turn,
+    triggeringCharacterId: 'cop_consequence',
+    triggeringDealId: 'cop delay source',
+    triggeringItemId: 'smart_watch_locked',
+    earliestTurn: hooks.state.turn + 3,
+    metadata: { debug: true }
+  });
+  hooks.setFactionPressure('hustlers', 5);
+  const hustler = hooks.maybeQueueFactionThugConsequence('hustlers', null, 'ready hustler');
+
+  hooks.state.turn = hustler.earliestTurn;
+  assert.equal(hooks.getEligibleQueuedConsequence()?.id, hustler.id);
+  assert.equal(cop.earliestTurn, 13);
+  hustler.resolved = true;
+
+  hooks.state.turn = cop.earliestTurn;
+  assert.equal(hooks.getEligibleQueuedConsequence()?.id, cop.id);
+});
+
+test('v0.1.54 ready cop waits while thug is active and receives next-turn priority', () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  hooks.setFactionPressure('hustlers', 5);
+  const hustler = hooks.maybeQueueFactionThugConsequence('hustlers', null, 'active hustler');
+  const cop = hooks.queueConsequence({
+    type: 'cop_consequence',
+    sourceTurn: hooks.state.turn,
+    triggeringCharacterId: 'cop_consequence',
+    triggeringDealId: 'cop active source',
+    triggeringItemId: 'smart_watch_locked',
+    earliestTurn: hustler.earliestTurn,
+    metadata: { debug: true }
+  });
+
+  hooks.state.turn = hustler.earliestTurn;
+  hooks.state.activeConsequence = hustler;
+  assert.equal(hooks.getEligibleQueuedConsequence(), null);
+
+  hooks.state.activeConsequence = null;
+  hustler.resolved = true;
+  hooks.state.turn += 1;
+  assert.equal(hooks.getEligibleQueuedConsequence()?.id, cop.id);
+});
+
+test('v0.1.54 cop evidence delay duration remains unchanged', () => {
+  const hooks = loadGame([0, 0]);
+  resetState(hooks);
+  hooks.state.money = 500;
+  hooks.state.copRisk = 24;
+  hooks.state.nextCopInvestigationRisk = 25;
+  const deal = hooks.buildDeal(hooks.data.characterItemPools.find(entry => entry.id === 'hustler_shorty_locked_watch'));
+
+  hooks.resolveBuy('buyAsk', deal);
+
+  const cop = hooks.state.consequenceQueue.find(entry => entry.type === 'cop_consequence');
+  assert.ok(cop);
+  assert.equal(cop.metadata.fullInterveningTurns, hooks.constants.COP_INVESTIGATION_MIN_FULL_TURNS);
+  assert.equal(cop.earliestTurn, cop.sourceTurn + hooks.constants.COP_INVESTIGATION_MIN_FULL_TURNS + 1);
 });
 
 test('v0.1.21 non-tracksuit generic hostile trade backlash only reduces reputation', () => {

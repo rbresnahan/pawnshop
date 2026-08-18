@@ -162,7 +162,7 @@ test('npc editor displays the synchronized game build version', () => {
   const html = fs.readFileSync(path.join(ROOT, 'npc-editor.html'), 'utf8');
   const mainJs = fs.readFileSync(path.join(ROOT, 'main.js'), 'utf8');
   const version = mainJs.match(/const GAME_VERSION = '([^']+)'/)?.[1];
-  assert.equal(version, '0.1.53');
+  assert.equal(version, '0.1.57');
   assert.match(html, new RegExp(`id="editor-version"[^>]*>v${version}<`));
   assert.match(html, new RegExp(`npc-editor\\.js\\?v=${version.replace(/\./g, '\\.')}`));
   assert.match(html, /CSV edits are source-only\. Regenerate gameData\.js before testing or shipping gameplay\./);

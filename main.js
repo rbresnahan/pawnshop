@@ -1,4 +1,4 @@
-const GAME_VERSION = '0.1.53';
+const GAME_VERSION = '0.1.57';
 const GAME_BUILD_LOADED_AT = new Date().toISOString();
 
 window.ONE_STAR_PAWN_VERSION = GAME_VERSION;
@@ -57,13 +57,11 @@ const TRACKSUIT_RELATIONSHIP_PRESSURE = {
   badMerchandise: 2,
   severeDisputeMax: 2
 };
-const TRACKSUIT_RETALIATION_SETTLING_NORMAL_ENCOUNTERS = 6;
-const SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS = 6;
-const SPECIAL_ENCOUNTER_GUARANTEE_TURN = 10;
 const COP_EMERGENCY_RISK = 120;
 const COP_INVESTIGATION_MIN_FULL_TURNS = 3;
 const COP_INVESTIGATION_MAX_FULL_TURNS = 5;
 const COP_INVESTIGATION_CHECKPOINTS = [25, 45, 70, 100];
+const COP_RISK_SALE_MULTIPLIER = 0.65;
 const COP_RISK_ADJUSTMENTS = {
   searchFoundNothing: -6,
   voluntarySurrender: -13,
@@ -73,9 +71,13 @@ const COP_RISK_ADJUSTMENTS = {
 };
 const COP_RISK_INVESTIGATION_RESIDUAL_FLOOR = 1;
 const TRACKSUIT_CONSEQUENCE_MIN_PRESSURE = 4;
-const GANG_NORMAL_MEMBER_PRESSURE_BOOST_MULTIPLIER = 1.5;
+const GANG_NORMAL_MEMBER_PRESSURE_BOOST_BANDS = [
+  { minPressure: TRACKSUIT_CONSEQUENCE_MIN_PRESSURE - 1, multiplier: 2 }
+];
+const GANG_NORMAL_MEMBER_PARITY_HISTORY_LIMIT = 12;
+const GANG_NORMAL_MEMBER_PARITY_DIFFERENCE = 2;
+const GANG_NORMAL_MEMBER_PARITY_MULTIPLIER = 1.5;
 const TRACKSUIT_ROBBERY_MIN_TURN = 10;
-const THUG_CONSEQUENCE_MIN_FULL_TURNS = 1;
 const THUG_CASH_HANDOVER_RATE = 0.28;
 const THUG_CASH_HANDOVER_MIN = 8;
 const THUG_REFUSE_CASH_RATE = 0.45;
@@ -289,8 +291,6 @@ const NEGOTIATION_OUTCOMES = {
     severity: 20
   }
 };
-const THUG_CONSEQUENCE_MAX_ELIGIBLE_CHECKS = 4;
-
 const NPC_TARGET_VISIBLE_HEIGHT_RATIO = 0.31;
 const NPC_MAX_STAGE_VISIBLE_HEIGHT_RATIO = 0.72;
 const NPC_MAX_VISIBLE_HEIGHT = 425;
@@ -461,12 +461,9 @@ const state = {
   scamRisk: 0,
   consequenceQueue: [],
   consequenceSerial: 0,
-  copConsequenceCooldownUntil: 0,
-  thugConsequenceCooldownUntil: 0,
-  tracksuitRetaliationSettlingNormalEncountersRemaining: 0,
-  normalEncountersSinceSpecial: SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS,
   normalEncounterCount: 0,
   normalCustomerHistory: [],
+  normalGangFactionHistory: [],
   normalEncounterTypeHistory: [],
   copWarnings: 0,
   copStrikes: 0,
@@ -3469,8 +3466,10 @@ function getNextCopInvestigationCheckpoint(checkpoint) {
 function normalizeConsequenceState() {
   const queue = getConsequenceQueue();
   if (!Number.isFinite(Number(state.consequenceSerial))) state.consequenceSerial = 0;
-  if (!Number.isFinite(Number(state.copConsequenceCooldownUntil))) state.copConsequenceCooldownUntil = 0;
-  if (!Number.isFinite(Number(state.thugConsequenceCooldownUntil))) state.thugConsequenceCooldownUntil = 0;
+  delete state.copConsequenceCooldownUntil;
+  delete state.thugConsequenceCooldownUntil;
+  delete state.tracksuitRetaliationSettlingNormalEncountersRemaining;
+  delete state.normalEncountersSinceSpecial;
   if (!Object.prototype.hasOwnProperty.call(state, 'activeConsequence')) state.activeConsequence = null;
   if (!state.factionPressure || typeof state.factionPressure !== 'object') state.factionPressure = {};
   if (TRACKSUIT_CREW_FACTION_ID !== 'tracksuit_crew' && Number.isFinite(Number(state.factionPressure.tracksuit_crew)) && Number(state.factionPressure.tracksuit_crew) > Number(state.factionPressure[TRACKSUIT_CREW_FACTION_ID] || 0)) {
@@ -3489,9 +3488,6 @@ function normalizeConsequenceState() {
     state.factionPressureSources[TRACKSUIT_CREW_FACTION_ID] = state.factionPressureSources.tracksuit_crew;
   }
   IMPLEMENTED_PRESSURE_FACTION_IDS.forEach(factionId => getFactionPressureSources(factionId));
-  if (!Number.isFinite(Number(state.tracksuitRetaliationSettlingNormalEncountersRemaining))) state.tracksuitRetaliationSettlingNormalEncountersRemaining = 0;
-  state.tracksuitRetaliationSettlingNormalEncountersRemaining = Math.max(0, Math.floor(Number(state.tracksuitRetaliationSettlingNormalEncountersRemaining) || 0));
-
   const checkpoint = Number(state.nextCopInvestigationRisk);
   if (!Number.isFinite(checkpoint) || !Number.isInteger(checkpoint) || checkpoint < COP_INVESTIGATION_CHECKPOINTS[0]) {
     const normalizedCheckpoint = deriveCopInvestigationCheckpoint(state.copRisk);
@@ -3515,10 +3511,14 @@ function normalizeConsequenceState() {
   if (typeof state.copInvestigationNormalizationLog !== 'string') {
     state.copInvestigationNormalizationLog = '';
   }
-  if (!Number.isFinite(Number(state.normalEncountersSinceSpecial))) state.normalEncountersSinceSpecial = SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS;
   if (!Number.isFinite(Number(state.lowCashRecoveryDryStreak))) state.lowCashRecoveryDryStreak = 0;
   if (!Array.isArray(state.normalCustomerHistory)) state.normalCustomerHistory = [];
   state.normalCustomerHistory = state.normalCustomerHistory.filter(id => typeof id === 'string').slice(0, NORMAL_CUSTOMER_HISTORY_LIMIT);
+  if (!Array.isArray(state.normalGangFactionHistory)) state.normalGangFactionHistory = [];
+  state.normalGangFactionHistory = state.normalGangFactionHistory
+    .map(normalizeFactionId)
+    .filter(factionId => IMPLEMENTED_PRESSURE_FACTION_IDS.has(factionId))
+    .slice(0, GANG_NORMAL_MEMBER_PARITY_HISTORY_LIMIT);
   if (!Number.isFinite(Number(state.copWarnings))) state.copWarnings = 0;
   if (!Number.isFinite(Number(state.copStrikes))) state.copStrikes = 0;
 }
@@ -3633,40 +3633,57 @@ function cleanResolvedConsequences() {
   state.consequenceQueue = getConsequenceQueue().filter(consequence => !consequence || typeof consequence !== 'object' || consequence.resolved !== true);
 }
 
+function getValidUnresolvedConsequences() {
+  return getConsequenceQueue()
+    .map((consequence, index) => ({ consequence, index }))
+    .filter(entry =>
+      entry.consequence &&
+      typeof entry.consequence === 'object' &&
+      entry.consequence.resolved !== true &&
+      validateQueuedConsequence(entry.consequence).length === 0
+    );
+}
+
+function getReadyConsequenceEntries() {
+  return getValidUnresolvedConsequences()
+    .filter(entry => Number(entry.consequence.earliestTurn) <= state.turn)
+    .sort((a, b) =>
+      Number(a.consequence.earliestTurn) - Number(b.consequence.earliestTurn) ||
+      a.index - b.index
+    );
+}
+
 function getSharedConsequenceSelectionDiagnostics(consequence) {
   normalizeConsequenceState();
-  const normalTurns = Math.max(0, Number(state.normalEncountersSinceSpecial) || 0);
-  const emergency = consequence?.type === COP_CONSEQUENCE_TYPE && state.copRisk >= COP_EMERGENCY_RISK && normalTurns >= 1;
-  const evidenceReady = Boolean(consequence) && Number(consequence.earliestTurn) <= state.turn;
-  const cooldownReady = emergency || normalTurns >= SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS;
-  const eligible = evidenceReady && cooldownReady && !state.activeConsequence;
-  const eligibleTurn = normalTurns + 1;
-  const selectionStep = 100 / (SPECIAL_ENCOUNTER_GUARANTEE_TURN - SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS);
-  const previousChecks = Number(consequence?.metadata?.eligibleSelectionChecks) || 0;
-  const isThug = consequence?.type === THUG_CONSEQUENCE_TYPE;
-  const guaranteeReached = Boolean(consequence) && (isThug
-    ? previousChecks + 1 >= THUG_CONSEQUENCE_MAX_ELIGIBLE_CHECKS
-    : eligibleTurn >= SPECIAL_ENCOUNTER_GUARANTEE_TURN);
-  const selectionChance = eligible
-    ? emergency || guaranteeReached
-      ? 100
-      : Math.min(100, Math.max(0, (eligibleTurn - SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS) * selectionStep))
-    : null;
+  const queueEntries = getValidUnresolvedConsequences();
+  const queueEntry = queueEntries.find(entry => entry.consequence === consequence);
+  const readyEntries = getReadyConsequenceEntries();
+  const readyEntry = readyEntries.find(entry => entry.consequence === consequence);
+  const active = Boolean(consequence && state.activeConsequence === consequence);
+  const queued = Boolean(consequence);
+  const eligibleTurn = queued ? Number(consequence.earliestTurn) : null;
+  const evidenceReady = queued && eligibleTurn <= state.turn;
+  const eligible = evidenceReady && !state.activeConsequence;
+  const queueState = !queued
+    ? 'not queued'
+    : active
+      ? 'active'
+      : evidenceReady
+        ? 'ready'
+        : 'pending delay';
   let blockedReason = '';
   if (!consequence) blockedReason = 'not queued';
   else if (state.activeConsequence) blockedReason = 'special encounter active';
-  else if (!evidenceReady) blockedReason = 'waiting for evidence delay';
-  else if (!cooldownReady) blockedReason = 'shared cooldown incomplete';
+  else if (!evidenceReady) blockedReason = consequence.type === COP_CONSEQUENCE_TYPE ? 'waiting for evidence delay' : 'waiting for retaliation delay';
   return {
-    normalTurns,
-    cooldownReady,
-    cooldownNeeded: SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS,
+    queueState,
+    queueOrder: queueEntry ? queueEntry.index + 1 : null,
+    readyRank: readyEntry ? readyEntries.indexOf(readyEntry) + 1 : null,
+    sourceTurn: queued ? Number(consequence.sourceTurn) : null,
+    eligibleTurn,
     evidenceReady,
     eligible,
-    selectionChance,
-    guaranteeReached,
-    previousChecks,
-    emergency,
+    selectionChance: null,
     blockedReason
   };
 }
@@ -3683,26 +3700,84 @@ function getFactionConfig(factionId) {
   return (GAME_DATA.factions || []).find(faction => normalizeFactionId(faction.id) === normalizeFactionId(factionId)) || null;
 }
 
-function getNormalMemberPressureBoostMultiplier(character) {
+function isNormalGangMember(character) {
   const factionId = normalizeFactionId(character?.factionId);
-  if (!isImplementedPressureFaction(factionId)) return 1;
+  if (!isImplementedPressureFaction(factionId)) return false;
   const config = getFactionConfig(factionId);
-  const isOrdinaryMember = (config?.members || []).includes(character?.id);
-  if (!isOrdinaryMember) return 1;
-  return getFactionPressure(factionId) === TRACKSUIT_CONSEQUENCE_MIN_PRESSURE - 1
-    ? GANG_NORMAL_MEMBER_PRESSURE_BOOST_MULTIPLIER
-    : 1;
+  return (config?.members || []).includes(character?.id);
+}
+
+function getNormalGangMemberFactionId(characterOrId) {
+  const character = typeof characterOrId === 'string' ? getCharacter(characterOrId) : characterOrId;
+  return isNormalGangMember(character) ? normalizeFactionId(character.factionId) : '';
+}
+
+function getNormalMemberPressureBoostMultiplier(character) {
+  const factionId = getNormalGangMemberFactionId(character);
+  if (!factionId) return 1;
+  const pressure = getFactionPressure(factionId);
+  const band = GANG_NORMAL_MEMBER_PRESSURE_BOOST_BANDS.find(entry => pressure >= entry.minPressure);
+  return band ? band.multiplier : 1;
 }
 
 function getFactionNormalMemberBoostDiagnostic(factionId) {
   const normalizedFaction = normalizeFactionId(factionId);
-  const multiplier = getFactionPressure(normalizedFaction) === TRACKSUIT_CONSEQUENCE_MIN_PRESSURE - 1
-    ? GANG_NORMAL_MEMBER_PRESSURE_BOOST_MULTIPLIER
-    : 1;
+  const pressure = getFactionPressure(normalizedFaction);
+  const band = GANG_NORMAL_MEMBER_PRESSURE_BOOST_BANDS.find(entry => pressure >= entry.minPressure);
+  const multiplier = band ? band.multiplier : 1;
   return {
     active: multiplier > 1,
     multiplier
   };
+}
+
+function getNormalGangFactionHistory() {
+  if (!Array.isArray(state.normalGangFactionHistory)) state.normalGangFactionHistory = [];
+  state.normalGangFactionHistory = state.normalGangFactionHistory
+    .map(normalizeFactionId)
+    .filter(factionId => IMPLEMENTED_PRESSURE_FACTION_IDS.has(factionId))
+    .slice(0, GANG_NORMAL_MEMBER_PARITY_HISTORY_LIMIT);
+  return state.normalGangFactionHistory;
+}
+
+function getNormalGangFactionAppearanceCounts(history = getNormalGangFactionHistory()) {
+  return {
+    [HUSTLER_FACTION_ID]: history.filter(factionId => factionId === HUSTLER_FACTION_ID).length,
+    [TRACKSUIT_CREW_FACTION_ID]: history.filter(factionId => factionId === TRACKSUIT_CREW_FACTION_ID).length
+  };
+}
+
+function getUnderrepresentedGangFactionId(history = getNormalGangFactionHistory()) {
+  const counts = getNormalGangFactionAppearanceCounts(history);
+  const hustlerCount = counts[HUSTLER_FACTION_ID];
+  const tracksuitCount = counts[TRACKSUIT_CREW_FACTION_ID];
+  if (hustlerCount - tracksuitCount >= GANG_NORMAL_MEMBER_PARITY_DIFFERENCE) return TRACKSUIT_CREW_FACTION_ID;
+  if (tracksuitCount - hustlerCount >= GANG_NORMAL_MEMBER_PARITY_DIFFERENCE) return HUSTLER_FACTION_ID;
+  return '';
+}
+
+function getGangParitySelectionContext(selectionEntries) {
+  const history = getNormalGangFactionHistory();
+  const counts = getNormalGangFactionAppearanceCounts(history);
+  const underrepresentedFactionId = getUnderrepresentedGangFactionId(history);
+  const eligible = Boolean(
+    underrepresentedFactionId &&
+    selectionEntries.some(entry => getNormalGangMemberFactionId(entry.character) === underrepresentedFactionId)
+  );
+  return {
+    history: [...history],
+    counts,
+    underrepresentedFactionId,
+    activeFactionId: eligible ? underrepresentedFactionId : '',
+    multiplier: eligible ? GANG_NORMAL_MEMBER_PARITY_MULTIPLIER : 1
+  };
+}
+
+function getGangParitySelectionMultiplier(character, parityContext) {
+  const factionId = getNormalGangMemberFactionId(character);
+  return factionId && factionId === parityContext?.activeFactionId
+    ? parityContext.multiplier
+    : 1;
 }
 
 function getFactionThugEvent(factionId, thugId) {
@@ -3725,8 +3800,7 @@ function getFactionThugBlockReason(factionId, config = getFactionConfig(factionI
   if (!resolvedThugEvent) return 'missing thug event';
   if (pressure < TRACKSUIT_CONSEQUENCE_MIN_PRESSURE) return 'pressure below threshold';
   if (state.activeConsequence) return 'special encounter active';
-  if (hasPendingConsequence(THUG_CONSEQUENCE_TYPE)) return 'another consequence already queued';
-  if (normalizedFaction === TRACKSUIT_CREW_FACTION_ID && isTracksuitRetaliationSettling()) return 'retaliation settling period active';
+  if (hasPendingConsequence(THUG_CONSEQUENCE_TYPE, normalizedFaction)) return 'same faction consequence already queued';
   return '';
 }
 
@@ -3739,10 +3813,8 @@ function getCopConsequenceDiagnostic() {
   let status = 'Building pressure';
   if (active) status = 'Consequence currently active';
   else if (queued) {
-    if (/not selected on eligible check/i.test(queued.metadata?.schedulingStatus || '')) status = 'Random selection check failed';
-    else if (scheduling.eligible) status = scheduling.selectionChance === 100 ? 'Guaranteed on next eligible check' : `Eligible: ${scheduling.selectionChance}% chance`;
+    if (scheduling.eligible) status = 'Ready: next consequence debt';
     else if (scheduling.blockedReason === 'waiting for evidence delay') status = 'Waiting for evidence delay';
-    else if (scheduling.blockedReason === 'shared cooldown incomplete') status = 'Waiting for shared cooldown';
     else status = 'Queued for next available special';
   } else if (state.copRisk <= 0) status = 'No tracked evidence';
   else if (state.copRisk >= threshold) status = 'Threshold reached';
@@ -3754,10 +3826,13 @@ function getCopConsequenceDiagnostic() {
     progress: Math.min(100, Math.max(0, (Number(state.copRisk) || 0) / progressMax * 100)),
     queued: Boolean(queued),
     active,
-    normalSinceSpecial: scheduling.normalTurns,
-    selectionChance: scheduling.selectionChance,
+    queueState: scheduling.queueState,
+    sourceTurn: scheduling.sourceTurn,
+    eligibleTurn: scheduling.eligibleTurn,
+    queueOrder: scheduling.queueOrder,
+    readyRank: scheduling.readyRank,
     status,
-    detail: `Risk ${Math.max(0, Number(state.copRisk) || 0)}/${threshold} · Cooldown ${scheduling.cooldownReady ? 'ready' : `${scheduling.normalTurns}/${scheduling.cooldownNeeded}`} · ${queued ? `Queued T${queued.earliestTurn}` : state.copInvestigationArmed ? 'Armed' : 'Not armed'}${queued?.metadata?.schedulingStatus ? ` · ${queued.metadata.schedulingStatus}` : ''}`,
+    detail: `Risk ${Math.max(0, Number(state.copRisk) || 0)}/${threshold} · Queue ${scheduling.queueState} · ${queued ? `Source T${queued.sourceTurn} · Evidence eligible T${queued.earliestTurn}` : state.copInvestigationArmed ? 'Armed' : 'Not armed'}${scheduling.readyRank ? ` · Ready rank ${scheduling.readyRank}` : ''}${queued?.metadata?.schedulingStatus ? ` · ${queued.metadata.schedulingStatus}` : ''}`,
     warning: !getConsequenceEvent(COP_CONSEQUENCE_TYPE)
   };
 }
@@ -3778,10 +3853,8 @@ function getThugConsequenceDiagnostic(factionId, label) {
   if (active) status = 'Consequence currently active';
   else if (!config || !config.thug || !thugCharacter || !thugEvent) status = blockReason;
   else if (queued) {
-    if (/not selected on eligible check/i.test(queued.metadata?.schedulingStatus || '')) status = 'Random selection check failed';
-    else if (scheduling.eligible) status = scheduling.selectionChance === 100 ? 'Guaranteed on next eligible check' : `Eligible: ${scheduling.selectionChance}% chance`;
-    else if (scheduling.blockedReason === 'waiting for evidence delay') status = 'Waiting for evidence delay';
-    else if (scheduling.blockedReason === 'shared cooldown incomplete') status = 'Waiting for shared cooldown';
+    if (scheduling.eligible) status = 'Ready: next consequence debt';
+    else if (scheduling.blockedReason === 'waiting for retaliation delay') status = 'Waiting for retaliation delay';
     else status = 'Queued for next available special';
   } else if (pressure < threshold) status = 'Below retaliation threshold';
   else if (blockReason) status = blockReason;
@@ -3793,8 +3866,8 @@ function getThugConsequenceDiagnostic(factionId, label) {
     ? 'consequence active'
     : queued
       ? 'queue armed'
-      : blockReason === 'another consequence already queued' || blockReason === 'retaliation settling period active' || blockReason === 'special encounter active'
-        ? 'queue blocked by cooldown'
+      : blockReason === 'same faction consequence already queued' || blockReason === 'special encounter active'
+        ? 'queue blocked'
         : pressure >= threshold && !blockReason
           ? 'queue armed'
           : 'not queued';
@@ -3807,8 +3880,11 @@ function getThugConsequenceDiagnostic(factionId, label) {
     progress: Math.min(100, Math.max(0, pressure / threshold * 100)),
     queued: Boolean(queued),
     active,
-    normalSinceSpecial: scheduling.normalTurns,
-    selectionChance: scheduling.selectionChance,
+    queueState: scheduling.queueState,
+    sourceTurn: scheduling.sourceTurn,
+    eligibleTurn: scheduling.eligibleTurn,
+    queueOrder: scheduling.queueOrder,
+    readyRank: scheduling.readyRank,
     normalMemberBoost,
     status,
     thugId: config?.thug || '',
@@ -3819,8 +3895,8 @@ function getThugConsequenceDiagnostic(factionId, label) {
       eventStatus,
       queueStatus
     },
-    detail: `Faction ${normalizedFaction} · Pressure ${pressure}/${threshold} · ${normalMemberBoost.active ? `Normal member boost: ${normalMemberBoost.multiplier}x · ` : ''}Cooldown ${scheduling.cooldownReady ? 'ready' : `${scheduling.normalTurns}/${scheduling.cooldownNeeded}`} · ${queued ? `Queued T${queued.earliestTurn}` : 'Not queued'} · Thug ${config?.thug || 'missing'} · Event ${thugEvent?.id || 'missing'}${queued?.metadata?.schedulingStatus ? ` · ${queued.metadata.schedulingStatus}` : ''}`,
-    warning: !config || !config.thug || !thugCharacter || !thugEvent || (pressure >= threshold && Boolean(blockReason) && blockReason !== 'another consequence already queued')
+    detail: `Faction ${normalizedFaction} · Pressure ${pressure}/${threshold} · ${normalMemberBoost.active ? `Normal member boost: ${formatMultiplier(normalMemberBoost.multiplier)}x · ` : ''}Queue ${scheduling.queueState} · ${queued ? `Source T${queued.sourceTurn} · Retaliation eligible T${queued.earliestTurn}` : 'Not queued'} · Thug ${config?.thug || 'missing'} · Event ${thugEvent?.id || 'missing'}${scheduling.readyRank ? ` · Ready rank ${scheduling.readyRank}` : ''}${queued?.metadata?.schedulingStatus ? ` · ${queued.metadata.schedulingStatus}` : ''}`,
+    warning: !config || !config.thug || !thugCharacter || !thugEvent || (pressure >= threshold && Boolean(blockReason) && blockReason !== 'same faction consequence already queued')
   };
 }
 
@@ -3861,9 +3937,10 @@ function renderConsequenceMeters() {
     flags.className = 'consequence-meter-flags';
     flags.append(`Queued: ${meter.queued ? 'yes' : 'no'}`);
     flags.append(`Active: ${meter.active ? 'yes' : 'no'}`);
-    flags.append(`Normal: ${meter.normalSinceSpecial}`);
-    flags.append(`Chance: ${meter.selectionChance === null ? 'n/a' : `${meter.selectionChance}%`}`);
-    if (meter.normalMemberBoost?.active) flags.append(`Normal member boost: ${meter.normalMemberBoost.multiplier}x`);
+    flags.append(`State: ${meter.queueState}`);
+    if (meter.eligibleTurn !== null && meter.eligibleTurn !== undefined) flags.append(`Eligible: T${meter.eligibleTurn}`);
+    if (meter.readyRank) flags.append(`Ready rank: ${meter.readyRank}`);
+    if (meter.normalMemberBoost?.active) flags.append(`Normal member boost: ${formatMultiplier(meter.normalMemberBoost.multiplier)}x`);
 
     const status = document.createElement('div');
     status.className = 'consequence-meter-status';
@@ -3878,7 +3955,9 @@ function renderConsequenceMeters() {
 }
 
 function getEligibleQueuedConsequence() {
+  if (state.activeConsequence) return null;
   const queue = getConsequenceQueue();
+  const readyEntries = [];
   for (let index = 0; index < queue.length; index += 1) {
     const consequence = queue[index];
     if (consequence && typeof consequence === 'object' && consequence.resolved === true) continue;
@@ -3888,27 +3967,17 @@ function getEligibleQueuedConsequence() {
       continue;
     }
     if (Number(consequence.earliestTurn) > state.turn) continue;
-    const normalTurns = state.normalEncountersSinceSpecial;
-    const emergency = consequence.type === COP_CONSEQUENCE_TYPE && state.copRisk >= COP_EMERGENCY_RISK && normalTurns >= 1;
-    if (!emergency && normalTurns < SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS) continue;
-    const eligibleTurn = normalTurns + 1;
-    const selectionStep = 100 / (SPECIAL_ENCOUNTER_GUARANTEE_TURN - SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS);
-    const previousChecks = Number(consequence.metadata.eligibleSelectionChecks) || 0;
-    const isThug = consequence.type === THUG_CONSEQUENCE_TYPE;
-    const guaranteeReached = isThug
-      ? previousChecks + 1 >= THUG_CONSEQUENCE_MAX_ELIGIBLE_CHECKS
-      : eligibleTurn >= SPECIAL_ENCOUNTER_GUARANTEE_TURN;
-    const selectionChance = emergency || guaranteeReached
-      ? 100
-      : Math.min(100, (eligibleTurn - SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS) * selectionStep);
-    consequence.metadata.eligibleSelectionChecks = (consequence.metadata.eligibleSelectionChecks || 0) + 1;
-    if (chance(selectionChance)) {
-      consequence.metadata.schedulingStatus = `selected with evidence eligible since T${consequence.earliestTurn}; shared cooldown satisfied (${normalTurns} normal encounters since previous special); selected on first eligible turn: ${consequence.metadata.eligibleSelectionChecks === 1 ? 'yes' : 'no'}; eligible checks waited: ${consequence.metadata.eligibleSelectionChecks}; actual selection chance: ${selectionChance}%${emergency ? ' (emergency override)' : ''}${guaranteeReached ? ' (guarantee reached)' : ''}`;
-      return consequence;
-    }
-    consequence.metadata.schedulingStatus = `not selected on eligible check ${consequence.metadata.eligibleSelectionChecks}; faction ${consequence.factionId || consequence.metadata?.factionId || 'n/a'}; pressure when queued ${consequence.metadata?.factionPressureAtQueue ?? 'n/a'}; first eligible T${consequence.earliestTurn}; shared cooldown satisfied (${normalTurns} normal encounters since previous special); selection chance ${selectionChance}%; guarantee reached: ${guaranteeReached ? 'yes' : 'no'}.`;
+    readyEntries.push({ consequence, index });
   }
-  return null;
+  readyEntries.sort((a, b) =>
+    Number(a.consequence.earliestTurn) - Number(b.consequence.earliestTurn) ||
+    a.index - b.index
+  );
+  const selected = readyEntries[0]?.consequence || null;
+  if (selected) {
+    selected.metadata.schedulingStatus = `ready debt selected; source T${selected.sourceTurn}; eligible T${selected.earliestTurn}; queue order ${readyEntries[0].index + 1}.`;
+  }
+  return selected;
 }
 
 function markConsequenceResolved(consequence, result) {
@@ -4195,6 +4264,11 @@ function formatMeterCopyValue(value) {
   return String(value);
 }
 
+function formatMultiplier(value) {
+  const multiplier = Number(value);
+  return Number.isFinite(multiplier) ? multiplier.toFixed(1) : formatMeterCopyValue(value);
+}
+
 function formatConsequenceMeterCopySection(meter) {
   const lines = [
     meter.label,
@@ -4202,9 +4276,12 @@ function formatConsequenceMeterCopySection(meter) {
     meter.id === 'cop' ? null : `Pressure: ${meter.value}/${meter.threshold}`,
     `Queued: ${meter.queued ? 'yes' : 'no'}`,
     `Active: ${meter.active ? 'yes' : 'no'}`,
-    `Normal encounters since special: ${meter.normalSinceSpecial}`,
-    `Selection chance: ${meter.selectionChance === null ? 'n/a' : `${meter.selectionChance}%`}`,
-    meter.normalMemberBoost?.active ? `Normal member boost: ${meter.normalMemberBoost.multiplier}x` : null,
+    `Queue state: ${meter.queueState}`,
+    meter.sourceTurn === null || meter.sourceTurn === undefined ? null : `Source turn: T${meter.sourceTurn}`,
+    meter.eligibleTurn === null || meter.eligibleTurn === undefined ? null : `${meter.id === 'cop' ? 'Evidence' : 'Retaliation'} eligible turn: T${meter.eligibleTurn}`,
+    meter.queueOrder ? `Queue order: ${meter.queueOrder}` : null,
+    meter.readyRank ? `Ready rank: ${meter.readyRank}` : null,
+    meter.normalMemberBoost?.active ? `Normal member boost: ${formatMultiplier(meter.normalMemberBoost.multiplier)}x` : null,
     `Status: ${meter.status}`,
     meter.id === 'cop' ? null : `Thug: ${formatMeterCopyValue(meter.thugId)}`,
     meter.id === 'cop' ? null : `Event: ${formatMeterCopyValue(meter.eventId)}`,
@@ -4269,7 +4346,6 @@ function recordTurnHistory(action, deal, before, after) {
   const eventLabel = isConsequenceDeal(deal.dealType)
     ? `Consequence: ${deal.dealType} | Source: ${getConsequenceSourceLabel(deal.consequence)}`
     : deal.blueprint?.id ? `${deal.dealType}/${deal.blueprint.id}` : deal.dealType;
-  advanceTracksuitRetaliationSettlingAfterNormal(deal);
   const historyLines = buildHistoryLines(before, after, deal);
   turnHistory.unshift({
     turn: state.turn,
@@ -5581,21 +5657,25 @@ function getWeightedNormalCharacterCandidatesForCategory(entries, selectedCatego
     const unblocked = candidates.filter(candidate => getConsecutiveNormalCustomerCount(candidate.character.id) < NORMAL_CUSTOMER_MAX_CONSECUTIVE);
     if (unblocked.length) eligibleCandidates = unblocked;
   }
+  const parityContext = getGangParitySelectionContext(eligibleCandidates);
   return eligibleCandidates.map(candidate => {
     const baseWeight = getCharacterSelectionWeight(candidate.character, candidate.eligiblePools);
     const repeatMultiplier = getNormalCustomerRepeatMultiplier(candidate.character.id);
     const lowTierGroupMultiplier = getLowTierGroupMultiplier(candidate.character, eligibleCandidates);
     const normalMemberPressureBoostMultiplier = getNormalMemberPressureBoostMultiplier(candidate.character);
+    const gangParityMultiplier = getGangParitySelectionMultiplier(candidate.character, parityContext);
     const streetSellerMultiplier = getStreetSellerSelectionMultiplier(candidate.character, selectedCategory);
     return {
       ...candidate,
-      chanceWeight: Math.max(0.01, baseWeight * repeatMultiplier * lowTierGroupMultiplier * normalMemberPressureBoostMultiplier * streetSellerMultiplier),
+      chanceWeight: Math.max(0.01, baseWeight * repeatMultiplier * lowTierGroupMultiplier * normalMemberPressureBoostMultiplier * gangParityMultiplier * streetSellerMultiplier),
       repeatMultiplier,
       lowTierGroupMultiplier,
       normalMemberPressureBoostMultiplier,
+      gangParityMultiplier,
       streetSellerMultiplier,
       baseWeight,
-      fallbackEntries
+      fallbackEntries,
+      parityContext
     };
   });
 }
@@ -5678,18 +5758,21 @@ function buildNormalSelectionFromPoolEntries(entries, categorySelection) {
     });
     if (!eligibleCandidates.length) eligibleCandidates = candidates;
   }
+  const parityContext = getGangParitySelectionContext(eligibleCandidates);
   const weighted = eligibleCandidates.map(candidate => {
     const baseWeight = getCharacterSelectionWeight(candidate.character, candidate.eligiblePools);
     const repeatMultiplier = getNormalCustomerRepeatMultiplier(candidate.character.id);
     const lowTierGroupMultiplier = getLowTierGroupMultiplier(candidate.character, eligibleCandidates);
     const normalMemberPressureBoostMultiplier = getNormalMemberPressureBoostMultiplier(candidate.character);
+    const gangParityMultiplier = getGangParitySelectionMultiplier(candidate.character, parityContext);
     const streetSellerMultiplier = getStreetSellerSelectionMultiplier(candidate.character, categorySelection.selectedCategory);
     return {
       ...candidate,
-      chanceWeight: Math.max(0.01, baseWeight * repeatMultiplier * lowTierGroupMultiplier * normalMemberPressureBoostMultiplier * streetSellerMultiplier),
+      chanceWeight: Math.max(0.01, baseWeight * repeatMultiplier * lowTierGroupMultiplier * normalMemberPressureBoostMultiplier * gangParityMultiplier * streetSellerMultiplier),
       repeatMultiplier,
       lowTierGroupMultiplier,
       normalMemberPressureBoostMultiplier,
+      gangParityMultiplier,
       streetSellerMultiplier,
       baseWeight
     };
@@ -5712,6 +5795,13 @@ function buildNormalSelectionFromPoolEntries(entries, categorySelection) {
       redistributionReasons: categorySelection.redistributedReasons,
       categoryWeights: categorySelection.categoryWeights,
       penalizedCustomerIds: weighted.filter(entry => entry.repeatMultiplier < 1).map(entry => entry.character.id),
+      gangParity: {
+        history: parityContext.history,
+        counts: parityContext.counts,
+        underrepresentedFactionId: parityContext.underrepresentedFactionId,
+        activeFactionId: parityContext.activeFactionId,
+        multiplier: parityContext.multiplier
+      },
       lowTierSaturation: getLowTierSaturationDiagnostics(weighted),
       blockedCustomerIds: [...new Set(blockedCustomerIds)],
       blockReasons,
@@ -5723,6 +5813,7 @@ function buildNormalSelectionFromPoolEntries(entries, categorySelection) {
         repeatMultiplier: Number(entry.repeatMultiplier.toFixed(2)),
         lowTierGroupMultiplier: Number(entry.lowTierGroupMultiplier.toFixed(2)),
         normalMemberPressureBoostMultiplier: Number(entry.normalMemberPressureBoostMultiplier.toFixed(2)),
+        gangParityMultiplier: Number(entry.gangParityMultiplier.toFixed(2)),
         streetSellerMultiplier: Number(entry.streetSellerMultiplier.toFixed(2)),
         finalWeight: Number(entry.chanceWeight.toFixed(2)),
         eligiblePoolCount: entry.eligiblePools.length
@@ -5841,7 +5932,6 @@ async function startConsequenceTurn(consequence) {
 
   state.activeConsequence = consequence;
   clearTemporaryEncounterUiState();
-  state.normalEncountersSinceSpecial = 0;
   state.currentCustomer = {
     ...character,
     baseSpriteKey: getBaseSpriteKey(character.spritePath),
@@ -6082,6 +6172,14 @@ function rememberNormalCustomer(characterId) {
   state.normalCustomerHistory.unshift(characterId);
   state.normalCustomerHistory = state.normalCustomerHistory.slice(0, NORMAL_CUSTOMER_HISTORY_LIMIT);
 }
+
+function rememberNormalGangFaction(characterOrId) {
+  const factionId = getNormalGangMemberFactionId(characterOrId);
+  if (!factionId) return;
+  const history = getNormalGangFactionHistory();
+  history.unshift(factionId);
+  state.normalGangFactionHistory = history.slice(0, GANG_NORMAL_MEMBER_PARITY_HISTORY_LIMIT);
+}
 async function startNextCustomer() {
   resetAutoProgress();
   normalizeConsequenceState();
@@ -6097,7 +6195,6 @@ async function startNextCustomer() {
   const consequence = getEligibleQueuedConsequence();
   if (consequence && await startConsequenceTurn(consequence)) return;
   state.activeConsequence = null;
-  state.normalEncountersSinceSpecial += 1;
   state.normalEncounterCount += 1;
   state.buybackCooldownDiagnostics = [];
   const { normalSelection, deal: selectedNormalDeal } = chooseNextNormalDeal();
@@ -6114,6 +6211,7 @@ async function startNextCustomer() {
   if (state.currentDeal) {
     state.currentDeal.selectionDiagnostics = normalSelection.diagnostics;
     rememberNormalCustomer(state.currentCustomer.id);
+    rememberNormalGangFaction(state.currentCustomer);
     rememberNormalEncounterType(state.currentDeal);
   }
   updateSellOpportunityStreak(state.currentDeal);
@@ -7005,8 +7103,8 @@ function finishThugConsequence(deal, result, riskMultiplier) {
   appendThugHistory(deal, `${factionLabel} consequence queued at pressure ${consequence.metadata?.factionPressureAtQueue ?? 'unknown'}; faction: ${factionId}; queue roll occurred on T${consequence.sourceTurn}; reason: ${consequence.reason}.`);
   deal.consequenceResult = result;
   markConsequenceResolved(consequence, result);
-  if (factionId === TRACKSUIT_CREW_FACTION_ID) startTracksuitRetaliationSettling(deal);
-  state.thugConsequenceCooldownUntil = state.turn + SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS;
+  state.factionPressureSources[factionId] = [];
+  if (factionId === TRACKSUIT_CREW_FACTION_ID) state.factionPressureSources.tracksuit_crew = state.factionPressureSources[factionId];
   state.activeConsequence = null;
   return choiceResult(result, { runRiskCheck: false });
 }
@@ -7240,7 +7338,6 @@ function resolveCopConsequence(action, deal) {
 
   deal.consequenceResult = result;
   markConsequenceResolved(consequence, result);
-  state.copConsequenceCooldownUntil = state.turn + SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS;
   if (!consequence.metadata?.debug) state.copInvestigationArmed = true;
   state.activeConsequence = null;
   return choiceResult(result, { runRiskCheck: false });
@@ -7516,7 +7613,7 @@ function resolveSell(action, deal) {
     state.scamRisk += inventoryItem.tags.some(tag => ['fake', 'possibly_fake'].includes(tag)) ? 2 :
       inventoryItem.tags.some(tag => ['locked', 'cursed', 'suspicious'].includes(tag)) ? 1 : 0;
     const copRiskBefore = state.copRisk;
-    const saleRisk = calculateCopRisk(inventoryItem, { price, multiplier: 0.4, source: 'sale' });
+    const saleRisk = calculateCopRisk(inventoryItem, { price, multiplier: COP_RISK_SALE_MULTIPLIER, source: 'sale' });
     const customerExposure = isExplicitlyIllegalItem(inventoryItem) ? customer.copRiskBias : 0;
     const addedSaleRisk = Math.max(0, saleRisk.addedRisk + customerExposure);
     state.copRisk += addedSaleRisk;
@@ -7914,17 +8011,11 @@ function maybeQueueCopConsequence(deal, reason = 'cop risk increased', riskBefor
     const nextCheckpoint = getNextCopInvestigationCheckpoint(checkpoint);
     state.nextCopInvestigationRisk = nextCheckpoint;
     state.copInvestigationArmed = false;
-    const normalTurnsAtQueue = state.normalEncountersSinceSpecial;
-    const cooldownSatisfiedAtQueue = normalTurnsAtQueue >= SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS;
-    consequence.metadata.normalEncountersAtQueue = normalTurnsAtQueue;
-    consequence.metadata.sharedCooldownSatisfiedAtQueue = cooldownSatisfiedAtQueue;
     appendInvestigationHistory(
       deal,
-      `Investigation queued: source T${state.turn}; tracked ${triggeringItemName || consequence.triggeringItemId} [${consequence.triggeringInventoryInstanceId || 'no inventory instance'}]; first evidence-eligible turn T${earliestTurn}; ${normalTurnsAtQueue} normal encounters since previous special; shared cooldown already satisfied: ${cooldownSatisfiedAtQueue ? 'yes' : 'no'}.`
+      `Investigation queued: source T${state.turn}; tracked ${triggeringItemName || consequence.triggeringItemId} [${consequence.triggeringInventoryInstanceId || 'no inventory instance'}]; first evidence-eligible turn T${earliestTurn}.`
     );
-    appendInvestigationHistory(deal, cooldownSatisfiedAtQueue
-      ? 'Scheduling: evidence delay is still pending; the shared special-encounter cooldown is already satisfied, so no six-new-normal-encounter wait begins here. Once evidence-eligible, selection rises 25% per eligible turn through a guarantee on the tenth normal encounter since the previous special.'
-      : `Scheduling: evidence delay and shared cooldown are separate; the shared cooldown needs ${SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS - normalTurnsAtQueue} more complete normal encounter(s). Once both are satisfied, selection rises 25% per eligible turn through a guarantee on the tenth normal encounter since the previous special.`);
+    appendInvestigationHistory(deal, 'Scheduling: evidence delay is the cop investigation timer; once evidence-eligible, this debt joins the FIFO consequence queue.');
     appendInvestigationHistory(deal, `Next investigation checkpoint advanced: ${checkpoint} -> ${nextCheckpoint}.`);
   }
   return consequence;
@@ -7942,52 +8033,17 @@ function getTracksuitPressureSourceSummary() {
   return getFactionPressureSourceSummary(TRACKSUIT_CREW_FACTION_ID);
 }
 
-function getTracksuitSettlingRemaining() {
-  return Math.max(0, Math.floor(Number(state.tracksuitRetaliationSettlingNormalEncountersRemaining) || 0));
-}
-
-function isTracksuitRetaliationSettling() {
-  return getTracksuitSettlingRemaining() > 0;
-}
-
-function startTracksuitRetaliationSettling(deal) {
-  state.tracksuitRetaliationSettlingNormalEncountersRemaining = TRACKSUIT_RETALIATION_SETTLING_NORMAL_ENCOUNTERS;
-  state.consequenceQueue = getConsequenceQueue().filter(consequence =>
-    !consequence ||
-    typeof consequence !== 'object' ||
-    consequence.type !== THUG_CONSEQUENCE_TYPE ||
-    consequence.resolved === true
-  );
-  state.factionPressureSources[TRACKSUIT_CREW_FACTION_ID] = [];
-  if (deal) appendThugHistory(deal, `Tracksuit retaliation settled: pressure reset and new queue arming paused for ${TRACKSUIT_RETALIATION_SETTLING_NORMAL_ENCOUNTERS} normal encounters.`);
-}
-
-function advanceTracksuitRetaliationSettlingAfterNormal(deal) {
-  const before = getTracksuitSettlingRemaining();
-  if (before <= 0 || isConsequenceDeal(deal?.dealType)) return;
-  const after = Math.max(0, before - 1);
-  state.tracksuitRetaliationSettlingNormalEncountersRemaining = after;
-  if (deal) {
-    if (after > 0) appendFactionPressureHistory(deal, `Tracksuit settling period: ${after} normal encounters remain before new thug queue arming can resume.`);
-    else appendFactionPressureHistory(deal, 'Tracksuit settling period completed; queue arming may resume.');
-  }
-  if (after === 0 && getFactionPressure(TRACKSUIT_CREW_FACTION_ID) >= TRACKSUIT_CONSEQUENCE_MIN_PRESSURE) {
-    const consequence = maybeQueueThugConsequence(deal, `Tracksuit crew pressure reached ${getFactionPressure(TRACKSUIT_CREW_FACTION_ID)} after settling period`);
-    if (deal && consequence) {
-      if (!Array.isArray(deal.thugHistoryLines)) deal.thugHistoryLines = [];
-      deal.thugHistoryLines.push(`Tracksuit scheduling queued after settling period: source T${consequence.sourceTurn}; pressure ${getFactionPressure(TRACKSUIT_CREW_FACTION_ID)}; original post-retaliation source preserved.`);
-    }
-  }
-}
-
 function canQueueThugConsequence(factionId = TRACKSUIT_CREW_FACTION_ID) {
   normalizeConsequenceState();
   const normalizedFaction = normalizeFactionId(factionId);
   if (!normalizedFaction || !isImplementedPressureFaction(normalizedFaction)) return false;
   if (!getFactionThugCharacterId(normalizedFaction) || !getConsequenceEvent(THUG_CONSEQUENCE_TYPE, normalizedFaction)) return false;
   if (getFactionPressure(normalizedFaction) < TRACKSUIT_CONSEQUENCE_MIN_PRESSURE) return false;
-  if (normalizedFaction === TRACKSUIT_CREW_FACTION_ID && isTracksuitRetaliationSettling()) return false;
-  if (hasPendingConsequence(THUG_CONSEQUENCE_TYPE) || state.activeConsequence?.type === THUG_CONSEQUENCE_TYPE) return false;
+  if (hasPendingConsequence(THUG_CONSEQUENCE_TYPE, normalizedFaction)) return false;
+  if (
+    state.activeConsequence?.type === THUG_CONSEQUENCE_TYPE &&
+    normalizeFactionId(state.activeConsequence.factionId || state.activeConsequence.metadata?.factionId) === normalizedFaction
+  ) return false;
   return true;
 }
 
@@ -8005,7 +8061,7 @@ function queueThugConsequence(reason = 'thug pressure came due', metadata = {}, 
     triggeringInventoryInstanceId: getDealTriggerInventoryInstanceId(sourceDeal),
     factionId: normalizedFaction,
     reason,
-    earliestTurn: state.turn + THUG_CONSEQUENCE_MIN_FULL_TURNS + 1,
+    earliestTurn: state.turn + 1,
     metadata: {
       factionId: normalizedFaction,
       thugCharacterId,
@@ -8013,9 +8069,8 @@ function queueThugConsequence(reason = 'thug pressure came due', metadata = {}, 
       pressureBefore: factionPressure,
       pressureSources: getFactionPressureSources(normalizedFaction).map(source => ({ ...source })),
       pressureSourceSummary: getFactionPressureSourceSummary(normalizedFaction),
-      delay: THUG_CONSEQUENCE_MIN_FULL_TURNS + 1,
+      delay: 1,
       threshold: TRACKSUIT_CONSEQUENCE_MIN_PRESSURE,
-      maxEligibleChecks: THUG_CONSEQUENCE_MAX_ELIGIBLE_CHECKS,
       ...metadata
     }
   });
@@ -8047,7 +8102,7 @@ function maybeQueueFactionThugConsequence(factionId, deal, reason = 'thug pressu
   const consequence = queueThugConsequence(reason, {}, deal, normalizedFaction);
   if (deal && consequence) {
     if (!Array.isArray(deal.thugHistoryLines)) deal.thugHistoryLines = [];
-    deal.thugHistoryLines.push(`${label} scheduling queued: source T${state.turn}; faction ${normalizedFaction}; pressure ${pressure}; first eligible T${consequence.earliestTurn}; shared cooldown ${state.normalEncountersSinceSpecial}/${SPECIAL_ENCOUNTER_MIN_NORMAL_TURNS}; max eligible checks ${THUG_CONSEQUENCE_MAX_ELIGIBLE_CHECKS}.`);
+    deal.thugHistoryLines.push(`${label} scheduling queued: source T${state.turn}; faction ${normalizedFaction}; pressure ${pressure}; retaliation eligible T${consequence.earliestTurn}.`);
   }
   return consequence;
 }
@@ -8284,7 +8339,12 @@ window.ONE_STAR_PAWN_TEST_HOOKS = {
   getExecutableNormalPoolEntriesForCharacters,
   getNormalPoolCategory,
   getStreetSellerSelectionMultiplier,
+  getNormalMemberPressureBoostMultiplier,
+  getNormalGangFactionHistory,
+  getNormalGangFactionAppearanceCounts,
+  getGangParitySelectionContext,
   getNormalCustomerRepeatMultiplier,
+  rememberNormalGangFaction,
   applySelectedInventoryItemToDeal,
   openTradeSelection,
   toggleTradeInventorySelection,
@@ -8305,6 +8365,10 @@ window.ONE_STAR_PAWN_TEST_HOOKS = {
   getPlayerFacingItemName,
   formatHiddenProblemDialogue,
   formatShopPurchaseDealPanelSummary,
+  calculateCopRisk,
+  getNextCopInvestigationCheckpoint,
+  deriveCopInvestigationCheckpoint,
+  isExplicitlyIllegalItem,
   resolveNegotiationOutcome,
   evaluateFactionPressure,
   resolveBuy,
@@ -8323,7 +8387,6 @@ window.ONE_STAR_PAWN_TEST_HOOKS = {
   getConsequenceDiagnostics,
   renderConsequenceMeters,
   prepareTracksuitConsequencePresentation,
-  advanceTracksuitRetaliationSettlingAfterNormal,
   getEligibleQueuedConsequence,
   buildCopConsequenceDeal,
   buildThugConsequenceDeal,
@@ -8401,14 +8464,19 @@ window.ONE_STAR_PAWN_TEST_HOOKS = {
     STREET_REPEAT_PENALTY_STRENGTH,
     BUY_FROM_SHOP_ECONOMY,
     NORMAL_ENCOUNTER_MIX,
+    GANG_NORMAL_MEMBER_PARITY_HISTORY_LIMIT,
+    GANG_NORMAL_MEMBER_PARITY_DIFFERENCE,
+    GANG_NORMAL_MEMBER_PARITY_MULTIPLIER,
     LOW_CASH_RECOVERY,
     ECONOMY_BALANCE,
     NEGOTIATION_OUTCOMES,
     TRACKSUIT_CONSEQUENCE_MIN_PRESSURE,
     TRACKSUIT_ROBBERY_MIN_TURN,
     TRACKSUIT_RELATIONSHIP_PRESSURE,
-    TRACKSUIT_RETALIATION_SETTLING_NORMAL_ENCOUNTERS,
-    THUG_CONSEQUENCE_MAX_ELIGIBLE_CHECKS
+    COP_INVESTIGATION_CHECKPOINTS,
+    COP_RISK_SALE_MULTIPLIER,
+    COP_INVESTIGATION_MIN_FULL_TURNS,
+    COP_INVESTIGATION_MAX_FULL_TURNS
   }
 };
 if (!window.ONE_STAR_PAWN_TEST_MODE) {
