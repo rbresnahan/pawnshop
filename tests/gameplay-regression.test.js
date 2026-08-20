@@ -815,7 +815,7 @@ test('v0.1.42 copy consequence meters includes build and all meter diagnostics',
 
   assert.equal(result.copied, true);
   assert.equal(hooks.getClipboardText(), hooks.getConsequenceMetersCopyText());
-  assert.match(result.text, /Build: v0\.1\.57/);
+  assert.match(result.text, /Build: v0\.1\.58/);
   assert.match(result.text, /Cop\nRisk: 20\/25/);
   assert.match(result.text, /Queue state: not queued/);
   assert.match(result.text, /Hustler Thug\nFaction: hustlers\nPressure: 1\/4/);
@@ -933,17 +933,20 @@ test('v0.1.56 Cop checkpoint crossing queues one investigation and preserves evi
   assert.match((secondDeal.investigationHistoryLines || []).join('\n'), /already pending or active/);
 });
 
-test('v0.1.57 gang pressure boosts same-faction normal selection weight at 3/4 only', () => {
+test('v0.1.58 normal gang faction selection normalizes roster size and applies pressure at faction level', () => {
   const hooks = loadGame(0);
-  const roster = ['hustler-shorty', 'tracksuit-legs', 'regular-grandma-slots'];
+  const roster = ['hustler-shorty', 'hustler-cool-j', 'hustler-kangol', 'tracksuit-legs', 'tracksuit-slim'];
+  stockAllItems(hooks);
   const configure = (hustlerPressure, tracksuitPressure) => {
     resetState(hooks);
+    stockAllItems(hooks);
     hooks.setActiveCustomers(roster.map(id => hooks.getCharacter(id)));
     hooks.state.factionPressure = { hustlers: hustlerPressure, tracksuits: tracksuitPressure };
-    return hooks.chooseNextNormalDeal().normalSelection.diagnostics.weights;
+    return hooks.chooseNextNormalDeal().normalSelection.diagnostics;
   };
   const byId = (weights, id) => weights.find(entry => entry.id === id);
-  let weights;
+  const byFaction = (factionWeights, id) => factionWeights.find(entry => entry.factionId === id);
+  let diagnostics;
 
   [
     [0, 1],
@@ -954,16 +957,49 @@ test('v0.1.57 gang pressure boosts same-faction normal selection weight at 3/4 o
     [3.5, 2],
     [4, 2]
   ].forEach(([pressure, expected]) => {
-    weights = configure(pressure, 0);
-    assert.equal(byId(weights, 'hustler-shorty').normalMemberPressureBoostMultiplier, expected, `hustler pressure ${pressure}`);
-    assert.equal(byId(weights, 'tracksuit-legs').normalMemberPressureBoostMultiplier, 1, `tracksuit isolated from hustler pressure ${pressure}`);
-    assert.equal(byId(weights, 'hustler-shorty').finalWeight, Number((byId(weights, 'hustler-shorty').baseWeight * expected).toFixed(2)));
+    diagnostics = configure(pressure, 0);
+    assert.equal(byFaction(diagnostics.factionWeights, 'hustlers').pressureMultiplier, expected, `hustler pressure ${pressure}`);
+    assert.equal(byFaction(diagnostics.factionWeights, 'tracksuits').pressureMultiplier, 1, `tracksuit isolated from hustler pressure ${pressure}`);
+    assert.equal(byFaction(diagnostics.factionWeights, 'hustlers').finalWeight, expected);
+    assert.equal(byId(diagnostics.weights, 'hustler-shorty').normalMemberPressureBoostMultiplier, 1);
 
-    weights = configure(0, pressure);
-    assert.equal(byId(weights, 'tracksuit-legs').normalMemberPressureBoostMultiplier, expected, `tracksuit pressure ${pressure}`);
-    assert.equal(byId(weights, 'hustler-shorty').normalMemberPressureBoostMultiplier, 1, `hustler isolated from tracksuit pressure ${pressure}`);
-    assert.equal(byId(weights, 'tracksuit-legs').finalWeight, Number((byId(weights, 'tracksuit-legs').baseWeight * expected).toFixed(2)));
+    diagnostics = configure(0, pressure);
+    assert.equal(byFaction(diagnostics.factionWeights, 'tracksuits').pressureMultiplier, expected, `tracksuit pressure ${pressure}`);
+    assert.equal(byFaction(diagnostics.factionWeights, 'hustlers').pressureMultiplier, 1, `hustler isolated from tracksuit pressure ${pressure}`);
+    assert.equal(byFaction(diagnostics.factionWeights, 'tracksuits').finalWeight, expected);
+    assert.equal(byId(diagnostics.weights, 'tracksuit-legs').normalMemberPressureBoostMultiplier, 1);
   });
+
+  diagnostics = configure(0, 0);
+  assert.equal(byFaction(diagnostics.factionWeights, 'hustlers').memberIds.length, 3);
+  assert.equal(byFaction(diagnostics.factionWeights, 'tracksuits').memberIds.length, 2);
+  assert.equal(byFaction(diagnostics.factionWeights, 'hustlers').finalWeight, byFaction(diagnostics.factionWeights, 'tracksuits').finalWeight);
+
+  const extraTracksuit = { ...hooks.getCharacter('tracksuit-slim'), id: 'tracksuit-extra', displayName: 'Tracksuit Extra' };
+  hooks.data.characters.push(extraTracksuit);
+  hooks.data.characterCommerceTraits.push({ ...hooks.getTraits('tracksuit-slim'), characterId: extraTracksuit.id });
+  hooks.data.characterItemPools
+    .filter(pool => pool.characterId === 'tracksuit-slim')
+    .forEach(pool => hooks.data.characterItemPools.push({
+      ...pool,
+      id: pool.id.replace('tracksuit_slim', 'tracksuit_extra'),
+      characterId: extraTracksuit.id
+    }));
+  hooks.data.eventBlueprints
+    .filter(event => event.characterId === 'tracksuit-slim')
+    .forEach(event => hooks.data.eventBlueprints.push({
+      ...event,
+      id: event.id.replace('tracksuit_slim', 'tracksuit_extra'),
+      characterId: extraTracksuit.id
+    }));
+  hooks.data.factions.find(faction => faction.id === 'tracksuits').members.push(extraTracksuit.id);
+
+  resetState(hooks);
+  stockAllItems(hooks);
+  hooks.setActiveCustomers([...roster, extraTracksuit.id].map(id => hooks.getCharacter(id)));
+  diagnostics = hooks.chooseNextNormalDeal().normalSelection.diagnostics;
+  assert.equal(byFaction(diagnostics.factionWeights, 'tracksuits').memberIds.length, 3);
+  assert.equal(byFaction(diagnostics.factionWeights, 'hustlers').finalWeight, byFaction(diagnostics.factionWeights, 'tracksuits').finalWeight);
 
   resetState(hooks);
   hooks.setFactionPressure('hustlers', 3);
@@ -975,15 +1011,32 @@ test('v0.1.57 gang pressure boosts same-faction normal selection weight at 3/4 o
   assert.equal(queued.metadata.threshold, 4);
 
   resetState(hooks);
+  stockAllItems(hooks);
   hooks.setActiveCustomers(roster.map(id => hooks.getCharacter(id)));
   hooks.state.factionPressure = { hustlers: 3.5, tracksuits: 0 };
   hooks.state.normalCustomerHistory = ['hustler-shorty'];
-  weights = hooks.chooseNextNormalDeal().normalSelection.diagnostics.weights;
-  const hustler = byId(weights, 'hustler-shorty');
+  diagnostics = hooks.chooseNextNormalDeal().normalSelection.diagnostics;
+  const hustlerFaction = byFaction(diagnostics.factionWeights, 'hustlers');
+  const tracksuitFaction = byFaction(diagnostics.factionWeights, 'tracksuits');
+  assert.equal(hustlerFaction.pressureMultiplier, 2);
+  assert.equal(tracksuitFaction.pressureMultiplier, 1);
+  assert.equal(hustlerFaction.finalWeight, 2);
+  assert.equal(tracksuitFaction.finalWeight, 1);
+  const hustler = byId(diagnostics.weights, 'hustler-shorty');
   assert.equal(hustler.repeatMultiplier, 0.35);
-  assert.equal(hustler.normalMemberPressureBoostMultiplier, 2);
+  assert.equal(hustler.normalMemberPressureBoostMultiplier, 1);
   assert.equal(hustler.gangParityMultiplier, 1);
-  assert.equal(hustler.finalWeight, Number((hustler.baseWeight * 0.35 * 2).toFixed(2)));
+  assert.equal(hustler.finalWeight, Number((hustler.baseWeight * 0.35).toFixed(2)));
+  assert.ok(hustler.finalWeight < byId(diagnostics.weights, 'hustler-cool-j').finalWeight);
+
+  const streakHooks = loadGame([0, 0, 0]);
+  resetState(streakHooks);
+  stockAllItems(streakHooks);
+  streakHooks.setActiveCustomers(roster.map(id => streakHooks.getCharacter(id)));
+  streakHooks.state.normalCustomerHistory = ['hustler-shorty'];
+  const streakSelection = streakHooks.chooseNextNormalDeal().normalSelection;
+  assert.equal(streakSelection.customer.factionId, 'hustlers');
+  assert.equal(streakSelection.customer.id, 'hustler-shorty');
 });
 
 test('v0.1.30 restored normal NPC data chains resolve from generated data', () => {
@@ -1361,7 +1414,7 @@ test('v0.1.49 browser-loaded runtime keeps Street sellers through sprite validat
   hooks.state.inventory = [];
   const sellerDiagnostics = hooks.getStreetRuntimeDiagnostics();
 
-  assert.equal(sellerDiagnostics.fingerprint.gameVersion, '0.1.57');
+  assert.equal(sellerDiagnostics.fingerprint.gameVersion, '0.1.58');
   assert.equal(sellerDiagnostics.fingerprint.streetIdsPresent.join(','), streetIds.join(','));
   assert.equal(sellerDiagnostics.fingerprint.streetIdsActive.join(','), streetIds.join(','));
   assert.equal(sellerDiagnostics.fingerprint.streetIdsInActiveCustomers.join(','), streetIds.join(','));

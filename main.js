@@ -1,4 +1,4 @@
-const GAME_VERSION = '0.1.57';
+const GAME_VERSION = '0.1.58';
 const GAME_BUILD_LOADED_AT = new Date().toISOString();
 
 window.ONE_STAR_PAWN_VERSION = GAME_VERSION;
@@ -3702,7 +3702,6 @@ function getFactionConfig(factionId) {
 
 function isNormalGangMember(character) {
   const factionId = normalizeFactionId(character?.factionId);
-  if (!isImplementedPressureFaction(factionId)) return false;
   const config = getFactionConfig(factionId);
   return (config?.members || []).includes(character?.id);
 }
@@ -3715,6 +3714,12 @@ function getNormalGangMemberFactionId(characterOrId) {
 function getNormalMemberPressureBoostMultiplier(character) {
   const factionId = getNormalGangMemberFactionId(character);
   if (!factionId) return 1;
+  return getNormalFactionPressureBoostMultiplier(factionId);
+}
+
+function getNormalFactionPressureBoostMultiplier(factionId) {
+  const normalizedFaction = normalizeFactionId(factionId);
+  if (!normalizedFaction) return 1;
   const pressure = getFactionPressure(factionId);
   const band = GANG_NORMAL_MEMBER_PRESSURE_BOOST_BANDS.find(entry => pressure >= entry.minPressure);
   return band ? band.multiplier : 1;
@@ -3778,6 +3783,76 @@ function getGangParitySelectionMultiplier(character, parityContext) {
   return factionId && factionId === parityContext?.activeFactionId
     ? parityContext.multiplier
     : 1;
+}
+
+function getNormalSelectionFactionId(candidate) {
+  return getNormalGangMemberFactionId(candidate?.character);
+}
+
+function buildWeightedNormalCandidate(candidate, selectionEntries, selectedCategory, parityContext, options = {}) {
+  const baseWeight = getCharacterSelectionWeight(candidate.character, candidate.eligiblePools);
+  const repeatMultiplier = getNormalCustomerRepeatMultiplier(candidate.character.id);
+  const lowTierGroupMultiplier = getLowTierGroupMultiplier(candidate.character, selectionEntries);
+  const factionId = getNormalSelectionFactionId(candidate);
+  const normalMemberPressureBoostMultiplier = options.applyFactionPressureToMember === false && factionId
+    ? 1
+    : getNormalMemberPressureBoostMultiplier(candidate.character);
+  const gangParityMultiplier = options.applyGangParityToMember === false && factionId
+    ? 1
+    : getGangParitySelectionMultiplier(candidate.character, parityContext);
+  const streetSellerMultiplier = getStreetSellerSelectionMultiplier(candidate.character, selectedCategory);
+  return {
+    ...candidate,
+    factionId,
+    chanceWeight: Math.max(0.01, baseWeight * repeatMultiplier * lowTierGroupMultiplier * normalMemberPressureBoostMultiplier * gangParityMultiplier * streetSellerMultiplier),
+    repeatMultiplier,
+    lowTierGroupMultiplier,
+    normalMemberPressureBoostMultiplier,
+    gangParityMultiplier,
+    streetSellerMultiplier,
+    baseWeight
+  };
+}
+
+function buildNormalFactionSelectionGroups(weightedCandidates, parityContext) {
+  const groups = [];
+  const factionGroups = new Map();
+  weightedCandidates.forEach(candidate => {
+    const factionId = getNormalSelectionFactionId(candidate);
+    if (!factionId) {
+      groups.push({
+        type: 'character',
+        id: candidate.character.id,
+        chanceWeight: candidate.chanceWeight,
+        members: [candidate],
+        selectedWeight: candidate.chanceWeight,
+        baselineWeight: candidate.chanceWeight,
+        pressureMultiplier: 1,
+        gangParityMultiplier: 1
+      });
+      return;
+    }
+    if (!factionGroups.has(factionId)) {
+      factionGroups.set(factionId, {
+        type: 'faction',
+        id: factionId,
+        factionId,
+        chanceWeight: 0,
+        members: [],
+        baselineWeight: 1,
+        pressureMultiplier: getNormalFactionPressureBoostMultiplier(factionId),
+        gangParityMultiplier: factionId === parityContext?.activeFactionId ? parityContext.multiplier : 1
+      });
+    }
+    factionGroups.get(factionId).members.push(candidate);
+  });
+  factionGroups.forEach(group => {
+    group.memberTotalWeight = group.members.reduce((sum, member) => sum + Math.max(0, Number(member.chanceWeight) || 0), 0);
+    group.chanceWeight = Math.max(0.01, group.baselineWeight * group.pressureMultiplier * group.gangParityMultiplier);
+    group.selectedWeight = group.chanceWeight;
+    groups.push(group);
+  });
+  return groups;
 }
 
 function getFactionThugEvent(factionId, thugId) {
@@ -5658,22 +5733,16 @@ function getWeightedNormalCharacterCandidatesForCategory(entries, selectedCatego
     if (unblocked.length) eligibleCandidates = unblocked;
   }
   const parityContext = getGangParitySelectionContext(eligibleCandidates);
-  return eligibleCandidates.map(candidate => {
-    const baseWeight = getCharacterSelectionWeight(candidate.character, candidate.eligiblePools);
-    const repeatMultiplier = getNormalCustomerRepeatMultiplier(candidate.character.id);
-    const lowTierGroupMultiplier = getLowTierGroupMultiplier(candidate.character, eligibleCandidates);
-    const normalMemberPressureBoostMultiplier = getNormalMemberPressureBoostMultiplier(candidate.character);
-    const gangParityMultiplier = getGangParitySelectionMultiplier(candidate.character, parityContext);
-    const streetSellerMultiplier = getStreetSellerSelectionMultiplier(candidate.character, selectedCategory);
+  const weightedCandidates = eligibleCandidates.map(candidate => buildWeightedNormalCandidate(candidate, eligibleCandidates, selectedCategory, parityContext, {
+    applyFactionPressureToMember: false,
+    applyGangParityToMember: false
+  }));
+  const factionGroups = buildNormalFactionSelectionGroups(weightedCandidates, parityContext);
+  return weightedCandidates.map(candidate => {
+    const factionGroup = candidate.factionId ? factionGroups.find(group => group.type === 'faction' && group.factionId === candidate.factionId) : null;
     return {
       ...candidate,
-      chanceWeight: Math.max(0.01, baseWeight * repeatMultiplier * lowTierGroupMultiplier * normalMemberPressureBoostMultiplier * gangParityMultiplier * streetSellerMultiplier),
-      repeatMultiplier,
-      lowTierGroupMultiplier,
-      normalMemberPressureBoostMultiplier,
-      gangParityMultiplier,
-      streetSellerMultiplier,
-      baseWeight,
+      normalizedFactionFinalWeight: factionGroup?.chanceWeight || null,
       fallbackEntries,
       parityContext
     };
@@ -5759,25 +5828,13 @@ function buildNormalSelectionFromPoolEntries(entries, categorySelection) {
     if (!eligibleCandidates.length) eligibleCandidates = candidates;
   }
   const parityContext = getGangParitySelectionContext(eligibleCandidates);
-  const weighted = eligibleCandidates.map(candidate => {
-    const baseWeight = getCharacterSelectionWeight(candidate.character, candidate.eligiblePools);
-    const repeatMultiplier = getNormalCustomerRepeatMultiplier(candidate.character.id);
-    const lowTierGroupMultiplier = getLowTierGroupMultiplier(candidate.character, eligibleCandidates);
-    const normalMemberPressureBoostMultiplier = getNormalMemberPressureBoostMultiplier(candidate.character);
-    const gangParityMultiplier = getGangParitySelectionMultiplier(candidate.character, parityContext);
-    const streetSellerMultiplier = getStreetSellerSelectionMultiplier(candidate.character, categorySelection.selectedCategory);
-    return {
-      ...candidate,
-      chanceWeight: Math.max(0.01, baseWeight * repeatMultiplier * lowTierGroupMultiplier * normalMemberPressureBoostMultiplier * gangParityMultiplier * streetSellerMultiplier),
-      repeatMultiplier,
-      lowTierGroupMultiplier,
-      normalMemberPressureBoostMultiplier,
-      gangParityMultiplier,
-      streetSellerMultiplier,
-      baseWeight
-    };
-  });
-  const selected = pickWeighted(weighted);
+  const weighted = eligibleCandidates.map(candidate => buildWeightedNormalCandidate(candidate, eligibleCandidates, categorySelection.selectedCategory, parityContext, {
+    applyFactionPressureToMember: false,
+    applyGangParityToMember: false
+  }));
+  const selectionGroups = buildNormalFactionSelectionGroups(weighted, parityContext);
+  const selectedGroup = pickWeighted(selectionGroups);
+  const selected = selectedGroup.type === 'faction' ? pickWeighted(selectedGroup.members) : selectedGroup.members[0];
   const selectedPool = pickWeighted(selected.eligiblePools);
   const allBuyerEntries = entries.filter(entry => getNormalPoolCategory(entry.pool) === 'buyer');
   return {
@@ -5805,8 +5862,20 @@ function buildNormalSelectionFromPoolEntries(entries, categorySelection) {
       lowTierSaturation: getLowTierSaturationDiagnostics(weighted),
       blockedCustomerIds: [...new Set(blockedCustomerIds)],
       blockReasons,
+      factionWeights: selectionGroups
+        .filter(group => group.type === 'faction')
+        .map(group => ({
+          factionId: group.factionId,
+          memberIds: group.members.map(member => member.character.id),
+          normalizedBaselineWeight: Number(group.baselineWeight.toFixed(2)),
+          pressureMultiplier: Number(group.pressureMultiplier.toFixed(2)),
+          gangParityMultiplier: Number(group.gangParityMultiplier.toFixed(2)),
+          finalWeight: Number(group.chanceWeight.toFixed(2)),
+          memberTotalWeight: Number((group.memberTotalWeight || 0).toFixed(2))
+        })),
       weights: weighted.map(entry => ({
         id: entry.character.id,
+        factionId: entry.factionId || '',
         poolIds: entry.eligiblePools.map(pool => pool.id),
         category: categorySelection.selectedCategory,
         baseWeight: Number(entry.baseWeight.toFixed(2)),
@@ -6108,7 +6177,10 @@ function formatSelectionDiagnostics(diagnostics) {
   const category = diagnostics.selectedEncounterTypePool
     ? ` selected encounter-type pool ${diagnostics.selectedEncounterTypePool}; executable buyer count ${diagnostics.executableBuyerCount ?? 'n/a'}; redistribution ${diagnostics.redistributionReasons?.length ? diagnostics.redistributionReasons.join(', ') : 'none'};`
     : '';
-  return `Normal selection:${category} eligible [${eligible}]; selected ${diagnostics.selectedCustomerId || 'none'}${diagnostics.selectedPoolId ? ` via ${diagnostics.selectedPoolId}` : ''}; repeat penalties [${penalties}];${lowTier} consecutive-repeat blocks [${blocked}].${recovery}`;
+  const factionWeights = diagnostics.factionWeights?.length
+    ? ` faction weights [${diagnostics.factionWeights.map(entry => `${entry.factionId} base ${entry.normalizedBaselineWeight} x pressure ${entry.pressureMultiplier} x parity ${entry.gangParityMultiplier} = ${entry.finalWeight}`).join('; ')}];`
+    : '';
+  return `Normal selection:${category} eligible [${eligible}]; selected ${diagnostics.selectedCustomerId || 'none'}${diagnostics.selectedPoolId ? ` via ${diagnostics.selectedPoolId}` : ''}; repeat penalties [${penalties}];${factionWeights}${lowTier} consecutive-repeat blocks [${blocked}].${recovery}`;
 }
 
 function formatDemandDiagnostics(diagnostics) {

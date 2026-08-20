@@ -1,50 +1,50 @@
 item_id,name,category,default_condition,base_value,shop_buy_min,shop_buy_max,target_sell_price,heat,availability_tier,demand_level,price_variance,liquidity,tags,description
 microwave_haunted,Microwave,appliance,poor,35,5,18,45,0,common,low,low,low,"junk, broken, cursed",Turns on by itself. Mostly because the button is stuck.
 fake_gold_chain,Fake Gold Chain,jewelry,fake,20,3,12,35,1,common,normal,medium,low,"fake, suspicious",Green neck technology included.
-suspicious_gold_watch,Suspicious Gold Watch,watch,questionable,120,40,75,160,2,uncommon,normal,high,low,"possibly_fake, luxury, suspicious",Heavy enough to feel real. Sketchy enough to be trouble.
+suspicious_gold_watch,Gold Watch (Questionable),watch,questionable,120,40,75,160,2,uncommon,normal,high,low,"possibly_fake, luxury, suspicious",Heavy enough to feel real. Sketchy enough to be trouble.
 old_gaming_pc,Old Gaming PC,computer,used,260,80,150,330,0,uncommon,high,medium,medium,"electronics, repairable","RGB fans, dusty lungs, one mystery password."
-hospital_vcr,Hospital VCR,electronics,questionable,70,8,30,95,1,uncommon,low,medium,low,"hot, suspicious",Still has a tape labeled 'DO NOT BILL INSURANCE'.
-cracked_tablet,Cracked Tablet,electronics,poor,55,10,25,70,0,common,normal,medium,low,broken,Screen looks like a spider got promoted to architect.
-cordless_drill,Cordless Drill,tool,used,65,20,40,90,0,common,high,low,high,repairable,"Battery lasts fourteen seconds, which is technically time."
-bolt_cutters,Bolt Cutters,tool,good,45,15,30,70,2,common,normal,low,high,suspicious,"Honest landscaping equipment, if your shrubs are padlocked."
-pawn_shop_guitar,Guitar Missing Two Strings,instrument,poor,80,20,45,110,0,common,normal,medium,medium,repairable,"Perfect for blues, because it already knows suffering."
-gold_ring_engravings,Gold Ring With Weird Engraving,jewelry,good,180,60,110,240,2,uncommon,high,medium,high,"luxury, suspicious","Engraving says 'Forever, Todd.' Todd is not present."
+hospital_vcr,Betamax VCR,electronics,questionable,70,8,30,95,1,uncommon,low,medium,low,"electronics, stolen, repairable",Betamax Format machine to play and record movies or TV shows.
+cracked_tablet,Cracked Tablet,electronics,poor,55,10,25,70,0,common,normal,medium,low,"broken, electronics, stolen, repairable, hot",Screen looks like a spider got promoted to architect.
+cordless_drill,Cordless Drill,tool,used,65,20,40,90,0,common,high,low,high,"repairable, tool","Battery lasts fourteen seconds, which is technically time."
+bolt_cutters,Bolt Cutters,tool,good,45,15,30,70,2,common,normal,low,high,tool,"Honest landscaping equipment, if your shrubs are padlocked."
+pawn_shop_guitar,Accoustic Guitar (Broken),instrument,poor,80,20,45,110,0,common,normal,medium,medium,"repairable, broken","Perfect for blues, because it already knows suffering."
+gold_ring_engravings,"Gold Wedding Ring, Mens",jewelry,good,180,60,110,240,2,uncommon,high,medium,high,"luxury, cursed",Perhaps someone else will have better luck.
 baseball_card_box,Box of Baseball Cards,collectible,unknown,100,10,60,150,0,common,normal,high,low,mystery,Could be valuable. Could be 900 cards of a backup catcher.
-rare_action_figure,"Rare Action Figure, No Head",collectible,poor,75,12,35,95,0,uncommon,low,high,low,"rare, broken",Rare because nobody else saved it after the lawnmower incident.
+rare_action_figure,Rare Action Figure,collectible,poor,75,12,35,95,0,uncommon,low,high,low,"rare, collectible",Rare action figure.
 pocket_knife,Pocket Knife,weapon,used,30,8,18,45,1,common,normal,low,medium,,"Small, dull, and somehow still threatening."
 rusty_revolver_prop,Revolver,weapon,questionable,90,20,50,130,4,rare,low,high,low,"suspicious, hot",Probably a prop. The word 'probably' is doing a lot of paperwork.
-luxury_handbag_fake,Luxury Handbag Maybe,luxury,questionable,140,30,80,190,1,uncommon,normal,high,low,possibly_fake,Logo is one lawsuit away from being correct.
-sealed_mystery_box,Locked Safe,mystery,unknown,75,15,50,120,2,uncommon,normal,high,low,suspicious,Rattles like regret.
-stolen_bike_wheel,Single Expensive Bike Wheel,tool,good,110,25,65,150,3,uncommon,normal,medium,low,"stolen, hot, suspicious",A whole bicycle minus every honest explanation.
-dvd_stack,Stack of DVDs Nobody Asked For,collectible,used,25,2,8,30,0,common,low,low,low,junk,Mostly Steven Seagal. The risk is emotional.
-smart_watch_locked,Locked Smart Watch,watch,used,95,20,50,130,2,common,normal,medium,low,"electronics, suspicious","Owner forgot the password, name, birthday, and legal exposure."
-silverware_bundle,Loose Silverware Bundle,jewelry,questionable,60,10,30,85,2,common,normal,high,medium,"possibly_fake, suspicious","Tied together with a shoelace. Classy, like a raccoon wedding."
-countertop_blender,Countertop Blender With One Speed,appliance,used,40,10,22,55,0,common,normal,low,medium,practical,The one speed is violence.
-air_fryer,Greasy Air Fryer,appliance,used,65,18,35,85,0,common,high,low,medium,practical,Smells faintly of wings and financial collapse.
-shop_vac,Shop Vacuum Full of Mystery Dust,appliance,used,85,25,45,115,0,common,normal,low,medium,"practical, repairable",Includes several pounds of somebody else's renovation.
-flat_screen_tv,"Flat-Screen TV, No Remote",electronics,used,140,45,80,185,0,common,high,low,high,practical,The universal remote will become somebody else's problem.
-bluetooth_speaker,Oversized Bluetooth Speaker,electronics,good,90,30,55,125,0,common,high,low,high,portable,Loud enough to turn any sidewalk into a bad decision.
-game_console,Current-Generation Game Console,console,good,360,190,255,430,0,uncommon,high,low,medium,"electronics, popular","Clean, complete, and suspiciously free of snack crumbs."
-handheld_console,Handheld Game Console,console,used,180,80,125,230,0,uncommon,high,medium,medium,"electronics, portable, collectible",Battery health is a private matter between it and the wall outlet.
-used_smartphone,"Used Smartphone, Factory Reset",electronics,good,240,110,165,295,0,uncommon,high,medium,high,portable,Actually reset. A rare miracle in this building.
-budget_laptop,Budget Laptop With Charger,computer,used,220,85,140,285,0,common,high,medium,high,"electronics, practical","Runs office software, web browsers, and one fan at maximum panic."
+luxury_handbag_fake,Luxury Handbag (Questionable),luxury,questionable,140,30,80,190,1,uncommon,normal,high,low,"possibly_fake, suspicious, luxury",Logo is one lawsuit away from being correct.
+sealed_mystery_box,Locked Safe,mystery,unknown,75,15,50,120,2,uncommon,normal,high,low,"suspicious, hot, stolen, mystery","""I lost the key"""
+stolen_bike_wheel,Expensive Bike Wheel,tool,excellent,110,25,65,150,3,uncommon,normal,medium,low,"stolen, hot, suspicious","Brand new wheels, but no bike."
+dvd_stack,"DVDs, Random Assortment",collectible,used,25,2,8,30,0,common,low,low,low,junk,Mostly Steven Seagal. The risk is emotional.
+smart_watch_locked,Smart Watch (Locked),watch,used,95,20,50,130,2,common,normal,medium,low,"electronics, suspicious, hot, stolen, repairable, luxury","Owner forgot the password, name, birthday, and legal exposure."
+silverware_bundle,Silverware,jewelry,questionable,60,10,30,85,2,common,normal,high,medium,junk,"Tied together with a shoelace. Classy, like a raccoon wedding."
+countertop_blender,Countertop Blender,appliance,used,40,10,22,55,0,common,normal,low,medium,practical,The one speed is violence.
+air_fryer,Air Fryer,appliance,used,65,18,35,85,0,common,high,low,medium,practical,Smells faintly of wings and financial collapse.
+shop_vac,Shop Vacuum,appliance,used,85,25,45,115,0,common,normal,low,medium,"practical, repairable, tool",Includes several pounds of somebody else's renovation.
+flat_screen_tv,Flat-Screen TV,electronics,used,140,45,80,185,0,common,high,low,high,"practical, electronics, repairable",The universal remote will become somebody else's problem.
+bluetooth_speaker,Bluetooth Speaker,electronics,good,90,30,55,125,0,common,high,low,high,"portable, electronics",Loud enough to turn any sidewalk into a bad decision.
+game_console,Game Console (Modern),console,good,360,190,255,430,0,uncommon,high,low,medium,"electronics, popular","Clean, complete, and suspiciously free of snack crumbs."
+handheld_console,Game Console (Handheld),console,used,180,80,125,230,0,uncommon,high,medium,medium,"electronics, portable, repairable",Battery health is a private matter between it and the wall outlet.
+used_smartphone,Smartphone (Factory Reset),electronics,used,240,110,165,295,0,uncommon,high,medium,high,"portable, suspicious, electronics, stolen, hot, repairable",Actually reset. A rare miracle in this building.
+budget_laptop,Laptop With Charger (Mid Tier),computer,used,220,85,140,285,0,common,high,medium,high,"electronics, practical, portable, suspicious, hot, stolen","Runs office software, web browsers, and one fan at maximum panic."
 mirrorless_camera,Mirrorless Camera Body,electronics,good,480,230,330,575,0,rare,normal,medium,medium,luxury,No lens included. Hope is included at no extra charge.
-circular_saw,Circular Saw With Case,tool,good,110,40,70,145,0,common,high,low,high,"repairable, practical","Still has all its teeth, unlike several customers."
-socket_set,Mostly Complete Socket Set,tool,used,75,22,42,100,0,common,high,low,high,practical,Missing the exact socket everyone always needs.
-pressure_washer,Pressure Washer,tool,used,190,70,115,245,0,uncommon,normal,medium,medium,"practical, repairable","Strong enough to remove paint, grime, and poor planning."
-electric_guitar,Solid-Body Electric Guitar,instrument,good,260,100,165,335,0,uncommon,normal,medium,medium,collectible,Three pickups and at least four unfinished songs.
-student_saxophone,Student Alto Saxophone,instrument,used,320,120,200,410,0,uncommon,low,medium,medium,"collectible, repairable",Comes with a case and the threat of middle-school jazz.
-dj_turntable,Direct-Drive DJ Turntable,electronics,good,300,125,200,385,0,uncommon,normal,medium,medium,collectible,Pitch control works. Previous owner's transitions did not.
+circular_saw,Circular Saw With Case,tool,good,110,40,70,145,0,common,high,low,high,"repairable, practical, tool, stolen, hot","Still has all its teeth, unlike several customers."
+socket_set,Mostly Complete Socket Set,tool,used,75,22,42,100,0,common,high,low,high,"practical, tool",Missing the exact socket everyone always needs.
+pressure_washer,Pressure Washer,tool,used,190,70,115,245,0,uncommon,normal,medium,medium,"practical, repairable, tool","Strong enough to remove paint, grime, and poor planning."
+electric_guitar,Electric Guitar,instrument,good,260,100,165,335,0,uncommon,normal,medium,medium,"collectible, electronics",Three pickups and at least four unfinished songs.
+student_saxophone,Alto Saxophone,instrument,used,320,120,200,410,0,uncommon,low,medium,medium,"collectible, repairable",Comes with a case and the threat of middle-school jazz.
+dj_turntable,Direct-Drive DJ Turntable,electronics,good,300,125,200,385,0,uncommon,normal,medium,medium,"collectible, electronics",Pitch control works. Previous owner's transitions did not.
 diamond_stud_earrings,Small Diamond Stud Earrings,jewelry,good,650,300,440,780,0,rare,high,medium,high,luxury,"Tiny, legitimate, and finally accompanied by paperwork."
-gold_bracelet,14K Gold Bracelet,jewelry,good,520,245,360,640,0,rare,high,medium,high,luxury,"Real gold, normal clasp, disappointingly little criminal intrigue."
-designer_sunglasses,Designer Sunglasses With Case,luxury,good,210,75,130,280,0,uncommon,normal,medium,medium,portable,Makes anyone look expensive from a safe distance.
-automatic_watch,Swiss Automatic Watch,watch,excellent,950,430,650,1150,0,rare,normal,high,medium,"luxury, collectible","Keeps accurate time, which makes it the most responsible thing here."
+gold_bracelet,14K Gold Bracelet,jewelry,good,520,245,360,640,0,rare,high,medium,high,"luxury, hot","Real gold, normal clasp, disappointingly little criminal intrigue."
+designer_sunglasses,Designer Sunglasses With Case,luxury,good,210,75,130,280,0,uncommon,normal,medium,medium,"portable, luxury",Makes anyone look expensive from a safe distance.
+automatic_watch,Swiss Automatic Watch,watch,excellent,950,430,650,1150,0,rare,normal,high,medium,"luxury, collectible, hot, stolen","Keeps accurate time, which makes it the most responsible thing here."
 bottle_of_booze,Bottle of Booze,vice,used,22,5,12,30,1,common,normal,medium,medium,"vice, consumable",Enough label left to imply a brand. Enough bottle left to imply a problem.
-pistol,Pistol,weapon,questionable,240,75,145,310,5,rare,normal,high,low,"weapon, suspicious, hot",Small case. Big legal weather system.
-brass_knuckles,Brass Knuckles,weapon,used,55,14,32,78,3,uncommon,normal,medium,medium,"weapon, suspicious, vice, portable",Pocket-sized bad judgment with finger holes.
-baton,Baton,weapon,used,70,18,40,95,3,uncommon,normal,medium,medium,"weapon, suspicious, practical","For crowd control, if the crowd is one terrible decision."
-cigarettes,Cigarettes,vice,used,14,2,7,18,0,common,normal,low,high,"vice, consumable, junk, portable",A soft pack with hard opinions about resale value.
-gas_station_speed,Gas Station Speed,vice,questionable,45,10,24,62,3,common,normal,high,medium,"vice, consumable, suspicious",Countertop energy with a receipt nobody kept.
+pistol,Pistol,weapon,questionable,240,75,145,310,5,rare,normal,high,low,"weapon, suspicious, hot, stolen",Small case. Big legal weather system.
+brass_knuckles,Brass Knuckles,weapon,used,55,14,32,78,3,uncommon,normal,medium,medium,"weapon, suspicious, vice, portable, hot",Pocket-sized bad judgment with finger holes.
+baton,Baton,weapon,used,70,18,40,95,3,uncommon,normal,medium,medium,"weapon, practical","For crowd control, if the crowd is one terrible decision."
+cigarettes,Cigarettes,vice,used,14,2,7,18,0,common,normal,low,high,"vice, consumable, portable",A soft pack with hard opinions about resale value.
+gas_station_speed,Gas Station Speed,vice,questionable,45,10,24,62,3,common,normal,high,medium,"vice, consumable, suspicious, hot",Countertop energy with a receipt nobody kept.
 nitrous_oxide_whippet_canisters,Nitrous Oxide Whippet Canisters,vice,used,38,8,20,55,2,common,normal,medium,medium,"vice, consumable, suspicious",Little silver canisters with party logic and pawn-shop math.
-forty_oz_malt_liquor,40oz Malt Liquor,vice,used,10,1,5,14,0,common,low,low,medium,"vice, consumable, junk",Big bottle. Tiny margin. Zero romance.
-mace,Mace,weapon,used,48,12,28,68,2,common,normal,medium,medium,"weapon, suspicious, portable",Defensive until the story gets offensive.
+forty_oz_malt_liquor,40oz Malt Liquor,vice,used,10,1,5,14,0,common,low,low,medium,"vice, consumable",Big bottle. Tiny margin. Zero romance.
+mace,Mace,weapon,used,48,12,28,68,2,common,normal,medium,medium,"weapon, portable",Defensive until the story gets offensive.
