@@ -6213,3 +6213,121 @@ test('low-funds full-price purchase stays open without transfer', () => {
   assert.equal(result.keepEncounterOpen, true);
   assert.match(result.text, /register is short/);
 });
+
+
+test('specific buyer demand exposes one exact qualifying inventory item only', () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  const phone = item(hooks, 'used_smartphone', 80);
+  const speaker = item(hooks, 'bluetooth_speaker', 25);
+  hooks.state.inventory.push(phone, speaker);
+
+  const pool = hooks.data.characterItemPools.find(entry => entry.id === 'vice_carlo_buys_phone');
+  const deal = hooks.buildDeal(pool);
+
+  assert.equal(deal.requestedItemId, 'used_smartphone');
+  assert.equal(deal.exactRequestAvailable, true);
+  assert.equal(deal.substitutionState, 'not_needed');
+  assert.deepEqual(Array.from(deal.eligibleInventoryInstanceIds), [phone.instanceId]);
+  assert.equal(hooks.validateSaleSelection(deal, phone.instanceId).valid, true);
+  assert.equal(hooks.validateSaleSelection(deal, speaker.instanceId).valid, false);
+});
+
+test('specific buyer demand allows multiple qualifying instances without broad-category leakage', () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  const firstPhone = item(hooks, 'used_smartphone', 70);
+  const secondPhone = item(hooks, 'used_smartphone', 90);
+  const speaker = item(hooks, 'bluetooth_speaker', 20);
+  hooks.state.inventory.push(firstPhone, secondPhone, speaker);
+
+  const pool = hooks.data.characterItemPools.find(entry => entry.id === 'vice_carlo_buys_phone');
+  const deal = hooks.buildDeal(pool);
+
+  assert.deepEqual(
+    Array.from(deal.eligibleInventoryInstanceIds).sort(),
+    [firstPhone.instanceId, secondPhone.instanceId].sort()
+  );
+  assert.equal(deal.eligibleInventoryInstanceIds.includes(speaker.instanceId), false);
+});
+
+test('unavailable exact request enters substitution fallback and customer can reject it', () => {
+  const hooks = loadGame(0.99);
+  resetState(hooks);
+  const speaker = item(hooks, 'bluetooth_speaker', 25);
+  hooks.state.inventory.push(speaker);
+
+  const pool = hooks.data.characterItemPools.find(entry => entry.id === 'vice_carlo_buys_phone');
+  const deal = hooks.buildDeal(pool);
+  const before = hooks.snapshotState();
+  const result = hooks.resolveSell('offerSubstitutes', deal);
+
+  assert.equal(deal.exactRequestAvailable, false);
+  assert.equal(deal.substitutionOffered, true);
+  assert.equal(deal.substitutionState, 'rejected');
+  assert.equal(deal.transaction, undefined);
+  assert.deepEqual(hooks.snapshotState().inventory, before.inventory);
+  assert.equal(hooks.state.money, before.money);
+  assert.match(result.text, /reject the alternatives/i);
+});
+
+test('accepted substitution uses the normal quote, haggle, transaction, accounting, and risk path', () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  const speaker = item(hooks, 'bluetooth_speaker', 25);
+  hooks.state.inventory.push(speaker);
+
+  const pool = hooks.data.characterItemPools.find(entry => entry.id === 'vice_carlo_buys_phone');
+  const deal = hooks.buildDeal(pool);
+  const offered = hooks.resolveSell('offerSubstitutes', deal);
+
+  assert.equal(deal.exactRequestAvailable, false);
+  assert.equal(deal.substitutionState, 'accepted');
+  assert.deepEqual(Array.from(deal.eligibleInventoryInstanceIds), [speaker.instanceId]);
+  assert.match(offered.text, /broader alternatives/i);
+
+  hooks.applySelectedInventoryItemToDeal(deal, speaker);
+  const quote = hooks.calculateCustomerOfferForInventoryItem(deal, speaker);
+  const before = hooks.snapshotState();
+  const result = hooks.resolveSell('sellTag', deal);
+
+  assert.equal(deal.transaction.type, 'sale');
+  assert.equal(deal.transaction.inventoryInstanceId, speaker.instanceId);
+  assert.equal(deal.transaction.price, quote.price);
+  assert.equal(hooks.state.money, before.money + quote.price);
+  assert.equal(hooks.state.profit, before.profit + quote.price - hooks.getInventoryCostBasis(speaker));
+  assert.equal(hooks.state.inventory.some(entry => entry.instanceId === speaker.instanceId), false);
+  assert.match(result, /Sold|register/i);
+});
+
+test('exact-match and nearby ordinary buyer sales retain the existing sale lifecycle', () => {
+  const hooks = loadGame(0);
+  resetState(hooks);
+  const phone = item(hooks, 'used_smartphone', 80);
+  hooks.state.inventory.push(phone);
+  const phonePool = hooks.data.characterItemPools.find(entry => entry.id === 'vice_carlo_buys_phone');
+  const exactDeal = hooks.buildDeal(phonePool);
+  hooks.applySelectedInventoryItemToDeal(exactDeal, phone);
+  const exactBefore = hooks.snapshotState();
+  const exactQuote = exactDeal.saleQuote;
+  hooks.resolveSell('sellTag', exactDeal);
+
+  assert.equal(exactDeal.transaction.price, exactQuote.price);
+  assert.equal(hooks.state.money, exactBefore.money + exactQuote.price);
+  assert.equal(hooks.state.profit, exactBefore.profit + exactQuote.price - hooks.getInventoryCostBasis(phone));
+  assert.ok(Array.isArray(exactDeal.economicHistoryLines));
+  assert.ok(Array.isArray(exactDeal.investigationHistoryLines));
+
+  resetState(hooks);
+  const dvds = item(hooks, 'dvd_stack', 4);
+  hooks.state.inventory.push(dvds);
+  const dvdPool = hooks.data.characterItemPools.find(entry => entry.id === 'vice_pete_buys_dvds');
+  const ordinaryDeal = hooks.buildDeal(dvdPool);
+  assert.equal(ordinaryDeal.requestSatisfiable, true);
+  assert.deepEqual(Array.from(ordinaryDeal.eligibleInventoryInstanceIds), [dvds.instanceId]);
+  hooks.applySelectedInventoryItemToDeal(ordinaryDeal, dvds);
+  const ordinaryBefore = hooks.snapshotState();
+  hooks.resolveSell('sellTag', ordinaryDeal);
+  assert.equal(ordinaryDeal.transaction.inventoryInstanceId, dvds.instanceId);
+  assert.equal(hooks.state.inventory.length, ordinaryBefore.inventory.length - 1);
+});

@@ -1973,7 +1973,11 @@ function renderInventory() {
     const compatibility = selectionDeal
       ? selectionMode === 'trade'
         ? { valid: isInventoryItemEligibleForTrade(selectionDeal, item) }
-        : evaluateSaleCompatibility(selectionDeal, item)
+        : {
+            ...evaluateSaleCompatibility(selectionDeal, item),
+            valid: selectionDeal.eligibleInventoryInstanceIds.includes(item.instanceId) &&
+              evaluateSaleCompatibility(selectionDeal, item).valid
+          }
       : { valid: true };
     const selectedForTrade = selectionMode === 'trade' && state.inventorySelection.selectedInstanceIds.includes(item.instanceId);
 
@@ -3084,9 +3088,14 @@ function renderChoices() {
             { label: 'Select from inventory', action: 'selectInventory' },
             { label: 'Refuse the sale', action: 'refuse' }
           ]
-        : [
-            { label: 'Refuse the sale', action: 'refuse' }
-          ];
+        : deal.substitutionState === 'available'
+          ? [
+              { label: 'Offer broader alternatives', action: 'offerSubstitutes' },
+              { label: 'Refuse the sale', action: 'refuse' }
+            ]
+          : [
+              { label: 'Refuse the sale', action: 'refuse' }
+            ];
     } else {
       choices = deal.counterofferOpen
         ? [
@@ -4834,6 +4843,19 @@ function getSaleCompatibilityContext(deal) {
   };
 }
 
+function getSpecificRequestGroupTags(pool = {}) {
+  return getCustomerBuyRequestTags(pool).filter(tag => !BROAD_BUY_TAGS.has(tag));
+}
+
+function isSpecificCustomerRequestMatch(pool, inventoryItem) {
+  if (!pool || !inventoryItem) return false;
+  if (inventoryItem.itemId === pool.itemId) return true;
+  const requestGroupTags = getSpecificRequestGroupTags(pool);
+  if (!requestGroupTags.length) return false;
+  const itemTags = new Set(normalizeTags([inventoryItem.category, ...(inventoryItem.tags || [])]));
+  return requestGroupTags.every(tag => itemTags.has(tag));
+}
+
 function hasCompatibleSelectiveInterest(selectiveTags, context) {
   const requestedAndPreferred = new Set([
     ...(context.requiredTags || []),
@@ -5027,6 +5049,11 @@ function getDemandCandidatesForPool(pool, customer = getCharacter(pool.character
   return state.inventory.map(item => buildDemandCandidate(pool, customer, item, baseEventWeight));
 }
 
+function getSpecificDemandCandidatesForPool(pool, customer = getCharacter(pool.characterId), baseEventWeight = 1) {
+  return getDemandCandidatesForPool(pool, customer, baseEventWeight)
+    .filter(candidate => candidate.eligible && isSpecificCustomerRequestMatch(pool, candidate.inventoryItem));
+}
+
 function getEligibleDemandCandidatesForPool(pool, customer = getCharacter(pool.characterId), baseEventWeight = 1) {
   return getDemandCandidatesForPool(pool, customer, baseEventWeight).filter(candidate => candidate.eligible && candidate.finalWeight > 0);
 }
@@ -5044,16 +5071,23 @@ function getBuyFromShopBaseEventWeight(pool) {
 }
 
 function buildDemandDiagnostics(pool, customer, candidates, selectedCandidate = null, options = {}) {
+  const compatibleCandidates = candidates.filter(candidate => candidate.eligible);
+  const specificCandidates = compatibleCandidates.filter(candidate => isSpecificCustomerRequestMatch(pool, candidate.inventoryItem));
+  const substituteCandidates = compatibleCandidates.filter(candidate => !isSpecificCustomerRequestMatch(pool, candidate.inventoryItem));
   return {
     poolId: pool?.id || 'buy_from_shop',
     requestedItemId: pool?.itemId || null,
     requestedItemType: getCustomerBuyRequestLabel(pool),
-    matchingInventoryInstanceIds: candidates.filter(candidate => candidate.eligible).map(candidate => candidate.instanceId),
+    matchingInventoryInstanceIds: specificCandidates.map(candidate => candidate.instanceId),
+    substituteInventoryInstanceIds: substituteCandidates.map(candidate => candidate.instanceId),
+    exactRequestAvailable: specificCandidates.length > 0,
+    substitutionState: specificCandidates.length ? 'not_needed' : substituteCandidates.length ? 'available' : 'unavailable',
     selectedInventoryInstanceId: selectedCandidate?.instanceId || null,
     intentionalUnavailableDemand: options.intentionalUnavailableDemand === true,
     rerollReason: options.rerollReason || '',
     lines: [
       `Demand request: ${getCustomerBuyRequestLabel(pool)}${pool?.itemId ? ` (${pool.itemId})` : ''}; customer ${customer?.id || pool?.characterId || 'unknown'}; intentional unavailable: ${options.intentionalUnavailableDemand === true ? 'yes' : 'no'}.`,
+      `Specific request matches: [${specificCandidates.map(candidate => candidate.instanceId).join(', ') || 'none'}]; broader-category substitutes: [${substituteCandidates.map(candidate => candidate.instanceId).join(', ') || 'none'}]; fallback state: ${specificCandidates.length ? 'not needed' : substituteCandidates.length ? 'available, not yet offered' : 'unavailable'}.`,
       ...candidates.map(candidate => candidate.diagnostic),
       selectedCandidate
         ? `Demand selected weighted instance: ${selectedCandidate.inventoryItem.name} [${selectedCandidate.instanceId}].`
@@ -5120,6 +5154,9 @@ function validateSaleSelection(deal, instanceId = deal?.selectedInventoryInstanc
   if (!instanceId) return { valid: false, inventoryItem: null, reason: 'no inventory instance was selected' };
   const inventoryItem = state.inventory.find(item => item.instanceId === instanceId) || null;
   if (!inventoryItem) return { valid: false, inventoryItem: null, reason: 'selected inventory instance is missing or stale' };
+  if (!deal.eligibleInventoryInstanceIds.includes(instanceId)) {
+    return { valid: false, inventoryItem, reason: deal.substitutionState === 'accepted' ? 'item is not an accepted substitute' : 'item does not satisfy the specific request' };
+  }
   const compatibility = evaluateSaleCompatibility(deal, inventoryItem);
   return { ...compatibility, inventoryItem };
 }
@@ -5128,7 +5165,9 @@ function resetInvalidSaleSelection(deal) {
   deal.selectedInventoryInstanceId = null;
   deal.inventoryItem = null;
   deal.item = getItem(deal.requestedItemId) || deal.item;
-  const eligibleItems = getEligibleInventoryItemsForPool(deal.pool, deal.customer);
+  const eligibleItems = deal.substitutionState === 'accepted'
+    ? getEligibleInventoryItemsForPool(deal.pool, deal.customer)
+    : getSpecificDemandCandidatesForPool(deal.pool, deal.customer).map(candidate => candidate.inventoryItem);
   deal.eligibleInventoryInstanceIds = eligibleItems.map(item => item.instanceId);
   deal.requestSatisfiable = eligibleItems.length > 0;
 }
@@ -5439,10 +5478,14 @@ function buildDeal(pool) {
       recordBuybackCooldownDiagnostic(pool, candidate.compatibility.cooldownDiagnostic);
     }
   });
-  const eligibleDemandCandidates = demandCandidates.filter(candidate => candidate.eligible && candidate.finalWeight > 0);
+  const broadDemandCandidates = demandCandidates.filter(candidate => candidate.eligible && candidate.finalWeight > 0);
+  const eligibleDemandCandidates = broadDemandCandidates.filter(candidate => isSpecificCustomerRequestMatch(pool, candidate.inventoryItem));
   const selectedDemandCandidate = eligibleDemandCandidates.length ? pickWeighted(eligibleDemandCandidates) : null;
   const eligibleInventoryItems = isNpcBuying(pool.dealType)
     ? eligibleDemandCandidates.map(candidate => candidate.inventoryItem)
+    : [];
+  const substituteInventoryItems = isNpcBuying(pool.dealType)
+    ? broadDemandCandidates.filter(candidate => !isSpecificCustomerRequestMatch(pool, candidate.inventoryItem)).map(candidate => candidate.inventoryItem)
     : [];
   const inventoryItem = null;
   const requestedInventoryItem = null;
@@ -5475,7 +5518,13 @@ function buildDeal(pool) {
     requiredTags: isNpcBuying(pool.dealType) ? getCustomerBuyRequestTags(pool) : [],
     excludedTags: isNpcBuying(pool.dealType) ? (traits.avoidTags || []) : [],
     requestSatisfiable: !isNpcBuying(pool.dealType) || eligibleInventoryItems.length > 0,
-    intentionalUnavailableDemand: Boolean(isNpcBuying(pool.dealType) && pool.intentionalUnavailableDemand && eligibleInventoryItems.length === 0),
+    exactRequestAvailable: !isNpcBuying(pool.dealType) || eligibleInventoryItems.length > 0,
+    substitutionState: !isNpcBuying(pool.dealType) || eligibleInventoryItems.length > 0
+      ? 'not_needed'
+      : substituteInventoryItems.length > 0 ? 'available' : 'unavailable',
+    substitutionOffered: false,
+    substituteInventoryInstanceIds: substituteInventoryItems.map(item => item.instanceId),
+    intentionalUnavailableDemand: Boolean(isNpcBuying(pool.dealType) && pool.intentionalUnavailableDemand && broadDemandCandidates.length === 0),
     eligibleInventoryInstanceIds: eligibleInventoryItems.map(item => item.instanceId),
     demandCandidateWeights: demandCandidates.map(candidate => ({
       instanceId: candidate.instanceId,
@@ -6917,7 +6966,7 @@ function resolveChoice(action) {
   const deal = state.currentDeal;
   if (state.isResolving || state.isGameOver || !deal || deal.resolvedAction || state.conversation?.phase !== 'choices') return;
   clearDealTransaction(deal);
-  if (isNpcBuying(deal.dealType) && action !== 'refuse' && !deal.selectedInventoryInstanceId) return;
+  if (isNpcBuying(deal.dealType) && !['refuse', 'offerSubstitutes'].includes(action) && !deal.selectedInventoryInstanceId) return;
   if (action !== 'submitTradeOffer') clearInventorySelection();
   if (action === 'lowball' && deal.lowballRejected) return;
   if (action === 'markup' && deal.markupRejected) return;
@@ -7623,7 +7672,31 @@ function resolveBuy(action, deal) {
 
 function resolveSell(action, deal) {
   const { customer, traits } = deal;
-  if (!['refuse', 'sellTag', 'markup', 'acceptCounteroffer', 'refuseCounteroffer'].includes(action)) return choiceResult('No deal. The counter stays exactly as dirty as it was.', { runRiskCheck: false });
+  if (!['refuse', 'sellTag', 'markup', 'acceptCounteroffer', 'refuseCounteroffer', 'offerSubstitutes'].includes(action)) return choiceResult('No deal. The counter stays exactly as dirty as it was.', { runRiskCheck: false });
+  if (action === 'offerSubstitutes') {
+    deal.substitutionOffered = true;
+    if (deal.demandDiagnostics) deal.demandDiagnostics.lines.push(`Substitution offered: exact request unavailable; candidates [${deal.substituteInventoryInstanceIds.join(', ') || 'none'}].`);
+    appendSaleHistory(deal, `Substitution offered: exact request ${deal.requestedItemId} unavailable; broader category candidates [${deal.substituteInventoryInstanceIds.join(', ') || 'none'}].`);
+    if (!deal.substituteInventoryInstanceIds.length || !chance(50)) {
+      deal.substitutionState = 'rejected';
+      if (deal.demandDiagnostics) {
+        deal.demandDiagnostics.substitutionState = 'rejected';
+        deal.demandDiagnostics.lines.push('Substitution rejected: customer left without a transaction.');
+      }
+      appendSaleHistory(deal, 'Substitution rejected: customer left without a transaction.');
+      if (!beginDealResolution(deal, action)) return choiceResult('The deal was already resolved.', { runRiskCheck: false });
+      return choiceResult('They reject the alternatives and leave without buying anything.', { runRiskCheck: false });
+    }
+    deal.substitutionState = 'accepted';
+    if (deal.demandDiagnostics) {
+      deal.demandDiagnostics.substitutionState = 'accepted';
+      deal.demandDiagnostics.lines.push(`Substitution accepted: eligible candidates [${deal.substituteInventoryInstanceIds.join(', ')}].`);
+    }
+    deal.eligibleInventoryInstanceIds = [...deal.substituteInventoryInstanceIds];
+    deal.requestSatisfiable = true;
+    appendSaleHistory(deal, `Substitution accepted: eligible broader-category inventory [${deal.eligibleInventoryInstanceIds.join(', ')}].`);
+    return choiceResult('They agree to look at broader alternatives. Show them an eligible shelf item.', { runRiskCheck: false, keepEncounterOpen: true });
+  }
   if (action === 'markup' && deal.markupRejected) {
     return choiceResult('The marked-up price already died in the room.', { runRiskCheck: false, keepEncounterOpen: true });
   }
@@ -8392,6 +8465,8 @@ window.ONE_STAR_PAWN_TEST_HOOKS = {
   calculateCustomerOfferForInventoryItem,
   getDemandCandidatesForPool,
   getEligibleDemandCandidatesForPool,
+  getSpecificDemandCandidatesForPool,
+  isSpecificCustomerRequestMatch,
   getBuyPoolDemandMultiplier,
   getSelectablePoolsForCharacter,
   hasExecutableNormalPoolIntent,
